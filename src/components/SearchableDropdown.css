@@ -1,0 +1,177 @@
+.searchable-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-input {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 48px;
+}
+
+.dropdown-input:hover {
+  border-color: #d1d5db;
+}
+
+.dropdown-input.open {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.searchable-dropdown.error .dropdown-input {
+  border-color: #dc2626;
+}
+
+.selected-value {
+  font-size: 14px;
+  color: #1a1a1a; /* Black text color */
+  flex: 1;
+  text-align: left;
+}
+
+.selected-value.placeholder {
+  color: #9ca3af;
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  color: #6b7280;
+  transition: transform 0.2s;
+  margin-left: 8px;
+}
+
+.dropdown-arrow.up {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #d1d5db; /* Grey border */
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 300px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-container {
+  position: relative;
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 35px 8px 12px;
+  border: 1px solid #d1d5db; /* Grey border */
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+  background: white; /* White background */
+  color: #1a1a1a; /* Black text color */
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+  color: #1a1a1a; /* Black text color when focused */
+}
+
+.search-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 14px;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+/* Icon color change on input focus */
+.search-container:focus-within .search-icon {
+  color: #667eea;
+}
+
+.options-container {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.option-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  color: #1a1a1a; /* Black text color */
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.option-item:hover {
+  background-color: #f3f4f6;
+}
+
+.option-item.selected {
+  background-color: #667eea;
+  color: white;
+}
+
+.option-item:last-child {
+  border-bottom: none;
+}
+
+.no-options {
+  padding: 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Custom scrollbar */
+.options-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.options-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.options-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.options-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

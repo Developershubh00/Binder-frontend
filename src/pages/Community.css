@@ -1,0 +1,379 @@
+/* src/pages/Community.css */
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: #1a1a1a;
+  background-color: #f5f7fa;
+}
+
+/* Main page scrollbar styling - Light theme */
+body::-webkit-scrollbar {
+  width: 12px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #f9fafb; /* Light background matching theme */
+  border-radius: 6px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); /* Light gradient */
+  border-radius: 6px;
+  border: 2px solid #f9fafb; /* Border matching track */
+  transition: all 0.2s ease;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%); /* Slightly darker on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%); /* Darker when active */
+}
+
+/* For Firefox - Main page scrollbar */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb #f9fafb; /* thumb color, track color */
+}
+
+/* Alternative scrollbar for the community page container */
+.community-page::-webkit-scrollbar {
+  width: 12px;
+}
+
+.community-page::-webkit-scrollbar-track {
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.community-page::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  border-radius: 6px;
+  border: 2px solid #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.community-page::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#root {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Root container scrollbar styling */
+#root::-webkit-scrollbar {
+  width: 12px;
+}
+
+#root::-webkit-scrollbar-track {
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+#root::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  border-radius: 6px;
+  border: 2px solid #f9fafb;
+  transition: all 0.2s ease;
+}
+
+#root::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.community-page {
+  width: 100%;
+  background: #f5f7fa;
+  position: relative;
+  padding-bottom: 120px;
+}
+
+.community-page-header {
+  background: white;
+  padding: 24px 32px;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+}
+
+.back-to-dashboard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+}
+
+.back-to-dashboard:hover {
+  background: #e5e7eb;
+  transform: translateX(-2px);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.community-page-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.community-page-subtitle {
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.community-main-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.search-and-filter {
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.search-box {
+  position: relative;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.search-input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 16px;
+  background: white;
+  color: #1a1a1a;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.category-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.category-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+  transform: translateY(-2px);
+}
+
+.category-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+}
+
+.category-icon {
+  font-size: 14px;
+}
+
+.faq-section {
+  margin-top: 24px;
+  margin-bottom: 60px;
+  width: 100%;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.faq-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #1a1a1a;
+  transition: all 0.2s;
+}
+
+.faq-question:hover {
+  background: #f9fafb;
+}
+
+.faq-answer {
+  padding: 0 24px 24px 24px;
+  color: #4b5563;
+  line-height: 1.6;
+  background: #f9fafb;
+  animation: fadeIn 0.3s ease;
+  border-top: 1px solid #f3f4f6;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  /* Main page scrollbar for mobile */
+  body::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  body::-webkit-scrollbar-thumb {
+    border: 1px solid #f9fafb;
+  }
+  
+  .community-page-header {
+    padding: 16px 20px;
+  }
+  
+  .community-page-title {
+    font-size: 28px;
+  }
+  
+  .community-page-subtitle {
+    font-size: 16px;
+  }
+  
+  .community-main-content {
+    padding: 20px;
+  }
+  
+  .category-filters {
+    gap: 8px;
+  }
+  
+  .category-btn {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+  
+  .faq-question {
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+  
+  .faq-answer {
+    padding: 0 20px 20px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Thinner scrollbar for small screens */
+  body::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .community-page-header {
+    padding: 12px 16px;
+  }
+  
+  .community-main-content {
+    padding: 16px;
+  }
+  
+  .category-filters {
+    justify-content: center;
+  }
+  
+  .search-input {
+    padding: 14px 14px 14px 40px;
+  }
+}
