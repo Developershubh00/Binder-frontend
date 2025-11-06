@@ -22,7 +22,7 @@ const Dashboard = () => {
     return [
       { id: 'home', label: 'Home' },
       { id: 'tasks', label: 'Tasks' },
-      { id: 'department', label: 'Department' },
+      { id: 'department', label: 'Departments' },
       { id: 'ims', label: 'IMS' },
       { id: 'community', label: 'Community' },
       { id: 'profile', label: 'Profile' },
