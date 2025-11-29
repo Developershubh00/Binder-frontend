@@ -7,7 +7,7 @@
  * 
  * Base URL Configuration:
  * - Development: http://localhost:8000/api/
- * - Production: https://binder-backend-1.onrender.com/api/
+ * - Production: https://binder-backend-0szj.onrender.com/api/
  * - Domain: https://erpbinder.com/api/
  * 
  * Frontend Deployment: https://binder-frontend-self.vercel.app/
