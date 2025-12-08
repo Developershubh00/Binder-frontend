@@ -103,7 +103,9 @@ const Login = () => {
       const result = await login(credentials, formData.userRole);
 
       if (result.success) {
-        displayPopup('Welcome back! Redirecting...', 'success');
+        // displayPopup('Welcome back! Redirecting...', 'success');
+        const username = result.user?.username || result.user?.name || result.username || 'User';
+        displayPopup(`Welcome back, ${username}! Redirecting...`, 'success');
         
         setTimeout(() => {
           switch (formData.userRole) {
@@ -182,9 +184,9 @@ const Login = () => {
                 onChange={handleChange}
                 className="role-select"
               >
-                <option value="tenant">👤 Tenant</option>
-                <option value="manager">👔 Manager</option>
-                <option value="master-admin">👑 Master Admin</option>
+                <option value="tenant">Tenant</option>
+                <option value="manager">Manager</option>
+                <option value="master-admin">Master Admin</option>
               </select>
               <div className="select-arrow">
                 <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
