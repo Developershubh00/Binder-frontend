@@ -92,10 +92,10 @@ const Dashboard = () => {
           <div className="top-bar-right">
             <div className="user-info">
               <div className="user-avatar">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                {user?.name ? user.name.charAt(0).toUpperCase() : (user?.email ? user.email.charAt(0).toUpperCase() : 'U')}
               </div>
               <div className="user-details">
-                <p className="user-name">{user?.name || user.email}</p>
+                <p className="user-name">{user?.name || user?.email || 'User'}</p>
                 <p className="user-role">
                   {user?.role === 'master-admin' && 'Master Admin'}
                   {user?.role === 'manager' && 'Manager'}

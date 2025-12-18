@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import GenerateBuyerCode from './GenerateBuyerCode';
 import GenerateVendorCode from './GenerateVendorCode';
 import GeneratePOCode from './GeneratePOCode';
+import GenerateFactoryCode from './GenerateFactoryCode';
 import VendorMasterSheet from './VendorMasterSheet';
 
 const DepartmentContent = () => {
@@ -12,6 +13,7 @@ const DepartmentContent = () => {
   const [showGenerateBuyerCode, setShowGenerateBuyerCode] = useState(false);
   const [showGenerateVendorCode, setShowGenerateVendorCode] = useState(false);
   const [showGeneratePOCode, setShowGeneratePOCode] = useState(false);
+  const [showGenerateFactoryCode, setShowGenerateFactoryCode] = useState(false);
   const [showVendorMasterSheet, setShowVendorMasterSheet] = useState(false);
   
   const subMenuRef = useRef(null);
@@ -375,6 +377,7 @@ const DepartmentContent = () => {
     setShowGenerateBuyerCode(false);
     setShowGenerateVendorCode(false);
     setShowGeneratePOCode(false);
+    setShowGenerateFactoryCode(false);
     setShowVendorMasterSheet(false);
   };
 
@@ -484,7 +487,10 @@ const DepartmentContent = () => {
         <p className="fullscreen-description">Generate factory codes and manage factory master sheets</p>
       </div>
       <div className="fullscreen-buttons">
-        <button className="fullscreen-action-button primary">
+        <button 
+          className="fullscreen-action-button primary"
+          onClick={() => setShowGenerateFactoryCode(true)}
+        >
           <div className="button-content">
             <span className="button-title">GENERATE FACTORY CODE</span>
             <span className="button-subtitle">Create new factory codes for manufacturing</span>
@@ -610,6 +616,14 @@ const DepartmentContent = () => {
       );
     }
 
+    if (showGenerateFactoryCode) {
+      return (
+        <GenerateFactoryCode 
+          onBack={() => setShowGenerateFactoryCode(false)} 
+        />
+      );
+    }
+
     if (showVendorMasterSheet) {
       return (
         <VendorMasterSheet 
@@ -664,7 +678,7 @@ const DepartmentContent = () => {
   };
 
   // If a submenu item is selected, show fullscreen content
-  if (selectedSubMenuItem || showGenerateBuyerCode || showGenerateVendorCode || showGeneratePOCode || showVendorMasterSheet) {
+  if (selectedSubMenuItem || showGenerateBuyerCode || showGenerateVendorCode || showGeneratePOCode || showGenerateFactoryCode || showVendorMasterSheet) {
     return renderDepartmentMainContent();
   }
 
