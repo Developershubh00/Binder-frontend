@@ -1827,8 +1827,10 @@ const GenerateFactoryCode = ({ onBack }) => {
       // Validate work orders
       if (material.workOrders && material.workOrders.length > 0) {
       material.workOrders.forEach((workOrder, woIndex) => {
+        // Only validate if workOrder type is selected
         if (!workOrder.workOrder?.trim()) {
-          newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`] = 'Work Order is required';
+          // Skip validation for empty work orders
+          return;
         }
         if (!workOrder.wastage?.trim()) {
           newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] = 'Wastage is required';
@@ -1839,17 +1841,27 @@ const GenerateFactoryCode = ({ onBack }) => {
         
         // Validate conditional fields for DYEING
         if (workOrder.workOrder === 'DYEING') {
-          if (!workOrder.dyeingType?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_dyeingType`] = 'Dyeing Type is required';
+          // Check if at least one of shrinkage width or length is selected
+          if (!workOrder.shrinkageWidth && !workOrder.shrinkageLength) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`] = 'At least one of WIDTH or LENGTH must be selected for SHRINKAGE';
           }
-          if (!workOrder.shrinkage?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`] = 'Shrinkage is required';
+          // If shrinkageWidth is selected, validate its fields
+          if (workOrder.shrinkageWidth) {
+            if (!workOrder.shrinkageWidthPercent?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkageWidthPercent`] = 'Shrinkage Width Percentage is required';
+            }
+            if (!workOrder.ratioWidth?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWidth`] = 'Ratio Width is required when WIDTH is selected';
+            }
           }
-          if (!workOrder.width?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_width`] = 'Width is required';
-          }
-          if (!workOrder.length?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_length`] = 'Length is required';
+          // If shrinkageLength is selected, validate its fields
+          if (workOrder.shrinkageLength) {
+            if (!workOrder.shrinkageLengthPercent?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkageLengthPercent`] = 'Shrinkage Length Percentage is required';
+            }
+            if (!workOrder.ratioLength?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioLength`] = 'Ratio Length is required when LENGTH is selected';
+            }
           }
         }
         
@@ -1869,6 +1881,22 @@ const GenerateFactoryCode = ({ onBack }) => {
             // If weft is selected, ratioWeft is required
             if (workOrder.weft && !workOrder.ratioWeft?.trim()) {
               newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWeft`] = 'Ratio Weft is required when WEFT is selected';
+            }
+        }
+        
+        // Validate conditional fields for KNITTING
+        if (workOrder.workOrder === 'KNITTING') {
+          // Check if at least one of wales or courses is selected
+          if (!workOrder.wales && !workOrder.courses) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_walesCourses`] = 'At least one of WALES or COURSES must be selected';
+          }
+          // If wales is selected, ratioWales is required
+          if (workOrder.wales && !workOrder.ratioWales?.trim()) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWales`] = 'Ratio Wales is required when WALES is selected';
+          }
+          // If courses is selected, ratioCourses is required
+          if (workOrder.courses && !workOrder.ratioCourses?.trim()) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioCourses`] = 'Ratio Courses is required when COURSES is selected';
           }
         }
       });
