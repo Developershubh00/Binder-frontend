@@ -44,6 +44,58 @@ const GenerateFactoryCode = ({ onBack }) => {
       // Conditional fields for R.Mtr unit
       width: '',
       size: '',
+      gsm: '',
+      // New Artwork Category Fields
+      artworkCategory: '',
+      specificType: '',
+      material: '',
+      sizeArtworkId: '',
+      foldType: '',
+      colours: '',
+      finishing: '',
+      testingRequirement: '',
+      lengthQuantity: '',
+      surplus: '',
+      approval: '',
+      remarks: '',
+      careSymbols: '',
+      countryOfOrigin: '',
+      manufacturerId: '',
+      language: '',
+      permanence: '',
+      sizeShape: '',
+      attachment: '',
+      content: '',
+      symbol: '',
+      certificationId: '',
+      formFactor: '',
+      chipFrequency: '',
+      coding: '',
+      adhesive: '',
+      security: '',
+      contentMandates: '',
+      fillingMaterials: '',
+      newUsedStatus: '',
+      registrationLicenses: '',
+      sealShape: '',
+      fastening: '',
+      preStringing: '',
+      application: '',
+      barcodeType: '',
+      applicationSpec: '',
+      finishHandFeel: '',
+      quality: '',
+      sizeCode: '',
+      securityFeature: '',
+      verification: '',
+      removal: '',
+      traceability: '',
+      closure: '',
+      durability: '',
+      inkType: '',
+      printQuality: '',
+      sizeFold: '',
+      referenceImage: null
     }],
     // Step 5 - Packaging
     packaging: {
@@ -82,6 +134,24 @@ const GenerateFactoryCode = ({ onBack }) => {
         calculatedUnit: '',
         overage: '',
         grossConsumption: '',
+        // New conditional fields for Part 5
+        noOfPlys: '',
+        jointType: '',
+        burstingStrength: '',
+        surplus: '',
+        surplusForSection: '',
+        approvalAgainst: '',
+        remarks: '',
+        guage: '',
+        printingRef: null,
+        gummingQuality: '',
+        punchHoles: '',
+        flapSize: '',
+        guageGsm: '',
+        rollWidth: '',
+        rollWidthUnit: '',
+        tapeWidth: '',
+        tapeWidthUnit: ''
       }],
     },
   });
@@ -424,25 +494,141 @@ const GenerateFactoryCode = ({ onBack }) => {
         ...updatedRawMaterials[materialIndex],
         workOrders: updatedRawMaterials[materialIndex].workOrders.map((wo, idx) => {
           if (idx === workOrderIndex) {
-            const updatedWO = { ...wo, [field]: value };
-            // Clear conditional fields when work order changes
+            let updatedWO = { ...wo, [field]: value };
+            
+            // Clear conditional fields when work order type changes
             if (field === 'workOrder') {
-              if (value !== 'DYEING') {
-                updatedWO.dyeingType = '';
-                updatedWO.shrinkage = '';
-                updatedWO.width = '';
-                updatedWO.length = '';
-              }
-              if (value !== 'WEAVING') {
-                updatedWO.weavingType = '';
-                updatedWO.warpWeft = '';
-                updatedWO.ratio = '';
+              updatedWO = {
+                workOrder: value,
+                wastage: wo.wastage,
+                forField: wo.forField,
+                approvalAgainst: '',
+                remarks: '',
+                design: '',
+                imageRef: null,
+                machineType: '',
+                reed: '',
+                pick: '',
+                warp: false,
+                weft: false,
+                ratioWarp: '',
+                ratioWeft: '',
+                ratioWeightWarp: '',
+                ratioWeightWeft: '',
+                pileHeight: '',
+                tpi: '',
+                quiltingType: '',
+                printingType: '',
+                wales: false,
+                courses: false,
+                ratioWales: '',
+                ratioCourses: '',
+                ratioWeightWales: '',
+                ratioWeightCourses: '',
+                receivedColorReference: '',
+                referenceType: '',
+                shrinkageWidth: false,
+                shrinkageLength: false,
+                shrinkageWidthPercent: '',
+                shrinkageLengthPercent: '',
+                ratioWidth: '',
+                ratioLength: '',
+                forSection: '',
+                forSectionWidth: '',
+                forSectionLength: '',
+                cutType: '',
+                cutSize: '',
+                // Keep old fields for backward compatibility
+                dyeingType: '',
+                shrinkage: '',
+                width: '',
+                length: '',
+                weavingType: '',
+                warpWeft: '',
+                ratio: '',
+              };
+            }
+
+            const totalCns = parseFloat(updatedRawMaterials[materialIndex].netConsumption) || 0;
+
+            // WEAVING: Warp/Weft logic
+            if (field === 'warp' || field === 'weft') {
+              if (updatedWO.warp && !updatedWO.weft) {
+                updatedWO.ratioWarp = totalCns.toFixed(3);
+                updatedWO.ratioWeft = '';
+              } else if (!updatedWO.warp && updatedWO.weft) {
+                updatedWO.ratioWeft = totalCns.toFixed(3);
+                updatedWO.ratioWarp = '';
+              } else if (!updatedWO.warp && !updatedWO.weft) {
+                updatedWO.ratioWarp = '';
+                updatedWO.ratioWeft = '';
               }
             }
-            // Clear ratio when warpWeft changes away from BOTH
-            if (field === 'warpWeft' && value !== 'BOTH') {
-              updatedWO.ratio = '';
+
+            if (field === 'ratioWarp' || field === 'ratioWeft') {
+              if (updatedWO.warp && updatedWO.weft) {
+                if (field === 'ratioWarp') {
+                  const val = parseFloat(value) || 0;
+                  updatedWO.ratioWeft = Math.max(0, totalCns - val).toFixed(3);
+                } else {
+                  const val = parseFloat(value) || 0;
+                  updatedWO.ratioWarp = Math.max(0, totalCns - val).toFixed(3);
+                }
+              }
             }
+
+            // KNITTING: Wales/Courses logic
+            if (field === 'wales' || field === 'courses') {
+              if (updatedWO.wales && !updatedWO.courses) {
+                updatedWO.ratioWales = totalCns.toFixed(3);
+                updatedWO.ratioCourses = '';
+              } else if (!updatedWO.wales && updatedWO.courses) {
+                updatedWO.ratioCourses = totalCns.toFixed(3);
+                updatedWO.ratioWales = '';
+              } else if (!updatedWO.wales && !updatedWO.courses) {
+                updatedWO.ratioWales = '';
+                updatedWO.ratioCourses = '';
+              }
+            }
+
+            if (field === 'ratioWales' || field === 'ratioCourses') {
+              if (updatedWO.wales && updatedWO.courses) {
+                if (field === 'ratioWales') {
+                  const val = parseFloat(value) || 0;
+                  updatedWO.ratioCourses = Math.max(0, totalCns - val).toFixed(3);
+                } else {
+                  const val = parseFloat(value) || 0;
+                  updatedWO.ratioWales = Math.max(0, totalCns - val).toFixed(3);
+                }
+              }
+            }
+
+            // DYEING: Shrinkage Width/Length logic
+            if (field === 'shrinkageWidth' || field === 'shrinkageLength') {
+              if (updatedWO.shrinkageWidth && !updatedWO.shrinkageLength) {
+                updatedWO.ratioWidth = totalCns.toFixed(3);
+                updatedWO.ratioLength = '';
+              } else if (!updatedWO.shrinkageWidth && updatedWO.shrinkageLength) {
+                updatedWO.ratioLength = totalCns.toFixed(3);
+                updatedWO.ratioWidth = '';
+              } else if (!updatedWO.shrinkageWidth && !updatedWO.shrinkageLength) {
+                updatedWO.ratioWidth = '';
+                updatedWO.ratioLength = '';
+              }
+            }
+
+            if (field === 'ratioWidth' || field === 'ratioLength') {
+              if (updatedWO.shrinkageWidth && updatedWO.shrinkageLength) {
+                if (field === 'ratioWidth') {
+                  const val = parseFloat(value) || 0;
+                  updatedWO.ratioLength = Math.max(0, totalCns - val).toFixed(3);
+                } else {
+                  const val = parseFloat(value) || 0;
+                  updatedWO.ratioWidth = Math.max(0, totalCns - val).toFixed(3);
+                }
+              }
+            }
+
             return updatedWO;
           }
           return wo;
@@ -471,6 +657,41 @@ const GenerateFactoryCode = ({ onBack }) => {
           workOrder: '',
           wastage: '',
           forField: '',
+          approvalAgainst: '',
+          remarks: '',
+          design: '',
+          imageRef: null,
+          machineType: '',
+          reed: '',
+          pick: '',
+          warp: false,
+          weft: false,
+          ratioWarp: '',
+          ratioWeft: '',
+          ratioWeightWarp: '',
+          ratioWeightWeft: '',
+          pileHeight: '',
+          tpi: '',
+          quiltingType: '',
+          printingType: '',
+          wales: false,
+          courses: false,
+          ratioWales: '',
+          ratioCourses: '',
+          ratioWeightWales: '',
+          ratioWeightCourses: '',
+          receivedColorReference: '',
+          referenceType: '',
+          shrinkageWidth: false,
+          shrinkageLength: false,
+          shrinkageWidthPercent: '',
+          shrinkageLengthPercent: '',
+          ratioWidth: '',
+          ratioLength: '',
+          forSection: '',
+          cutType: '',
+          cutSize: '',
+          // Compatibility
           dyeingType: '',
           shrinkage: '',
           width: '',
@@ -525,10 +746,66 @@ const GenerateFactoryCode = ({ onBack }) => {
         return prev;
       }
       const updatedMaterials = [...prev.consumptionMaterials];
+      const currentMaterial = updatedMaterials[materialIndex];
+      
+      // If trimAccessory changes, clear all category-specific fields
+      if (field === 'trimAccessory') {
+        const clearedMaterial = {
+          ...currentMaterial,
+          trimAccessory: value,
+          // Clear all conditional fields
+          zipNumber: '', zipType: '', brand: '', teeth: '', puller: '', pullerType: '', length: '',
+          velcroType: '', velcroMaterial: '', width: '', colour: '', hookDensityLoopType: '', cycleLife: '', attachmentMethod: '',
+          threadType: '', fibreContent: '', countTicketNo: '', ply: '', threadFinish: '', usage: '',
+          buttonType: '', buttonMaterial: '', sizeLigne: '', finishColour: '', buttonAttachmentMethod: '', function: '',
+          rivetType: '', rivetMaterial: '', capSize: '', postHeightLength: '', finishPlating: '', pullerStrength: '', rivetPullerType: '',
+          niwarType: '', niwarMaterial: '', niwarWidth: '', niwarThickness: '', niwarColour: '', finishCoating: '', tensileStrength: '',
+          laceType: '', laceMaterial: '', laceWidth: '', laceColour: '', laceFinishing: '', laceUsage: '', designReference: '',
+          interliningType: '', interliningMaterial: '', gsmWeight: '', adhesive: '', interliningColour: '', fusingSpec: '',
+          hookEyeType: '', hookEyeMaterial: '', hookEyeSize: '', hookEyeColour: '', hookEyeFinish: '', strength: '', application: '',
+          buckleType: '', buckleMaterial: '', buckleSize: '', buckleFinishColour: '', buckleFunction: '', buckleTensileStrength: '',
+          eyeletType: '', eyeletMaterial: '', innerDiameter: '', outerDiameter: '', eyeletColour: '', eyeletApplication: '', tooling: '',
+          elasticType: '', elasticMaterial: '', elasticWidth: '', elasticColour: '', stretchTension: '', elasticPacking: '',
+          feltType: '', feltMaterial: '', feltThickness: '', densityGsm: '', feltColour: '', feltFinishForm: '', feltApplication: '',
+          shoulderPadType: '', shoulderPadMaterial: '', shoulderPadSize: '', shape: '', covering: '', shoulderPadAttachment: '', weight: '',
+          tubularType: '', tubularMaterial: '', widthDiameter: '', weightDensity: '', tubularColour: '', stretchPercent: '', cutting: '',
+          rfidType: '', formFactor: '', frequency: '', chipIcType: '', rfidSize: '', coding: '', security: '',
+          cableTieType: '', cableTieMaterial: '', cableTieSize: '', cableTieColour: '', cableTieTensileStrength: '', cableTieFinish: '', cableTieUsage: '',
+          fringeType: '', fringeMaterial: '', dropLength: '', tapeWidth: '', fringeColour: '', fringeFinish: '', construction: '',
+          pipeType: '', pipeMaterial: '', diameterDimensions: '', pipeLength: '', pipeColour: '', endCaps: '', flexibility: '', pipeUsage: '',
+          seamTapeType: '', seamTapeMaterial: '', seamTapeWidth: '', seamTapeColour: '', seamTapeAdhesiveType: '', applicationSpec: '', elasticity: '',
+          adhesiveType: '', materialBase: '', adhesiveApplication: '', viscosity: '', settingTime: '', adhesiveColour: '', applicator: '',
+          hemType: '', hemMaterial: '', cutType: '', hemWidth: '', foldType: '', hemColour: '', hemPackaging: '',
+          reflectiveType: '', reflectiveMaterial: '', reflectiveWidth: '', reflectiveColour: '', certification: '', baseFabric: '',
+          frType: '', frMaterial: '', complianceLevel: '', frColour: '', durability: '', frComponents: '',
+          repairKitType: '', repairKitMaterial: '', sizeShape: '', repairKitColour: '', repairKitPackaging: '', userApplication: '', contents: '',
+          cordStopType: '', cordStopMaterial: '', cordStopSize: '', cordStopColour: '', lockingMechanism: '', cordStopFunction: '',
+          dRingType: '', dRingMaterial: '', dRingSize: '', thicknessGauge: '', dRingFinishPlating: '', loadRating: '', dRingApplication: '',
+          foamType: '', foamDensity: '', foamThickness: '', shapeId: '', foamColour: '', properties: '', foamAttachment: '',
+          pinType: '', pinMaterial: '', pinSize: '', pinColour: '', pinTensileStrength: '', headType: '', pinApplication: '',
+          magneticType: '', magneticMaterial: '', magneticSize: '', magneticStrength: '', polarity: '', magneticApplication: '',
+          // Clear common fields
+          testingRequirement: '', testingRequirementFile: null, lengthQuantity: '', buyersInitialIpp: '', unitAdditional: '',
+        };
+        updatedMaterials[materialIndex] = clearedMaterial;
+      } else {
+        // Handle nested fields like size.width, size.length, etc.
+        if (field.startsWith('size.')) {
+          const sizeField = field.split('.')[1];
       updatedMaterials[materialIndex] = {
-        ...updatedMaterials[materialIndex],
+            ...currentMaterial,
+            size: {
+              ...currentMaterial.size,
+              [sizeField]: value
+            }
+          };
+        } else {
+          updatedMaterials[materialIndex] = {
+            ...currentMaterial,
         [field]: value
       };
+        }
+      }
       
       // Recalculate total wastage and gross consumption when relevant fields change
       if (field === 'wastage' || field === 'netConsumption') {
@@ -563,18 +840,261 @@ const GenerateFactoryCode = ({ onBack }) => {
         ...prev,
         consumptionMaterials: [...prev.consumptionMaterials, {
           srNo: newSrNo,
-          productName: '',
-          componentName: '',
+          components: '',
+          trimAccessory: '',
           materialDescription: '',
           netConsumption: '',
           unit: '',
+          placement: '',
+          size: {
+            width: '',
+            length: '',
+            height: '',
+            unit: '',
+          },
           workOrder: '',
-          wastage: '',
-          forField: '',
-          totalWastage: '0%',
-          overage: formData.overagePercentage || '',
-          poQty: formData.poQty || '',
-          grossConsumption: '0',
+          surplus: '',
+          surplusForSection: '',
+          approval: '',
+          remarks: '',
+          testingRequirement: '',
+          testingRequirementFile: null,
+          lengthQuantity: '',
+          buyersInitialIpp: '',
+          unitAdditional: '',
+          // Conditional fields for different trim types
+          // ZIPPERS
+          zipNumber: '',
+          zipType: '',
+          brand: '',
+          teeth: '',
+          puller: '',
+          pullerType: '',
+          length: '',
+          // VELCRO
+          velcroType: '',
+          velcroMaterial: '',
+          width: '',
+          colour: '',
+          hookDensityLoopType: '',
+          cycleLife: '',
+          attachmentMethod: '',
+          // STITCHING THREAD
+          threadType: '',
+          fibreContent: '',
+          countTicketNo: '',
+          ply: '',
+          threadFinish: '',
+          usage: '',
+          // BUTTONS
+          buttonType: '',
+          buttonMaterial: '',
+          sizeLigne: '',
+          finishColour: '',
+          buttonAttachmentMethod: '',
+          function: '',
+          // RIVETS
+          rivetType: '',
+          rivetMaterial: '',
+          capSize: '',
+          postHeightLength: '',
+          finishPlating: '',
+          pullerStrength: '',
+          rivetPullerType: '',
+          // NIWAR
+          niwarType: '',
+          niwarMaterial: '',
+          niwarWidth: '',
+          niwarThickness: '',
+          niwarColour: '',
+          finishCoating: '',
+          tensileStrength: '',
+          // LACE
+          laceType: '',
+          laceMaterial: '',
+          laceWidth: '',
+          laceColour: '',
+          laceFinishing: '',
+          laceUsage: '',
+          designReference: '',
+          // INTERLINING/FUSING
+          interliningType: '',
+          interliningMaterial: '',
+          gsmWeight: '',
+          adhesive: '',
+          interliningColour: '',
+          fusingSpec: '',
+          // HOOKS & EYES
+          hookEyeType: '',
+          hookEyeMaterial: '',
+          hookEyeSize: '',
+          hookEyeColour: '',
+          hookEyeFinish: '',
+          strength: '',
+          application: '',
+          // BUCKLES & ADJUSTERS
+          buckleType: '',
+          buckleMaterial: '',
+          buckleSize: '',
+          buckleFinishColour: '',
+          buckleFunction: '',
+          buckleTensileStrength: '',
+          // EYELETS & GROMMETS
+          eyeletType: '',
+          eyeletMaterial: '',
+          innerDiameter: '',
+          outerDiameter: '',
+          eyeletColour: '',
+          eyeletApplication: '',
+          tooling: '',
+          // ELASTIC
+          elasticType: '',
+          elasticMaterial: '',
+          elasticWidth: '',
+          elasticColour: '',
+          stretchTension: '',
+          elasticPacking: '',
+          // FELT
+          feltType: '',
+          feltMaterial: '',
+          feltThickness: '',
+          densityGsm: '',
+          feltColour: '',
+          feltFinishForm: '',
+          feltApplication: '',
+          // SHOULDER PADS
+          shoulderPadType: '',
+          shoulderPadMaterial: '',
+          shoulderPadSize: '',
+          shape: '',
+          covering: '',
+          shoulderPadAttachment: '',
+          weight: '',
+          // TUBULAR KNITS
+          tubularType: '',
+          tubularMaterial: '',
+          widthDiameter: '',
+          weightDensity: '',
+          tubularColour: '',
+          stretchPercent: '',
+          cutting: '',
+          // RFID / EAS TAGS
+          rfidType: '',
+          formFactor: '',
+          frequency: '',
+          chipIcType: '',
+          rfidSize: '',
+          coding: '',
+          security: '',
+          // PLASTIC CABLE TIES
+          cableTieType: '',
+          cableTieMaterial: '',
+          cableTieSize: '',
+          cableTieColour: '',
+          cableTieTensileStrength: '',
+          cableTieFinish: '',
+          cableTieUsage: '',
+          // FRINGE/TASSELS
+          fringeType: '',
+          fringeMaterial: '',
+          dropLength: '',
+          tapeWidth: '',
+          fringeColour: '',
+          fringeFinish: '',
+          construction: '',
+          // PLASTIC PIPES/RODS
+          pipeType: '',
+          pipeMaterial: '',
+          diameterDimensions: '',
+          pipeLength: '',
+          pipeColour: '',
+          endCaps: '',
+          flexibility: '',
+          pipeUsage: '',
+          // SEAM SEALING TAPE
+          seamTapeType: '',
+          seamTapeMaterial: '',
+          seamTapeWidth: '',
+          seamTapeColour: '',
+          seamTapeAdhesiveType: '',
+          applicationSpec: '',
+          elasticity: '',
+          // ADHESIVES/GUNNING
+          adhesiveType: '',
+          materialBase: '',
+          adhesiveApplication: '',
+          viscosity: '',
+          settingTime: '',
+          adhesiveColour: '',
+          applicator: '',
+          // PRE-CUT HEMS/BINDINGS
+          hemType: '',
+          hemMaterial: '',
+          cutType: '',
+          hemWidth: '',
+          foldType: '',
+          hemColour: '',
+          hemPackaging: '',
+          // REFLECTIVE TAPES/TRIMS
+          reflectiveType: '',
+          reflectiveMaterial: '',
+          reflectiveWidth: '',
+          reflectiveColour: '',
+          certification: '',
+          baseFabric: '',
+          // FIRE RETARDANT TRIMS
+          frType: '',
+          frMaterial: '',
+          complianceLevel: '',
+          frColour: '',
+          durability: '',
+          frComponents: '',
+          // REPAIR KITS/PATCHES
+          repairKitType: '',
+          repairKitMaterial: '',
+          sizeShape: '',
+          repairKitColour: '',
+          repairKitPackaging: '',
+          userApplication: '',
+          contents: '',
+          // CORD STOPS
+          cordStopType: '',
+          cordStopMaterial: '',
+          cordStopSize: '',
+          cordStopColour: '',
+          lockingMechanism: '',
+          cordStopFunction: '',
+          // D-RINGS
+          dRingType: '',
+          dRingMaterial: '',
+          dRingSize: '',
+          thicknessGauge: '',
+          dRingFinishPlating: '',
+          loadRating: '',
+          dRingApplication: '',
+          // FOAM/WADDING
+          foamType: '',
+          foamDensity: '',
+          foamThickness: '',
+          shapeId: '',
+          foamColour: '',
+          properties: '',
+          foamAttachment: '',
+          // PINS/TAGGING BARBS
+          pinType: '',
+          pinMaterial: '',
+          pinSize: '',
+          pinColour: '',
+          pinTensileStrength: '',
+          headType: '',
+          pinApplication: '',
+          // MAGNETIC CLOSURES
+          magneticType: '',
+          magneticMaterial: '',
+          magneticSize: '',
+          magneticStrength: '',
+          polarity: '',
+          magneticApplication: '',
         }]
       };
     });
@@ -718,6 +1238,32 @@ const GenerateFactoryCode = ({ onBack }) => {
         ...updatedMaterials[materialIndex],
         [field]: value
       };
+
+      // Clear category-specific fields when category changes
+      if (field === 'artworkCategory') {
+        const resetFields = {
+          specificType: '', material: '', sizeArtworkId: '', foldType: '', colours: '',
+          finishing: '', testingRequirement: '', lengthQuantity: '', surplus: '',
+          surplusForSection: '',
+          approval: '', remarks: '', careSymbols: '', countryOfOrigin: '',
+          manufacturerId: '', language: '', permanence: '', sizeShape: '',
+          attachment: '', content: '', symbol: '', certificationId: '',
+          formFactor: '', chipFrequency: '', coding: '', adhesive: '',
+          security: '', contentMandates: '', fillingMaterials: '',
+          newUsedStatus: '', registrationLicenses: '', sealShape: '',
+          fastening: '', preStringing: '', application: '', barcodeType: '',
+          applicationSpec: '', finishHandFeel: '', quality: '', sizeCode: '',
+          securityFeature: '', verification: '', removal: '', traceability: '',
+          closure: '', durability: '', inkType: '', printQuality: '',
+          sizeFold: '', referenceImage: null
+        };
+        updatedMaterials[materialIndex] = {
+          ...updatedMaterials[materialIndex],
+          ...resetFields,
+          artworkCategory: value
+        };
+      }
+
       // Clear width and size when unit changes away from R.Mtr
       if (field === 'unit' && value !== 'R.Mtr' && value !== 'R METER' && value !== 'R METERS') {
         updatedMaterials[materialIndex].width = '';
@@ -753,6 +1299,7 @@ const GenerateFactoryCode = ({ onBack }) => {
         ...prev,
         artworkMaterials: [...(prev.artworkMaterials || []), {
           srNo: newSrNo,
+          components: '',
           materialDescription: '',
           netConsumption: '',
           unit: '',
@@ -763,6 +1310,62 @@ const GenerateFactoryCode = ({ onBack }) => {
           packagingWorkOrder: '',
           width: '',
           size: '',
+          gsm: '',
+          sizeWidth: '',
+          sizeLength: '',
+          sizeHeight: '',
+          sizeUnit: '',
+          artworkCategory: '',
+          specificType: '',
+          material: '',
+          sizeArtworkId: '',
+          foldType: '',
+          colours: '',
+          finishing: '',
+          testingRequirement: '',
+          lengthQuantity: '',
+          surplus: '',
+          surplusForSection: '',
+          approval: '',
+          remarks: '',
+          careSymbols: '',
+          countryOfOrigin: '',
+          manufacturerId: '',
+          language: '',
+          permanence: '',
+          sizeShape: '',
+          attachment: '',
+          content: '',
+          symbol: '',
+          certificationId: '',
+          formFactor: '',
+          chipFrequency: '',
+          coding: '',
+          adhesive: '',
+          security: '',
+          contentMandates: '',
+          fillingMaterials: '',
+          newUsedStatus: '',
+          registrationLicenses: '',
+          sealShape: '',
+          fastening: '',
+          preStringing: '',
+          application: '',
+          barcodeType: '',
+          applicationSpec: '',
+          finishHandFeel: '',
+          quality: '',
+          sizeCode: '',
+          securityFeature: '',
+          verification: '',
+          removal: '',
+          traceability: '',
+          closure: '',
+          durability: '',
+          inkType: '',
+          printQuality: '',
+          sizeFold: '',
+          referenceImage: null
         }]
       };
     });
@@ -806,10 +1409,28 @@ const GenerateFactoryCode = ({ onBack }) => {
   const handlePackagingMaterialChange = (materialIndex, field, value) => {
     setFormData(prev => {
       const updatedMaterials = [...prev.packaging.materials];
+      
+      // Clear material-specific fields when description changes
+      if (field === 'materialDescription') {
+        const resetFields = {
+          noOfPlys: '', jointType: '', burstingStrength: '',
+          surplus: '', surplusForSection: '', approvalAgainst: '',
+          remarks: '', guage: '', printingRef: null,
+          gummingQuality: '', punchHoles: '', flapSize: '',
+          guageGsm: '', rollWidth: '', rollWidthUnit: '',
+          tapeWidth: '', tapeWidthUnit: ''
+        };
       updatedMaterials[materialIndex] = {
         ...updatedMaterials[materialIndex],
+          ...resetFields,
         [field]: value
       };
+      } else {
+        updatedMaterials[materialIndex] = {
+          ...updatedMaterials[materialIndex],
+          [field]: value
+        };
+      }
       
       // Auto-calculate gross consumption when relevant fields change
       const material = updatedMaterials[materialIndex];
@@ -962,6 +1583,24 @@ const GenerateFactoryCode = ({ onBack }) => {
           calculatedUnit: '',
           overage: '',
           grossConsumption: '',
+          // New conditional fields for Part 5
+          noOfPlys: '',
+          jointType: '',
+          burstingStrength: '',
+          surplus: '',
+          surplusForSection: '',
+          approvalAgainst: '',
+          remarks: '',
+          guage: '',
+          printingRef: null,
+          gummingQuality: '',
+          punchHoles: '',
+          flapSize: '',
+          guageGsm: '',
+          rollWidth: '',
+          rollWidthUnit: '',
+          tapeWidth: '',
+          tapeWidthUnit: ''
         }]
       }
     }));
@@ -988,7 +1627,7 @@ const GenerateFactoryCode = ({ onBack }) => {
 
   // Check if product requires size fields (CUSHION/FILLER/TOTE BAG)
   const requiresSizeFields = (productSelection) => {
-    const sizeRequiredProducts = ['CUSHION', 'FILLER', 'TOTE BAG', 'VELVET CUSHION'];
+    const sizeRequiredProducts = ['CUSHION', 'FILLER', 'TOTE BAG', 'VELVET CUSHION', 'COMFORTER', 'PILLOW', 'BAG'];
     return sizeRequiredProducts.some(p => 
       productSelection?.toUpperCase().includes(p)
     );
@@ -1044,12 +1683,47 @@ const GenerateFactoryCode = ({ onBack }) => {
             workOrder: '',
             wastage: '',
             forField: '',
-            // Conditional fields for DYEING
+            approvalAgainst: '',
+            remarks: '',
+            design: '',
+            imageRef: null,
+            machineType: '',
+            reed: '',
+            pick: '',
+            warp: false,
+            weft: false,
+            ratioWarp: '',
+            ratioWeft: '',
+            ratioWeightWarp: '',
+            ratioWeightWeft: '',
+            pileHeight: '',
+            tpi: '',
+            quiltingType: '',
+            printingType: '',
+            wales: false,
+            courses: false,
+            ratioWales: '',
+            ratioCourses: '',
+            ratioWeightWales: '',
+            ratioWeightCourses: '',
+            receivedColorReference: '',
+            referenceType: '',
+            shrinkageWidth: false,
+            shrinkageLength: false,
+            shrinkageWidthPercent: '',
+            shrinkageLengthPercent: '',
+            ratioWidth: '',
+            ratioLength: '',
+            forSection: '',
+            forSectionWidth: '',
+            forSectionLength: '',
+            cutType: '',
+            cutSize: '',
+            // Compatibility
             dyeingType: '',
             shrinkage: '',
             width: '',
             length: '',
-            // Conditional fields for WEAVING
             weavingType: '',
             warpWeft: '',
             ratio: '',
@@ -1133,6 +1807,12 @@ const GenerateFactoryCode = ({ onBack }) => {
   const validateStep2 = () => {
     const newErrors = {};
     
+    // Allow navigation if no raw materials are added (optional step)
+    if (!formData.rawMaterials || formData.rawMaterials.length === 0) {
+      setErrors(newErrors);
+      return true;
+    }
+    
     formData.rawMaterials.forEach((material, materialIndex) => {
       if (!material.materialDescription?.trim()) {
         newErrors[`rawMaterial_${materialIndex}_materialDescription`] = 'Material Description is required';
@@ -1145,9 +1825,12 @@ const GenerateFactoryCode = ({ onBack }) => {
       }
       
       // Validate work orders
+      if (material.workOrders && material.workOrders.length > 0) {
       material.workOrders.forEach((workOrder, woIndex) => {
+        // Only validate if workOrder type is selected
         if (!workOrder.workOrder?.trim()) {
-          newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`] = 'Work Order is required';
+          // Skip validation for empty work orders
+          return;
         }
         if (!workOrder.wastage?.trim()) {
           newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] = 'Wastage is required';
@@ -1158,33 +1841,66 @@ const GenerateFactoryCode = ({ onBack }) => {
         
         // Validate conditional fields for DYEING
         if (workOrder.workOrder === 'DYEING') {
-          if (!workOrder.dyeingType?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_dyeingType`] = 'Dyeing Type is required';
+          // Check if at least one of shrinkage width or length is selected
+          if (!workOrder.shrinkageWidth && !workOrder.shrinkageLength) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`] = 'At least one of WIDTH or LENGTH must be selected for SHRINKAGE';
           }
-          if (!workOrder.shrinkage?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`] = 'Shrinkage is required';
+          // If shrinkageWidth is selected, validate its fields
+          if (workOrder.shrinkageWidth) {
+            if (!workOrder.shrinkageWidthPercent?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkageWidthPercent`] = 'Shrinkage Width Percentage is required';
+            }
+            if (!workOrder.ratioWidth?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWidth`] = 'Ratio Width is required when WIDTH is selected';
+            }
           }
-          if (!workOrder.width?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_width`] = 'Width is required';
-          }
-          if (!workOrder.length?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_length`] = 'Length is required';
+          // If shrinkageLength is selected, validate its fields
+          if (workOrder.shrinkageLength) {
+            if (!workOrder.shrinkageLengthPercent?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkageLengthPercent`] = 'Shrinkage Length Percentage is required';
+            }
+            if (!workOrder.ratioLength?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioLength`] = 'Ratio Length is required when LENGTH is selected';
+            }
           }
         }
         
         // Validate conditional fields for WEAVING
         if (workOrder.workOrder === 'WEAVING') {
-          if (!workOrder.weavingType?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_weavingType`] = 'Weaving Type is required';
+            if (!workOrder.machineType?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_machineType`] = 'Machine Type is required';
+            }
+            // Check if at least one of warp or weft is selected
+            if (!workOrder.warp && !workOrder.weft) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_warpWeft`] = 'At least one of WARP or WEFT must be selected';
+            }
+            // If warp is selected, ratioWarp is required
+            if (workOrder.warp && !workOrder.ratioWarp?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWarp`] = 'Ratio Warp is required when WARP is selected';
+            }
+            // If weft is selected, ratioWeft is required
+            if (workOrder.weft && !workOrder.ratioWeft?.trim()) {
+              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWeft`] = 'Ratio Weft is required when WEFT is selected';
+            }
+        }
+        
+        // Validate conditional fields for KNITTING
+        if (workOrder.workOrder === 'KNITTING') {
+          // Check if at least one of wales or courses is selected
+          if (!workOrder.wales && !workOrder.courses) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_walesCourses`] = 'At least one of WALES or COURSES must be selected';
           }
-          if (!workOrder.warpWeft?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_warpWeft`] = 'WARP/WEFT is required';
+          // If wales is selected, ratioWales is required
+          if (workOrder.wales && !workOrder.ratioWales?.trim()) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWales`] = 'Ratio Wales is required when WALES is selected';
           }
-          if (workOrder.warpWeft === 'BOTH' && !workOrder.ratio?.trim()) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratio`] = 'Ratio is required when WARP/WEFT is BOTH';
+          // If courses is selected, ratioCourses is required
+          if (workOrder.courses && !workOrder.ratioCourses?.trim()) {
+            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioCourses`] = 'Ratio Courses is required when COURSES is selected';
           }
         }
       });
+      }
     });
     
     setErrors(newErrors);
@@ -1953,7 +2669,7 @@ const GenerateFactoryCode = ({ onBack }) => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-3 TRIMS & ACCESSORIES</h2>
-            <p className="text-sm text-gray-600">Gross consumption calculation with work orders</p>
+            <p className="text-sm text-gray-600">Trims & accessories specification</p>
           </div>
           <button
             type="button"
@@ -1978,7 +2694,7 @@ const GenerateFactoryCode = ({ onBack }) => {
         </div>
       </div>
       
-      {/* Consumption Materials */}
+      {/* Trim Materials */}
       <div>
         {formData.consumptionMaterials.map((material, materialIndex) => (
           <div key={materialIndex} className="bg-gray-50 rounded-xl border border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
@@ -2009,306 +2725,3528 @@ const GenerateFactoryCode = ({ onBack }) => {
               )}
             </div>
 
-            {/* Row 1: Product, Component */}
-            <div className="flex flex-wrap items-start gap-3" style={{ marginBottom: '24px' }}>
+            {/* Row 1: COMPONENTS, Material Description, Net Consumption per Pc, UNIT */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5" style={{ marginBottom: '24px' }}>
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  PRODUCT <span className="text-red-600">*</span>
-                </label>
+                <label className="text-sm font-semibold text-gray-700 mb-2">COMPONENTS</label>
                 <input
                   type="text"
-                  value={material.productName}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'productName', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_productName`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_productName`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  placeholder="e.g., Cushion"
-                  required
+                  value={material.components || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'components', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
+                  placeholder="e.g., COMFORTER +"
                 />
               </div>
               
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  COMPONENT <span className="text-red-600">*</span>
-                </label>
+                <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL DESC</label>
                 <input
                   type="text"
-                  value={material.componentName}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'componentName', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_componentName`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_componentName`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  placeholder="e.g., Top Panel"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Row 2: Material Desc, Net CNS/PC, Unit */}
-            <div className="flex flex-wrap items-start gap-3" style={{ marginBottom: '24px' }}>
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  MATERIAL DESC <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={material.materialDescription}
+                  value={material.materialDescription || ''}
                   onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'materialDescription', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_materialDescription`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '160px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_materialDescription`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  placeholder="e.g., Zipper 20cm"
-                  required
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
+                  placeholder="e.g., Stitching Thread"
                 />
-                {errors[`consumptionMaterial_${materialIndex}_materialDescription`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`consumptionMaterial_${materialIndex}_materialDescription`]}
-                  </span>
-                )}
               </div>
               
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  NET CNS/PC <span className="text-red-600">*</span>
-                </label>
+                <label className="text-sm font-semibold text-gray-700 mb-2">NET CNS/PC</label>
                 <input
                   type="number"
                   step="0.001"
-                  value={material.netConsumption}
+                  value={material.netConsumption || ''}
                   onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'netConsumption', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_netConsumption`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '110px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_netConsumption`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
                   placeholder="0.000"
-                  required
                 />
-                {errors[`consumptionMaterial_${materialIndex}_netConsumption`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`consumptionMaterial_${materialIndex}_netConsumption`]}
-                  </span>
-                )}
               </div>
               
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  UNIT <span className="text-red-600">*</span>
-                </label>
+                <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
                 <select
-                  value={material.unit}
+                  value={material.unit || ''}
                   onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'unit', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_unit`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_unit`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  required
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
                 >
                   <option value="">Select</option>
-                  <option value="R METERS">R METERS</option>
-                  <option value="CM">CM</option>
-                  <option value="Inches">Inches</option>
-                  <option value="Meter">Meter</option>
-                  <option value="KGS">KGS</option>
+                  <option value="Kgs">Kgs</option>
+                  <option value="Pcs">Pcs</option>
+                  <option value="Meters">Meters</option>
+                  <option value="Yards">Yards</option>
+                  <option value="Sets">Sets</option>
+                  <option value="Rolls">Rolls</option>
+                  <option value="Gross">Gross</option>
                 </select>
-                {errors[`consumptionMaterial_${materialIndex}_unit`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`consumptionMaterial_${materialIndex}_unit`]}
-                  </span>
-                )}
+              </div>
+            </div>
+
+            {/* Row 2: WORK ORDER, PLACEMENT */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5" style={{ marginTop: '20px', marginBottom: '20px' }}>
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2">WORK ORDER</label>
+                <input
+                  type="text"
+                  value={material.workOrder || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'workOrder', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
+                  placeholder="e.g., SEWING"
+                />
               </div>
 
-              {/* GSM field (shown only when UNIT is R METERS) */}
-              {material.unit === 'R METERS' && (
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    GSM <span className="text-red-600">*</span>
-                  </label>
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                <input
+                  type="text"
+                  value={material.placement || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'placement', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
+                  placeholder="e.g., ON BAG STRAP"
+                />
+              </div>
+            </div>
+
+            {/* SIZE Row */}
+            <div className="flex flex-wrap items-start gap-4" style={{ marginTop: '20px', marginBottom: '24px' }}>
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
                   <input
                     type="number"
-                    value={material.gsm || ''}
-                    onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'gsm', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`consumptionMaterial_${materialIndex}_gsm`] 
-                        ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                    }`}
+                  value={material.size?.width || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'size.width', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                     style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                    onFocus={(e) => {
-                      if (!errors[`consumptionMaterial_${materialIndex}_gsm`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="e.g., 200"
-                    required
-                  />
-                  {errors[`consumptionMaterial_${materialIndex}_gsm`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`consumptionMaterial_${materialIndex}_gsm`]}
-                    </span>
+                  placeholder="52"
+                />
+                </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH</label>
+                <input
+                  type="number"
+                  value={material.size?.length || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'size.length', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                  placeholder="48"
+                />
+            </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2">HEIGHT</label>
+                <input
+                  type="number"
+                  value={material.size?.height || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'size.height', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                  placeholder="52"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                <select
+                  value={material.size?.unit || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'size.unit', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                >
+                  <option value="">Select</option>
+                  <option value="CMS">CMS</option>
+                  <option value="INCHES">INCHES</option>
+                  <option value="MM">MM</option>
+                </select>
+              </div>
+              </div>
+              
+            {/* TRIM/ACCESSORY CATEGORY SELECTOR */}
+            <div className="w-full mt-8 pt-6 border-t border-gray-100">
+              <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
+                <label className="text-sm font-bold text-gray-800 mb-2">TRIM/ACCESSORY</label>
+                <select
+                  value={material.trimAccessory || ''}
+                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
+                  onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                  onBlur={(e) => e.target.style.boxShadow = ''}
+                >
+                  <option value="">Select Trim/Accessory</option>
+                  <option value="ZIPPERS">ZIPPERS</option>
+                  <option value="VELCRO (Hook & Loop)">VELCRO (Hook & Loop)</option>
+                  <option value="STITCHING THREAD">STITCHING THREAD</option>
+                  <option value="BUTTONS">BUTTONS</option>
+                  <option value="RIVETS">RIVETS</option>
+                  <option value="NIWAR (Webbing/Tapes)">NIWAR (Webbing/Tapes)</option>
+                  <option value="LACE">LACE</option>
+                  <option value="INTERLINING/FUSING">INTERLINING/FUSING</option>
+                  <option value="HOOKS & EYES">HOOKS & EYES</option>
+                  <option value="BUCKLES & ADJUSTERS">BUCKLES & ADJUSTERS</option>
+                  <option value="EYELETS & GROMMETS">EYELETS & GROMMETS</option>
+                  <option value="ELASTIC">ELASTIC</option>
+                  <option value="FELT">FELT</option>
+                  <option value="SHOULDER PADS / CUPS">SHOULDER PADS / CUPS</option>
+                  <option value="TUBULAR KNITS / RIBBING">TUBULAR KNITS / RIBBING</option>
+                  <option value="RFID / EAS TAGS">RFID / EAS TAGS</option>
+                  <option value="PLASTIC CABLE TIES / LOOPS">PLASTIC CABLE TIES / LOOPS</option>
+                  <option value="FRINGE / TASSELS">FRINGE / TASSELS</option>
+                  <option value="PLASTIC PIPES / RODS">PLASTIC PIPES / RODS</option>
+                  <option value="SEAM SEALING TAPE">SEAM SEALING TAPE</option>
+                  <option value="ADHESIVES / GUNNING">ADHESIVES / GUNNING</option>
+                  <option value="PRE-CUT HEMS / BINDINGS">PRE-CUT HEMS / BINDINGS</option>
+                  <option value="REFLECTIVE TAPES / TRIMS">REFLECTIVE TAPES / TRIMS</option>
+                  <option value="FIRE RETARDANT (FR) TRIMS">FIRE RETARDANT (FR) TRIMS</option>
+                  <option value="REPAIR KITS / PATCHES">REPAIR KITS / PATCHES</option>
+                  <option value="CORD STOPS / CORD LOCKS / TOGGLES">CORD STOPS / CORD LOCKS / TOGGLES</option>
+                  <option value="D-RINGS / O-RINGS / WEBBING LOOPS">D-RINGS / O-RINGS / WEBBING LOOPS</option>
+                  <option value="FOAM / WADDING (Pre-Cut Shapes)">FOAM / WADDING (Pre-Cut Shapes)</option>
+                  <option value="PINS / TAGGING BARBS">PINS / TAGGING BARBS</option>
+                  <option value="MAGNETIC CLOSURES / SNAPS">MAGNETIC CLOSURES / SNAPS</option>
+                </select>
+              </div>
+
+              {/* Conditional fields based on trim/accessory type */}
+              {material.trimAccessory && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
+                  {/* ZIPPERS Fields */}
+                  {material.trimAccessory === 'ZIPPERS' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">ZIP #</label>
+                <input
+                  type="text"
+                          value={material.zipNumber || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'zipNumber', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="3 or 5 (Common sizes)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <select
+                          value={material.zipType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'zipType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Concealed (Invisible)">Concealed (Invisible)</option>
+                          <option value="Open (Separating)">Open (Separating)</option>
+                          <option value="Closed-End (Non-Separating)">Closed-End (Non-Separating)</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BRAND</label>
+                        <input
+                          type="text"
+                          value={material.brand || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'brand', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="YKK, RIRI, SBS"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TEETH</label>
+                        <select
+                          value={material.teeth || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'teeth', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Coil (Nylon/Polyester)">Coil (Nylon/Polyester)</option>
+                          <option value="Plastic (Molded Vislon)">Plastic (Molded Vislon)</option>
+                          <option value="Metal (Brass, Aluminium)">Metal (Brass, Aluminium)</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PULLER</label>
+                        <input
+                          type="text"
+                          value={material.puller || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'puller', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Metal / DTM / Custom Logo"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PULLER TYPE</label>
+                        <select
+                          value={material.pullerType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pullerType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Lockable">Lockable</option>
+                          <option value="Non-Lockable">Non-Lockable</option>
+                          <option value="Semi-Auto">Semi-Auto</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH</label>
+                        <input
+                          type="text"
+                          value={material.length || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'length', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 20 cm, 7 inches"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* VELCRO Fields */}
+                  {material.trimAccessory === 'VELCRO (Hook & Loop)' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <select
+                          value={material.velcroType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'velcroType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Sew-on tape">Sew-on tape</option>
+                          <option value="Adhesive Backed">Adhesive Backed</option>
+                          <option value="Die-Cut Shapes">Die-Cut Shapes</option>
+                          <option value="ONE-WRAP (Back-to-Back)">ONE-WRAP (Back-to-Back)</option>
+                        </select>
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <select
+                          value={material.velcroMaterial || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'velcroMaterial', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Nylon">Nylon</option>
+                          <option value="Polyester">Polyester</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
+                        <input
+                          type="text"
+                          value={material.width || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'width', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="16mm, 20mm, 25mm, 50mm"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                        <input
+                          type="text"
+                          value={material.colour || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'colour', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="DTM, White, Black"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">HOOK DENSITY/LOOP TYPE</label>
+                        <input
+                          type="text"
+                          value={material.hookDensityLoopType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookDensityLoopType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="HOOK Density / Loop Type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">CYCLE LIFE</label>
+                        <input
+                          type="text"
+                          value={material.cycleLife || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cycleLife', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Number of Open/Close Cycles"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">ATTACHMENT METHOD</label>
+                        <input
+                          type="text"
+                          value={material.attachmentMethod || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'attachmentMethod', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Sewing / Adhesive"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* STITCHING THREAD Fields */}
+                  {material.trimAccessory === 'STITCHING THREAD' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <select
+                          value={material.threadType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'threadType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Spun Polyester (Poly)">Spun Polyester (Poly)</option>
+                          <option value="Cotton">Cotton</option>
+                          <option value="Core Spun (Poly-Wrapped)">Core Spun (Poly-Wrapped)</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FIBRE CONTENT</label>
+                <input
+                  type="text"
+                          value={material.fibreContent || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'fibreContent', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 100% Spun"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COUNT/TICKET NO.</label>
+                        <input
+                          type="text"
+                          value={material.countTicketNo || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'countTicketNo', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Metric Count (Nm) or Ticket"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PLY</label>
+                        <input
+                          type="text"
+                          value={material.ply || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ply', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 2 Ply, 3 Ply"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                        <input
+                          type="text"
+                          value={material.colour || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'colour', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Colour Code (Pantone)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                        <select
+                          value={material.threadFinish || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'threadFinish', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Bonded">Bonded</option>
+                          <option value="Lubricated">Lubricated</option>
+                          <option value="Matte">Matte</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
+                        <input
+                          type="text"
+                          value={material.usage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'usage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Main seam, Overlock, Embroidery"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* BUTTONS Fields */}
+                  {material.trimAccessory === 'BUTTONS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <select
+                          value={material.buttonType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Sewing (Flat/Shank)">Sewing (Flat/Shank)</option>
+                          <option value="Snap (Press Stud)">Snap (Press Stud)</option>
+                          <option value="Tack">Tack</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <select
+                          value={material.buttonMaterial || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonMaterial', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Polyester (Plastic)">Polyester (Plastic)</option>
+                          <option value="Metal (Brass, Alloy)">Metal (Brass, Alloy)</option>
+                          <option value="Natural (Shell, Wood)">Natural (Shell, Wood)</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE/LIGNE</label>
+                        <input
+                          type="text"
+                          value={material.sizeLigne || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'sizeLigne', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="14L, 16L, 20L, 24L"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/COLOUR</label>
+                        <input
+                          type="text"
+                          value={material.finishColour || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'finishColour', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="DTM, Contrast, Glossy, Matte"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">ATTACHMENT METHOD</label>
+                        <input
+                          type="text"
+                          value={material.buttonAttachmentMethod || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonAttachmentMethod', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Machine sew, Hand Sew, Pneumatic"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
+                        <input
+                          type="text"
+                          value={material.function || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'function', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Functional / Decorative"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* RIVETS Fields */}
+                  {material.trimAccessory === 'RIVETS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <select
+                          value={material.rivetType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Open-End">Open-End</option>
+                          <option value="Close-End">Close-End</option>
+                          <option value="Blind Rivet">Blind Rivet</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <select
+                          value={material.rivetMaterial || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetMaterial', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="Brass">Brass</option>
+                          <option value="Copper">Copper</option>
+                          <option value="Zinc Alloy">Zinc Alloy</option>
+                          <option value="Steel">Steel</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">CAP SIZE</label>
+                        <input
+                          type="text"
+                          value={material.capSize || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'capSize', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="8mm, 9mm, 10mm"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">POST HEIGHT/LENGTH</label>
+                        <input
+                          type="text"
+                          value={material.postHeightLength || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'postHeightLength', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Short, Medium, Long"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/PLATING</label>
+                        <input
+                          type="text"
+                          value={material.finishPlating || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'finishPlating', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Nickel, Copper, Antique Brass"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PULLER STRENGTH</label>
+                        <input
+                          type="text"
+                          value={material.pullerStrength || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pullerStrength', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Pull Strength"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PULLER TYPE</label>
+                        <input
+                          type="text"
+                          value={material.rivetPullerType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetPullerType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Machine Applied"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* NIWAR (Webbing/Tapes) Fields */}
+                  {material.trimAccessory === 'NIWAR (Webbing/Tapes)' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <input
+                          type="text"
+                          value={material.niwarType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Woven, Knitted, Herringbone"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <input
+                          type="text"
+                          value={material.niwarMaterial || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarMaterial', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Cotton, Polyester, Polypropylene"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH / SIZE</label>
+                        <input
+                          type="text"
+                          value={material.niwarWidth || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarWidth', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="20mm, 25mm, 38mm, 50mm"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
+                        <input
+                          type="text"
+                          value={material.niwarThickness || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarThickness', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Thickness specification"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                        <input
+                          type="text"
+                          value={material.niwarColour || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarColour', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="DTM, White, Black, Colour Code"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISH / COATING</label>
+                        <input
+                          type="text"
+                          value={material.finishCoating || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'finishCoating', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Soft, Stiff, Water Repellent, UV Resistant"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TENSILE STRENGTH</label>
+                        <input
+                          type="text"
+                          value={material.tensileStrength || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'tensileStrength', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Breaking strength"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* LACE Fields */}
+                  {material.trimAccessory === 'LACE' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <input
+                          type="text"
+                          value={material.laceType || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Woven, Braided, Crochet, Knit"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <input
+                          type="text"
+                          value={material.laceMaterial || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceMaterial', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="100% Cotton, Nylon, Rayon, Polyester"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH / SIZE</label>
+                        <input
+                          type="text"
+                          value={material.laceWidth || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceWidth', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="5mm, 10mm, 1 inch"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                        <input
+                          type="text"
+                          value={material.laceColour || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceColour', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="DTM, White, Ecru, Black, Pantone"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISHING</label>
+                        <input
+                          type="text"
+                          value={material.laceFinishing || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceFinishing', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Starch, Soft, Mercerized, Scalloped"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
+                        <input
+                          type="text"
+                          value={material.laceUsage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceUsage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Edging, Insertion, Applique, Beading"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">DESIGN REFERENCE</label>
+                        <input
+                          type="text"
+                          value={material.designReference || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'designReference', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Supplier Pattern ID or Design Name"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* ZIPPERS - Complete fields including LENGTH/QUANTITY, SURPLUS, APPROVAL, REMARKS, FOR-SECTION, UPLOAD */}
+                  {material.trimAccessory === 'ZIPPERS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Lateral Strength, Puller"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-3%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Additional notes..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-zippers-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-zippers-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* VELCRO - Complete fields */}
+                  {material.trimAccessory === 'VELCRO (Hook & Loop)' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                <input
+                  type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Shear Strength, Peel Strength, Cycle"
+                />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                        <input
+                          type="text"
+                          value={material.unitAdditional || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'unitAdditional', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Hook and Loop to be packed separately..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-velcro-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-velcro-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* STITCHING THREAD - Complete fields */}
+                  {material.trimAccessory === 'STITCHING THREAD' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Tensile Strength, Elongation, Abrasion"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                        <input
+                          type="text"
+                          value={material.unitAdditional || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'unitAdditional', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Yards or Meters per Cone"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 5000"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 1-2%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required for Class 1 Safety Seams..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-thread-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-thread-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* BUTTONS - Complete fields with BUYER'S/INITIAL/IPP */}
+                  {material.trimAccessory === 'BUTTONS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                <input
+                  type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Needle Detection, Pull Strength"
+                />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Gross (144 pcs) or Pieces"
+                        />
+            </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 3-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Self-Shank, Laser Engraved..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BUYER'S/INITIAL/IPP</label>
+                        <input
+                          type="text"
+                          value={material.buyersInitialIpp || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buyersInitialIpp', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-buttons-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-buttons-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* RIVETS - Complete fields with BUYER'S/INITIAL/IPP */}
+                  {material.trimAccessory === 'RIVETS' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Needle Detection, Pull Strength"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Gross (144 pcs) or Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 3-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Specific Logo Engraving on Cap..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BUYER'S/INITIAL/IPP</label>
+                        <input
+                          type="text"
+                          value={material.buyersInitialIpp || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buyersInitialIpp', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-rivets-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-rivets-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                <input
+                  type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* NIWAR - Complete fields */}
+                  {material.trimAccessory === 'NIWAR (Webbing/Tapes)' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Tensile Strength Test, Colour Fastness"
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required weave pattern, For high-load application..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-niwar-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-niwar-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* LACE - Complete fields */}
+                  {material.trimAccessory === 'LACE' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Colour Fastness, Residual"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Continuous pattern repeat..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-lace-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-lace-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* ELASTIC - Complete fields with STRETCH/TENSION and PACKING */}
+                  {material.trimAccessory === 'ELASTIC' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">STRETCH/TENSION</label>
+                <input
+                          type="text"
+                          value={material.stretchTension || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'stretchTension', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Roll Length, Residual shrinkage"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PACKING</label>
+                        <input
+                          type="text"
+                          value={material.elasticPacking || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'elasticPacking', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-elastic-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-elastic-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-3%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="LENGTH/QUANTITY"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BUYER'S/INITIAL/IPP</label>
+                        <input
+                          type="text"
+                          value={material.buyersInitialIpp || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buyersInitialIpp', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="For Waistband, should not narrow"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="APPROVAL"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="REMARKS"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* FELT - Complete fields */}
+                  {material.trimAccessory === 'FELT' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Flammability Rating, Pilling Resistance"
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-felt-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-felt-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards or Sheets"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5% for cutting)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BUYER'S/INITIAL/IPP</label>
+                        <input
+                          type="text"
+                          value={material.buyersInitialIpp || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buyersInitialIpp', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="APPROVAL"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Non-Toxic, Anti-Fraying edge..."
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* INTERLINING/FUSING - Complete fields */}
+                  {material.trimAccessory === 'INTERLINING/FUSING' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Bond strength, Residual Shrinkage"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-interlining-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-interlining-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Specific hand feel required, Low shrinkage..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* HOOKS & EYES - Complete fields */}
+                  {material.trimAccessory === 'HOOKS & EYES' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Holding Power Test, Corrosion Resistance"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-hooks-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-hooks-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Gross (144 sets) or Sets"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 3-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Ensure the bar is flat and non-bulky..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* BUCKLES & ADJUSTERS - Complete fields */}
+                  {material.trimAccessory === 'BUCKLES & ADJUSTERS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Corrosion Resistance, Salt Spray"
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-buckles-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-buckles-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 3-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: specific finger guard for release..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* EYELETS & GROMMETS - Complete fields */}
+                  {material.trimAccessory === 'EYELETS & GROMMETS' && (
+                    <>
+                <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Pull-Off Strength, Corrosion"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-eyelets-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-eyelets-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                  </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                  <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Gross (144 sets) or Sets"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-8%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Two-piece set (Eyelet and Washer) required..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* SHOULDER PADS / CUPS - Complete fields */}
+                  {material.trimAccessory === 'SHOULDER PADS / CUPS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Dry Cleaning, Washing Resistance"
+                        />
+                </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-shoulder-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-shoulder-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pairs"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Lightweight, resilient to pressure..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* TUBULAR KNITS / RIBBING - Complete fields */}
+                  {material.trimAccessory === 'TUBULAR KNITS / RIBBING' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Skewness, Colour Fastness, Pilling"
+                        />
+            </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-tubular-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-tubular-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Must be anti-curl on the cut edge..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* RFID / EAS TAGS - Complete fields */}
+                  {material.trimAccessory === 'RFID / EAS TAGS' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Read Range, Washing Resistance"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-rfid-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-rfid-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP / Technical Integration"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Global Gen 2 standard..."
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* PLASTIC CABLE TIES / LOOPS - Complete fields */}
+                  {material.trimAccessory === 'PLASTIC CABLE TIES / LOOPS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Tensile Test, UV Resistance"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces or Bundles"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-cable-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-cable-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Must have rounded, non-scratching edges..."
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* FRINGE / TASSELS - Complete fields */}
+                  {material.trimAccessory === 'FRINGE / TASSELS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Colour Fastness, Washing Resistance"
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Pieces per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP / Design Sample Approval"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Hand-tied appearance..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-fringe-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-fringe-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* PLASTIC PIPES / RODS - Complete fields */}
+                  {material.trimAccessory === 'PLASTIC PIPES / RODS' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="UV Stability, Load Bearing, Deflection"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must fit precisely into a 6mm stitched channel..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-pipes-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-pipes-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                <input
+                  type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* SEAM SEALING TAPE - Complete fields */}
+                  {material.trimAccessory === 'SEAM SEALING TAPE' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Hydrostatic Head test"
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S / INITIAL / IPP / Technical Data Sheet"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Matte finish on the exterior face..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-seam-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-seam-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* ADHESIVES / GUNNING - Complete fields */}
+                  {material.trimAccessory === 'ADHESIVES / GUNNING' && (
+                    <>
+              <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Bond strength, Toxicity / VOC Content"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Liters (L), Kilograms (Kgs), or Cans"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S / INITIAL / IPP / Safety Data Sheet (SDS)"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: Non-toxic, suitable for foam-to-fabric bond..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-adhesives-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-adhesives-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                <input
+                  type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* PRE-CUT HEMS / BINDINGS - Complete fields */}
+                  {material.trimAccessory === 'PRE-CUT HEMS / BINDINGS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Residual shrinkage, Skewing"
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be stretch-stabilized for curved edges..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-hems-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-hems-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* REFLECTIVE TAPES / TRIMS - Complete fields */}
+                  {material.trimAccessory === 'REFLECTIVE TAPES / TRIMS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Retro-reflection Coefficient"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Yards per Roll"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP / Compliance Certificate"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be compatible with industrial laundering..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-reflective-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-reflective-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* FIRE RETARDANT (FR) TRIMS - Complete fields */}
+                  {material.trimAccessory === 'FIRE RETARDANT (FR) TRIMS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Vertical Flame test, LOI"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Meters or Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-fr-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-fr-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP / Certification Test Report"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be inherently FR (not treated)..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* REPAIR KITS / PATCHES - Complete fields */}
+                  {material.trimAccessory === 'REPAIR KITS / PATCHES' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Adhesion strength, Shelf Life"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces or Sets"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-repair-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-repair-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP / Instruction Manual"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be included in the product packaging..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* CORD STOPS / CORD LOCKS / TOGGLES - Complete fields */}
+                  {material.trimAccessory === 'CORD STOPS / CORD LOCKS / TOGGLES' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Locking Strength, UV"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 3-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S / INITIAL / IPP / Functionality Approval"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: ergonomic finger grip, No snagging edges..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-cord-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-cord-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* D-RINGS / O-RINGS / WEBBING LOOPS - Complete fields */}
+                  {material.trimAccessory === 'D-RINGS / O-RINGS / WEBBING LOOPS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Tensile strength, Corrosion Resistance"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S / INITIAL / IPP / Load Test Certificate"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be non-magnetic for military use..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-drings-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-drings-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* FOAM / WADDING - Complete fields */}
+                  {material.trimAccessory === 'FOAM / WADDING (Pre-Cut Shapes)' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Compression set"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces or Sheets"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP / Foam Sample Approval"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be neat, sealed on the edge..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-foam-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-foam-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* PINS / TAGGING BARBS - Complete fields */}
+                  {material.trimAccessory === 'PINS / TAGGING BARBS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Needle sharpness, Non-Rusting"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces or Boxes"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-pins-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-pins-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be non-marking on delicate fabrics..."
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* MAGNETIC CLOSURES / SNAPS - Complete fields */}
+                  {material.trimAccessory === 'MAGNETIC CLOSURES / SNAPS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Pull Force test, Corrosion Resistance"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pairs (Male/Female set)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 3-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S/INITIAL/IPP / Magnet Field Strength"
+                        />
+                      </div>
+                      <div className="flex flex-col md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
+                          value={material.remarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
+                          placeholder="Required: must be RF-shielded if near RFID tags..."
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD</label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-magnetic-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`upload-magnetic-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          UPLOAD
+                        </label>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
+                    </>
                   )}
                 </div>
               )}
-            </div>
-
-            {/* Row 3: Work Order, Wastage, FOR */}
-            <div className="flex flex-wrap items-start gap-3">
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  WORK ORDER <span className="text-red-600">*</span>
-                </label>
-                <select
-                  value={material.workOrder}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'workOrder', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_workOrder`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_workOrder`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  required
-                >
-                  <option value="">Select</option>
-                  <option value="Sewing">Sewing</option>
-                  <option value="DYEING">DYEING</option>
-                  <option value="WEAVING">WEAVING</option>
-                  <option value="PRINTING">PRINTING</option>
-                  <option value="CUTTING">CUTTING</option>
-                  <option value="STITCHING">STITCHING</option>
-                </select>
-                {errors[`consumptionMaterial_${materialIndex}_workOrder`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`consumptionMaterial_${materialIndex}_workOrder`]}
-                  </span>
-                )}
-              </div>
-              
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  WASTAGE % <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={material.wastage}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'wastage', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_wastage`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_wastage`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  placeholder="e.g., 2"
-                  required
-                />
-                {errors[`consumptionMaterial_${materialIndex}_wastage`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`consumptionMaterial_${materialIndex}_wastage`]}
-                  </span>
-                )}
-              </div>
-              
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  FOR <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={material.forField}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'forField', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`consumptionMaterial_${materialIndex}_forField`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '10px 14px', width: '160px', height: '44px' }}
-                  onFocus={(e) => {
-                    if (!errors[`consumptionMaterial_${materialIndex}_forField`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  placeholder="e.g., Front Panel"
-                  required
-                />
-                {errors[`consumptionMaterial_${materialIndex}_forField`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`consumptionMaterial_${materialIndex}_forField`]}
-                  </span>
-                )}
-              </div>
             </div>
           </div>
         ))}
@@ -2359,7 +6297,7 @@ const GenerateFactoryCode = ({ onBack }) => {
               </div>
               
               {/* Material Details */}
-              <div className="flex flex-wrap items-start gap-3">
+              <div className="flex flex-wrap items-start gap-6">
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                     MATERIAL DESC <span className="text-red-600">*</span>
@@ -2521,7 +6459,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                   </div>
                   
                   {/* Work Order Fields */}
-                  <div className="flex flex-wrap items-start gap-3">
+                  <div className="flex flex-wrap items-start gap-6">
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">
                         WORK ORDER <span className="text-red-600">*</span>
@@ -2534,7 +6472,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                             ? 'border-red-600' 
                             : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                         }`}
-                        style={{ padding: '10px 14px', width: '140px', height: '44px' }}
+                        style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                         onFocus={(e) => {
                           if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`]) {
                             e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
@@ -2546,11 +6484,18 @@ const GenerateFactoryCode = ({ onBack }) => {
                         required
                       >
                         <option value="">Select</option>
-                        <option value="DYEING">DYEING</option>
                         <option value="WEAVING">WEAVING</option>
+                        <option value="TUFTING">TUFTING</option>
+                        <option value="QUILTING">QUILTING</option>
                         <option value="PRINTING">PRINTING</option>
+                        <option value="KNITTING">KNITTING</option>
+                        <option value="EMBROIDERY">EMBROIDERY</option>
+                        <option value="DYEING">DYEING</option>
+                        <option value="BRAIDING">BRAIDING</option>
+                        <option value="CARPET">CARPET</option>
                         <option value="CUTTING">CUTTING</option>
                         <option value="STITCHING">STITCHING</option>
+                        <option value="OTHERS">OTHERS</option>
                       </select>
                       {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`] && (
                         <span className="text-red-600 text-xs mt-1 font-medium">
@@ -2604,7 +6549,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                             ? 'border-red-600' 
                             : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                         }`}
-                        style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                        style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                         onFocus={(e) => {
                           if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`]) {
                             e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
@@ -2624,251 +6569,607 @@ const GenerateFactoryCode = ({ onBack }) => {
                     </div>
                   </div>
                   
-                  {/* Conditional Fields for DYEING */}
+                  {/* Conditional Fields based on Work Order Type */}
+                  {workOrder.workOrder && (
+                    <div className="w-full flex flex-wrap items-start mt-14 pt-6 border-t border-gray-50" style={{ gap: '24px 32px', marginTop: '20px' }}>
+                      {/* Machine Type / Specific Type Dropdown */}
+                        {(['WEAVING', 'TUFTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET', 'CUTTING'].includes(workOrder.workOrder)) && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">MACHINE TYPE</label>
+                            <select
+                              value={workOrder.machineType}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'machineType', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                              onBlur={(e) => e.target.style.boxShadow = ''}
+                            >
+                              <option value="">Select</option>
+                              {workOrder.workOrder === 'WEAVING' && ['WATER JET', 'AIRJET', 'DOBBY', 'FRAMELOOM', 'PITLOOM', 'JACQUARD', 'JUMBO JACQUARD', 'POWERLOOM', 'SHUTTLELESS', 'PANJA LOOM', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {workOrder.workOrder === 'TUFTING' && ['COMPUTERISED', 'MULTINEEDLE', 'FOUR NEEDLE/ TABLE TUFTING', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {workOrder.workOrder === 'KNITTING' && ['CIRCULAR', 'FLATBED', 'CROCHET', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {workOrder.workOrder === 'EMBROIDERY' && ['AARI/ TERRY EMBROIDERY', 'DORI/ ROPE EMBROIDERY', 'RICE STITCH', 'MULTI THREAD', 'SINGLE THREAD', 'COUCHING', 'PIN TUCKING', 'PLEATING'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {workOrder.workOrder === 'BRAIDING' && ['HAND BRAID', 'MACHINE BRAID', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {workOrder.workOrder === 'CARPET' && ['BROADLOOM', 'HAND TUFTED', 'MACHINE MADE- WAN DE VEILE', 'WALL 2 WALL', 'HAND KNOTTED', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {workOrder.workOrder === 'CUTTING' && ['CUTTER', 'SCISSOR', 'LASER'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Other specific type dropdowns */}
+                        {workOrder.workOrder === 'QUILTING' && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">QUILTING TYPE</label>
+                            <select
+                              value={workOrder.quiltingType}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'quiltingType', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                              onBlur={(e) => e.target.style.boxShadow = ''}
+                            >
+                              <option value="">Select</option>
+                              {['HAND QUILTING', 'MULTINEEDLE', 'MULTINEEDLE+EMBROIDERY', 'SINGLE NEEDLE', 'SCHIFFLEY', 'PESCE SLIDING', 'ULTRASONIC', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                          </div>
+                        )}
+
+                        {workOrder.workOrder === 'PRINTING' && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING TYPE</label>
+                            <select
+                              value={workOrder.printingType}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'printingType', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                              onBlur={(e) => e.target.style.boxShadow = ''}
+                            >
+                              <option value="">Select</option>
+                              {['BLOCK PRINT', 'COTTON-DIGITAL PRINT', 'LAMINATION POLYESTER DIGITAL PRINT', 'ROTARY PRINT', 'SCREEN PRINT', 'FLOCKING', 'OTHER'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                          </div>
+                        )}
+
                   {workOrder.workOrder === 'DYEING' && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg" style={{ padding: '12px', marginTop: '12px' }}>
-                      <div className="text-xs font-semibold text-yellow-800 mb-2">
-                        DYEING DETAILS
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">DYEING TYPE</label>
+                            <select
+                              value={workOrder.dyeingType}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'dyeingType', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                              onBlur={(e) => e.target.style.boxShadow = ''}
+                            >
+                              <option value="">Select</option>
+                              {['ARTIFICIAL FABRIC', 'ARTIFICIAL YARN', 'COTTON BATHMAT/ BATHRUG', 'NATURAL FABRIC', 'NATURAL YARN', 'POLYESTER BATHMAT', 'STONEWASH', 'ENZYME WASH', 'ACID WASH'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
                       </div>
-                      <div className="flex flex-wrap items-start gap-3">
+                        )}
+
+                        {/* DESIGN (Input) - Applicable to many */}
+                        {['WEAVING', 'TUFTING', 'QUILTING', 'PRINTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET'].includes(workOrder.workOrder) && (
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            TYPE <span className="text-red-600">*</span>
-                          </label>
+                            <label className="text-sm font-semibold text-gray-700 mb-2">DESIGN</label>
                           <input
                             type="text"
-                            value={workOrder.dyeingType}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'dyeingType', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_dyeingType`] 
-                                ? 'border-red-600' 
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                            onFocus={(e) => {
-                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_dyeingType`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
-                            placeholder="e.g., Solid"
-                            required
-                          />
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_dyeingType`] && (
-                            <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_dyeingType`]}
-                            </span>
-                          )}
+                              value={workOrder.design}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'design', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                              onBlur={(e) => e.target.style.boxShadow = ''}
+                              placeholder="e.g. TWILL WEAVE"
+                            />
+                          </div>
+                        )}
+
+                        {/* RECEIVED COLOR REFERENCE for DYEING */}
+                        {workOrder.workOrder === 'DYEING' && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">RECEIVED COLOR REFERENCE</label>
+                            <select
+                              value={workOrder.receivedColorReference}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'receivedColorReference', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                              onBlur={(e) => e.target.style.boxShadow = ''}
+                            >
+                              <option value="">Select</option>
+                              {['PANTONE', 'ARS', 'CSI', 'PMS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                        </div>
+                        )}
+                        
+                        {/* REFERENCE TYPE for DYEING */}
+                        {workOrder.workOrder === 'DYEING' && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">REFERENCE TYPE</label>
+                            <select
+                              value={workOrder.referenceType}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'referenceType', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                              onBlur={(e) => e.target.style.boxShadow = ''}
+                            >
+                              <option value="">Select</option>
+                              {['TPG', 'TCX', 'COATED', 'UNCOAT'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                          </div>
+                        )}
+                        
+                        {/* Image Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            {workOrder.workOrder === 'DYEING' ? 'REFERENCE IMAGE' : 'IMAGE REF'}
+                          </label>
+                          <div className="flex items-center gap-2">
+                          <input
+                              type="file"
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`file-${materialIndex}-${woIndex}`}
+                            />
+                            <label
+                              htmlFor={`file-${materialIndex}-${woIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{workOrder.imageRef ? 'UPLOADED' : 'UPLOAD'}</span>
+                            </label>
+                          </div>
                         </div>
                         
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            SHRINKAGE <span className="text-red-600">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={workOrder.shrinkage}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'shrinkage', e.target.value)}
+                        {/* Specific Fields for WEAVING */}
+                        {workOrder.workOrder === 'WEAVING' && (
+                          <>
+                            {/* WARP & WEFT Section */}
+                            <div className="w-full mt-4">
+                              <label className="text-sm font-semibold text-gray-700 mb-3 block">REED : </label>
+                              <div className="flex flex-wrap items-start gap-6">
+                                <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
+                                  <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={workOrder.warp || false}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'warp', e.target.checked)}
+                                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm font-semibold text-gray-700">WARP</span>
+                                  </label>
+                                  {workOrder.warp && (
+                                    <input
+                                      type="number"
+                                      step="0.001"
+                                      value={workOrder.ratioWarp || ''}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWarp', e.target.value)}
+                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                      style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                      onBlur={(e) => e.target.style.boxShadow = ''}
+                                      placeholder="0.4"
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
+                                  <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={workOrder.weft || false}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'weft', e.target.checked)}
+                                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm font-semibold text-gray-700">WEFT</span>
+                                  </label>
+                                  {workOrder.weft && (
+                                    <input
+                                      type="number"
+                                      step="0.001"
+                                      value={workOrder.ratioWeft || ''}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWeft', e.target.value)}
+                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                      style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                      onBlur={(e) => e.target.style.boxShadow = ''}
+                                      placeholder="0.25"
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                              {/* RATIO WEIGHT/%AGE Row */}
+                              <div className="flex items-center gap-4" style={{ marginTop: '24px' }}>
+                                <div className="flex flex-col">
+                                  <label className="text-sm font-semibold text-gray-700 mb-2">RATIO WEIGHT/%AGE</label>
+                                  <input
+                                    type="text"
+                                    value={workOrder.ratioWeightWarp || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWeightWarp', e.target.value)}
+                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                    style={{ padding: '10px 14px', height: '44px' }}
+                                  />
+                                </div>
+                              </div>
+                              {/* WASTAGE Row */}
+                              <div className="flex items-center gap-4" style={{ marginTop: '24px' }}>
+                                <div className="flex flex-col">
+                                  <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE</label>
+                                  <input
+                                    type="text"
+                                    value={workOrder.wastage || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
                             className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`] 
+                                      errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
                                 ? 'border-red-600' 
                                 : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                             }`}
-                            style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                    style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                             onFocus={(e) => {
-                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`]) {
+                                      if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
                                 e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                               }
                             }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
-                            placeholder="e.g., 3%"
-                            required
-                          />
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`] && (
+                                    onBlur={(e) => e.target.style.boxShadow = ''}
+                                    placeholder="%AGE"
+                                  />
+                                  {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
                             <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`]}
+                                      {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
                             </span>
                           )}
                         </div>
-                        
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            WIDTH <span className="text-red-600">*</span>
+                                  <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                                  <input
+                                    type="text"
+                                    value={workOrder.forSection || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'forSection', e.target.value)}
+                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                    style={{ padding: '10px 14px', width: '150px', height: '44px' }}
+                                    placeholder="FOR-SECTION"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Specific Fields for KNITTING */}
+                        {workOrder.workOrder === 'KNITTING' && (
+                          <div className="w-full mt-4">
+                            <div className="flex flex-wrap items-start gap-6">
+                              <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={workOrder.wales || false}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wales', e.target.checked)}
+                                    className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                  />
+                                  <span className="text-sm font-semibold text-gray-700">WALES:</span>
                           </label>
-                          <input
-                            type="text"
-                            value={workOrder.width}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'width', e.target.value)}
+                                {workOrder.wales && (
+                                  <input
+                                    type="number"
+                                    step="0.001"
+                                    value={workOrder.ratioWales || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWales', e.target.value)}
+                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                    style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                    onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                    onBlur={(e) => e.target.style.boxShadow = ''}
+                                    placeholder="0.4"
+                                  />
+                                )}
+                              </div>
+                              <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={workOrder.courses || false}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'courses', e.target.checked)}
+                                    className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                  />
+                                  <span className="text-sm font-semibold text-gray-700">COURSES:</span>
+                                </label>
+                                {workOrder.courses && (
+                                  <input
+                                    type="number"
+                                    step="0.001"
+                                    value={workOrder.ratioCourses || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioCourses', e.target.value)}
+                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                    style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                    onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                    onBlur={(e) => e.target.style.boxShadow = ''}
+                                    placeholder="0.25"
+                                  />
+                                )}
+                              </div>
+                            </div>
+                            {/* RATIO WEIGHT/%AGE Row */}
+                            <div className="flex items-center gap-4" style={{ marginTop: '24px' }}>
+                              <div className="flex flex-col">
+                                <label className="text-sm font-semibold text-gray-700 mb-2">RATIO WEIGHT/%AGE</label>
+                                <input
+                                  type="text"
+                                  value={workOrder.ratioWeightWales || ''}
+                                  onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWeightWales', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px' }}
+                                />
+                              </div>
+                            </div>
+                            {/* WASTAGE Row */}
+                            <div className="flex items-center gap-4" style={{ marginTop: '24px' }}>
+                              <div className="flex flex-col">
+                                <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE</label>
+                                <input
+                                  type="text"
+                                  value={workOrder.wastage || ''}
+                                  onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
                             className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_width`] 
+                                    errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
                                 ? 'border-red-600' 
                                 : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                             }`}
-                            style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                  style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                             onFocus={(e) => {
-                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_width`]) {
+                                    if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
                                 e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                               }
                             }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
-                            placeholder="Enter width"
-                            required
-                          />
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_width`] && (
+                                  onBlur={(e) => e.target.style.boxShadow = ''}
+                                  placeholder="%AGE"
+                                />
+                                {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
                             <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_width`]}
+                                    {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
                             </span>
                           )}
                         </div>
-                        
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            LENGTH <span className="text-red-600">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={workOrder.length}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'length', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_length`] 
-                                ? 'border-red-600' 
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                            onFocus={(e) => {
-                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_length`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
-                            placeholder="e.g., 50"
-                            required
-                          />
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_length`] && (
-                            <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_length`]}
-                            </span>
-                          )}
-                        </div>
+                              <div className="flex flex-col">
+                                <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                                <input
+                                  type="text"
+                                  value={workOrder.forSection || ''}
+                                  onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'forSection', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', width: '150px', height: '44px' }}
+                                  placeholder="FOR-SECTION"
+                                />
+                              </div>
                       </div>
                     </div>
                   )}
                   
-                  {/* Conditional Fields for WEAVING */}
-                  {workOrder.workOrder === 'WEAVING' && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg" style={{ padding: '12px', marginTop: '12px' }}>
-                      <div className="text-xs font-semibold text-yellow-800 mb-2">
-                        WEAVING DETAILS
+                        {/* Specific Fields for DYEING Shrinkage */}
+                        {workOrder.workOrder === 'DYEING' && (
+                          <div className="w-full mt-4">
+                            <div className="mb-4">
+                              <h5 className="text-sm font-bold text-gray-800 mb-3">SHRINKAGE</h5>
+                              <div className="grid grid-cols-2 gap-6 mb-6">
+                                <div className="flex flex-col">
+                                  <label className="flex items-center gap-3 cursor-pointer mb-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={workOrder.shrinkageWidth || false}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'shrinkageWidth', e.target.checked)}
+                                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm font-semibold text-gray-700">WIDTH</span>
+                                  </label>
+                                  {workOrder.shrinkageWidth && (
+                                    <input
+                                      type="text"
+                                      value={workOrder.shrinkageWidthPercent || ''}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'shrinkageWidthPercent', e.target.value)}
+                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                      style={{ padding: '10px 14px', height: '44px' }}
+                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                      onBlur={(e) => e.target.style.boxShadow = ''}
+                                      placeholder="3%"
+                                    />
+                                  )}
                       </div>
-                      <div className="flex flex-wrap items-start gap-3">
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            TYPE <span className="text-red-600">*</span>
+                                  <label className="flex items-center gap-3 cursor-pointer mb-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={workOrder.shrinkageLength || false}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'shrinkageLength', e.target.checked)}
+                                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm font-semibold text-gray-700">LENGTH</span>
                           </label>
+                                  {workOrder.shrinkageLength && (
                           <input
                             type="text"
-                            value={workOrder.weavingType}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'weavingType', e.target.value)}
+                                      value={workOrder.shrinkageLengthPercent || ''}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'shrinkageLengthPercent', e.target.value)}
+                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                      style={{ padding: '10px 14px', height: '44px' }}
+                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                      onBlur={(e) => e.target.style.boxShadow = ''}
+                                      placeholder="1%"
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* RATIO %AGE Section - Always Visible */}
+                              <div className="mb-6" style={{ marginTop: '24px' }}>
+                                <h5 className="text-sm font-bold text-gray-800 mb-3">RATIO %AGE</h5>
+                                <div className="flex items-center gap-4">
+                                  <div className="flex flex-col">
+                                    <label className="text-xs font-semibold text-gray-600 mb-1">RATIO %AGE</label>
+                                    <input
+                                      type="number"
+                                      step="0.001"
+                                      value={workOrder.ratioWidth || workOrder.ratioLength || ''}
+                                      onChange={(e) => {
+                                        if (workOrder.shrinkageWidth && workOrder.shrinkageLength) {
+                                          // If both selected, update both
+                                          handleWorkOrderChange(materialIndex, woIndex, 'ratioWidth', e.target.value);
+                                          handleWorkOrderChange(materialIndex, woIndex, 'ratioLength', e.target.value);
+                                        } else if (workOrder.shrinkageWidth) {
+                                          handleWorkOrderChange(materialIndex, woIndex, 'ratioWidth', e.target.value);
+                                        } else if (workOrder.shrinkageLength) {
+                                          handleWorkOrderChange(materialIndex, woIndex, 'ratioLength', e.target.value);
+                                        }
+                                      }}
+                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                      style={{ padding: '10px 14px', width: '150px', height: '44px' }}
+                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                      onBlur={(e) => e.target.style.boxShadow = ''}
+                                      placeholder="RATIO %AGE"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs font-semibold text-gray-600 mb-1">FOR-SECTION</label>
+                                    <input
+                                      type="text"
+                                      value={workOrder.forSection || ''}
+                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'forSection', e.target.value)}
+                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                      style={{ padding: '10px 14px', width: '150px', height: '44px' }}
+                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                      onBlur={(e) => e.target.style.boxShadow = ''}
+                                      placeholder="FOR-SECTION"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* WASTAGE Row - Separate */}
+                              <div className="flex items-center gap-4" style={{ marginTop: '24px' }}>
+                                <div className="flex flex-col">
+                                  <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE</label>
+                                  <input
+                                    type="text"
+                                    value={workOrder.wastage || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
                             className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_weavingType`] 
+                                      errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
                                 ? 'border-red-600' 
                                 : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                             }`}
                             style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                             onFocus={(e) => {
-                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_weavingType`]) {
+                                      if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
                                 e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                               }
                             }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
-                            placeholder="e.g., Plain"
-                            required
-                          />
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_weavingType`] && (
+                                    onBlur={(e) => e.target.style.boxShadow = ''}
+                                    placeholder="%AGE"
+                                  />
+                                  {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
                             <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_weavingType`]}
+                                      {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
                             </span>
                           )}
                         </div>
-                        
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            WARP/WEFT <span className="text-red-600">*</span>
-                          </label>
-                          <select
-                            value={workOrder.warpWeft}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'warpWeft', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_warpWeft`] 
-                                ? 'border-red-600' 
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '12px 16px', maxWidth: '200px' }}
-                            onFocus={(e) => {
-                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_warpWeft`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
-                            required
-                          >
-                            <option value="">Select</option>
-                            <option value="WARP">WARP</option>
-                            <option value="WEFT">WEFT</option>
-                            <option value="BOTH">BOTH</option>
-                          </select>
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_warpWeft`] && (
-                            <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_warpWeft`]}
-                            </span>
-                          )}
-                        </div>
-                        
-                        {workOrder.warpWeft === 'BOTH' && (
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">
-                              RATIO <span className="text-red-600">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={workOrder.ratio}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratio', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                                errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratio`] 
-                                  ? 'border-red-600' 
-                                  : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                              }`}
-                              style={{ padding: '12px 16px', maxWidth: '200px' }}
-                              onFocus={(e) => {
-                                if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratio`]) {
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                }
-                              }}
-                              onBlur={(e) => {
-                                e.target.style.boxShadow = '';
-                              }}
-                              placeholder="Enter ratio"
-                              required
-                            />
-                            {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratio`] && (
-                              <span className="text-red-600 text-xs mt-1 font-medium">
-                                {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratio`]}
-                              </span>
-                            )}
+                              </div>
+                            </div>
                           </div>
                         )}
+                        
+                        {/* Specific Fields for TUFTING & CARPET */}
+                        {(['TUFTING', 'CARPET'].includes(workOrder.workOrder)) && (
+                          <>
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">PILE HEIGHT</label>
+                          <input
+                            type="text"
+                                value={workOrder.pileHeight}
+                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'pileHeight', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => e.target.style.boxShadow = ''}
+                              />
+                        </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">TPI</label>
+                              <input
+                                type="text"
+                                value={workOrder.tpi}
+                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'tpi', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => e.target.style.boxShadow = ''}
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {workOrder.workOrder === 'CUTTING' && (
+                          <>
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">CUT TYPE</label>
+                          <select
+                                value={workOrder.cutType}
+                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'cutType', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', width: '140px', height: '44px' }}
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => e.target.style.boxShadow = ''}
+                          >
+                            <option value="">Select</option>
+                                {['LAYERED', 'PANEL'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                          </select>
+                        </div>
+                          <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">CUT SIZE (LENGTH)</label>
+                            <input
+                              type="text"
+                                value={workOrder.cutSize}
+                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'cutSize', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', width: '140px', height: '44px' }}
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => e.target.style.boxShadow = ''}
+                              />
+                          </div>
+                          </>
+                        )}
+
+                        {/* Common Approval Against */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL AGAINST</label>
+                          <select
+                            value={workOrder.approvalAgainst}
+                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approvalAgainst', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', width: '180px', height: '44px' }}
+                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                            onBlur={(e) => e.target.style.boxShadow = ''}
+                          >
+                            <option value="">Select</option>
+                            <option value="BUYER'S SAMPLE">BUYER'S SAMPLE</option>
+                            <option value="INITIAL SAMPLE">INITIAL SAMPLE</option>
+                            <option value="PP SAMPLE">PP SAMPLE</option>
+                          </select>
+                        </div>
+
+                      {/* Remarks */}
+                      <div className="w-full flex flex-col mt-8">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                          <textarea
+                            value={workOrder.remarks}
+                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '12px 16px', width: '100%' }}
+                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                            onBlur={(e) => e.target.style.boxShadow = ''}
+                            rows="2"
+                          ></textarea>
                       </div>
                     </div>
                   )}
@@ -2904,592 +7205,563 @@ const GenerateFactoryCode = ({ onBack }) => {
     <div className="w-full">
       {/* Header with proper spacing */}
       <div style={{ marginBottom: '28px' }}>
+        <div className="flex items-center justify-between">
+          <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-5 PACKAGING</h2>
         <p className="text-sm text-gray-600">Configure packaging specifications and materials</p>
+          </div>
+          <button
+            type="button"
+            onClick={addPackagingMaterial}
+            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
+            style={{
+              backgroundColor: '#f3f4f6',
+              borderColor: '#d1d5db',
+              color: '#374151',
+              padding: '10px 16px',
+              height: '42px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e5e7eb';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }}
+          >
+            + Add Material
+          </button>
+        </div>
       </div>
 
       {/* Header Configuration */}
       <div className="bg-gray-50 rounded-xl border border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
-        <h3 className="text-sm font-bold text-gray-800" style={{ marginBottom: '16px' }}>PACKAGING CONFIGURATION</h3>
+        <h3 className="text-sm font-bold text-gray-800" style={{ marginBottom: '16px' }}>PACKAGING HEADER</h3>
         
-        <div className="flex flex-wrap items-start gap-3">
+        <div className="flex flex-wrap items-start gap-4">
+          {/* PRODUCT */}
+          <div className="flex flex-col" style={{ width: '250px' }}>
+            <label className="text-sm font-semibold text-gray-700 mb-2">PRODUCT</label>
+            <input
+              type="text"
+              value={formData.packaging.productSelection}
+              onChange={(e) => handlePackagingChange('productSelection', e.target.value)}
+              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+              style={{ padding: '10px 14px', height: '44px' }}
+              placeholder="e.g., COMFORTER+PILLOW+BAG"
+            />
+          </div>
+
           {/* TYPE */}
           <div className="flex flex-col">
             <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
             <select
               value={formData.packaging.type}
               onChange={(e) => handlePackagingChange('type', e.target.value)}
-              className={getInputStyle('packaging_type')}
-              style={{ padding: '10px 14px', width: '130px', height: '44px' }}
+              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
             >
               <option value="STANDARD">STANDARD</option>
-              <option value="ASSORTED">ASSORTED</option>
+              <option value="ASSORTED">ASSORTED (LINK IPC#)</option>
             </select>
           </div>
 
           {/* CASEPACK QTY */}
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700 mb-2">
-              CASEPACK <span className="text-red-600">*</span>
-            </label>
+            <label className="text-sm font-semibold text-gray-700 mb-2">CASEPACK QTY</label>
             <input
               type="number"
               value={formData.packaging.casepackQty}
               onChange={(e) => handlePackagingChange('casepackQty', e.target.value)}
-              className={getInputStyle('packaging_casepackQty')}
-              style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-              onFocus={(e) => inputFocusHandler(e, 'packaging_casepackQty')}
-              onBlur={inputBlurHandler}
-              placeholder="e.g., 25"
-            />
-            {errors['packaging_casepackQty'] && (
-              <span className="text-red-600 text-xs mt-1 font-medium">{errors['packaging_casepackQty']}</span>
-            )}
-          </div>
-
-          {/* QTY TO BE PACKED */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700 mb-2">QTY PACKED</label>
-            <select
-              value={formData.packaging.qtyToBePacked}
-              onChange={(e) => handlePackagingChange('qtyToBePacked', e.target.value)}
-              className={getInputStyle('packaging_qtyToBePacked')}
-              style={{ padding: '10px 14px', width: '160px', height: '44px' }}
-            >
-              <option value="AS_PER_PO">AS PER PO</option>
-              <option value="CUSTOM_QTY">CUSTOM QTY</option>
-            </select>
-          </div>
-
-          {/* PRODUCT SELECTION */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700 mb-2">PRODUCT</label>
-            <select
-              value={formData.packaging.productSelection}
-              onChange={(e) => handlePackagingChange('productSelection', e.target.value)}
-              className={getInputStyle('packaging_productSelection')}
-              style={{ padding: '10px 14px', width: '150px', height: '44px' }}
-            >
-              <option value="">Select Type</option>
-              <option value="VELVET CUSHION">VELVET CUSHION</option>
-              <option value="CUSHION">CUSHION</option>
-              <option value="FILLER">FILLER</option>
-              <option value="TOTE BAG">TOTE BAG</option>
-              <option value="BEDDING">BEDDING</option>
-              <option value="THROW">THROW</option>
-              <option value="RUG">RUG</option>
-              <option value="OTHER">OTHER</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Custom Qty field */}
-        {formData.packaging.qtyToBePacked === 'CUSTOM_QTY' && (
-          <div className="flex flex-wrap items-start gap-3" style={{ marginTop: '16px' }}>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">
-                CUSTOM QTY <span className="text-red-600">*</span>
-              </label>
-              <input
-                type="number"
-                value={formData.packaging.customQty}
-                onChange={(e) => handlePackagingChange('customQty', e.target.value)}
-                className={getInputStyle('packaging_customQty')}
+              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                 style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                onFocus={(e) => inputFocusHandler(e, 'packaging_customQty')}
-                onBlur={inputBlurHandler}
-                placeholder="e.g., 100"
+              placeholder="10"
               />
-              {errors['packaging_customQty'] && (
-                <span className="text-red-600 text-xs mt-1 font-medium">{errors['packaging_customQty']}</span>
-              )}
             </div>
 
-            {/* Assorted Pack Toggle */}
-            <div className="flex flex-col justify-end" style={{ paddingBottom: '10px' }}>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.packaging.isAssortedPack}
-                  onChange={(e) => handlePackagingChange('isAssortedPack', e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <span className="text-sm font-medium text-gray-700">Is Assorted Pack?</span>
-              </label>
-            </div>
-
-            {/* Assorted SKU Link */}
-            {formData.packaging.isAssortedPack && (
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  SKU LINK <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.packaging.assortedSkuLink}
-                  onChange={(e) => handlePackagingChange('assortedSkuLink', e.target.value)}
-                  className={getInputStyle('packaging_assortedSkuLink')}
-                  style={{ padding: '10px 14px', width: '160px', height: '44px' }}
-                  onFocus={(e) => inputFocusHandler(e, 'packaging_assortedSkuLink')}
-                  onBlur={inputBlurHandler}
-                  placeholder="e.g., SKU-123"
-                />
-                {errors['packaging_assortedSkuLink'] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">{errors['packaging_assortedSkuLink']}</span>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Assorted Pack Info for Type = ASSORTED */}
+          {/* IPC Link for Assorted */}
         {formData.packaging.type === 'ASSORTED' && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-700">
-              <strong>Assorted Packaging Selected:</strong> Please provide the other SKU Link or IPC# for the assorted pack.
-              The same details will be updated for the linked IPC#.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2" style={{ marginTop: '16px', gap: '24px' }}>
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  OTHER SKU LINK / IPC# <span className="text-red-600">*</span>
-                </label>
+              <label className="text-sm font-semibold text-gray-700 mb-2">LINK IPC#</label>
                 <input
                   type="text"
                   value={formData.packaging.assortedSkuLink}
                   onChange={(e) => handlePackagingChange('assortedSkuLink', e.target.value)}
-                  className={getInputStyle('packaging_assortedSkuLink')}
-                  style={{ padding: '12px 16px' }}
-                  onFocus={(e) => inputFocusHandler(e, 'packaging_assortedSkuLink')}
-                  onBlur={inputBlurHandler}
-                  placeholder="Enter linked SKU or IPC#"
-                />
-                {errors['packaging_assortedSkuLink'] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">{errors['packaging_assortedSkuLink']}</span>
-                )}
-              </div>
-            </div>
+                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                style={{ padding: '10px 14px', width: '150px', height: '44px' }}
+                placeholder="IPC-123"
+              />
           </div>
         )}
       </div>
-
-      {/* Conditional Size Info Banner */}
-      {requiresSizeFields(formData.packaging.productSelection) && (
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
-          <p className="text-sm text-blue-700">
-            <strong>Size Required:</strong> Since you selected {formData.packaging.productSelection}, 
-            width and size information should be mentioned for each packaging material.
-          </p>
         </div>
-      )}
 
       {/* Packaging Materials */}
-      <div style={{ marginTop: '32px' }}>
-        {formData.packaging.materials.map((material, materialIndex) => (
-          <div 
-            key={materialIndex}
-            className="bg-white rounded-lg border-2 border-gray-300"
-            style={{ padding: '32px', marginBottom: '40px' }}
-          >
-            {/* Material Header */}
-            <div className="flex justify-between items-center" style={{ marginBottom: '24px' }}>
-              <h4 className="text-lg font-semibold text-gray-900">
-                MATERIAL #{material.srNo}
-              </h4>
+      <div>
+        {formData.packaging.materials && formData.packaging.materials.length > 0 ? formData.packaging.materials.map((material, materialIndex) => (
+          <div key={materialIndex} className="bg-white rounded-xl border-2 border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
+            {/* Material Header with Remove Button */}
+            <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
+              <h4 className="text-sm font-bold text-gray-800 underline underline-offset-4">MATERIAL {materialIndex + 1}</h4>
               {formData.packaging.materials.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removePackagingMaterial(materialIndex)}
-                  className="flex items-center gap-2 border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
+                  className="border rounded-md cursor-pointer text-xs font-medium transition-all hover:-translate-x-0.5"
                   style={{
-                    backgroundColor: '#f3f4f6',
-                    borderColor: '#d1d5db',
-                    color: '#374151',
-                    marginBottom: '24px'
+                    backgroundColor: '#fee2e2',
+                    borderColor: '#fca5a5',
+                    color: '#b91c1c',
+                    padding: '4px 10px',
+                    height: '28px'
                   }}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
                   Remove
                 </button>
               )}
             </div>
 
-            {/* Basic Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '24px', marginBottom: '24px' }}>
-              {/* PRODUCT */}
+            {/* Basic Info: Components, Material Description, Consumption, Unit, Work Order, Placement */}
+            <div style={{ marginBottom: '24px' }}>
+              <div className="flex flex-wrap items-start gap-4">
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  PRODUCT <span className="text-red-600">*</span>
-                </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">COMPONENTS</label>
                 <input
                   type="text"
-                  value={material.product}
-                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'product', e.target.value)}
-                  className={getInputStyle(`packaging_material_${materialIndex}_product`)}
-                  style={{ padding: '12px 16px' }}
-                  onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_product`)}
-                  onBlur={inputBlurHandler}
-                  placeholder="e.g., VELVET CUSHION"
-                />
-                {errors[`packaging_material_${materialIndex}_product`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`packaging_material_${materialIndex}_product`]}
-                  </span>
-                )}
+                    value={material.components}
+                    onChange={(e) => handlePackagingMaterialChange(materialIndex, 'components', e.target.value)}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '150px', height: '44px' }}
+                    placeholder="e.g., N/A"
+                  />
               </div>
 
-              {/* COMPONENTS */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">COMPONENTS</label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL DESCRIPTION</label>
                 <input
                   type="text"
-                  value={material.components}
-                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'components', e.target.value)}
-                  className={getInputStyle(`packaging_material_${materialIndex}_components`)}
-                  style={{ padding: '12px 16px' }}
-                  onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_components`)}
-                  onBlur={inputBlurHandler}
-                  placeholder="N/A or component name"
+                    value={material.product}
+                    onChange={(e) => handlePackagingMaterialChange(materialIndex, 'product', e.target.value)}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '180px', height: '44px' }}
+                    placeholder="e.g., Corrugated Box"
                 />
               </div>
 
-              {/* Material Description */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  MATERIAL DESCRIPTION <span className="text-red-600">*</span>
-                </label>
-                <select
-                  value={material.materialDescription}
-                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'materialDescription', e.target.value)}
-                  className={getInputStyle(`packaging_material_${materialIndex}_materialDescription`)}
-                  style={{ padding: '12px 16px' }}
-                >
-                  <option value="">Select Material</option>
-                  <option value="Corrugated Box">Corrugated Box</option>
-                  <option value="Carton Marking">Carton Marking</option>
-                  <option value="POLY WRAP">POLY WRAP</option>
-                  <option value="Silica Gel">Silica Gel</option>
-                  <option value="Foam Sheet">Foam Sheet</option>
-                  <option value="Tissue Paper">Tissue Paper</option>
-                  <option value="Header Card">Header Card</option>
-                  <option value="Hang Tag">Hang Tag</option>
-                  <option value="Sticker Label">Sticker Label</option>
-                  <option value="OTHER">OTHER</option>
-                </select>
-                {errors[`packaging_material_${materialIndex}_materialDescription`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`packaging_material_${materialIndex}_materialDescription`]}
-                  </span>
-                )}
-              </div>
-
-              {/* Net Consumption per Pc */}
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  NET CONSUMPTION/PC <span className="text-red-600">*</span>
-                </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">CONS. PER PC</label>
                 <input
                   type="number"
-                  step="0.001"
+                    step="0.01"
                   value={material.netConsumptionPerPc}
                   onChange={(e) => handlePackagingMaterialChange(materialIndex, 'netConsumptionPerPc', e.target.value)}
-                  className={getInputStyle(`packaging_material_${materialIndex}_netConsumptionPerPc`)}
-                  style={{ padding: '12px 16px' }}
-                  onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_netConsumptionPerPc`)}
-                  onBlur={inputBlurHandler}
-                  placeholder="e.g., 4 or 0.08"
-                />
-                {errors[`packaging_material_${materialIndex}_netConsumptionPerPc`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`packaging_material_${materialIndex}_netConsumptionPerPc`]}
-                  </span>
-                )}
-              </div>
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '110px', height: '44px' }}
+                    placeholder="0.5"
+                  />
             </div>
 
-            {/* Second Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '24px', marginBottom: '24px' }}>
-              {/* Unit */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  UNIT <span className="text-red-600">*</span>
-                </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
                 <select
                   value={material.unit}
                   onChange={(e) => handlePackagingMaterialChange(materialIndex, 'unit', e.target.value)}
-                  className={getInputStyle(`packaging_material_${materialIndex}_unit`)}
-                  style={{ padding: '12px 16px' }}
-                >
-                  <option value="">Select Unit</option>
-                  <option value="R METERS">R METERS</option>
-                  <option value="CM">CM</option>
-                  <option value="Inches">Inches</option>
-                  <option value="Meter">Meter</option>
-                  <option value="KGS">KGS</option>
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                  >
+                    <option value="Pc">Pc</option>
+                    <option value="Set">Set</option>
+                    <option value="Roll">Roll</option>
+                    <option value="Kgs">Kgs</option>
                 </select>
-                {errors[`packaging_material_${materialIndex}_unit`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`packaging_material_${materialIndex}_unit`]}
-                  </span>
-                )}
               </div>
 
-              {/* Casepack */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
-                  CASEPACK <span className="text-red-600">*</span>
-                </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">WORK ORDER</label>
                 <input
-                  type="number"
-                  value={material.casepack}
-                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'casepack', e.target.value)}
-                  className={getInputStyle(`packaging_material_${materialIndex}_casepack`)}
-                  style={{ padding: '12px 16px' }}
-                  onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_casepack`)}
-                  onBlur={inputBlurHandler}
-                  placeholder="e.g., 25"
-                />
-                {errors[`packaging_material_${materialIndex}_casepack`] && (
-                  <span className="text-red-600 text-xs mt-1 font-medium">
-                    {errors[`packaging_material_${materialIndex}_casepack`]}
-                  </span>
-                )}
+                    type="text"
+                    value={material.workOrders[0].workOrder}
+                    onChange={(e) => handlePackagingWorkOrderChange(materialIndex, 0, 'workOrder', e.target.value)}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '150px', height: '44px' }}
+                    placeholder="PACKAGING"
+                  />
               </div>
 
-              {/* Placement */}
-              <div className="flex flex-col lg:col-span-2">
+                <div className="flex flex-col" style={{ flexGrow: 1, minWidth: '250px' }}>
                 <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
                 <input
                   type="text"
                   value={material.placement}
                   onChange={(e) => handlePackagingMaterialChange(materialIndex, 'placement', e.target.value)}
-                  className={getInputStyle(`packaging_material_${materialIndex}_placement`)}
-                  style={{ padding: '12px 16px' }}
-                  onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_placement`)}
-                  onBlur={inputBlurHandler}
-                  placeholder="e.g., 1 ON THE CENTER OF THE LARGER SIDE & 1 ON THE ADJACENT SIDE"
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', height: '44px' }}
+                    placeholder="1 ON THE CENTER OF THE LARGER SIDE..."
                 />
               </div>
             </div>
 
-            {/* Size Fields (Conditional) */}
-            {requiresSizeFields(formData.packaging.productSelection) && (
-              <div className="bg-gray-50 rounded-lg" style={{ padding: '24px', marginBottom: '24px' }}>
-                <h5 className="text-sm font-semibold text-gray-700" style={{ marginBottom: '16px' }}>
-                  SIZE <span className="text-gray-500 text-xs">(Required for {formData.packaging.productSelection})</span>
-                </h5>
-                <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: '24px' }}>
+              {/* SIZE Row */}
+              <div className="flex flex-wrap items-start gap-4 mt-8" style={{marginTop: '20px'}}>
                   <div className="flex flex-col">
-                    <label className="text-xs font-medium text-gray-600 mb-1">
-                      WIDTH <span className="text-red-600">*</span>
-                    </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
                     <input
                       type="number"
                       value={material.size.width}
                       onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'width', e.target.value)}
-                      className={getInputStyle(`packaging_material_${materialIndex}_size_width`)}
-                      style={{ padding: '10px 12px' }}
-                      onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_size_width`)}
-                      onBlur={inputBlurHandler}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '100px', height: '44px' }}
                       placeholder="52"
                     />
-                    {errors[`packaging_material_${materialIndex}_size_width`] && (
-                      <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_size_width`]}</span>
-                    )}
                   </div>
+
                   <div className="flex flex-col">
-                    <label className="text-xs font-medium text-gray-600 mb-1">
-                      LENGTH <span className="text-red-600">*</span>
-                    </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH</label>
                     <input
                       type="number"
                       value={material.size.length}
                       onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'length', e.target.value)}
-                      className={getInputStyle(`packaging_material_${materialIndex}_size_length`)}
-                      style={{ padding: '10px 12px' }}
-                      onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_size_length`)}
-                      onBlur={inputBlurHandler}
-                      placeholder="52"
-                    />
-                    {errors[`packaging_material_${materialIndex}_size_length`] && (
-                      <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_size_length`]}</span>
-                    )}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                    placeholder="48"
+                  />
                   </div>
+
                   <div className="flex flex-col">
-                    <label className="text-xs font-medium text-gray-600 mb-1">
-                      HEIGHT <span className="text-red-600">*</span>
-                    </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">HEIGHT</label>
                     <input
                       type="number"
                       value={material.size.height}
                       onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'height', e.target.value)}
-                      className={getInputStyle(`packaging_material_${materialIndex}_size_height`)}
-                      style={{ padding: '10px 12px' }}
-                      onFocus={(e) => inputFocusHandler(e, `packaging_material_${materialIndex}_size_height`)}
-                      onBlur={inputBlurHandler}
-                      placeholder="26"
-                    />
-                    {errors[`packaging_material_${materialIndex}_size_height`] && (
-                      <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_size_height`]}</span>
-                    )}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                    placeholder="52"
+                  />
                   </div>
+
                   <div className="flex flex-col">
-                    <label className="text-xs font-medium text-gray-600 mb-1">
-                      UNIT <span className="text-red-600">*</span>
-                    </label>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
                     <select
                       value={material.size.unit}
                       onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'unit', e.target.value)}
-                      className={getInputStyle(`packaging_material_${materialIndex}_size_unit`)}
-                      style={{ padding: '10px 12px' }}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                     >
-                      <option value="">Select</option>
                       <option value="CMS">CMS</option>
                       <option value="INCHES">INCHES</option>
                       <option value="MM">MM</option>
                     </select>
-                    {errors[`packaging_material_${materialIndex}_size_unit`] && (
-                      <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_size_unit`]}</span>
-                    )}
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* Work Orders */}
-            <div className="bg-indigo-50 rounded-lg" style={{ padding: '24px', marginBottom: '24px' }}>
-              <h5 className="text-sm font-semibold text-gray-700" style={{ marginBottom: '16px' }}>WORK ORDERS & WASTAGE</h5>
-              <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: '24px' }}>
-                {material.workOrders.map((wo, woIndex) => (
-                  <div key={woIndex} className="bg-white rounded-lg p-3 border border-indigo-100">
-                    <p className="text-xs font-medium text-indigo-600 mb-2">WORK ORDER SET {woIndex + 1}</p>
-                    <div className="grid grid-cols-3 gap-2">
+            {/* CATEGORY SELECTOR & CONDITIONAL FIELDS */}
+            <div className="w-full mt-6 pt-6 border-t border-gray-100">
+              <div className="flex flex-col" style={{ width: '280px', marginBottom: '24px' }}>
+                <label className="text-sm font-bold text-gray-800 mb-2">PACKAGING MATERIAL TYPE</label>
+                <select
+                  value={material.materialDescription}
+                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'materialDescription', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px' }}
+                >
+                  <option value="">Select Type</option>
+                  <option value="CARTONS/CORRUGATED BOX">CARTONS/CORRUGATED BOX</option>
+                  <option value="POLY BAG WITH FLAP">POLY BAG WITH FLAP</option>
+                  <option value="POLY SHEET / BALE WRAP">POLY SHEET / BALE WRAP</option>
+                  <option value="TAPE">TAPE</option>
+                  <option value="OTHER">OTHER</option>
+                </select>
+              </div>
+
+              {material.materialDescription && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-6">
+                  {/* Specific Fields for CARTONS/CORRUGATED BOX */}
+                  {material.materialDescription === 'CARTONS/CORRUGATED BOX' && (
+                    <>
                       <div className="flex flex-col">
-                        <label className="text-xs font-medium text-gray-600 mb-1">WORK ORDER</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS</label>
                         <select
-                          value={wo.workOrder}
-                          onChange={(e) => handlePackagingWorkOrderChange(materialIndex, woIndex, 'workOrder', e.target.value)}
-                          className="border rounded-lg text-xs bg-white text-gray-900"
-                          style={{ padding: '8px 10px' }}
+                          value={material.noOfPlys}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'noOfPlys', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                         >
                           <option value="">Select</option>
-                          <option value="Packaging">Packaging</option>
-                          <option value="Printing">Printing</option>
-                          <option value="Labeling">Labeling</option>
-                          <option value="Assembly">Assembly</option>
+                          <option value="3 PLY">3 PLY</option>
+                          <option value="5 PLY">5 PLY</option>
+                          <option value="7 PLY">7 PLY</option>
+                          <option value="9 PLY">9 PLY</option>
                         </select>
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-xs font-medium text-gray-600 mb-1">WASTAGE %</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE</label>
+                        <select
+                          value={material.jointType}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'jointType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          <option value="STAPLE">STAPLE</option>
+                          <option value="BINDED">BINDED</option>
+                          <option value="GLUED">GLUED</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BURSTING STRENGTH</label>
                         <input
-                          type="number"
-                          step="0.1"
-                          value={wo.wastage}
-                          onChange={(e) => handlePackagingWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
-                          className={getInputStyle(`packaging_material_${materialIndex}_workOrder_${woIndex}_wastage`)}
-                          style={{ padding: '8px 10px' }}
-                          placeholder="1%"
+                          type="text"
+                          value={material.burstingStrength}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'burstingStrength', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 175 LBS"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Specific Fields for POLY BAG WITH FLAP */}
+                  {material.materialDescription === 'POLY BAG WITH FLAP' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE</label>
+                        <input
+                          type="text"
+                          value={material.guage}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 200"
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-xs font-medium text-gray-600 mb-1">FOR</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
                         <input
                           type="text"
-                          value={wo.for}
-                          onChange={(e) => handlePackagingWorkOrderChange(materialIndex, woIndex, 'for', e.target.value)}
-                          className={getInputStyle(`packaging_material_${materialIndex}_workOrder_${woIndex}_for`)}
-                          style={{ padding: '8px 10px' }}
-                          placeholder="Product name"
+                          value={material.gummingQuality}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="High/Standard"
                         />
-                      </div>
                     </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PUNCH HOLES</label>
+                        <input
+                          type="text"
+                          value={material.punchHoles}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'punchHoles', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 2 holes"
+                        />
                   </div>
-                ))}
-              </div>
-            </div>
+                    </>
+                  )}
 
-            {/* Calculated Values */}
-            <div className="bg-green-50 rounded-lg" style={{ padding: '24px' }}>
-              <h5 className="text-sm font-semibold text-gray-700" style={{ marginBottom: '16px' }}>CALCULATED VALUES</h5>
-              <div className="grid grid-cols-2 md:grid-cols-5" style={{ gap: '24px' }}>
+                  {/* Specific Fields for POLY SHEET / BALE WRAP */}
+                  {material.materialDescription === 'POLY SHEET / BALE WRAP' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE/GSM</label>
+                        <input
+                          type="text"
+                          value={material.guageGsm}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guageGsm', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 200"
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">ROLL WIDTH</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <input
+                            type="text"
+                            value={material.rollWidth}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'rollWidth', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            style={{ padding: '10px 14px', width: '80px' }}
+                            placeholder="60"
+                          />
+                          <select
+                            value={material.rollWidthUnit}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'rollWidthUnit', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                            style={{ padding: '0 10px', height: '100%' }}
+                          >
+                            <option value="INCHES">INCHES</option>
+                            <option value="CMS">CMS</option>
+                          </select>
+            </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Specific Fields for TAPE */}
+                  {material.materialDescription === 'TAPE' && (
+                    <>
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">NET CONSUMPTION/PC</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE</label>
                   <input
                     type="text"
-                    value={material.netConsumptionPerPc || '-'}
-                    readOnly
-                    className="border rounded-lg text-sm bg-gray-100 text-gray-700"
-                    style={{ padding: '10px 12px' }}
+                          value={material.guage}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 200"
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">TOTAL WASTAGE %</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
                   <input
                     type="text"
-                    value={material.totalWastage ? `${material.totalWastage}%` : '-'}
-                    readOnly
-                    className="border rounded-lg text-sm bg-gray-100 text-gray-700"
-                    style={{ padding: '10px 12px' }}
+                          value={material.gummingQuality}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Strong/Standard"
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">UNIT</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
                   <input
                     type="text"
-                    value={material.unit || '-'}
-                    readOnly
-                    className="border rounded-lg text-sm bg-gray-100 text-gray-700"
-                    style={{ padding: '10px 12px' }}
-                  />
+                            value={material.tapeWidth}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'tapeWidth', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            style={{ padding: '10px 14px', width: '80px' }}
+                            placeholder="3"
+                          />
+                          <select
+                            value={material.tapeWidthUnit}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'tapeWidthUnit', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                            style={{ padding: '0 10px', height: '100%' }}
+                          >
+                            <option value="INCHES">INCHES</option>
+                            <option value="CMS">CMS</option>
+                          </select>
                 </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Image Upload for POLY BAG/TAPE */}
+                  {(material.materialDescription === 'POLY BAG WITH FLAP' || material.materialDescription === 'TAPE') && (
                 <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">OVERAGE %</label>
+                      <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING REF</label>
+                      <div className="flex items-center gap-2">
                   <input
-                    type="number"
-                    value={material.overage}
-                    onChange={(e) => handlePackagingMaterialChange(materialIndex, 'overage', e.target.value)}
-                    className="border-2 border-green-300 rounded-lg text-sm bg-white text-gray-900 focus:border-green-500 focus:outline-none"
-                    style={{ padding: '10px 12px' }}
-                    placeholder="10%"
-                  />
+                          type="file"
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'printingRef', e.target.files[0])}
+                          className="hidden"
+                          id={`pkg-file-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`pkg-file-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                          style={{ padding: '10px 14px', height: '44px', width: '110px' }}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          </svg>
+                          <span className="truncate">{material.printingRef ? 'DONE' : 'UPLOAD'}</span>
+                        </label>
                 </div>
-                <div className="flex flex-col">
-                  <label className="text-xs font-medium text-gray-600 mb-1">GROSS CONSUMPTION</label>
+                    </div>
+                  )}
+
+                  {/* Dimensions Field */}
+                  {(material.materialDescription === 'CARTONS/CORRUGATED BOX' || material.materialDescription === 'POLY BAG WITH FLAP') && (
+                    <div className="flex flex-col md:col-span-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">
+                        DIMENSIONS {material.materialDescription === 'CARTONS/CORRUGATED BOX' ? '(LXWXH)' : '(WXL + FLAP)'}
+                      </label>
+                      <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
                   <input
                     type="text"
-                    value={material.grossConsumption || '-'}
-                    readOnly
-                    className="border rounded-lg text-sm bg-green-100 text-green-800 font-semibold"
-                    style={{ padding: '10px 12px' }}
-                  />
+                          value={material.size.width}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'width', e.target.value)}
+                          className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                          style={{ padding: '10px 14px', flexGrow: 1 }}
+                          placeholder={material.materialDescription === 'CARTONS/CORRUGATED BOX' ? 'L x W x H' : 'W x L + FLAP'}
+                        />
+                        <select
+                          value={material.size.unit}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'unit', e.target.value)}
+                          className="text-sm bg-transparent text-gray-900 focus:outline-none"
+                          style={{ padding: '0 10px', height: '100%', width: '100px' }}
+                        >
+                          <option value="CMS">CMS</option>
+                          <option value="INCHES">INCHES</option>
+                        </select>
                 </div>
               </div>
-              {/* <div className="mt-2 text-xs text-gray-500">
-                PO QTY: {formData.poQty || '0'} | Formula: (Net Consumption × PO QTY) + Wastage + Overage
-              </div> */}
+                  )}
+
+                  {/* Surplus & For Section */}
+                  <div className="flex flex-col md:col-span-2">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR SECTION)</label>
+                    <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                      <input
+                        type="text"
+                        value={material.surplus}
+                        onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplus', e.target.value)}
+                        className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                        style={{ padding: '10px 14px', width: '80px' }}
+                        placeholder="%AGE"
+                      />
+                      <input
+                        type="text"
+                        value={material.surplusForSection}
+                        onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                        className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                        style={{ padding: '10px 14px' }}
+                        placeholder="FOR SECTION"
+                      />
             </div>
           </div>
-        ))}
 
-        {/* Add Material Button */}
-        <button
-          type="button"
-          onClick={addPackagingMaterial}
-          className=" flex border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
-          style={{
-            backgroundColor: '#f3f4f6',
-            borderColor: '#d1d5db',
-            color: '#374151',
-            marginBottom: '24px'
-          }}
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Add Packaging Material
-        </button>
+                  {/* Approval Against */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL AGAINST</label>
+                    <select
+                      value={material.approvalAgainst}
+                      onChange={(e) => handlePackagingMaterialChange(materialIndex, 'approvalAgainst', e.target.value)}
+                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                      style={{ padding: '10px 14px', height: '44px' }}
+                    >
+                      <option value="">Select</option>
+                      <option value="BUYER'S SAMPLE">BUYER'S SAMPLE</option>
+                      <option value="INITIAL SAMPLE">INITIAL SAMPLE</option>
+                      <option value="PP SAMPLE">PP SAMPLE</option>
+                    </select>
+                  </div>
+
+                  {/* Remarks */}
+                  <div className="col-span-full flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                    <textarea
+                      value={material.remarks}
+                      onChange={(e) => handlePackagingMaterialChange(materialIndex, 'remarks', e.target.value)}
+                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                      style={{ padding: '10px 14px', width: '100%' }}
+                      rows="1"
+                      placeholder="Additional notes..."
+                    ></textarea>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )) : (
+          <div className="text-center text-gray-500 py-8">
+            No packaging materials added yet. Click "+ Add Material" to add one.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -3557,9 +7829,41 @@ const GenerateFactoryCode = ({ onBack }) => {
               )}
             </div>
 
-            {/* Row 1: Material Desc, Net CNS, Unit */}
+            {/* Row 1: Components, Material Desc, Net CNS, Unit */}
             <div style={{ marginBottom: '24px' }}>
               <div className="flex flex-wrap items-start gap-3">
+                <div className="flex flex-col">
+                  <label className="text-sm font-semibold text-gray-700 mb-2">
+                    COMPONENTS <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={material.components || ''}
+                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'components', e.target.value)}
+                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                      errors[`artworkMaterial_${materialIndex}_components`] 
+                        ? 'border-red-600' 
+                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                    }`}
+                    style={{ padding: '10px 14px', width: '180px', height: '44px' }}
+                    onFocus={(e) => {
+                      if (!errors[`artworkMaterial_${materialIndex}_components`]) {
+                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = '';
+                    }}
+                    placeholder="e.g., COMFORTER"
+                    required
+                  />
+                  {errors[`artworkMaterial_${materialIndex}_components`] && (
+                    <span className="text-red-600 text-xs mt-1 font-medium">
+                      {errors[`artworkMaterial_${materialIndex}_components`]}
+                    </span>
+                  )}
+                </div>
+                
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                     MATERIAL DESC <span className="text-red-600">*</span>
@@ -3661,46 +7965,12 @@ const GenerateFactoryCode = ({ onBack }) => {
                     </span>
                   )}
                 </div>
-
-                {/* GSM field (shown only when UNIT is R METERS) */}
-                {material.unit === 'R METERS' && (
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">
-                      GSM <span className="text-red-600">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      value={material.gsm || ''}
-                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'gsm', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                        errors[`artworkMaterial_${materialIndex}_gsm`] 
-                          ? 'border-red-600' 
-                          : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                      }`}
-                      style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                      onFocus={(e) => {
-                        if (!errors[`artworkMaterial_${materialIndex}_gsm`]) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
-                      placeholder="e.g., 200"
-                      required
-                    />
-                    {errors[`artworkMaterial_${materialIndex}_gsm`] && (
-                      <span className="text-red-600 text-xs mt-1 font-medium">
-                        {errors[`artworkMaterial_${materialIndex}_gsm`]}
-                      </span>
-                    )}
-                  </div>
-                )}
               </div>
               
-              {/* PLACEMENT Field */}
+              {/* PLACEMENT and WORK ORDER Row */}
               <div style={{ marginBottom: '24px', marginTop: '24px' }}>
-                <div className="flex flex-col" style={{ maxWidth: '600px' }}>
+                <div className="flex flex-wrap items-start gap-4">
+                  <div className="flex flex-col" style={{ flex: 1, minWidth: '300px', maxWidth: '600px' }}>
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                     PLACEMENT <span className="text-red-600">*</span>
                   </label>
@@ -3730,222 +8000,749 @@ const GenerateFactoryCode = ({ onBack }) => {
                       {errors[`artworkMaterial_${materialIndex}_placement`]}
                     </span>
                   )}
-                </div>
               </div>
               
-              {/* Conditional Fields for R.Mtr Unit */}
-              {(material.unit === 'R.Mtr' || material.unit === 'R METER' || material.unit === 'R METERS') && (
-                <div style={{ marginBottom: '24px' }}>
-                  <div className="flex items-start gap-4">
                     <div className="flex flex-col" style={{ width: '180px' }}>
                       <label className="text-sm font-semibold text-gray-700 mb-2">
-                        Width <span className="text-red-600">*</span>
+                      WORK ORDER <span className="text-red-600">*</span>
                       </label>
-                      <input
-                        type="text"
-                        value={material.width}
-                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'width', e.target.value)}
+                    <select
+                      value={material.workOrder}
+                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'workOrder', e.target.value)}
                         className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                          errors[`artworkMaterial_${materialIndex}_width`] 
+                        errors[`artworkMaterial_${materialIndex}_workOrder`] 
                             ? 'border-red-600' 
                             : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                         }`}
                         style={{ padding: '12px 16px' }}
                         onFocus={(e) => {
-                          if (!errors[`artworkMaterial_${materialIndex}_width`]) {
+                        if (!errors[`artworkMaterial_${materialIndex}_workOrder`]) {
                             e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                           }
                         }}
                         onBlur={(e) => {
                           e.target.style.boxShadow = '';
                         }}
-                        placeholder="Enter width"
                         required
-                      />
-                      {errors[`artworkMaterial_${materialIndex}_width`] && (
+                    >
+                      <option value="">Select Work Order</option>
+                      <option value="Sewing">Sewing</option>
+                      <option value="DYEING">DYEING</option>
+                      <option value="WEAVING">WEAVING</option>
+                      <option value="PRINTING">PRINTING</option>
+                      <option value="CUTTING">CUTTING</option>
+                      <option value="STITCHING">STITCHING</option>
+                    </select>
+                    {errors[`artworkMaterial_${materialIndex}_workOrder`] && (
                         <span className="text-red-600 text-xs mt-1 font-medium">
-                          {errors[`artworkMaterial_${materialIndex}_width`]}
+                        {errors[`artworkMaterial_${materialIndex}_workOrder`]}
                         </span>
                       )}
-                    </div>
-                    
-                    <div className="flex flex-col" style={{ width: '180px' }}>
-                      <label className="text-sm font-semibold text-gray-700 mb-2">
-                        Size <span className="text-red-600">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={material.size}
-                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'size', e.target.value)}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                          errors[`artworkMaterial_${materialIndex}_size`] 
-                            ? 'border-red-600' 
-                            : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                        }`}
-                        style={{ padding: '12px 16px' }}
-                        onFocus={(e) => {
-                          if (!errors[`artworkMaterial_${materialIndex}_size`]) {
-                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                          }
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.boxShadow = '';
-                        }}
-                        placeholder="Enter size"
-                        required
-                      />
-                      {errors[`artworkMaterial_${materialIndex}_size`] && (
-                        <span className="text-red-600 text-xs mt-1 font-medium">
-                          {errors[`artworkMaterial_${materialIndex}_size`]}
-                        </span>
-                      )}
-                    </div>
                   </div>
                 </div>
-              )}
-              
-              {/* Work Order, Wastage, FOR Row */}
-              <div className="flex items-start gap-4" style={{ marginBottom: '24px' }}>
-                <div className="flex flex-col" style={{ width: '180px' }}>
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    WORK ORDER <span className="text-red-600">*</span>
-                  </label>
-                  <select
-                    value={material.workOrder}
-                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'workOrder', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`artworkMaterial_${materialIndex}_workOrder`] 
-                        ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                    }`}
-                    style={{ padding: '12px 16px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${materialIndex}_workOrder`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    required
-                  >
-                    <option value="">Select Work Order</option>
-                    <option value="Sewing">Sewing</option>
-                    <option value="DYEING">DYEING</option>
-                    <option value="WEAVING">WEAVING</option>
-                    <option value="PRINTING">PRINTING</option>
-                    <option value="CUTTING">CUTTING</option>
-                    <option value="STITCHING">STITCHING</option>
-                  </select>
-                  {errors[`artworkMaterial_${materialIndex}_workOrder`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${materialIndex}_workOrder`]}
-                    </span>
-                  )}
+                    </div>
+                    
+              {/* SIZE Section: WIDTH, LENGTH, HEIGHT, UNIT */}
+              <div className="w-full mt-6 pt-6 border-t border-gray-100">
+                <h5 className="text-sm font-bold text-gray-800 mb-4">SIZE</h5>
+                <div className="flex flex-wrap items-start gap-4">
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
+                    <input
+                      type="text"
+                      value={material.sizeWidth || ''}
+                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeWidth', e.target.value)}
+                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                      placeholder="e.g., 52"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH</label>
+                    <input
+                      type="text"
+                      value={material.sizeLength || ''}
+                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLength', e.target.value)}
+                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                      placeholder="e.g., 48"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">HEIGHT</label>
+                    <input
+                      type="text"
+                      value={material.sizeHeight || ''}
+                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeHeight', e.target.value)}
+                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                      placeholder="e.g., 52"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                    <select
+                      value={material.sizeUnit || ''}
+                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeUnit', e.target.value)}
+                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                      style={{ padding: '10px 14px', width: '130px', height: '44px' }}
+                    >
+                      <option value="">Select</option>
+                      <option value="CMS">CMS</option>
+                      <option value="INCHES">INCHES</option>
+                      <option value="MM">MM</option>
+                      <option value="CM">CM</option>
+                    </select>
+                  </div>
                 </div>
-                
-                <div className="flex flex-col" style={{ width: '120px' }}>
+              </div>
+
+              {/* ARTWORK CATEGORY SELECTOR */}
+              <div className="w-full" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
+                <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
+                  <label className="text-sm font-bold text-gray-800 mb-2">ARTWORK CATEGORY</label>
+                  <select
+                    value={material.artworkCategory}
+                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'artworkCategory', e.target.value)}
+                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    style={{ padding: '10px 14px', height: '44px' }}
+                    onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                    onBlur={(e) => e.target.style.boxShadow = ''}
+                  >
+                    <option value="">Select Category</option>
+                    <option value="LABELS (BRAND/MAIN)">LABELS (BRAND/MAIN)</option>
+                    <option value="CARE & COMPOSITION">CARE & COMPOSITION</option>
+                    <option value="TAGS & SPECIAL LABELS">TAGS & SPECIAL LABELS</option>
+                    <option value="FLAMMABILITY / SAFETY LABELS">FLAMMABILITY / SAFETY LABELS</option>
+                    <option value="RFID / SECURITY TAGS">RFID / SECURITY TAGS</option>
+                    <option value="LAW LABEL / CONTENTS TAG">LAW LABEL / CONTENTS TAG</option>
+                    <option value="HANG TAG SEALS / STRINGS">HANG TAG SEALS / STRINGS</option>
+                    <option value="PRICE TICKET / BARCODE TAG">PRICE TICKET / BARCODE TAG</option>
+                    <option value="HEAT TRANSFER LABELS">HEAT TRANSFER LABELS</option>
+                    <option value="UPC LABEL / BARCODE STICKER">UPC LABEL / BARCODE STICKER</option>
+                    <option value="SIZE LABELS (INDIVIDUAL)">SIZE LABELS (INDIVIDUAL)</option>
+                    <option value="ANTI-COUNTERFEIT & HOLOGRAMS">ANTI-COUNTERFEIT & HOLOGRAMS</option>
+                    <option value="QC / INSPECTION LABELS">QC / INSPECTION LABELS</option>
+                    <option value="BELLY BAND / WRAPPER">BELLY BAND / WRAPPER</option>
+                    <option value="TYVEK LABELS">TYVEK LABELS</option>
+                    <option value="TAFFETA LABELS">TAFFETA LABELS</option>
+                  </select>
+                </div>
+
+                {material.artworkCategory && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
+                    {/* TYPE Field */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                      <select
+                        value={material.specificType}
+                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'specificType', e.target.value)}
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 14px', height: '44px' }}
+                      >
+                        <option value="">Select</option>
+                        {material.artworkCategory === 'LABELS (BRAND/MAIN)' && ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather/Metal'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'CARE & COMPOSITION' && ['Woven', 'Printed', 'Heat Transfer'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'TAGS & SPECIAL LABELS' && ['Hang Tag (Paper/Card)', 'Price Tag', 'Size Label', 'Flag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && ['Permanent Sew-in Label', 'Removable Hang Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'RFID / SECURITY TAGS' && ['Soft EAS Label', 'UHF RFID Sticker', 'Hard Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && ['Permanent Sew-in Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'HANG TAG SEALS / STRINGS' && ['Plastic Loop Lock', 'String & Seal', 'Security Pin'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'PRICE TICKET / BARCODE TAG' && ['Adhesive Sticker', 'Printed Area', 'Dedicated Small Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'HEAT TRANSFER LABELS' && ['Brand Logo', 'Size Tag', 'Minimal Care', 'Instructions', 'Reflective'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && ['Adhesive Sticker', 'Pre-Printed Barcode Area'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' && ['Woven Flag Label', 'Printed Flag Label', 'Heat Transfer', 'Small Sticker'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && ['Hologram Sticker', 'Void/Tamper-Evident Label', 'Authenticity Patch', 'Invisible Ink Print'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'QC / INSPECTION LABELS' && ['Passed/Inspected Sticker', 'Hold/Defective Sticker', 'Audit Sample Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'BELLY BAND / WRAPPER' && ['Cardboard Sleeve', 'Printed Paper Band', 'Plastic Film Wrapper'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'TYVEK LABELS' && ['Law Label', 'Shipping Tag', 'Permanent Industrial/Outdoor Care Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'TAFFETA LABELS' && ['Printed Care Label', 'Composition Label', 'Temporary Size Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                    </div>
+
+                    {/* MATERIAL Field */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">
+                        {material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'MATERIAL BASE' : 'MATERIAL'}
+                      </label>
+                      <input
+                        type="text"
+                        value={material.material}
+                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'material', e.target.value)}
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 14px', height: '44px' }}
+                        placeholder={material.artworkCategory === 'CARE & COMPOSITION' ? 'Fiber Content' : material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'Card Stock GSM' : 'e.g., Polyester'}
+                      />
+                    </div>
+
+                    {/* Specific Fields for CARE & COMPOSITION */}
+                    {material.artworkCategory === 'CARE & COMPOSITION' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">COUNTRY OF ORIGIN</label>
+                          <input
+                            type="text"
+                            value={material.countryOfOrigin}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'countryOfOrigin', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Made in India"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MANUFACTURER ID</label>
+                          <input
+                            type="text"
+                            value={material.manufacturerId}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'manufacturerId', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., RN# / CA#"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for RFID / SECURITY TAGS */}
+                    {material.artworkCategory === 'RFID / SECURITY TAGS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FORM FACTOR</label>
+                          <select
+                            value={material.formFactor}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'formFactor', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            <option value="Adhesive Label">Adhesive Label</option>
+                            <option value="Integrated Woven Label">Integrated Woven Label</option>
+                          </select>
+                    </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CHIP / FREQUENCY</label>
+                          <input
+                            type="text"
+                            value={material.chipFrequency}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'chipFrequency', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., 860-960 MHz for UHF"
+                          />
+                  </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CODING</label>
+                          <input
+                            type="text"
+                            value={material.coding}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'coding', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Pre-Encoded / Sequential"
+                          />
+                </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FILLING MATERIALS</label>
+                          <input
+                            type="text"
+                            value={material.fillingMaterials}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'fillingMaterials', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Full disclosure of filling materials"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">NEW/USED STATUS</label>
+                          <input
+                            type="text"
+                            value={material.newUsedStatus}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'newUsedStatus', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder='e.g., "ALL NEW MATERIAL"'
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">REGISTRATION/LICENSES</label>
+                          <input
+                            type="text"
+                            value={material.registrationLicenses}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'registrationLicenses', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Manufacturer's License Number"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for HANG TAG SEALS / STRINGS */}
+                    {material.artworkCategory === 'HANG TAG SEALS / STRINGS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">SEAL SHAPE</label>
+                          <input
+                            type="text"
+                            value={material.sealShape}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sealShape', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Bullet Shape / Rectangular"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FASTENING</label>
+                          <input
+                            type="text"
+                            value={material.fastening}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'fastening', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Permanent Lock / Reusable"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PRE-STRINGING</label>
+                          <input
+                            type="text"
+                            value={material.preStringing}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'preStringing', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Supplied Pre-strung"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Field for TAFFETA LABELS */}
+                    {material.artworkCategory === 'TAFFETA LABELS' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PRINT QUALITY</label>
+                        <input
+                          type="text"
+                          value={material.printQuality}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'printQuality', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="High Contrast Printing"
+                        />
+                      </div>
+                    )}
+
+                    {/* Specific Field for UPC LABEL / BARCODE STICKER */}
+                    {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QUALITY</label>
+                        <input
+                          type="text"
+                          value={material.quality}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'quality', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Print Contrast Ratio"
+                        />
+                      </div>
+                    )}
+
+                    {/* Specific Field for PRICE TICKET / BARCODE TAG */}
+                    {material.artworkCategory === 'PRICE TICKET / BARCODE TAG' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BARCODE TYPE</label>
+                        <input
+                          type="text"
+                          value={material.barcodeType}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'barcodeType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., UPC / EAN-13 / Code 128"
+                        />
+                      </div>
+                    )}
+
+                    {/* Specific Field for TYVEK LABELS */}
+                    {material.artworkCategory === 'TYVEK LABELS' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">INK TYPE</label>
+                        <input
+                          type="text"
+                          value={material.inkType}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'inkType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Durable, Solvent-Resistant"
+                        />
+                      </div>
+                    )}
+
+                    {/* SIZE / DIMENSIONS Field */}
+                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
-                    WASTAGE <span className="text-red-600">*</span>
+                          {material.artworkCategory === 'TAGS & SPECIAL LABELS' ? 'SIZE / SHAPE' : 
+                           material.artworkCategory === 'HANG TAG SEALS / STRINGS' ? 'SIZE / LENGTH' : 
+                           material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' ? 'SIZE / CODE' : 
+                           material.artworkCategory === 'TYVEK LABELS' ? 'SIZE / FORMAT' : 
+                           material.artworkCategory === 'TAFFETA LABELS' ? 'SIZE / FOLD' : 'SIZE / DIMENSIONS'}
+                  </label>
+                        <input
+                          type="text"
+                          value={material.sizeArtworkId}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeArtworkId', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 20mm x 40mm"
+                        />
+                      </div>
+                    )}
+
+                    {/* FOLD TYPE Field */}
+                    {material.artworkCategory === 'LABELS (BRAND/MAIN)' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOLD TYPE</label>
+                  <select
+                          value={material.foldType}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'foldType', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        >
+                          <option value="">Select</option>
+                          {['End-fold', 'Center-fold', 'Miter-fold', 'Straight Cut'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                      </div>
+                    )}
+
+                    {/* COLOURS Field */}
+                    {(['LABELS (BRAND/MAIN)', 'CARE & COMPOSITION', 'HANG TAG SEALS / STRINGS', 'HEAT TRANSFER LABELS', 'SIZE LABELS (INDIVIDUAL)', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOURS</label>
+                        <input
+                          type="text"
+                          value={material.colours}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'colours', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 4 colors"
+                        />
+                </div>
+                    )}
+                
+                    {/* ATTACHMENT / CLOSURE Field */}
+                    {(['TAGS & SPECIAL LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                  <label className="text-sm font-semibold text-gray-700 mb-2">
+                          {material.artworkCategory === 'TAGS & SPECIAL LABELS' ? 'ATTACHMENT' : 'CLOSURE'}
                   </label>
                   <input
                     type="text"
-                    value={material.wastage}
-                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'wastage', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`artworkMaterial_${materialIndex}_wastage`] 
-                        ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                    }`}
-                    style={{ padding: '12px 16px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${materialIndex}_wastage`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="1%"
-                    required
-                  />
-                  {errors[`artworkMaterial_${materialIndex}_wastage`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${materialIndex}_wastage`]}
-                    </span>
-                  )}
+                          value={material.attachment}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'attachment', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Adhesive"
+                        />
+                      </div>
+                    )}
+
+                    {/* CONTENT Field */}
+                    {(['TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'LAW LABEL / CONTENTS TAG', 'PRICE TICKET / BARCODE TAG', 'UPC LABEL / BARCODE STICKER', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'QC / INSPECTION LABELS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">
+                          {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'CONTENT MANDATES' : 'CONTENT'}
+                        </label>
+                        <input
+                          type="text"
+                          value={material.content}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Barcode"
+                        />
                 </div>
+                    )}
                 
-                <div className="flex flex-col" style={{ width: '250px' }}>
+                    {/* SYMBOL Field */}
+                    {(['CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
-                    FOR <span className="text-red-600">*</span>
+                          {material.artworkCategory === 'CARE & COMPOSITION' ? 'CARE SYMBOLS' : 'SYMBOL'}
                   </label>
                   <input
                     type="text"
-                    value={material.forField}
-                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'forField', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`artworkMaterial_${materialIndex}_forField`] 
-                        ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                    }`}
-                    style={{ padding: '12px 16px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${materialIndex}_forField`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="VELVET CUSHION"
-                    required
-                  />
-                  {errors[`artworkMaterial_${materialIndex}_forField`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${materialIndex}_forField`]}
-                    </span>
-                  )}
+                          value={material.symbol}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'symbol', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Bleaching"
+                        />
+                      </div>
+                    )}
+
+                    {/* LANGUAGE Field */}
+                    {(['CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LANGUAGE</label>
+                        <input
+                          type="text"
+                          value={material.language}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'language', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., English, French"
+                        />
                 </div>
+                    )}
                 
-                <div className="flex flex-col" style={{ width: '180px' }}>
+                    {/* FINISHING / FINISH Field */}
+                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'SIZE LABELS (INDIVIDUAL)', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
-                    Work Order (PACKAGING) <span className="text-red-600">*</span>
+                          {material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'FINISH / HAND FEEL' : 'FINISHING'}
                   </label>
+                        <input
+                          type="text"
+                          value={material.finishing}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Hot-cut"
+                        />
+                      </div>
+                    )}
+
+                    {/* PLACEMENT Field (Specific to artwork category) */}
+                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'RFID / SECURITY TAGS', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                        <input
+                          type="text"
+                          value={material.placement}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Inside seam"
+                        />
+                      </div>
+                    )}
+
+                    {/* PERMANENCE / DURABILITY Field */}
+                    {(['CARE & COMPOSITION', 'LAW LABEL / CONTENTS TAG', 'SIZE LABELS (INDIVIDUAL)', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">
+                          {material.artworkCategory === 'BELLY BAND / WRAPPER' || material.artworkCategory === 'TYVEK LABELS' || material.artworkCategory === 'TAFFETA LABELS' ? 'DURABILITY' : 'PERMANENCE'}
+                        </label>
+                        <input
+                          type="text"
+                          value={material.permanence}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Permanent"
+                        />
+                      </div>
+                    )}
+
+                    {/* ADHESIVE Field */}
+                    {(['RFID / SECURITY TAGS', 'PRICE TICKET / BARCODE TAG', 'UPC LABEL / BARCODE STICKER'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
+                        <input
+                          type="text"
+                          value={material.adhesive}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'adhesive', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., High-bond"
+                        />
+                      </div>
+                    )}
+
+                    {/* APPLICATION SPEC Field */}
+                    {material.artworkCategory === 'HEAT TRANSFER LABELS' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION SPEC</label>
+                        <input
+                          type="text"
+                          value={material.applicationSpec}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'applicationSpec', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Temp / Dwell Time / Pressure"
+                        />
+                      </div>
+                    )}
+
+                    {/* SECURITY / SECURITY FEATURE Field */}
+                    {(['RFID / SECURITY TAGS', 'ANTI-COUNTERFEIT & HOLOGRAMS'].includes(material.artworkCategory)) && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">
+                          {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' ? 'SECURITY FEATURE' : 'SECURITY'}
+                        </label>
+                        <input
+                          type="text"
+                          value={material.security}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'security', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 3D Holography"
+                        />
+                      </div>
+                    )}
+
+                    {/* VERIFICATION Field */}
+                    {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">VERIFICATION</label>
+                        <input
+                          type="text"
+                          value={material.verification}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'verification', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Web Link"
+                        />
+                      </div>
+                    )}
+
+                    {/* REMOVAL / TRACEABILITY Field */}
+                    {material.artworkCategory === 'QC / INSPECTION LABELS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">REMOVAL</label>
+                          <input
+                            type="text"
+                            value={material.removal}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'removal', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Easily removable"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TRACEABILITY</label>
+                          <input
+                            type="text"
+                            value={material.traceability}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'traceability', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Sequential numbering"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* TESTING REQUIREMENT Field with Image Upload */}
+                    <div className="flex flex-col md:col-span-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={material.testingRequirement}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-grow"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Wash Fastness"
+                        />
+                        <input
+                          type="file"
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'referenceImage', e.target.files[0])}
+                          className="hidden"
+                          id={`art-file-${materialIndex}`}
+                        />
+                        <label
+                          htmlFor={`art-file-${materialIndex}`}
+                          className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                          style={{ padding: '10px 14px', height: '44px', width: '110px' }}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          </svg>
+                          <span className="truncate">{material.referenceImage ? 'DONE' : 'UPLOAD'}</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* LENGTH / QUANTITY Field */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH / QUANTITY</label>
+                      <input
+                        type="text"
+                        value={material.lengthQuantity}
+                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 14px', height: '44px' }}
+                        placeholder="e.g., 5000 pcs"
+                      />
+                    </div>
+
+                    {/* SURPLUS Field with FOR SECTION */}
+                    <div className="flex flex-col md:col-span-2">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR)</label>
+                      <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                        <input
+                          type="text"
+                          value={material.surplus}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                          style={{ padding: '10px 14px', width: '80px' }}
+                          placeholder="5%"
+                        />
+                        <input
+                          type="text"
+                          value={material.surplusForSection}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                          style={{ padding: '10px 14px' }}
+                          placeholder="FOR SECTION (e.g., PACKAGING / QUALITY)"
+                        />
+                      </div>
+                    </div>
+
+                    {/* APPROVAL Field */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                   <select
-                    value={material.packagingWorkOrder}
-                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'packagingWorkOrder', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`artworkMaterial_${materialIndex}_packagingWorkOrder`] 
-                        ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                    }`}
-                    style={{ padding: '12px 16px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${materialIndex}_packagingWorkOrder`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    required
-                  >
-                    <option value="">Select Work Order</option>
-                    <option value="PACKAGING">PACKAGING</option>
-                    <option value="Sewing">Sewing</option>
-                    <option value="DYEING">DYEING</option>
-                    <option value="WEAVING">WEAVING</option>
-                    <option value="PRINTING">PRINTING</option>
-                    <option value="CUTTING">CUTTING</option>
-                    <option value="STITCHING">STITCHING</option>
+                        value={material.approval}
+                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'approval', e.target.value)}
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 14px', height: '44px' }}
+                      >
+                        <option value="">Select</option>
+                        <option value="BUYER'S">BUYER'S</option>
+                        <option value="INITIAL">INITIAL</option>
+                        <option value="IPP">IPP</option>
+                        <option value="PP">PP</option>
+                        <option value="TOP">TOP</option>
                   </select>
-                  {errors[`artworkMaterial_${materialIndex}_packagingWorkOrder`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${materialIndex}_packagingWorkOrder`]}
-                    </span>
-                  )}
                 </div>
+
+                    {/* REMARKS Field */}
+                    <div className="col-span-full flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                      <textarea
+                        value={material.remarks}
+                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'remarks', e.target.value)}
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 14px', width: '100%' }}
+                        onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                        onBlur={(e) => e.target.style.boxShadow = ''}
+                        rows="1"
+                        placeholder="Additional notes..."
+                      ></textarea>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -4041,7 +8838,7 @@ const GenerateFactoryCode = ({ onBack }) => {
             style={{ 
               top: '20px',
               height: '2px',
-              width: `${(currentStep / totalSteps) * 100}%`,
+              width: `${((currentStep + 0.5) / (totalSteps + 1)) * 100}%`,
               zIndex: 1
             }}
           ></div>
@@ -4050,7 +8847,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           {Array.from({ length: totalSteps + 1 }, (_, i) => (
             <div key={i} className="flex flex-col items-center flex-1 relative" style={{ zIndex: 2 }}>
               <div 
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-base transition-all ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-base transition-all cursor-pointer hover:scale-110 ${
                   i <= currentStep
                     ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
                     : 'bg-gray-200 text-gray-600'
@@ -4060,12 +8857,24 @@ const GenerateFactoryCode = ({ onBack }) => {
                   height: '40px',
                   boxShadow: i <= currentStep ? '0 4px 12px rgba(102, 126, 234, 0.3)' : 'none'
                 }}
+                onClick={() => {
+                  // Allow direct navigation for testing - bypass validation
+                  setCurrentStep(i);
+                }}
+                title={`Go to ${stepLabels[i]}`}
               >
                 {i}
               </div>
-              <div className={`mt-2 text-xs font-medium text-center max-w-20 ${
+              <div className={`mt-2 text-xs font-medium text-center ${
                 i <= currentStep ? 'text-indigo-600 font-semibold' : 'text-gray-500'
-              }`} style={{ marginTop: '8px', fontSize: '10px', lineHeight: '1.2' }}>
+              }`} style={{ 
+                marginTop: '8px', 
+                fontSize: '10px', 
+                lineHeight: '1.2',
+                width: '100%',
+                maxWidth: '120px',
+                wordWrap: 'break-word'
+              }}>
                 {stepLabels[i]}
               </div>
             </div>
