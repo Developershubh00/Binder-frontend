@@ -77,6 +77,29 @@ const GenerateFactoryCode = ({ onBack }) => {
       fillingMaterials: '',
       newUsedStatus: '',
       registrationLicenses: '',
+      lawLabelType: '',
+      lawLabelMaterial: '',
+      hangTagType: '',
+      hangTagMaterial: '',
+      priceTicketType: '',
+      priceTicketMaterial: '',
+      heatTransferType: '',
+      heatTransferMaterialBase: '',
+      upcType: '',
+      upcMaterial: '',
+      sizeLabelType: '',
+      sizeLabelMaterial: '',
+      antiCounterfeitType: '',
+      antiCounterfeitMaterial: '',
+      qcLabelType: '',
+      qcLabelMaterial: '',
+      bellyBandType: '',
+      bellyBandMaterial: '',
+      tyvekType: '',
+      tyvekMaterial: '',
+      taffetaType: '',
+      taffetaMaterial: '',
+      closureFinish: '',
       sealShape: '',
       fastening: '',
       preStringing: '',
@@ -135,6 +158,7 @@ const GenerateFactoryCode = ({ onBack }) => {
         overage: '',
         grossConsumption: '',
         // New conditional fields for Part 5
+        packagingMaterialType: '',
         noOfPlys: '',
         jointType: '',
         burstingStrength: '',
@@ -1235,8 +1259,15 @@ const GenerateFactoryCode = ({ onBack }) => {
           attachment: '', content: '', symbol: '', certificationId: '',
           formFactor: '', chipFrequency: '', coding: '', adhesive: '',
           security: '', contentMandates: '', fillingMaterials: '',
-          newUsedStatus: '', registrationLicenses: '', sealShape: '',
-          fastening: '', preStringing: '', application: '', barcodeType: '',
+          newUsedStatus: '', registrationLicenses: '', lawLabelType: '',
+          lawLabelMaterial: '', hangTagType: '', hangTagMaterial: '',
+          priceTicketType: '', priceTicketMaterial: '', heatTransferType: '',
+          heatTransferMaterialBase: '', upcType: '', upcMaterial: '',
+          sizeLabelType: '', sizeLabelMaterial: '', antiCounterfeitType: '',
+          antiCounterfeitMaterial: '', qcLabelType: '', qcLabelMaterial: '',
+          bellyBandType: '', bellyBandMaterial: '', tyvekType: '', tyvekMaterial: '',
+          taffetaType: '', taffetaMaterial: '', closureFinish: '',
+          sealShape: '', fastening: '', preStringing: '', application: '', barcodeType: '',
           applicationSpec: '', finishHandFeel: '', quality: '', sizeCode: '',
           securityFeature: '', verification: '', removal: '', traceability: '',
           closure: '', durability: '', inkType: '', printQuality: '',
@@ -1332,6 +1363,29 @@ const GenerateFactoryCode = ({ onBack }) => {
           fillingMaterials: '',
           newUsedStatus: '',
           registrationLicenses: '',
+          lawLabelType: '',
+          lawLabelMaterial: '',
+          hangTagType: '',
+          hangTagMaterial: '',
+          priceTicketType: '',
+          priceTicketMaterial: '',
+          heatTransferType: '',
+          heatTransferMaterialBase: '',
+          upcType: '',
+          upcMaterial: '',
+          sizeLabelType: '',
+          sizeLabelMaterial: '',
+          antiCounterfeitType: '',
+          antiCounterfeitMaterial: '',
+          qcLabelType: '',
+          qcLabelMaterial: '',
+          bellyBandType: '',
+          bellyBandMaterial: '',
+          tyvekType: '',
+          tyvekMaterial: '',
+          taffetaType: '',
+          taffetaMaterial: '',
+          closureFinish: '',
           sealShape: '',
           fastening: '',
           preStringing: '',
@@ -1571,6 +1625,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           overage: '',
           grossConsumption: '',
           // New conditional fields for Part 5
+          packagingMaterialType: '',
           noOfPlys: '',
           jointType: '',
           burstingStrength: '',
@@ -7171,17 +7226,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                          <input
-                            type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Adhesion strength, Shelf Life"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Adhesion strength, Shelf Life"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -7211,19 +7266,19 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                          <input
-                            type="text"
-                            value={material.surplus || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE (e.g., 5-10%)"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5-10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
+                        <input
                             type="text"
                             value={material.surplusForSection || ''}
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
@@ -7231,7 +7286,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                             style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                             placeholder="FOR"
                           />
-                        </div>
+                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -7346,17 +7401,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                          <input
-                            type="text"
-                            value={material.lengthQuantity || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Unit: Pieces"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.lengthQuantity || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Unit: Pieces"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -7386,16 +7441,16 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                          <input
-                            type="text"
-                            value={material.approval || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="BUYER'S / INITIAL / IPP / Functionality Approval"
-                          />
-                        </div>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <input
+                          type="text"
+                          value={material.approval || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="BUYER'S / INITIAL / IPP / Functionality Approval"
+                        />
+                      </div>
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
                           <input
@@ -7510,17 +7565,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                          <input
-                            type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Tensile strength, Corrosion Resistance"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Tensile strength, Corrosion Resistance"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -7550,17 +7605,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                          <input
-                            type="text"
-                            value={material.surplus || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE (e.g., 2-5%)"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 2-5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
                           <input
                             type="text"
@@ -7685,17 +7740,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                          <input
-                            type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Compression set"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Compression set"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -7725,17 +7780,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                          <input
-                            type="text"
-                            value={material.surplus || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE (e.g., 5%)"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
                           <input
                             type="text"
@@ -7860,17 +7915,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                          <input
-                            type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Needle sharpness, Non-Rusting"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Needle sharpness, Non-Rusting"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -7900,27 +7955,27 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                          <input
-                            type="text"
-                            value={material.surplus || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE (e.g., 10%)"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 10%)"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
+                          placeholder="FOR"
+                        />
+                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -9332,202 +9387,200 @@ const GenerateFactoryCode = ({ onBack }) => {
               <div className="flex flex-col" style={{ width: '280px', marginBottom: '24px' }}>
                 <label className="text-sm font-bold text-gray-800 mb-2">PACKAGING MATERIAL TYPE</label>
                 <select
-                  value={material.materialDescription}
-                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'materialDescription', e.target.value)}
+                  value={material.packagingMaterialType || ''}
+                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', e.target.value)}
                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                   style={{ padding: '10px 14px', height: '44px' }}
                 >
                   <option value="">Select Type</option>
                   <option value="CARTONS/CORRUGATED BOX">CARTONS/CORRUGATED BOX</option>
-                  <option value="POLY BAG WITH FLAP">POLY BAG WITH FLAP</option>
-                  <option value="POLY SHEET / BALE WRAP">POLY SHEET / BALE WRAP</option>
+                  <option value="PACKAGING ACCESSORIES">PACKAGING ACCESSORIES</option>
                   <option value="TAPE">TAPE</option>
+                  <option value="POLYBAG">POLYBAG</option>
+                  <option value="POLY BAG WITH FLAP">POLY BAG WITH FLAP</option>
+                  <option value="POLYSHEET">POLYSHEET</option>
+                  <option value="BALE WRAP">BALE WRAP</option>
                   <option value="OTHER">OTHER</option>
                 </select>
               </div>
 
-              {material.materialDescription && (
+              {material.packagingMaterialType && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-6">
                   {/* Specific Fields for CARTONS/CORRUGATED BOX */}
-                  {material.materialDescription === 'CARTONS/CORRUGATED BOX' && (
+                  {material.packagingMaterialType === 'CARTONS/CORRUGATED BOX' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS</label>
-                        <select
-                          value={material.noOfPlys}
+                        <input
+                          type="text"
+                          value={material.noOfPlys || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'noOfPlys', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="3 PLY">3 PLY</option>
-                          <option value="5 PLY">5 PLY</option>
-                          <option value="7 PLY">7 PLY</option>
-                          <option value="9 PLY">9 PLY</option>
-                        </select>
+                          placeholder="5 PLY/7 PLY"
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE</label>
-                        <select
-                          value={material.jointType}
+                        <input
+                          type="text"
+                          value={material.jointType || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'jointType', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="STAPLE">STAPLE</option>
-                          <option value="BINDED">BINDED</option>
-                          <option value="GLUED">GLUED</option>
-                        </select>
+                          placeholder="STAPLE/BINDED"
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">BURSTING STRENGTH</label>
                         <input
                           type="text"
-                          value={material.burstingStrength}
+                          value={material.burstingStrength || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'burstingStrength', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 175 LBS"
+                          placeholder="175 LBS"
                         />
                       </div>
                     </>
                   )}
 
                   {/* Specific Fields for POLY BAG WITH FLAP */}
-                  {material.materialDescription === 'POLY BAG WITH FLAP' && (
+                  {material.packagingMaterialType === 'POLY BAG WITH FLAP' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE</label>
                         <input
                           type="text"
-                          value={material.guage}
+                          value={material.guage || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guage', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 200"
+                          placeholder="200"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
                         <input
                           type="text"
-                          value={material.gummingQuality}
+                          value={material.gummingQuality || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="High/Standard"
                         />
-                    </div>
+                      </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PUNCH HOLES</label>
                         <input
                           type="text"
-                          value={material.punchHoles}
+                          value={material.punchHoles || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'punchHoles', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., 2 holes"
                         />
-                  </div>
+                      </div>
                     </>
                   )}
 
                   {/* Specific Fields for POLY SHEET / BALE WRAP */}
-                  {material.materialDescription === 'POLY SHEET / BALE WRAP' && (
+                  {(material.packagingMaterialType === 'POLYSHEET' || material.packagingMaterialType === 'BALE WRAP') && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE/GSM</label>
                         <input
                           type="text"
-                          value={material.guageGsm}
+                          value={material.guageGsm || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guageGsm', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 200"
+                          placeholder="200"
                         />
-              </div>
+                      </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">ROLL WIDTH</label>
                         <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
                           <input
                             type="text"
-                            value={material.rollWidth}
+                            value={material.rollWidth || ''}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'rollWidth', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="60"
                           />
                           <select
-                            value={material.rollWidthUnit}
+                            value={material.rollWidthUnit || ''}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'rollWidthUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
                             <option value="INCHES">INCHES</option>
                             <option value="CMS">CMS</option>
+                            <option value="MM">MM</option>
                           </select>
-            </div>
+                        </div>
                       </div>
                     </>
                   )}
 
                   {/* Specific Fields for TAPE */}
-                  {material.materialDescription === 'TAPE' && (
+                  {material.packagingMaterialType === 'TAPE' && (
                     <>
-                <div className="flex flex-col">
+                      <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE</label>
-                  <input
-                    type="text"
-                          value={material.guage}
+                        <input
+                          type="text"
+                          value={material.guage || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guage', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 200"
-                  />
-                </div>
-                <div className="flex flex-col">
+                          placeholder="200"
+                        />
+                      </div>
+                      <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
-                  <input
-                    type="text"
-                          value={material.gummingQuality}
+                        <input
+                          type="text"
+                          value={material.gummingQuality || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="Strong/Standard"
-                  />
-                </div>
-                <div className="flex flex-col">
+                        />
+                      </div>
+                      <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
                         <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
-                  <input
-                    type="text"
-                            value={material.tapeWidth}
+                          <input
+                            type="text"
+                            value={material.tapeWidth || ''}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'tapeWidth', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="3"
                           />
                           <select
-                            value={material.tapeWidthUnit}
+                            value={material.tapeWidthUnit || ''}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'tapeWidthUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
                             <option value="INCHES">INCHES</option>
                             <option value="CMS">CMS</option>
+                            <option value="MM">MM</option>
                           </select>
-                </div>
+                        </div>
                       </div>
                     </>
                   )}
 
-                  {/* Image Upload for POLY BAG/TAPE */}
-                  {(material.materialDescription === 'POLY BAG WITH FLAP' || material.materialDescription === 'TAPE') && (
-                <div className="flex flex-col">
+                  {/* PRINTING REF with UPLOAD for POLY BAG WITH FLAP and TAPE */}
+                  {(material.packagingMaterialType === 'POLY BAG WITH FLAP' || material.packagingMaterialType === 'TAPE') && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING REF</label>
                       <div className="flex items-center gap-2">
-                  <input
+                        <input
                           type="file"
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'printingRef', e.target.files[0])}
                           className="hidden"
@@ -9543,86 +9596,118 @@ const GenerateFactoryCode = ({ onBack }) => {
                           </svg>
                           <span className="truncate">{material.printingRef ? 'DONE' : 'UPLOAD'}</span>
                         </label>
-                </div>
+                      </div>
                     </div>
                   )}
 
-                  {/* Dimensions Field */}
-                  {(material.materialDescription === 'CARTONS/CORRUGATED BOX' || material.materialDescription === 'POLY BAG WITH FLAP') && (
-                    <div className="flex flex-col md:col-span-2">
-                      <label className="text-sm font-semibold text-gray-700 mb-2">
-                        DIMENSIONS {material.materialDescription === 'CARTONS/CORRUGATED BOX' ? '(LXWXH)' : '(WXL + FLAP)'}
-                      </label>
-                      <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
-                  <input
-                    type="text"
-                          value={material.size.width}
+                  {/* Dimensions Field for CARTONS/CORRUGATED BOX */}
+                  {material.packagingMaterialType === 'CARTONS/CORRUGATED BOX' && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS (LXWXH)</label>
+                        <input
+                          type="text"
+                          value={material.size.width || ''}
                           onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'width', e.target.value)}
-                          className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
-                          style={{ padding: '10px 14px', flexGrow: 1 }}
-                          placeholder={material.materialDescription === 'CARTONS/CORRUGATED BOX' ? 'L x W x H' : 'W x L + FLAP'}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="L x W x H"
                         />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
                         <select
-                          value={material.size.unit}
+                          value={material.size.unit || ''}
                           onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'unit', e.target.value)}
-                          className="text-sm bg-transparent text-gray-900 focus:outline-none"
-                          style={{ padding: '0 10px', height: '100%', width: '100px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px', width: '120px' }}
                         >
                           <option value="CMS">CMS</option>
                           <option value="INCHES">INCHES</option>
+                          <option value="MM">MM</option>
                         </select>
-                </div>
-              </div>
+                      </div>
+                    </div>
                   )}
 
-                  {/* Surplus & For Section */}
-                  <div className="flex flex-col md:col-span-2">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR SECTION)</label>
-                    <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                  {/* Dimensions Field for POLY BAG WITH FLAP */}
+                  {material.packagingMaterialType === 'POLY BAG WITH FLAP' && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS (WXL + FLAP)</label>
+                        <input
+                          type="text"
+                          value={material.size.width || ''}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'width', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="W x L + FLAP"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                        <select
+                          value={material.size.unit || ''}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'unit', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                        >
+                          <option value="CMS">CMS</option>
+                          <option value="INCHES">INCHES</option>
+                          <option value="MM">MM</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Surplus & For Section - For all types */}
+                  <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                    <div className="flex flex-col flex-1">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                       <input
                         type="text"
-                        value={material.surplus}
+                        value={material.surplus || ''}
                         onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplus', e.target.value)}
-                        className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
-                        style={{ padding: '10px 14px', width: '80px' }}
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 14px', height: '44px' }}
                         placeholder="%AGE"
                       />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
                       <input
                         type="text"
-                        value={material.surplusForSection}
+                        value={material.surplusForSection || ''}
                         onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
-                        className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                        style={{ padding: '10px 14px' }}
-                        placeholder="FOR SECTION"
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                        placeholder="FOR"
                       />
-            </div>
-          </div>
+                    </div>
+                  </div>
 
-                  {/* Approval Against */}
+                  {/* Approval Against - For all types */}
                   <div className="flex flex-col">
                     <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL AGAINST</label>
-                    <select
-                      value={material.approvalAgainst}
+                    <input
+                      type="text"
+                      value={material.approvalAgainst || ''}
                       onChange={(e) => handlePackagingMaterialChange(materialIndex, 'approvalAgainst', e.target.value)}
                       className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                       style={{ padding: '10px 14px', height: '44px' }}
-                    >
-                      <option value="">Select</option>
-                      <option value="BUYER'S SAMPLE">BUYER'S SAMPLE</option>
-                      <option value="INITIAL SAMPLE">INITIAL SAMPLE</option>
-                      <option value="PP SAMPLE">PP SAMPLE</option>
-                    </select>
+                      placeholder="BUYER'S/INITIAL/PP SAMPLE"
+                    />
                   </div>
 
-                  {/* Remarks */}
+                  {/* Remarks - For all types */}
                   <div className="col-span-full flex flex-col">
                     <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                     <textarea
-                      value={material.remarks}
+                      value={material.remarks || ''}
                       onChange={(e) => handlePackagingMaterialChange(materialIndex, 'remarks', e.target.value)}
                       className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                       style={{ padding: '10px 14px', width: '100%' }}
-                      rows="1"
+                      rows="2"
                       placeholder="Additional notes..."
                     ></textarea>
                   </div>
@@ -10009,6 +10094,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                 {material.artworkCategory && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
                     {/* TYPE Field */}
+                    {!['LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                       <select
@@ -10018,13 +10104,11 @@ const GenerateFactoryCode = ({ onBack }) => {
                         style={{ padding: '10px 14px', height: '44px' }}
                       >
                         <option value="">Select</option>
-                        {material.artworkCategory === 'LABELS (BRAND/MAIN)' && ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather', 'Metal'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                          {material.artworkCategory === 'LABELS (BRAND/MAIN)' && ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather', 'Metal'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'CARE & COMPOSITION' && ['Woven', 'Printed', 'Heat Transfer'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TAGS & SPECIAL LABELS' && ['Hang Tag (Paper/Card)', 'Price Tag', 'Size Label', 'Flag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && ['Permanent Sew-in Label', 'Removable Hang Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'RFID / SECURITY TAGS' && ['Soft EAS Label', 'UHF RFID Sticker', 'Hard Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && ['Permanent Sew-in Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'HANG TAG SEALS / STRINGS' && ['Plastic Loop Lock', 'String & Seal', 'Security Pin'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'PRICE TICKET / BARCODE TAG' && ['Adhesive Sticker', 'Printed Area', 'Dedicated Small Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'HEAT TRANSFER LABELS' && ['Brand Logo', 'Size Tag', 'Minimal Care', 'Instructions', 'Reflective'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && ['Adhesive Sticker', 'Pre-Printed Barcode Area'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -10034,17 +10118,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                         {material.artworkCategory === 'BELLY BAND / WRAPPER' && ['Cardboard Sleeve', 'Printed Paper Band', 'Plastic Film Wrapper'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TYVEK LABELS' && ['Law Label', 'Shipping Tag', 'Permanent Industrial/Outdoor Care Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TAFFETA LABELS' && ['Printed Care Label', 'Composition Label', 'Temporary Size Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'INSERT CARDS' && ['Shirt Board', 'Neck Support', 'Tissue Paper Insert', 'Promotional Insert Card'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'RIBBONS' && ['Satin', 'Grosgrain', 'Sheer Organza', 'Printed Polyester', 'Woven Edge'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                          {material.artworkCategory === 'INSERT CARDS' && ['Shirt Board', 'Neck Support', 'Tissue Paper Insert', 'Promotional Insert Card'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                          {material.artworkCategory === 'RIBBONS' && ['Satin', 'Grosgrain', 'Sheer Organza', 'Printed Polyester', 'Woven Edge'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                       </select>
                     </div>
+                    )}
 
                     {/* MATERIAL Field */}
-                    {material.artworkCategory !== 'RFID / SECURITY TAGS' && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'CARE & COMPOSITION' ? 'FIBER CONTENT' :
-                           material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'MATERIAL BASE' : 'MATERIAL'}
+                          {material.artworkCategory === 'CARE & COMPOSITION' ? 'FIBER CONTENT' : 'MATERIAL'}
                       </label>
                       <input
                         type="text"
@@ -10136,10 +10220,32 @@ const GenerateFactoryCode = ({ onBack }) => {
                     {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
                       <>
                         <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.lawLabelType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Permanent Sew-in Label, Attached Label"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.lawLabelMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Cotton, Polyester, Blend, Tyvek"
+                          />
+                        </div>
+                        <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FILLING MATERIALS</label>
                           <input
                             type="text"
-                            value={material.fillingMaterials}
+                            value={material.fillingMaterials || ''}
                             onChange={(e) => handleArtworkMaterialChange(materialIndex, 'fillingMaterials', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -10150,7 +10256,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                           <label className="text-sm font-semibold text-gray-700 mb-2">NEW/USED STATUS</label>
                           <input
                             type="text"
-                            value={material.newUsedStatus}
+                            value={material.newUsedStatus || ''}
                             onChange={(e) => handleArtworkMaterialChange(materialIndex, 'newUsedStatus', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -10161,7 +10267,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                           <label className="text-sm font-semibold text-gray-700 mb-2">REGISTRATION/LICENSES</label>
                           <input
                             type="text"
-                            value={material.registrationLicenses}
+                            value={material.registrationLicenses || ''}
                             onChange={(e) => handleArtworkMaterialChange(materialIndex, 'registrationLicenses', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -10175,10 +10281,32 @@ const GenerateFactoryCode = ({ onBack }) => {
                     {material.artworkCategory === 'HANG TAG SEALS / STRINGS' && (
                       <>
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SEAL SHAPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                           <input
                             type="text"
-                            value={material.sealShape}
+                            value={material.hangTagType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Plastic Loop Lock, String & Seal, Security Pin"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.hangTagMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Plastic, Nylon, Polyester, Cotton String"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">SEAL/SHAPE</label>
+                          <input
+                            type="text"
+                            value={material.sealShape || ''}
                             onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sealShape', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -10189,7 +10317,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                           <label className="text-sm font-semibold text-gray-700 mb-2">FASTENING</label>
                           <input
                             type="text"
-                            value={material.fastening}
+                            value={material.fastening || ''}
                             onChange={(e) => handleArtworkMaterialChange(materialIndex, 'fastening', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -10200,7 +10328,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                           <label className="text-sm font-semibold text-gray-700 mb-2">PRE-STRINGING</label>
                           <input
                             type="text"
-                            value={material.preStringing}
+                            value={material.preStringing || ''}
                             onChange={(e) => handleArtworkMaterialChange(materialIndex, 'preStringing', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -10211,11 +10339,83 @@ const GenerateFactoryCode = ({ onBack }) => {
                           <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
                           <input
                             type="text"
-                            value={material.application}
+                            value={material.application || ''}
                             onChange={(e) => handleArtworkMaterialChange(materialIndex, 'application', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Manual Attachment / Machine Application"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for HEAT TRANSFER LABELS */}
+                    {material.artworkCategory === 'HEAT TRANSFER LABELS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.heatTransferType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Brand Logo, Size Tag, Minimal Care, Instructions, Reflective"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL BASE</label>
+                          <input
+                            type="text"
+                            value={material.heatTransferMaterialBase || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBase', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Polyester Film, PU, TPU, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION SPEC</label>
+                          <input
+                            type="text"
+                            value={material.applicationSpec || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'applicationSpec', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Temperature, Pressure, Time"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                          <input
+                            type="text"
+                            value={material.colours || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'colours', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="DTM / Colour Code (Pantone TPX/TCX)"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/HAND FEEL</label>
+                          <input
+                            type="text"
+                            value={material.finishHandFeel || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishHandFeel', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Soft, Smooth, Textured"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                          <input
+                            type="text"
+                            value={material.placement || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Collar, Side Seam, Care Label Area"
                           />
                         </div>
                       </>
@@ -10236,49 +10436,580 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                     )}
 
-                    {/* Specific Field for UPC LABEL / BARCODE STICKER */}
+                    {/* Specific Fields for UPC LABEL / BARCODE STICKER */}
                     {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QUALITY</label>
-                        <input
-                          type="text"
-                          value={material.quality}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'quality', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Print Contrast Ratio"
-                        />
-                      </div>
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.upcType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Adhesive Sticker, Pre-Printed Barcode Area"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.upcMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Paper, Synthetic, Vinyl, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <input
+                            type="text"
+                            value={material.content || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="UPC Code, Barcode, Product Info"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">QUALITY</label>
+                          <input
+                            type="text"
+                            value={material.quality || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'quality', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Print Contrast Ratio"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
+                          <input
+                            type="text"
+                            value={material.adhesive || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'adhesive', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Permanent, Removable"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                          <input
+                            type="text"
+                            value={material.placement || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Inside Label, Hang Tag, Packaging"
+                          />
+                        </div>
+                      </>
                     )}
 
-                    {/* Specific Field for PRICE TICKET / BARCODE TAG */}
+                    {/* Specific Fields for PRICE TICKET / BARCODE TAG */}
                     {material.artworkCategory === 'PRICE TICKET / BARCODE TAG' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">BARCODE TYPE</label>
-                        <input
-                          type="text"
-                          value={material.barcodeType}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'barcodeType', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., UPC / EAN-13 / Code 128"
-                        />
-                      </div>
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.priceTicketType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Adhesive Sticker, Printed Area, Dedicated Small Tag"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.priceTicketMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Paper, Card Stock, Synthetic, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <input
+                            type="text"
+                            value={material.content || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Price, SKU, Barcode, Product Info"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">BARCODE TYPE</label>
+                          <input
+                            type="text"
+                            value={material.barcodeType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'barcodeType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., UPC / EAN-13 / Code 128"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
+                          <input
+                            type="text"
+                            value={material.adhesive || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'adhesive', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Permanent, Removable, Repositionable"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                          <input
+                            type="text"
+                            value={material.finishing || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Matte, Gloss, Lamination"
+                          />
+                        </div>
+                      </>
                     )}
 
-                    {/* Specific Field for TYVEK LABELS */}
+                    {/* Specific Fields for SIZE LABELS (INDIVIDUAL) */}
+                    {material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.sizeLabelType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Woven Flag Label, Printed Flag Label, Heat Transfer, Small Sticker"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.sizeLabelMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Polyester, Cotton, Satin, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                          <input
+                            type="text"
+                            value={material.finishing || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Matte, Gloss, Lamination"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                          <input
+                            type="text"
+                            value={material.colours || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'colours', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="DTM / Colour Code (Pantone TPX/TCX)"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                          <input
+                            type="text"
+                            value={material.placement || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Collar, Side Seam, Care Label Area"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
+                          <input
+                            type="text"
+                            value={material.permanence || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Permanent, Temporary"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for ANTI-COUNTERFEIT & HOLOGRAMS */}
+                    {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.antiCounterfeitType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Hologram Sticker, Void/Tamper-Evident Label, Authenticity Patch, Invisible Ink Print"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.antiCounterfeitMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Holographic Film, Security Paper, Synthetic, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">SECURITY FEATURE</label>
+                          <input
+                            type="text"
+                            value={material.securityFeature || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'securityFeature', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Hologram, UV Ink, Microtext, QR Code"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                          <input
+                            type="text"
+                            value={material.application || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'application', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Adhesive, Sew-in, Heat Transfer"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                          <input
+                            type="text"
+                            value={material.placement || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Inside Label, Hang Tag, Packaging"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">VERIFICATION</label>
+                          <input
+                            type="text"
+                            value={material.verification || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'verification', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="App Scan, UV Light, Visual Check"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for QC / INSPECTION LABELS */}
+                    {material.artworkCategory === 'QC / INSPECTION LABELS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.qcLabelType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcLabelType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Passed/Inspected Sticker, Hold/Defective Sticker, Audit Sample Tag"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.qcLabelMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcLabelMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Paper, Synthetic, Vinyl, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <input
+                            type="text"
+                            value={material.content || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Passed, Hold, Defective, Audit Info"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                          <input
+                            type="text"
+                            value={material.application || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'application', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Adhesive, Sew-in, Tag"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">REMOVAL</label>
+                          <input
+                            type="text"
+                            value={material.removal || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'removal', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Permanent, Removable, Before Shipping"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TRACEABILITY</label>
+                          <input
+                            type="text"
+                            value={material.traceability || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'traceability', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Batch Number, Date, Inspector ID"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for BELLY BAND / WRAPPER */}
+                    {material.artworkCategory === 'BELLY BAND / WRAPPER' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.bellyBandType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Cardboard Sleeve, Printed Paper Band, Plastic Film Wrapper"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.bellyBandMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Card Stock GSM, Paper, Plastic Film, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CLOSURE</label>
+                          <input
+                            type="text"
+                            value={material.closure || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'closure', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Adhesive, Tuck-in, Overlap"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <input
+                            type="text"
+                            value={material.content || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Brand Info, Product Details, Care Instructions"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CLOSURE/FINISH</label>
+                          <input
+                            type="text"
+                            value={material.closureFinish || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'closureFinish', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Sealed, Open End, Perforated"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
+                          <input
+                            type="text"
+                            value={material.durability || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Temporary, Reusable, Single Use"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for TYVEK LABELS */}
                     {material.artworkCategory === 'TYVEK LABELS' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">INK TYPE</label>
-                        <input
-                          type="text"
-                          value={material.inkType}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'inkType', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Durable, Solvent-Resistant"
-                        />
-                      </div>
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.tyvekType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tyvekType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Law Label, Shipping Tag, Permanent Industrial/Outdoor Care Label"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.tyvekMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tyvekMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Tyvek, Synthetic Paper, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <input
+                            type="text"
+                            value={material.content || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Care Instructions, Composition, Law Label Info"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">INK TYPE</label>
+                          <input
+                            type="text"
+                            value={material.inkType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'inkType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Durable, Solvent-Resistant"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
+                          <input
+                            type="text"
+                            value={material.durability || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Waterproof, Tear-Resistant, UV Resistant"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
+                          <input
+                            type="text"
+                            value={material.permanence || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Permanent, Temporary"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for TAFFETA LABELS */}
+                    {material.artworkCategory === 'TAFFETA LABELS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <input
+                            type="text"
+                            value={material.taffetaType || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'taffetaType', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Printed Care Label, Composition Label, Temporary Size Label"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <input
+                            type="text"
+                            value={material.taffetaMaterial || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'taffetaMaterial', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Taffeta, Polyester, Satin, DTM"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <input
+                            type="text"
+                            value={material.content || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Care Instructions, Composition, Size Info"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PRINT QUALITY</label>
+                          <input
+                            type="text"
+                            value={material.printQuality || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'printQuality', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="High Contrast Printing"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
+                          <input
+                            type="text"
+                            value={material.durability || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Wash Fastness, Fade Resistance"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISHING</label>
+                          <input
+                            type="text"
+                            value={material.finishing || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Matte, Gloss, Lamination"
+                          />
+                        </div>
+                      </>
                     )}
 
                     {/* SIZE / DIMENSIONS Field */}
@@ -10291,11 +11022,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                            material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' ? 'SIZE / CODE' : 
                            material.artworkCategory === 'TYVEK LABELS' ? 'SIZE / FORMAT' : 
                            material.artworkCategory === 'TAFFETA LABELS' ? 'SIZE / FOLD' :
-                           material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'SIZE / COLOUR' : 'SIZE / DIMENSIONS'}
+                           material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'SIZE / COLOUR' :
+                           material.artworkCategory === 'PRICE TICKET / BARCODE TAG' ? 'SIZE / DIMENSION' :
+                           material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'SIZE / ARTWORK ID' :
+                           material.artworkCategory === 'UPC LABEL / BARCODE STICKER' ? 'SIZE / SPEC' :
+                           material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' ? 'SIZE / ARTWORK' :
+                           material.artworkCategory === 'QC / INSPECTION LABELS' ? 'SIZE / COLOUR' :
+                           material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'SIZE / DIMENSIONS' : 'SIZE / DIMENSIONS'}
                   </label>
                         <input
                           type="text"
-                          value={material.sizeArtworkId}
+                          value={material.sizeArtworkId || ''}
                           onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeArtworkId', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -10321,7 +11058,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
 
                     {/* COLOURS Field */}
-                    {(['LABELS (BRAND/MAIN)', 'HANG TAG SEALS / STRINGS', 'HEAT TRANSFER LABELS', 'SIZE LABELS (INDIVIDUAL)', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
+                    {(['LABELS (BRAND/MAIN)', 'HANG TAG SEALS / STRINGS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOURS</label>
                         <input
@@ -10336,7 +11073,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
                 
                     {/* ATTACHMENT / CLOSURE Field */}
-                    {(['TAGS & SPECIAL LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
+                    {(['TAGS & SPECIAL LABELS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'TAGS & SPECIAL LABELS' ? 'ATTACHMENT' : 'CLOSURE'}
@@ -10353,7 +11090,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
 
                     {/* CONTENT Field */}
-                    {(['TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'LAW LABEL / CONTENTS TAG', 'PRICE TICKET / BARCODE TAG', 'UPC LABEL / BARCODE STICKER', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'QC / INSPECTION LABELS'].includes(material.artworkCategory)) && (
+                    {(['TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'LAW LABEL / CONTENTS TAG'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'CONTENT MANDATES' : 'CONTENT'}
@@ -10417,7 +11154,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
                 
                     {/* FINISHING / FINISH Field */}
-                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'SIZE LABELS (INDIVIDUAL)', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'FINISH / HAND FEEL' : 'FINISHING'}
@@ -10434,7 +11171,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
 
                     {/* PLACEMENT Field (Specific to artwork category) */}
-                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS'].includes(material.artworkCategory)) && (
+                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
                         <input
@@ -10449,7 +11186,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
 
                     {/* PERMANENCE / DURABILITY Field */}
-                    {(['CARE & COMPOSITION', 'LAW LABEL / CONTENTS TAG', 'SIZE LABELS (INDIVIDUAL)', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                    {(['CARE & COMPOSITION'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'BELLY BAND / WRAPPER' || material.artworkCategory === 'TYVEK LABELS' || material.artworkCategory === 'TAFFETA LABELS' ? 'DURABILITY' : 'PERMANENCE'}
@@ -10462,6 +11199,39 @@ const GenerateFactoryCode = ({ onBack }) => {
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., Permanent"
                         />
+                      </div>
+                    )}
+
+                    {/* PERMANENCE Field with Upload for LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
+                          <input
+                            type="text"
+                            value={material.permanence || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Permanent"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanenceFile', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-permanence-law-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`upload-permanence-law-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
+                          >
+                            {material.permanenceFile ? 'UPLOADED' : 'UPLOAD'}
+                          </label>
+                        </div>
                       </div>
                     )}
 
@@ -10655,13 +11425,14 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </>
                     )}
 
-                    {/* TESTING REQUIREMENT Field with Image Upload */}
+                    {/* TESTING REQUIREMENT Field with Image Upload - For all except LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && (
                     <div className="flex flex-col md:col-span-2">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
                       <div className="flex items-center gap-2">
                         <input
                           type="text"
-                          value={material.testingRequirement}
+                            value={material.testingRequirement || ''}
                           onChange={(e) => handleArtworkMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-grow"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -10685,27 +11456,74 @@ const GenerateFactoryCode = ({ onBack }) => {
                         </label>
                       </div>
                     </div>
+                    )}
 
-                    {/* LENGTH / QUANTITY Field */}
+                    {/* TESTING REQUIREMENT Field - Standalone for LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <input
+                          type="text"
+                          value={material.testingRequirement || ''}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., Wash Fastness, Durability"
+                        />
+                      </div>
+                    )}
+
+                    {/* LENGTH / QUANTITY Field - For all except LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH / QUANTITY</label>
                       <input
                         type="text"
-                        value={material.lengthQuantity}
+                          value={material.lengthQuantity || ''}
                         onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
                         className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                         style={{ padding: '10px 14px', height: '44px' }}
                         placeholder="e.g., 5000 pcs"
                       />
                     </div>
+                    )}
 
-                    {/* SURPLUS Field with FOR SECTION */}
+                    {/* LENGTH / QUANTITY Field with FOR-SECTION - For LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                          <input
+                            type="text"
+                            value={material.lengthQuantity || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., 5000 pcs"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                          <input
+                            type="text"
+                            value={material.lengthQuantityForSection || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lengthQuantityForSection', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                            placeholder="FOR"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SURPLUS Field with FOR SECTION - For all except LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && (
                     <div className="flex flex-col md:col-span-2">
                       <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR)</label>
                       <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
                         <input
                           type="text"
-                          value={material.surplus}
+                            value={material.surplus || ''}
                           onChange={(e) => handleArtworkMaterialChange(materialIndex, 'surplus', e.target.value)}
                           className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
                           style={{ padding: '10px 14px', width: '80px' }}
@@ -10713,7 +11531,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                         />
                         <input
                           type="text"
-                          value={material.surplusForSection}
+                            value={material.surplusForSection || ''}
                           onChange={(e) => handleArtworkMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
                           className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                           style={{ padding: '10px 14px' }}
@@ -10721,6 +11539,22 @@ const GenerateFactoryCode = ({ onBack }) => {
                         />
                       </div>
                     </div>
+                    )}
+
+                    {/* SURPLUS Field - Standalone for LAW LABEL / CONTENTS TAG */}
+                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 5%)"
+                        />
+                      </div>
+                    )}
 
                     {/* APPROVAL Field */}
                     <div className="flex flex-col">
