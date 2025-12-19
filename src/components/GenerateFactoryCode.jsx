@@ -1356,7 +1356,9 @@ const GenerateFactoryCode = ({ onBack }) => {
           inkType: '',
           printQuality: '',
           sizeFold: '',
-          referenceImage: null
+          referenceImage: null,
+          usage: '',
+          ribbonWidth: ''
         }]
       };
     });
@@ -1826,7 +1828,8 @@ const GenerateFactoryCode = ({ onBack }) => {
         if (!workOrder.wastage?.trim()) {
           newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] = 'Wastage is required';
         }
-        if (!workOrder.forField?.trim()) {
+        // FOR field is not required for CUTTING
+        if (workOrder.workOrder !== 'CUTTING' && !workOrder.forField?.trim()) {
           newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`] = 'FOR is required';
         }
         
@@ -6485,8 +6488,6 @@ const GenerateFactoryCode = ({ onBack }) => {
                         <option value="BRAIDING">BRAIDING</option>
                         <option value="CARPET">CARPET</option>
                         <option value="CUTTING">CUTTING</option>
-                        <option value="STITCHING">STITCHING</option>
-                        <option value="OTHERS">OTHERS</option>
                       </select>
                       {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`] && (
                         <span className="text-red-600 text-xs mt-1 font-medium">
@@ -6495,69 +6496,77 @@ const GenerateFactoryCode = ({ onBack }) => {
                       )}
                     </div>
                     
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2">
-                        WASTAGE % <span className="text-red-600">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={workOrder.wastage}
-                        onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                          errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
-                            ? 'border-red-600' 
-                            : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                        }`}
-                        style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                        onFocus={(e) => {
-                          if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
-                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                          }
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.boxShadow = '';
-                        }}
-                        placeholder="e.g., 2"
-                        required
-                      />
-                      {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
-                        <span className="text-red-600 text-xs mt-1 font-medium">
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2">
-                        FOR <span className="text-red-600">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={workOrder.forField}
-                        onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'forField', e.target.value)}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                          errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`] 
-                            ? 'border-red-600' 
-                            : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                        }`}
-                        style={{ padding: '10px 14px', width: '180px', height: '44px' }}
-                        onFocus={(e) => {
-                          if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`]) {
-                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                          }
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.boxShadow = '';
-                        }}
-                        placeholder="e.g., Front Fabric"
-                        required
-                      />
-                      {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`] && (
-                        <span className="text-red-600 text-xs mt-1 font-medium">
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`]}
-                        </span>
-                      )}
-                    </div>
+                    {/* WASTAGE and FOR fields - Hidden for KNITTING, DYEING, and CUTTING as they have their own sections */}
+                    {workOrder.workOrder !== 'KNITTING' && workOrder.workOrder !== 'DYEING' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            WASTAGE % <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={workOrder.wastage}
+                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
+                                ? 'border-red-600' 
+                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                            }`}
+                            style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                            onFocus={(e) => {
+                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
+                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                              }
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.boxShadow = '';
+                            }}
+                            placeholder="e.g., 2"
+                            required
+                          />
+                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
+                            <span className="text-red-600 text-xs mt-1 font-medium">
+                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {/* FOR field - Hidden for CUTTING */}
+                        {workOrder.workOrder !== 'CUTTING' && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FOR <span className="text-red-600">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={workOrder.forField}
+                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'forField', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                                errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`] 
+                                  ? 'border-red-600' 
+                                  : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                              }`}
+                              style={{ padding: '10px 14px', width: '180px', height: '44px' }}
+                              onFocus={(e) => {
+                                if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`]) {
+                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                }
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.boxShadow = '';
+                              }}
+                              placeholder="e.g., Front Fabric"
+                              required
+                            />
+                            {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`] && (
+                              <span className="text-red-600 text-xs mt-1 font-medium">
+                                {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`]}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                   
                   {/* Conditional Fields based on Work Order Type */}
@@ -6692,30 +6701,32 @@ const GenerateFactoryCode = ({ onBack }) => {
                           </div>
                         )}
                         
-                        {/* Image Upload */}
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            {workOrder.workOrder === 'DYEING' ? 'REFERENCE IMAGE' : 'IMAGE REF'}
-                          </label>
-                          <div className="flex items-center gap-2">
-                          <input
-                              type="file"
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
-                              className="hidden"
-                              id={`file-${materialIndex}-${woIndex}`}
-                            />
-                            <label
-                              htmlFor={`file-${materialIndex}-${woIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
-                              style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                              </svg>
-                              <span className="truncate">{workOrder.imageRef ? 'UPLOADED' : 'UPLOAD'}</span>
+                        {/* Image Upload - Hidden for CUTTING */}
+                        {workOrder.workOrder !== 'CUTTING' && (
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              {workOrder.workOrder === 'DYEING' ? 'REFERENCE IMAGE' : 'IMAGE REF'}
                             </label>
+                            <div className="flex items-center gap-2">
+                            <input
+                                type="file"
+                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                className="hidden"
+                                id={`file-${materialIndex}-${woIndex}`}
+                              />
+                              <label
+                                htmlFor={`file-${materialIndex}-${woIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{workOrder.imageRef ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
                           </div>
-                        </div>
+                        )}
                         
                         {/* Specific Fields for WEAVING */}
                         {workOrder.workOrder === 'WEAVING' && (
@@ -8053,7 +8064,6 @@ const GenerateFactoryCode = ({ onBack }) => {
                       <option value="WEAVING">WEAVING</option>
                       <option value="PRINTING">PRINTING</option>
                       <option value="CUTTING">CUTTING</option>
-                      <option value="STITCHING">STITCHING</option>
                     </select>
                     {errors[`artworkMaterial_${materialIndex}_workOrder`] && (
                         <span className="text-red-600 text-xs mt-1 font-medium">
@@ -8151,6 +8161,8 @@ const GenerateFactoryCode = ({ onBack }) => {
                     <option value="BELLY BAND / WRAPPER">BELLY BAND / WRAPPER</option>
                     <option value="TYVEK LABELS">TYVEK LABELS</option>
                     <option value="TAFFETA LABELS">TAFFETA LABELS</option>
+                    <option value="INSERT CARDS">INSERT CARDS</option>
+                    <option value="RIBBONS">RIBBONS</option>
                   </select>
                 </div>
 
@@ -8166,7 +8178,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                         style={{ padding: '10px 14px', height: '44px' }}
                       >
                         <option value="">Select</option>
-                        {material.artworkCategory === 'LABELS (BRAND/MAIN)' && ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather/Metal'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'LABELS (BRAND/MAIN)' && ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather', 'Metal'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'CARE & COMPOSITION' && ['Woven', 'Printed', 'Heat Transfer'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TAGS & SPECIAL LABELS' && ['Hang Tag (Paper/Card)', 'Price Tag', 'Size Label', 'Flag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && ['Permanent Sew-in Label', 'Removable Hang Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -8182,23 +8194,34 @@ const GenerateFactoryCode = ({ onBack }) => {
                         {material.artworkCategory === 'BELLY BAND / WRAPPER' && ['Cardboard Sleeve', 'Printed Paper Band', 'Plastic Film Wrapper'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TYVEK LABELS' && ['Law Label', 'Shipping Tag', 'Permanent Industrial/Outdoor Care Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TAFFETA LABELS' && ['Printed Care Label', 'Composition Label', 'Temporary Size Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'INSERT CARDS' && ['Shirt Board', 'Neck Support', 'Tissue Paper Insert', 'Promotional Insert Card'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        {material.artworkCategory === 'RIBBONS' && ['Satin', 'Grosgrain', 'Sheer Organza', 'Printed Polyester', 'Woven Edge'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                       </select>
                     </div>
 
                     {/* MATERIAL Field */}
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2">
-                        {material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'MATERIAL BASE' : 'MATERIAL'}
-                      </label>
-                      <input
-                        type="text"
-                        value={material.material}
-                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'material', e.target.value)}
-                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                        style={{ padding: '10px 14px', height: '44px' }}
-                        placeholder={material.artworkCategory === 'CARE & COMPOSITION' ? 'Fiber Content' : material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'Card Stock GSM' : 'e.g., Polyester'}
-                      />
-                    </div>
+                    {material.artworkCategory !== 'RFID / SECURITY TAGS' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">
+                          {material.artworkCategory === 'CARE & COMPOSITION' ? 'FIBER CONTENT' :
+                           material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'MATERIAL BASE' : 'MATERIAL'}
+                        </label>
+                        <input
+                          type="text"
+                          value={material.material}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'material', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder={
+                            material.artworkCategory === 'CARE & COMPOSITION' ? 'Fiber Content' : 
+                            material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'Card Stock GSM' : 
+                            material.artworkCategory === 'INSERT CARDS' ? 'Card Stock GSM (200-400 GSM) / Corrugated Board / Acid-Free Tissue' :
+                            material.artworkCategory === 'RIBBONS' ? 'Polyester / Nylon / Rayon / Cotton' :
+                            'e.g., Polyester'
+                          }
+                        />
+                      </div>
+                    )}
 
                     {/* Specific Fields for CARE & COMPOSITION */}
                     {material.artworkCategory === 'CARE & COMPOSITION' && (
@@ -8344,6 +8367,17 @@ const GenerateFactoryCode = ({ onBack }) => {
                             placeholder="e.g., Supplied Pre-strung"
                           />
                         </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                          <input
+                            type="text"
+                            value={material.application}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'application', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Manual Attachment / Machine Application"
+                          />
+                        </div>
                       </>
                     )}
 
@@ -8411,11 +8445,13 @@ const GenerateFactoryCode = ({ onBack }) => {
                     {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'TAGS & SPECIAL LABELS' ? 'SIZE / SHAPE' : 
+                          {material.artworkCategory === 'LABELS (BRAND/MAIN)' ? 'SIZE / ARTWORK ID' :
+                           material.artworkCategory === 'TAGS & SPECIAL LABELS' ? 'SIZE / SHAPE' : 
                            material.artworkCategory === 'HANG TAG SEALS / STRINGS' ? 'SIZE / LENGTH' : 
                            material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' ? 'SIZE / CODE' : 
                            material.artworkCategory === 'TYVEK LABELS' ? 'SIZE / FORMAT' : 
-                           material.artworkCategory === 'TAFFETA LABELS' ? 'SIZE / FOLD' : 'SIZE / DIMENSIONS'}
+                           material.artworkCategory === 'TAFFETA LABELS' ? 'SIZE / FOLD' :
+                           material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'SIZE / COLOUR' : 'SIZE / DIMENSIONS'}
                   </label>
                         <input
                           type="text"
@@ -8445,7 +8481,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
 
                     {/* COLOURS Field */}
-                    {(['LABELS (BRAND/MAIN)', 'CARE & COMPOSITION', 'HANG TAG SEALS / STRINGS', 'HEAT TRANSFER LABELS', 'SIZE LABELS (INDIVIDUAL)', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
+                    {(['LABELS (BRAND/MAIN)', 'HANG TAG SEALS / STRINGS', 'HEAT TRANSFER LABELS', 'SIZE LABELS (INDIVIDUAL)', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOURS</label>
                         <input
@@ -8510,6 +8546,21 @@ const GenerateFactoryCode = ({ onBack }) => {
                       </div>
                     )}
 
+                    {/* CERTIFICATION ID Field - Only for FLAMMABILITY / SAFETY LABELS */}
+                    {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION ID</label>
+                        <input
+                          type="text"
+                          value={material.certificationId}
+                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'certificationId', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Test Report Reference Number / Certification Body ID"
+                        />
+                      </div>
+                    )}
+
                     {/* LANGUAGE Field */}
                     {(['CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
@@ -8543,7 +8594,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                     )}
 
                     {/* PLACEMENT Field (Specific to artwork category) */}
-                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'RFID / SECURITY TAGS', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS'].includes(material.artworkCategory)) && (
+                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
                         <input
@@ -8659,6 +8710,106 @@ const GenerateFactoryCode = ({ onBack }) => {
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="e.g., Sequential numbering"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for INSERT CARDS */}
+                    {material.artworkCategory === 'INSERT CARDS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">SIZE / SHAPE</label>
+                          <input
+                            type="text"
+                            value={material.sizeShape}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeShape', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Dimensions / Die-Cut Shape"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <input
+                            type="text"
+                            value={material.content}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Promotional Text / Product Features / Brand Story"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                          <input
+                            type="text"
+                            value={material.finishing}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Matte / Gloss Lamination / Varnished"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
+                          <input
+                            type="text"
+                            value={material.permanence}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Temporary (Removed by consumer)"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for RIBBONS */}
+                    {material.artworkCategory === 'RIBBONS' && (
+                      <>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
+                          <input
+                            type="text"
+                            value={material.ribbonWidth}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., 10mm, 1 inch"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                          <input
+                            type="text"
+                            value={material.colours}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'colours', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="DTM / Colour Code (Pantone TPX/TCX)"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                          <input
+                            type="text"
+                            value={material.finishing}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Single Face / Double Face / Wired Edge"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
+                          <input
+                            type="text"
+                            value={material.usage}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'usage', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Packaging Tie / Decorative Trim / Hanging Loop"
                           />
                         </div>
                       </>
