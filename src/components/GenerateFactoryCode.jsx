@@ -1203,15 +1203,6 @@ const GenerateFactoryCode = ({ onBack }) => {
       if (!material.workOrder?.trim()) {
         newErrors[`artworkMaterial_${materialIndex}_workOrder`] = 'Work Order is required';
       }
-      if (!material.wastage?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_wastage`] = 'Wastage is required';
-      }
-      if (!material.forField?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_forField`] = 'FOR is required';
-      }
-      if (!material.packagingWorkOrder?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_packagingWorkOrder`] = 'Packaging Work Order is required';
-      }
       
       // Validate conditional fields for R.Mtr unit
       if (material.unit === 'R.Mtr' || material.unit === 'R METER' || material.unit === 'R METERS') {
