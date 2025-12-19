@@ -6720,57 +6720,88 @@ const GenerateFactoryCode = ({ onBack }) => {
                         {/* Specific Fields for WEAVING */}
                         {workOrder.workOrder === 'WEAVING' && (
                           <>
-                            {/* WARP & WEFT Section */}
+                            {/* REED and PICK Fields */}
                             <div className="w-full mt-4">
-                              <label className="text-sm font-semibold text-gray-700 mb-3 block">REED : </label>
-                              <div className="flex flex-wrap items-start gap-6">
-                                <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
-                                  <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={workOrder.warp || false}
-                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'warp', e.target.checked)}
-                                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                                    />
-                                    <span className="text-sm font-semibold text-gray-700">WARP</span>
-                                  </label>
-                                  {workOrder.warp && (
-                                    <input
-                                      type="number"
-                                      step="0.001"
-                                      value={workOrder.ratioWarp || ''}
-                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWarp', e.target.value)}
-                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                      style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                                      onBlur={(e) => e.target.style.boxShadow = ''}
-                                      placeholder="0.4"
-                                    />
-                                  )}
+                              <div className="flex flex-wrap items-start gap-4" style={{ marginBottom: '24px' }}>
+                                <div className="flex flex-col">
+                                  <label className="text-sm font-semibold text-gray-700 mb-2">REED</label>
+                                  <input
+                                    type="text"
+                                    value={workOrder.reed || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'reed', e.target.value)}
+                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                    style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                                    onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                    onBlur={(e) => e.target.style.boxShadow = ''}
+                                    placeholder="Enter reed"
+                                  />
                                 </div>
-                                <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
-                                  <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={workOrder.weft || false}
-                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'weft', e.target.checked)}
-                                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                                    />
-                                    <span className="text-sm font-semibold text-gray-700">WEFT</span>
-                                  </label>
-                                  {workOrder.weft && (
-                                    <input
-                                      type="number"
-                                      step="0.001"
-                                      value={workOrder.ratioWeft || ''}
-                                      onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWeft', e.target.value)}
-                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                      style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                                      onBlur={(e) => e.target.style.boxShadow = ''}
-                                      placeholder="0.25"
-                                    />
-                                  )}
+                                <div className="flex flex-col">
+                                  <label className="text-sm font-semibold text-gray-700 mb-2">PICK</label>
+                                  <input
+                                    type="text"
+                                    value={workOrder.pick || ''}
+                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'pick', e.target.value)}
+                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                    style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                                    onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                    onBlur={(e) => e.target.style.boxShadow = ''}
+                                    placeholder="Enter pick"
+                                  />
+                                </div>
+                              </div>
+                              
+                              {/* WARP & WEFT Radio Buttons Section */}
+                              <div className="w-full">
+                                <div className="flex flex-wrap items-start gap-6">
+                                  <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={workOrder.warp || false}
+                                        onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'warp', e.target.checked)}
+                                        className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm font-semibold text-gray-700">WARP</span>
+                                    </label>
+                                    {workOrder.warp && (
+                                      <input
+                                        type="number"
+                                        step="0.001"
+                                        value={workOrder.ratioWarp || ''}
+                                        onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWarp', e.target.value)}
+                                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                        style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                        onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                        onBlur={(e) => e.target.style.boxShadow = ''}
+                                        placeholder="0.4"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-4" style={{ minWidth: '200px' }}>
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={workOrder.weft || false}
+                                        onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'weft', e.target.checked)}
+                                        className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm font-semibold text-gray-700">WEFT</span>
+                                    </label>
+                                    {workOrder.weft && (
+                                      <input
+                                        type="number"
+                                        step="0.001"
+                                        value={workOrder.ratioWeft || ''}
+                                        onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'ratioWeft', e.target.value)}
+                                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                        style={{ padding: '10px 14px', width: '100px', height: '44px' }}
+                                        onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                        onBlur={(e) => e.target.style.boxShadow = ''}
+                                        placeholder="0.25"
+                                      />
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                               {/* RATIO WEIGHT/%AGE Row */}
