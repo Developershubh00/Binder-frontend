@@ -728,12 +728,6 @@ const GenerateFactoryCode = ({ onBack }) => {
       if (!material.workOrder?.trim()) {
         newErrors[`consumptionMaterial_${materialIndex}_workOrder`] = 'Work Order is required';
       }
-      if (!material.wastage?.trim()) {
-        newErrors[`consumptionMaterial_${materialIndex}_wastage`] = 'Wastage is required';
-      }
-      if (!material.forField?.trim()) {
-        newErrors[`consumptionMaterial_${materialIndex}_forField`] = 'FOR is required';
-      }
     });
     
     setErrors(newErrors);
