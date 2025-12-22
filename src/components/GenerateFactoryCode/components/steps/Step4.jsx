@@ -586,7 +586,7 @@ const Step4 = ({
                           />
                         </div>
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SEAL/SHAPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">SEAL SHAPE</label>
                           <input
                             type="text"
                             value={material.sealShape || ''}
