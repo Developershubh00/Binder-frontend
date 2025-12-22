@@ -195,6 +195,12 @@ const GenerateFactoryCode = ({ onBack }) => {
 
   // Step labels for progress bar
   const stepLabels = [
+    'Product Spec',
+    'Cut & Sew Spec',
+    'Raw Material',
+    'Trims & Accessories',
+    'Artwork & Labeling',
+    'Packaging'
   ];
 
   // Update consumption materials when overage or poQty changes from Step 0
