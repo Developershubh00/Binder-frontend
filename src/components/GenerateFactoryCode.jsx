@@ -1,5 +1,653 @@
 import { useState, useEffect } from 'react';
 
+// Normalized Textile Fiber Data Structure
+const TEXTILE_FIBER_DATA = {
+  'Cotton': {
+    'Cotton Carded': {
+      spinningMethod: 'Carded/Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 3, 4],
+      windingOptions: 'Cone, Hank'
+    },
+    'Cotton Combed': {
+      spinningMethod: 'Combed/Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 3, 4],
+      windingOptions: 'Cone, Hank'
+    },
+    'Cotton Compact': {
+      spinningMethod: 'Compact Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton OE': {
+      spinningMethod: 'Open End/Rotor',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 4],
+      windingOptions: 'Cone'
+    },
+    'Cotton Slub': {
+      spinningMethod: 'Ring Spun + Slub Attachment',
+      countSystem: 'Ne',
+      doublingOptions: 'Single',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton Melange': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton Gassed': {
+      spinningMethod: 'Ring Spun + Gassing',
+      countSystem: 'Ne',
+      doublingOptions: '2-ply, 3-ply',
+      plyOptions: [2, 3, 4, 6],
+      windingOptions: 'Cone, Hank'
+    },
+    'Cotton Sewing Thread': {
+      spinningMethod: 'Ring Spun + Mercerized',
+      countSystem: 'Ne (Ticket)',
+      doublingOptions: '3-ply',
+      plyOptions: [3, 6],
+      windingOptions: 'Spool, Cone'
+    },
+    'Organic Cotton': {
+      spinningMethod: 'Ring Spun/Combed',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'BCI Cotton': {
+      spinningMethod: 'Carded/Combed',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Supima Cotton': {
+      spinningMethod: 'Combed/Compact',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Egyptian Cotton': {
+      spinningMethod: 'Combed',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Pima Cotton': {
+      spinningMethod: 'Combed',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    }
+  },
+  'Cotton Blends': {
+    'PC (Polyester-Cotton)': {
+      spinningMethod: 'Ring/OE Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'CVC (Chief Value Cotton)': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton-Viscose': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton-Modal': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton-Linen': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Cotton-Bamboo': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton-Tencel': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cotton-Spandex Core': {
+      spinningMethod: 'Core Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single',
+      plyOptions: [1],
+      windingOptions: 'Cone'
+    }
+  },
+  'Wool': {
+    'Wool Worsted': {
+      spinningMethod: 'Worsted System',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3, 4],
+      windingOptions: 'Cone, Hank'
+    },
+    'Wool Woolen': {
+      spinningMethod: 'Woolen System',
+      countSystem: 'Nm',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Merino Wool': {
+      spinningMethod: 'Worsted Combed',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3, 4],
+      windingOptions: 'Cone, Hank'
+    },
+    'Lambswool': {
+      spinningMethod: 'Woolen/Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Shetland Wool': {
+      spinningMethod: 'Woolen',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Hank'
+    },
+    'Cashmere': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Alpaca': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Mohair': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply, Brushed',
+      plyOptions: [2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Angora': {
+      spinningMethod: 'Woolen',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2],
+      windingOptions: 'Hank'
+    }
+  },
+  'Wool Blends': {
+    'Wool-Nylon': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Wool-Acrylic': {
+      spinningMethod: 'Worsted/Woolen',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Wool-Silk': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Wool-Cashmere': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Merino-Tencel': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2],
+      windingOptions: 'Cone'
+    }
+  },
+  'Polyester': {
+    'Polyester Spun': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Polyester DTY': {
+      spinningMethod: 'Draw Texturized',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Bobbin'
+    },
+    'Polyester POY': {
+      spinningMethod: 'Partially Oriented',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Bobbin'
+    },
+    'Polyester FDY': {
+      spinningMethod: 'Fully Drawn',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Bobbin'
+    },
+    'Polyester ATY': {
+      spinningMethod: 'Air Texturized',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Cone'
+    },
+    'PSF Yarn': {
+      spinningMethod: 'Ring/OE Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Recycled Polyester': {
+      spinningMethod: 'Ring Spun/DTY',
+      countSystem: 'Ne/Denier',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Poly Sewing Thread': {
+      spinningMethod: 'Core Spun/Texturized',
+      countSystem: 'Ticket No.',
+      doublingOptions: '3-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Spool, Cone'
+    },
+    'Polyester HT': {
+      spinningMethod: 'High Tenacity FDY',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Cone'
+    },
+    'Polyester Microfiber': {
+      spinningMethod: 'Micro Denier',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Cone'
+    }
+  },
+  'Polyester Blends': {
+    'PV (Polyester-Viscose)': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Poly-Wool': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2],
+      windingOptions: 'Cone'
+    },
+    'Poly-Acrylic': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Poly-Linen': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    }
+  },
+  'Viscose/Rayon': {
+    'Viscose Spun': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Viscose Filament': {
+      spinningMethod: 'Continuous Filament',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Modal': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Lyocell/Tencel': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Bamboo Viscose': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Cupro': {
+      spinningMethod: 'Continuous Filament',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Cone'
+    }
+  },
+  'Viscose/Regenerated Blends': {
+    'Viscose-Linen': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Modal-Cotton': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Tencel-Wool': {
+      spinningMethod: 'Worsted',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2],
+      windingOptions: 'Cone'
+    }
+  },
+  'Nylon/Polyamide': {
+    'Nylon 6': {
+      spinningMethod: 'Melt Spun FDY/DTY',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Bobbin'
+    },
+    'Nylon 66': {
+      spinningMethod: 'Melt Spun FDY/DTY',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Bobbin'
+    },
+    'Nylon High Tenacity': {
+      spinningMethod: 'High Tenacity',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Cone'
+    },
+    'Nylon Textured': {
+      spinningMethod: 'Air Jet Textured',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Nylon Staple Spun': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    }
+  },
+  'Acrylic': {
+    'Acrylic HB (High Bulk)': {
+      spinningMethod: 'Ring Spun HB',
+      countSystem: 'Nm',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Acrylic Non-HB': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Nm',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone'
+    },
+    'Modacrylic': {
+      spinningMethod: 'Ring Spun',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2],
+      windingOptions: 'Cone'
+    },
+    'Acrylic Chenille': {
+      spinningMethod: 'Cut Pile',
+      countSystem: 'Nm',
+      doublingOptions: 'Chenille',
+      plyOptions: [2],
+      windingOptions: 'Cone'
+    }
+  },
+  'Linen/Flax': {
+    'Linen Wet Spun': {
+      spinningMethod: 'Wet Spinning',
+      countSystem: 'Lea/Nm',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Linen Dry Spun': {
+      spinningMethod: 'Dry Spinning',
+      countSystem: 'Lea/Nm',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Linen Tow': {
+      spinningMethod: 'Tow Spinning',
+      countSystem: 'Lea',
+      doublingOptions: 'Single',
+      plyOptions: [1, 2],
+      windingOptions: 'Hank'
+    },
+    'Linen Line': {
+      spinningMethod: 'Line Spinning',
+      countSystem: 'Lea',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    }
+  },
+  'Jute & Bast Fibers': {
+    'Jute Yarn': {
+      spinningMethod: 'Jute Spinning',
+      countSystem: 'Lbs/Spindle',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 3],
+      windingOptions: 'Hank, Cone'
+    },
+    'Hemp Yarn': {
+      spinningMethod: 'Wet/Dry Spun',
+      countSystem: 'Nm/Ne',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Ramie Yarn': {
+      spinningMethod: 'Wet Spun',
+      countSystem: 'Nm',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Sisal Yarn': {
+      spinningMethod: 'Sisal Spinning',
+      countSystem: 'Lbs/Spindle',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2, 3],
+      windingOptions: 'Ball, Coil'
+    },
+    'Coir Yarn': {
+      spinningMethod: 'Coir Spinning',
+      countSystem: 'Runnage',
+      doublingOptions: '2-ply, 3-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Coil, Ball'
+    }
+  },
+  'Silk': {
+    'Mulberry Silk': {
+      spinningMethod: 'Reeled/Thrown',
+      countSystem: 'Denier',
+      doublingOptions: '2-ply to 6-ply',
+      plyOptions: [2, 3, 4, 6],
+      windingOptions: 'Hank, Cone'
+    },
+    'Tussah/Wild Silk': {
+      spinningMethod: 'Reeled',
+      countSystem: 'Denier',
+      doublingOptions: '2-ply, 3-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Hank'
+    },
+    'Silk Noil': {
+      spinningMethod: 'Spun Silk',
+      countSystem: 'Nm',
+      doublingOptions: 'Single, 2-ply',
+      plyOptions: [1, 2],
+      windingOptions: 'Cone, Hank'
+    },
+    'Spun Silk': {
+      spinningMethod: 'Ring Spun (from waste)',
+      countSystem: 'Nm',
+      doublingOptions: '2-ply',
+      plyOptions: [2, 3],
+      windingOptions: 'Cone, Hank'
+    },
+    'Dupioni Silk': {
+      spinningMethod: 'Reeled/Raw',
+      countSystem: 'Denier',
+      doublingOptions: 'Raw',
+      plyOptions: [2, 3],
+      windingOptions: 'Hank'
+    }
+  },
+  'Specialty/Technical': {
+    'Spandex/Elastane': {
+      spinningMethod: 'Melt Spun',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Bobbin, Spool'
+    },
+    'Carbon Fiber': {
+      spinningMethod: 'Continuous Tow',
+      countSystem: 'K (thousands)',
+      doublingOptions: 'N/A',
+      plyOptions: "Tow",
+      windingOptions: 'Spool'
+    },
+    'Glass Fiber': {
+      spinningMethod: 'Continuous Filament',
+      countSystem: 'Tex',
+      doublingOptions: 'N/A',
+      plyOptions: "Roving",
+      windingOptions: 'Spool'
+    },
+    'Aramid (Kevlar)': {
+      spinningMethod: 'Solution Spun',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Spool, Cone'
+    },
+    'UHMWPE (Dyneema)': {
+      spinningMethod: 'Gel Spun',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Spool'
+    },
+    'Metallic/Lurex': {
+      spinningMethod: 'Laminated/Slit',
+      countSystem: 'Denier',
+      doublingOptions: 'N/A',
+      plyOptions: [1],
+      windingOptions: 'Bobbin, Cone'
+    },
+    'Stainless Steel': {
+      spinningMethod: 'Drawn Wire',
+      countSystem: 'Micron',
+      doublingOptions: 'N/A',
+      plyOptions: "Multi-filament",
+      windingOptions: 'Spool'
+    }
+  }
+};
+
 const GenerateFactoryCode = ({ onBack }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
@@ -185,12 +833,6 @@ const GenerateFactoryCode = ({ onBack }) => {
 
   // Step labels for progress bar
   const stepLabels = [
-    'Product Identification',
-    'Cut & Sew Spec',
-    'Raw Material Sourcing',
-    'Trims & Accessories',
-    'Artwork & Labeling',
-    'Packaging',
   ];
 
   // Update consumption materials when overage or poQty changes from Step 0
@@ -253,6 +895,29 @@ const GenerateFactoryCode = ({ onBack }) => {
         [name]: ''
       }));
     }
+  };
+
+  // Helpers to decide if a row has any user input (for optional navigation)
+  const isRawMaterialFilled = (material = {}) => {
+    const hasWorkOrderSelection = material.workOrders?.some(wo => wo?.workOrder?.trim());
+    return Boolean(
+      material.materialDescription?.trim() ||
+      material.netConsumption?.toString().trim() ||
+      material.unit?.trim() ||
+      material.fiberType?.trim() ||
+      material.yarnType?.trim() ||
+      hasWorkOrderSelection
+    );
+  };
+
+  const isConsumptionMaterialFilled = (material = {}) => {
+    return Boolean(
+      material.materialDescription?.trim() ||
+      material.netConsumption?.toString().trim() ||
+      material.unit?.trim() ||
+      material.workOrder?.trim() ||
+      material.trimAccessory?.trim()
+    );
   };
 
   const validateStep0 = () => {
@@ -493,10 +1158,39 @@ const GenerateFactoryCode = ({ onBack }) => {
   const handleRawMaterialChange = (materialIndex, field, value) => {
     setFormData(prev => {
       const updatedRawMaterials = [...prev.rawMaterials];
-      updatedRawMaterials[materialIndex] = {
-        ...updatedRawMaterials[materialIndex],
-        [field]: value
-      };
+      const material = updatedRawMaterials[materialIndex];
+      
+      // Reset child dropdowns when parent changes
+      if (field === 'fiberType') {
+        updatedRawMaterials[materialIndex] = {
+          ...material,
+          fiberType: value,
+          yarnType: '',
+          spinningMethod: '',
+          yarnComposition: '',
+          yarnCountRange: '',
+          yarnDoublingOptions: '',
+          yarnPlyOptions: ''
+        };
+      } else if (field === 'yarnType') {
+        const spinningMethod = getSpinningMethod(material.fiberType, value);
+        updatedRawMaterials[materialIndex] = {
+          ...material,
+          yarnType: value,
+          spinningMethod: spinningMethod || '',
+          // Composition, Count Range, Doubling Options, and Ply Options are input fields - NOT pre-filled
+          yarnComposition: '',
+          yarnCountRange: '',
+          yarnDoublingOptions: '',
+          yarnPlyOptions: ''
+        };
+      } else {
+        updatedRawMaterials[materialIndex] = {
+          ...material,
+          [field]: value
+        };
+      }
+      
       return { ...prev, rawMaterials: updatedRawMaterials };
     });
     
@@ -731,15 +1425,15 @@ const GenerateFactoryCode = ({ onBack }) => {
 
   const validateStep3 = () => {
     const newErrors = {};
-    
-    if (!formData.consumptionMaterials || formData.consumptionMaterials.length === 0) {
-      newErrors['consumptionMaterials'] = 'At least one consumption material is required';
-      setErrors(newErrors);
-      return false;
-    }
-    
-    formData.consumptionMaterials.forEach((material, materialIndex) => {
-      if (!material) return;
+
+    const materials = formData.consumptionMaterials || [];
+    let hasFilledMaterial = false;
+
+    materials.forEach((material, materialIndex) => {
+      if (!material || !isConsumptionMaterialFilled(material)) {
+        return;
+      }
+      hasFilledMaterial = true;
       if (!material.materialDescription?.trim()) {
         newErrors[`consumptionMaterial_${materialIndex}_materialDescription`] = 'Material Description is required';
       }
@@ -755,6 +1449,11 @@ const GenerateFactoryCode = ({ onBack }) => {
     });
     
     setErrors(newErrors);
+
+    if (!hasFilledMaterial) {
+      return true;
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -1707,6 +2406,37 @@ const GenerateFactoryCode = ({ onBack }) => {
     });
   };
 
+  // Helper functions for hierarchical dropdown filtering
+  const getFiberTypes = () => {
+    return Object.keys(TEXTILE_FIBER_DATA);
+  };
+
+  const getYarnTypes = (fiberType) => {
+    if (!fiberType || !TEXTILE_FIBER_DATA[fiberType]) return [];
+    return Object.keys(TEXTILE_FIBER_DATA[fiberType]);
+  };
+
+  const getSpinningMethod = (fiberType, yarnType) => {
+    if (!fiberType || !yarnType || !TEXTILE_FIBER_DATA[fiberType] || !TEXTILE_FIBER_DATA[fiberType][yarnType]) {
+      return null;
+    }
+    return TEXTILE_FIBER_DATA[fiberType][yarnType].spinningMethod;
+  };
+
+  const getYarnDetails = (fiberType, yarnType) => {
+    if (!fiberType || !yarnType || !TEXTILE_FIBER_DATA[fiberType] || !TEXTILE_FIBER_DATA[fiberType][yarnType]) {
+      return null;
+    }
+    const details = TEXTILE_FIBER_DATA[fiberType][yarnType];
+    return {
+      spinningMethod: details.spinningMethod,
+      countSystem: details.countSystem,
+      doublingOptions: details.doublingOptions,
+      plyOptions: details.plyOptions,
+      windingOptions: details.windingOptions
+    };
+  };
+
   const initializeRawMaterials = () => {
     // Initialize raw materials based on products and components from Step 1
     const rawMaterials = [];
@@ -1721,6 +2451,13 @@ const GenerateFactoryCode = ({ onBack }) => {
           materialDescription: '',
           netConsumption: '',
           unit: component.unit || '',
+          fiberType: '',
+          yarnType: '',
+          spinningMethod: '',
+          yarnComposition: '',
+          yarnCountRange: '',
+          yarnDoublingOptions: '',
+          yarnPlyOptions: '',
           workOrders: [{
             workOrder: '',
             wastage: '',
@@ -1848,14 +2585,15 @@ const GenerateFactoryCode = ({ onBack }) => {
 
   const validateStep2 = () => {
     const newErrors = {};
-    
-    // Allow navigation if no raw materials are added (optional step)
-    if (!formData.rawMaterials || formData.rawMaterials.length === 0) {
-      setErrors(newErrors);
-      return true;
-    }
-    
-    formData.rawMaterials.forEach((material, materialIndex) => {
+
+    const materials = formData.rawMaterials || [];
+    let hasFilledMaterial = false;
+
+    materials.forEach((material, materialIndex) => {
+      if (!material || !isRawMaterialFilled(material)) {
+        return;
+      }
+      hasFilledMaterial = true;
       if (!material.materialDescription?.trim()) {
         newErrors[`rawMaterial_${materialIndex}_materialDescription`] = 'Material Description is required';
       }
@@ -1947,6 +2685,11 @@ const GenerateFactoryCode = ({ onBack }) => {
     });
     
     setErrors(newErrors);
+
+    if (!hasFilledMaterial) {
+      return true;
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -8288,6 +9031,179 @@ const GenerateFactoryCode = ({ onBack }) => {
                     </span>
                   )}
                 </div>
+              </div>
+              
+              {/* Fiber Type Hierarchy Dropdowns */}
+              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
+                <h3 className="text-sm font-bold text-gray-800 mb-4">FIBER SPECIFICATIONS</h3>
+                <div className="flex flex-wrap items-start gap-6">
+                  {/* Fiber Type Dropdown */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">
+                      FIBER TYPE
+                    </label>
+                    <select
+                      value={material.fiberType || ''}
+                      onChange={(e) => handleRawMaterialChange(materialIndex, 'fiberType', e.target.value)}
+                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                      style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                      onFocus={(e) => {
+                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.boxShadow = '';
+                      }}
+                    >
+                      <option value="">Select Fiber Type</option>
+                      {getFiberTypes().map(fiberType => (
+                        <option key={fiberType} value={fiberType}>{fiberType}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Yarn Type Dropdown */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">
+                      YARN TYPE
+                    </label>
+                    <select
+                      value={material.yarnType || ''}
+                      onChange={(e) => handleRawMaterialChange(materialIndex, 'yarnType', e.target.value)}
+                      disabled={!material.fiberType}
+                      className={`border-2 rounded-lg text-sm transition-all ${
+                        !material.fiberType 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                          : 'bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                      }`}
+                      style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                      onFocus={(e) => {
+                        if (material.fiberType) {
+                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.boxShadow = '';
+                      }}
+                    >
+                      <option value="">{material.fiberType ? 'Select Yarn Type' : 'Select Fiber Type First'}</option>
+                      {getYarnTypes(material.fiberType).map(yarnType => (
+                        <option key={yarnType} value={yarnType}>{yarnType}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Spinning Method Display (Read-only, auto-populated) */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-2">
+                      SPINNING METHOD
+                    </label>
+                    <input
+                      type="text"
+                      value={material.spinningMethod || ''}
+                      readOnly
+                      className="border-2 rounded-lg text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
+                      style={{ padding: '10px 14px', width: '220px', height: '44px', borderColor: '#e5e7eb' }}
+                      placeholder="Auto-populated"
+                    />
+                  </div>
+                </div>
+                
+                {/* Display Yarn Details when both Fiber Type and Yarn Type are selected */}
+                {material.fiberType && material.yarnType && (() => {
+                  const details = getYarnDetails(material.fiberType, material.yarnType);
+                  if (!details) return null;
+                  
+                  return (
+                    <div style={{ marginTop: '24px', padding: '24px', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+                      <h4 className="text-sm font-semibold text-gray-800 mb-6">YARN SPECIFICATIONS</h4>
+                      
+                      {/* Input Fields Row */}
+                      <div className="flex flex-wrap items-start gap-6">
+                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            COMPOSITION <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={material.yarnComposition || ''}
+                            onChange={(e) => handleRawMaterialChange(materialIndex, 'yarnComposition', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., 100% Cotton"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            COUNT RANGE <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={material.yarnCountRange || ''}
+                            onChange={(e) => handleRawMaterialChange(materialIndex, 'yarnCountRange', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., 6-40"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            DOUBLING OPTIONS <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={material.yarnDoublingOptions || ''}
+                            onChange={(e) => handleRawMaterialChange(materialIndex, 'yarnDoublingOptions', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., Single, 2-ply"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            PLY OPTIONS <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={material.yarnPlyOptions || ''}
+                            onChange={(e) => handleRawMaterialChange(materialIndex, 'yarnPlyOptions', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="e.g., 1, 2, 3, 4"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            COUNT SYSTEM
+                          </label>
+                          <input
+                            type="text"
+                            value={details.countSystem || ''}
+                            readOnly
+                            className="border-2 rounded-lg text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
+                            style={{ padding: '10px 14px', height: '44px', borderColor: '#e5e7eb' }}
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">
+                            WINDING OPTIONS
+                          </label>
+                          <input
+                            type="text"
+                            value={details.windingOptions || ''}
+                            readOnly
+                            className="border-2 rounded-lg text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
+                            style={{ padding: '10px 14px', height: '44px', borderColor: '#e5e7eb' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
             
