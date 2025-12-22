@@ -1,0 +1,125 @@
+import { calculateTotalWastage, calculateGrossConsumption } from './calculations';
+
+export const initializeRawMaterials = (formData) => {
+  // Initialize raw materials based on products and components from Step 1
+  const rawMaterials = [];
+  (formData.products || []).forEach((product, productIndex) => {
+    (product.components || []).forEach((component, componentIndex) => {
+      rawMaterials.push({
+        productIndex,
+        componentIndex,
+        productName: product.name,
+        componentName: component.productComforter,
+        srNo: component.srNo,
+        materialDescription: '',
+        netConsumption: '',
+        unit: component.unit || '',
+        fiberType: '',
+        yarnType: '',
+        spinningMethod: '',
+        yarnComposition: '',
+        yarnCountRange: '',
+        yarnDoublingOptions: '',
+        yarnPlyOptions: '',
+        workOrders: [{
+          workOrder: '',
+          wastage: '',
+          forField: '',
+          approvalAgainst: '',
+          remarks: '',
+          design: '',
+          imageRef: null,
+          machineType: '',
+          reed: '',
+          pick: '',
+          warp: false,
+          weft: false,
+          ratioWarp: '',
+          ratioWeft: '',
+          ratioWeightWarp: '',
+          ratioWeightWeft: '',
+          pileHeight: '',
+          tpi: '',
+          quiltingType: '',
+          printingType: '',
+          wales: false,
+          courses: false,
+          ratioWales: '',
+          ratioCourses: '',
+          ratioWeightWales: '',
+          ratioWeightCourses: '',
+          receivedColorReference: '',
+          referenceType: '',
+          shrinkageWidth: false,
+          shrinkageLength: false,
+          shrinkageWidthPercent: '',
+          shrinkageLengthPercent: '',
+          ratioWidth: '',
+          ratioLength: '',
+          forSection: '',
+          forSectionWidth: '',
+          forSectionLength: '',
+          cutType: '',
+          cutSize: '',
+          // Compatibility
+          dyeingType: '',
+          shrinkage: '',
+          width: '',
+          length: '',
+          weavingType: '',
+          warpWeft: '',
+          ratio: '',
+        }],
+      });
+    });
+  });
+  return rawMaterials;
+};
+
+export const initializeConsumptionMaterials = (formData) => {
+  // Initialize consumption materials based on raw materials from Step 2
+  if (!formData.rawMaterials || formData.rawMaterials.length === 0) {
+    return [{
+      srNo: 1,
+      productName: '',
+      componentName: '',
+      materialDescription: '',
+      netConsumption: '',
+      unit: '',
+      workOrder: '',
+      wastage: '',
+      forField: '',
+      totalWastage: '0%',
+      overage: formData.overagePercentage || '',
+      poQty: formData.poQty || '',
+      grossConsumption: '0',
+    }];
+  }
+  
+  const consumptionMaterials = formData.rawMaterials.map((material, index) => {
+    if (!material) return null;
+    const totalWastage = calculateTotalWastage(material.workOrders || []);
+    return {
+      srNo: material.srNo || index + 1,
+      productName: material.productName || '',
+      componentName: material.componentName || '',
+      materialDescription: material.materialDescription || '',
+      netConsumption: material.netConsumption || '',
+      unit: material.unit || '',
+      workOrder: material.workOrders?.[0]?.workOrder || '',
+      wastage: material.workOrders?.[0]?.wastage || '',
+      forField: material.workOrders?.[0]?.forField || '',
+      totalWastage: `${totalWastage}%`,
+      overage: formData.overagePercentage || '',
+      poQty: formData.poQty || '',
+      grossConsumption: calculateGrossConsumption(
+        material.netConsumption || '0',
+        totalWastage,
+        formData.overagePercentage || '0',
+        formData.poQty || '0'
+      ),
+    };
+  }).filter(Boolean); // Remove any null entries
+  return consumptionMaterials;
+};
+
