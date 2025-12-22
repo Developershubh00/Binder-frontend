@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 const Step5 = ({
   formData,
   errors,
@@ -8,35 +10,34 @@ const Step5 = ({
   addPackagingMaterial,
   removePackagingMaterial
 }) => {
+  const prevMaterialsLengthRef = useRef(formData.packaging?.materials?.length || 0);
+  const isInitialMountRef = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      prevMaterialsLengthRef.current = formData.packaging?.materials?.length || 0;
+      return;
+    }
+    
+    const currentMaterialsLength = formData.packaging?.materials?.length || 0;
+    if (currentMaterialsLength > prevMaterialsLengthRef.current) {
+      setTimeout(() => {
+        const lastMaterial = document.querySelector('[data-packaging-material-index]:last-child');
+        if (lastMaterial) {
+          lastMaterial.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
+    prevMaterialsLengthRef.current = currentMaterialsLength;
+  }, [formData.packaging?.materials?.length]);
   return (
 <div className="w-full">
       {/* Header with proper spacing */}
       <div style={{ marginBottom: '28px' }}>
-        <div className="flex items-center justify-between">
-          <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-5 PACKAGING</h2>
-        <p className="text-sm text-gray-600">Configure packaging specifications and materials</p>
-          </div>
-          <button
-            type="button"
-            onClick={addPackagingMaterial}
-            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
-            style={{
-              backgroundColor: '#f3f4f6',
-              borderColor: '#d1d5db',
-              color: '#374151',
-              padding: '10px 16px',
-              height: '42px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e5e7eb';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-            }}
-          >
-            + Add Material
-          </button>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-5 PACKAGING</h2>
+          <p className="text-sm text-gray-600">Configure packaging specifications and materials</p>
         </div>
       </div>
 
@@ -105,7 +106,7 @@ const Step5 = ({
       {/* Packaging Materials */}
       <div>
         {formData.packaging.materials && formData.packaging.materials.length > 0 ? formData.packaging.materials.map((material, materialIndex) => (
-          <div key={materialIndex} className="bg-white rounded-xl border-2 border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
+          <div key={materialIndex} id={`packaging-material-${materialIndex}`} data-packaging-material-index={materialIndex} className="bg-white rounded-xl border-2 border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
             {/* Material Header with Remove Button */}
             <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
               <h4 className="text-sm font-bold text-gray-800 underline underline-offset-4">MATERIAL {materialIndex + 1}</h4>
@@ -289,7 +290,7 @@ const Step5 = ({
                   {material.packagingMaterialType === 'CARTONS/CORRUGATED BOX' && (
                     <>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">NO. OF PLYS</label>
                         <input
                           type="text"
                           value={material.noOfPlys || ''}
@@ -596,9 +597,50 @@ const Step5 = ({
           </div>
         )) : (
           <div className="text-center text-gray-500 py-8">
-            No packaging materials added yet. Click "+ Add Material" to add one.
+            No packaging materials added yet.
           </div>
         )}
+        
+        {/* Add Material Button at Bottom */}
+        <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
+          <p className="text-sm text-gray-600 mb-3">Would you like to add more materials?</p>
+          <button
+            type="button"
+            onClick={() => {
+              const currentLength = formData.packaging?.materials?.length || 0;
+              addPackagingMaterial();
+              const newIndex = currentLength;
+              const attemptScroll = (attempts = 0) => {
+                if (attempts > 30) return;
+                const element = document.getElementById(`packaging-material-${newIndex}`);
+                if (element) {
+                  setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }, 150);
+                } else {
+                  setTimeout(() => attemptScroll(attempts + 1), 50);
+                }
+              };
+              attemptScroll();
+            }}
+            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
+            style={{
+              backgroundColor: '#f3f4f6',
+              borderColor: '#d1d5db',
+              color: '#374151',
+              padding: '10px 16px',
+              height: '42px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e5e7eb';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }}
+          >
+            + Add Material
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { getFiberTypes, getYarnTypes, getSpinningMethod, getYarnDetails } from '../../utils/yarnHelpers';
 
 const Step2 = ({
@@ -8,6 +9,34 @@ const Step2 = ({
   addWorkOrder,
   removeWorkOrder
 }) => {
+  const prevWorkOrdersLengthRef = useRef({});
+  const isInitialMountRef = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      formData.rawMaterials?.forEach((material, materialIndex) => {
+        prevWorkOrdersLengthRef.current[materialIndex] = material.workOrders?.length || 0;
+      });
+      return;
+    }
+
+    formData.rawMaterials?.forEach((material, materialIndex) => {
+      const currentWorkOrdersLength = material.workOrders?.length || 0;
+      const prevLength = prevWorkOrdersLengthRef.current[materialIndex] || 0;
+      
+      if (currentWorkOrdersLength > prevLength) {
+        setTimeout(() => {
+          const lastWorkOrder = document.querySelector(`[data-material-index="${materialIndex}"][data-work-order-index]:last-child`);
+          if (lastWorkOrder) {
+            lastWorkOrder.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
+      }
+      prevWorkOrdersLengthRef.current[materialIndex] = currentWorkOrdersLength;
+    });
+  }, [formData.rawMaterials]);
+
   return (
 <div className="w-full">
       {/* Header with proper spacing */}
@@ -23,19 +52,6 @@ const Step2 = ({
             {/* Material Header */}
             <div className="mb-5">
               <div className="flex flex-wrap items-end gap-3" style={{ marginBottom: '24px' }}>
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    PRODUCT
-                  </label>
-                  <input
-                    type="text"
-                    value={material.productName}
-                    readOnly
-                    className="border-2 rounded-lg text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
-                    style={{ padding: '10px 14px', width: '160px', height: '44px', borderColor: '#e5e7eb' }}
-                  />
-                </div>
-                
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                     COMPONENT
@@ -331,32 +347,12 @@ const Step2 = ({
             
             {/* Work Orders Section */}
             <div style={{ marginTop: '20px' }}>
-              <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <h3 className="text-sm font-bold text-gray-800">WORK ORDERS</h3>
-                <button
-                  type="button"
-                  onClick={() => addWorkOrder(materialIndex)}
-                  className="border rounded-md cursor-pointer text-xs font-medium transition-all hover:-translate-x-0.5"
-                  style={{
-                    backgroundColor: '#f3f4f6',
-                    borderColor: '#d1d5db',
-                    color: '#374151',
-                    padding: '6px 12px',
-                    height: '32px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e5e7eb';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f3f4f6';
-                  }}
-                >
-                  + Add
-                </button>
               </div>
               
               {material.workOrders && material.workOrders.map((workOrder, woIndex) => (
-                <div key={woIndex} className="bg-white rounded-lg border border-gray-200" style={{ padding: '16px', marginBottom: '12px' }}>
+                <div key={woIndex} id={`workorder-${materialIndex}-${woIndex}`} data-work-order-index={woIndex} data-material-index={materialIndex} className="bg-white rounded-lg border border-gray-200" style={{ padding: '16px', marginBottom: '12px' }}>
                   <div className="flex items-center justify-between" style={{ marginBottom: '12px' }}>
                     <h4 className="text-sm font-semibold text-gray-700">
                       WORK ORDER {woIndex + 1}
@@ -1140,6 +1136,47 @@ const Step2 = ({
                   )}
                 </div>
               ))}
+              
+              {/* Add Work Order Button at Bottom */}
+              <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
+                <p className="text-sm text-gray-600 mb-3">Would you like to add more work orders?</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentLength = formData.rawMaterials[materialIndex]?.workOrders?.length || 0;
+                    addWorkOrder(materialIndex);
+                    const newIndex = currentLength;
+                    const attemptScroll = (attempts = 0) => {
+                      if (attempts > 30) return;
+                      const element = document.getElementById(`workorder-${materialIndex}-${newIndex}`);
+                      if (element) {
+                        setTimeout(() => {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 150);
+                      } else {
+                        setTimeout(() => attemptScroll(attempts + 1), 50);
+                      }
+                    };
+                    attemptScroll();
+                  }}
+                  className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
+                  style={{
+                    backgroundColor: '#f3f4f6',
+                    borderColor: '#d1d5db',
+                    color: '#374151',
+                    padding: '10px 16px',
+                    height: '42px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  }}
+                >
+                  + Add Work Order
+                </button>
+              </div>
             </div>
           </div>
         ))}

@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 const Step3 = ({
   formData,
   errors,
@@ -5,42 +7,42 @@ const Step3 = ({
   addConsumptionMaterial,
   removeConsumptionMaterial
 }) => {
+  const prevMaterialsLengthRef = useRef(formData.consumptionMaterials?.length || 0);
+  const isInitialMountRef = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      prevMaterialsLengthRef.current = formData.consumptionMaterials?.length || 0;
+      return;
+    }
+    
+    const currentMaterialsLength = formData.consumptionMaterials?.length || 0;
+    if (currentMaterialsLength > prevMaterialsLengthRef.current) {
+      setTimeout(() => {
+        const lastMaterial = document.querySelector('[data-consumption-material-index]:last-child');
+        if (lastMaterial) {
+          lastMaterial.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
+    prevMaterialsLengthRef.current = currentMaterialsLength;
+  }, [formData.consumptionMaterials?.length]);
+
   return (
 <div className="w-full">
       {/* Header with proper spacing */}
       <div style={{ marginBottom: '28px' }}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-3 TRIMS & ACCESSORIES</h2>
-            <p className="text-sm text-gray-600">Trims & accessories specification</p>
-          </div>
-          <button
-            type="button"
-            onClick={addConsumptionMaterial}
-            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
-            style={{
-              backgroundColor: '#f3f4f6',
-              borderColor: '#d1d5db',
-              color: '#374151',
-              padding: '10px 16px',
-              height: '42px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e5e7eb';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-            }}
-          >
-            + Add Material
-          </button>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-3 TRIMS & ACCESSORIES</h2>
+          <p className="text-sm text-gray-600">Trims & accessories specification</p>
         </div>
       </div>
       
       {/* Trim Materials */}
       <div>
         {formData.consumptionMaterials.map((material, materialIndex) => (
-          <div key={materialIndex} className="bg-gray-50 rounded-xl border border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
+          <div key={materialIndex} id={`consumption-material-${materialIndex}`} data-consumption-material-index={materialIndex} className="bg-gray-50 rounded-xl border border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
             {/* Material Header with Remove Button */}
             <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
               <h4 className="text-sm font-bold text-gray-700">MATERIAL {materialIndex + 1}</h4>
@@ -5439,6 +5441,47 @@ const Step3 = ({
             </div>
           </div>
         ))}
+        
+        {/* Add Material Button at Bottom */}
+        <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
+          <p className="text-sm text-gray-600 mb-3">Would you like to add more materials?</p>
+          <button
+            type="button"
+            onClick={() => {
+              const currentLength = formData.consumptionMaterials?.length || 0;
+              addConsumptionMaterial();
+              const newIndex = currentLength;
+              const attemptScroll = (attempts = 0) => {
+                if (attempts > 30) return;
+                const element = document.getElementById(`consumption-material-${newIndex}`);
+                if (element) {
+                  setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }, 150);
+                } else {
+                  setTimeout(() => attemptScroll(attempts + 1), 50);
+                }
+              };
+              attemptScroll();
+            }}
+            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
+            style={{
+              backgroundColor: '#f3f4f6',
+              borderColor: '#d1d5db',
+              color: '#374151',
+              padding: '10px 16px',
+              height: '42px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e5e7eb';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }}
+          >
+            + Add Material
+          </button>
+        </div>
       </div>
     </div>
   );
