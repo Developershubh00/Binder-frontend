@@ -21,6 +21,16 @@ export const initializeRawMaterials = (formData) => {
         yarnCountRange: '',
         yarnDoublingOptions: '',
         yarnPlyOptions: '',
+        surplus: '',
+        approval: '',
+        remarks: '',
+        // Advanced Filter Fields
+        showAdvancedFilter: false,
+        spinningType: '',
+        testingRequirements: '',
+        fiberCategory: '',
+        origin: '',
+        certifications: null,
         workOrders: [{
           workOrder: '',
           wastage: '',
