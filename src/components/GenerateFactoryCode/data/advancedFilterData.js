@@ -20,6 +20,7 @@ export const ORIGINS = [
   'Animal (Sheep)',
   'Plant (Flax)',
   'Insect (Silkworm)',
+  'Petroleum',
   'Various',
   'Plant',
   'Coconut',
