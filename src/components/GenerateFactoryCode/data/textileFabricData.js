@@ -165,7 +165,7 @@ export const TEXTILE_FABRIC_DATA = {
         'machine type': '',
         'testing requirements': ''
     },
-    "Chino:"{
+    "Chino": {
         'composition': "100% Cotton",
         'GSM': '',
         'surplus %':'',
@@ -618,9 +618,5 @@ export const TEXTILE_FABRIC_DATA = {
             'machine type': '',
             'testing requirements': ''
         }
-    },
-    "Viscose/Rayon":{
-}
-
-  
-
+    }
+};

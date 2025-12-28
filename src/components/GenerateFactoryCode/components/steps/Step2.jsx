@@ -535,7 +535,7 @@ const Step2 = ({
                             }
                           }}
                         >
-                          {material.showAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                          Advance Filter
                         </button>
                       </div>
                       
@@ -872,7 +872,7 @@ const Step2 = ({
                       }
                     }}
                   >
-                    {material.showFabricAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                    Advance Filter
                   </button>
                 </div>
                 
@@ -1362,7 +1362,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showBraidingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                           </div>
                           
@@ -2531,7 +2531,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showCarpetAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                               </div>
                           
@@ -2680,7 +2680,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showCuttingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                             </div>
                           
@@ -2855,7 +2855,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showEmbroideryAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                               </div>
                           
@@ -3027,7 +3027,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showPrintingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                           </div>
                           
@@ -3225,7 +3225,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showQuiltingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                           </div>
                           
@@ -3345,7 +3345,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showSewingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                           </div>
                           
@@ -3489,7 +3489,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showWeavingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                           </div>
                           
@@ -3649,7 +3649,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showTuftingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                           </div>
                           
@@ -3811,7 +3811,7 @@ const Step2 = ({
                                 }
                               }}
                             >
-                              {workOrder.showDyeingAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                              Advance Filter
                             </button>
                           </div>
                           

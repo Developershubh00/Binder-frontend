@@ -5532,7 +5532,7 @@ const Step4 = ({
                           }
                         }}
                       >
-                        {material.showInsertCardsAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                        Advance Filter
                       </button>
                     </div>
                     
@@ -5807,7 +5807,7 @@ const Step4 = ({
                           }
                         }}
                       >
-                        {material.showHeatTransferAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                        Advance Filter
                       </button>
                     </div>
                     
@@ -6049,7 +6049,7 @@ const Step4 = ({
                           }
                         }}
                       >
-                        {material.showHangTagSealsAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                        Advance Filter
                       </button>
                     </div>
                     
@@ -6291,7 +6291,7 @@ const Step4 = ({
                           }
                         }}
                       >
-                        {material.showAntiCounterfeitAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                        Advance Filter
                       </button>
               </div>
                     
@@ -6533,7 +6533,7 @@ const Step4 = ({
                           }
                         }}
                       >
-                        {material.showCareCompositionAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                        Advance Filter
                       </button>
                     </div>
                     
@@ -6742,7 +6742,7 @@ const Step4 = ({
                           }
                         }}
                       >
-                        {material.showFlammabilitySafetyAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                        Advance Filter
                       </button>
                     </div>
                     
@@ -6984,7 +6984,7 @@ const Step4 = ({
                           }
                         }}
                       >
-                        {material.showBellyBandAdvancedFilter ? 'Hide' : 'Show'} Advance Filter
+                        Advance Filter
                       </button>
                     </div>
                     
