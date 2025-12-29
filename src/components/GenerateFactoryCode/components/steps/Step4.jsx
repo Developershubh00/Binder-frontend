@@ -1,4 +1,176 @@
 import { useEffect, useRef } from 'react';
+import {
+  ANTI_COUNTERFEIT_TYPES,
+  ANTI_COUNTERFEIT_MATERIALS,
+  ANTI_COUNTERFEIT_SECURITY_FEATURES,
+  ANTI_COUNTERFEIT_HOLOGRAM_TYPES,
+  ANTI_COUNTERFEIT_NUMBERING_OPTIONS,
+  ANTI_COUNTERFEIT_TESTING_REQUIREMENTS,
+  ANTI_COUNTERFEIT_APPROVAL_OPTIONS,
+  ANTI_COUNTERFEIT_VERIFICATION_OPTIONS,
+  ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS,
+  ANTI_COUNTERFEIT_APPLICATION_OPTIONS,
+  ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS,
+  ANTI_COUNTERFEIT_DATABASE_OPTIONS,
+  ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS,
+  ANTI_COUNTERFEIT_SIZE_UNITS
+} from '../../data/antiCounterfeitData';
+import {
+  BELLY_BAND_TYPES,
+  BELLY_BAND_MATERIALS,
+  BELLY_BAND_CLOSURE_OPTIONS,
+  BELLY_BAND_TESTING_REQUIREMENTS,
+  BELLY_BAND_SIZE_UNITS,
+  BELLY_BAND_APPROVAL_OPTIONS,
+  BELLY_BAND_PRODUCT_FIT_OPTIONS,
+  BELLY_BAND_PRINTING_OPTIONS,
+  BELLY_BAND_FOLD_LINES_OPTIONS,
+  BELLY_BAND_DURABILITY_OPTIONS,
+  BELLY_BAND_CONTENT_OPTIONS,
+  BELLY_BAND_COLOURS_OPTIONS,
+  BELLY_BAND_FINISH_OPTIONS,
+  BELLY_BAND_DIE_CUT_OPTIONS,
+  BELLY_BAND_GUMMING_QUALITY_OPTIONS
+} from '../../data/bellyBandData';
+import {
+  CARE_COMPOSITION_TYPES,
+  CARE_COMPOSITION_MATERIALS,
+  CARE_COMPOSITION_TESTING_REQUIREMENTS,
+  CARE_COMPOSITION_SIZE_UNITS,
+  CARE_COMPOSITION_APPROVAL_OPTIONS,
+  CARE_COMPOSITION_PRINT_TYPE_OPTIONS,
+  CARE_COMPOSITION_INK_TYPE_OPTIONS,
+  CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS,
+  CARE_COMPOSITION_PERMANENCE_OPTIONS,
+  CARE_COMPOSITION_LANGUAGE_OPTIONS
+} from '../../data/careCompositionData';
+import {
+  FLAMMABILITY_SAFETY_TYPES,
+  FLAMMABILITY_SAFETY_MATERIALS,
+  FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS,
+  FLAMMABILITY_SAFETY_SIZE_UNITS,
+  FLAMMABILITY_SAFETY_APPROVAL_OPTIONS,
+  FLAMMABILITY_SAFETY_REGULATION_OPTIONS,
+  FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS,
+  FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS,
+  FLAMMABILITY_SAFETY_SYMBOL_OPTIONS,
+  FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS,
+  FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS
+} from '../../data/flammabilitySafetyData';
+import {
+  HANG_TAG_SEALS_TYPES,
+  HANG_TAG_SEALS_MATERIALS,
+  HANG_TAG_SEALS_TESTING_REQUIREMENTS,
+  HANG_TAG_SEALS_SIZE_UNITS,
+  HANG_TAG_SEALS_APPROVAL_OPTIONS,
+  HANG_TAG_SEALS_FASTENING_OPTIONS,
+  HANG_TAG_SEALS_PRE_STRINGING_OPTIONS,
+  HANG_TAG_SEALS_STRING_FINISH_OPTIONS,
+  HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS,
+  HANG_TAG_SEALS_COLOUR_OPTIONS,
+  HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS
+} from '../../data/hangTagSealsData';
+import {
+  HEAT_TRANSFER_TYPES,
+  HEAT_TRANSFER_MATERIAL_BASE_OPTIONS,
+  HEAT_TRANSFER_TESTING_REQUIREMENTS,
+  HEAT_TRANSFER_SIZE_UNITS,
+  HEAT_TRANSFER_APPROVAL_OPTIONS,
+  HEAT_TRANSFER_INK_TYPE_OPTIONS,
+  HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS,
+  HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS,
+  HEAT_TRANSFER_PEEL_TYPE_OPTIONS,
+  HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS,
+  HEAT_TRANSFER_STRETCH_OPTIONS
+} from '../../data/heatTransferData';
+import {
+  INSERT_CARDS_TYPES,
+  INSERT_CARDS_MATERIALS,
+  INSERT_CARDS_TESTING_REQUIREMENTS,
+  INSERT_CARDS_SIZE_UNITS,
+  INSERT_CARDS_APPROVAL_OPTIONS,
+  INSERT_CARDS_FUNCTION_OPTIONS,
+  INSERT_CARDS_CONTENT_OPTIONS,
+  INSERT_CARDS_PRINTING_OPTIONS,
+  INSERT_CARDS_FINISH_OPTIONS,
+  INSERT_CARDS_STIFFNESS_OPTIONS,
+  INSERT_CARDS_ACID_FREE_OPTIONS,
+  INSERT_CARDS_BRANDING_OPTIONS
+} from '../../data/insertCardsData';
+import {
+  LABELS_BRAND_TYPES,
+  LABELS_BRAND_MATERIALS,
+  LABELS_BRAND_PLACEMENT_OPTIONS,
+  LABELS_BRAND_ATTACHMENT_OPTIONS,
+  LABELS_BRAND_TESTING_REQUIREMENTS,
+  LABELS_BRAND_SIZE_UNITS,
+  LABELS_BRAND_APPROVAL_OPTIONS
+} from '../../data/labelsBrandData';
+import {
+  LAW_LABEL_TYPES,
+  LAW_LABEL_MATERIALS,
+  LAW_LABEL_TESTING_REQUIREMENTS,
+  LAW_LABEL_SIZE_UNITS,
+  LAW_LABEL_APPROVAL_OPTIONS
+} from '../../data/lawLabelData';
+import {
+  RFID_TYPES,
+  RFID_FORM_FACTORS,
+  RFID_CHIP_MODELS,
+  RFID_PLACEMENT_OPTIONS,
+  RFID_TESTING_REQUIREMENTS,
+  RFID_SIZE_UNITS,
+  RFID_APPROVAL_OPTIONS
+} from '../../data/rfidSecurityData';
+import {
+  PRICE_TICKET_TYPES,
+  PRICE_TICKET_MATERIALS,
+  PRICE_TICKET_TESTING_REQUIREMENTS,
+  PRICE_TICKET_SIZE_UNITS,
+  PRICE_TICKET_APPROVAL_OPTIONS
+} from '../../data/priceTicketData';
+import {
+  QC_INSPECTION_TYPES,
+  QC_INSPECTION_MATERIALS,
+  QC_INSPECTION_CONTENT,
+  QC_INSPECTION_CODING_SYSTEM,
+  QC_INSPECTION_GUMMING_QUALITY,
+  QC_INSPECTION_TESTING_REQUIREMENTS,
+  QC_INSPECTION_SIZE_UNITS,
+  QC_INSPECTION_APPROVAL_OPTIONS
+} from '../../data/qcInspectionData';
+import {
+  RIBBONS_TYPES,
+  RIBBONS_MATERIALS,
+  RIBBONS_TESTING_REQUIREMENTS,
+  RIBBONS_APPROVAL_OPTIONS
+} from '../../data/ribbonsData';
+import {
+  TAGS_SPECIAL_LABELS_TYPES,
+  TAGS_SPECIAL_LABELS_MATERIALS,
+  TAGS_SPECIAL_LABELS_ATTACHMENT_OPTIONS,
+  TAGS_SPECIAL_LABELS_FINISHING_OPTIONS,
+  TAGS_SPECIAL_LABELS_TESTING_REQUIREMENTS,
+  TAGS_SPECIAL_LABELS_SIZE_UNITS,
+  TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS
+} from '../../data/tagsSpecialLabelsData';
+import {
+  UPC_BARCODE_TYPES,
+  UPC_BARCODE_MATERIALS,
+  UPC_BARCODE_TESTING_REQUIREMENTS,
+  UPC_BARCODE_SIZE_UNITS,
+  UPC_BARCODE_APPROVAL_OPTIONS
+} from '../../data/upcBarcodeData';
+import {
+  SIZE_LABELS_TYPES,
+  SIZE_LABELS_MATERIALS,
+  SIZE_LABELS_SIZE_SYSTEM_OPTIONS,
+  SIZE_LABELS_SIZE_CODE_OPTIONS,
+  SIZE_LABELS_FOLD_TYPE_OPTIONS,
+  SIZE_LABELS_TESTING_REQUIREMENTS,
+  SIZE_LABELS_SIZE_UNITS,
+  SIZE_LABELS_APPROVAL_OPTIONS
+} from '../../data/sizeLabelsData';
 
 const Step4 = ({
   formData,
@@ -375,9 +547,10 @@ const Step4 = ({
                 </div>
 
                 {material.artworkCategory && (
+                  <>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
                     {/* TYPE Field */}
-                    {!['LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                       <select
@@ -389,26 +562,19 @@ const Step4 = ({
                         <option value="">Select</option>
                           {material.artworkCategory === 'LABELS (BRAND/MAIN)' && ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather', 'Metal'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'CARE & COMPOSITION' && ['Woven', 'Printed', 'Heat Transfer'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'TAGS & SPECIAL LABELS' && ['Hang Tag (Paper/Card)', 'Price Tag', 'Size Label', 'Flag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && ['Permanent Sew-in Label', 'Removable Hang Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'RFID / SECURITY TAGS' && ['Soft EAS Label', 'UHF RFID Sticker', 'Hard Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'PRICE TICKET / BARCODE TAG' && ['Adhesive Sticker', 'Printed Area', 'Dedicated Small Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'HEAT TRANSFER LABELS' && ['Brand Logo', 'Size Tag', 'Minimal Care', 'Instructions', 'Reflective'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && ['Adhesive Sticker', 'Pre-Printed Barcode Area'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' && ['Woven Flag Label', 'Printed Flag Label', 'Heat Transfer', 'Small Sticker'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && ['Hologram Sticker', 'Void/Tamper-Evident Label', 'Authenticity Patch', 'Invisible Ink Print'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'QC / INSPECTION LABELS' && ['Passed/Inspected Sticker', 'Hold/Defective Sticker', 'Audit Sample Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'BELLY BAND / WRAPPER' && ['Cardboard Sleeve', 'Printed Paper Band', 'Plastic Film Wrapper'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TYVEK LABELS' && ['Law Label', 'Shipping Tag', 'Permanent Industrial/Outdoor Care Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'TAFFETA LABELS' && ['Printed Care Label', 'Composition Label', 'Temporary Size Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                          {material.artworkCategory === 'INSERT CARDS' && ['Shirt Board', 'Neck Support', 'Tissue Paper Insert', 'Promotional Insert Card'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                          {material.artworkCategory === 'RIBBONS' && ['Satin', 'Grosgrain', 'Sheer Organza', 'Printed Polyester', 'Woven Edge'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                       </select>
                     </div>
                     )}
 
                     {/* MATERIAL Field */}
-                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'CARE & COMPOSITION' ? 'FIBER CONTENT' : 'MATERIAL'}
@@ -422,38 +588,569 @@ const Step4 = ({
                           placeholder={
                             material.artworkCategory === 'CARE & COMPOSITION' ? 'Fiber Content' : 
                             material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'Card Stock GSM' : 
-                            material.artworkCategory === 'INSERT CARDS' ? 'Card Stock GSM (200-400 GSM) / Corrugated Board / Acid-Free Tissue' :
-                            material.artworkCategory === 'RIBBONS' ? 'Polyester / Nylon / Rayon / Cotton' :
                             'e.g., Polyester'
                           }
                       />
                     </div>
                     )}
 
+                    {/* Specific Fields for LABELS (BRAND/MAIN) */}
+                    {material.artworkCategory === 'LABELS (BRAND/MAIN)' && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.labelsBrandType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'labelsBrandTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {LABELS_BRAND_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.labelsBrandType === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.labelsBrandTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.labelsBrandMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'labelsBrandMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {LABELS_BRAND_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.labelsBrandMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.labelsBrandMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandArtworkSpecFile', e.target.files[0])}
+                            className="hidden"
+                            id={`labels-brand-artwork-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`labels-brand-artwork-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.labelsBrandArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* SIZE */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                                  value={material.labelsBrandSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.labelsBrandSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.labelsBrandSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {LABELS_BRAND_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* PLACEMENT - Full width with text input and upload */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.labelsBrandPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`labels-brand-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`labels-brand-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.labelsBrandPlacementImageRef ? 'UPLOADED' : 'UPLOAD (REFERENCE IMAGE)'}</span>
+                            </label>
+                        </div>
+                        </div>
+
+                        {/* ATTACHMENT - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ATTACHMENT</label>
+                          <select
+                            value={material.labelsBrandAttachment || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandAttachment', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'labelsBrandAttachmentText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {LABELS_BRAND_ATTACHMENT_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.labelsBrandAttachment === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.labelsBrandAttachmentText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandAttachmentText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter ATTACHMENT"
+                          />
+                          )}
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.labelsBrandTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'labelsBrandTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {LABELS_BRAND_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.labelsBrandTestingRequirements === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.labelsBrandTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces/R LENGTH */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.labelsBrandQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces/R LENGTH"
+                          />
+                        </div>
+
+                            {/* SURPLUS % */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                          <input
+                            type="text"
+                                value={material.labelsBrandSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                          />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.labelsBrandApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'labelsBrandApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {LABELS_BRAND_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.labelsBrandApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.labelsBrandApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.labelsBrandRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
+                            placeholder="Enter REMARKS"
+                          />
+                        </div>
+                        </div>
+                      </>
+                    )}
+
                     {/* Specific Fields for CARE & COMPOSITION */}
                     {material.artworkCategory === 'CARE & COMPOSITION' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">COUNTRY OF ORIGIN</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.careCompositionType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {CARE_COMPOSITION_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.careCompositionType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.countryOfOrigin}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'countryOfOrigin', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.careCompositionTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Made in India"
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.careCompositionMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {CARE_COMPOSITION_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.careCompositionMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.careCompositionMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC and SIZE in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* ARTWORK SPEC - Upload */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="file"
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionArtworkSpecFile', e.target.files[0])}
+                                  className="hidden"
+                                  id={`care-composition-artwork-${materialIndex}`}
+                                />
+                                <label
+                                  htmlFor={`care-composition-artwork-${materialIndex}`}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <span className="truncate">{material.careCompositionArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                                </label>
+                              </div>
+                            </div>
+
+                            {/* SIZE */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="text"
+                                  value={material.careCompositionSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="Width (mm)"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.careCompositionSizeLength || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionSizeLength', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="Length (mm)"
+                                />
+                                <select
+                                  value={material.careCompositionSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {CARE_COMPOSITION_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.careCompositionPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`care-composition-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`care-composition-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.careCompositionPlacementImageRef ? 'UPLOADED' : 'UPLOAD (REFERENCE IMAGE)'}</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Simple Dropdown */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.careCompositionTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                            onBlur={(e) => e.target.style.boxShadow = ''}
+                          >
+                            <option value="">Select</option>
+                            {CARE_COMPOSITION_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.careCompositionTestingRequirements === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.careCompositionTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                            />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces/ R LENGTH */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                              <input
+                                type="text"
+                                value={material.careCompositionQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces/ R LENGTH"
+                              />
+                            </div>
+
+                            {/* SURPLUS % */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                              <input
+                                type="text"
+                                value={material.careCompositionSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.careCompositionApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {CARE_COMPOSITION_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.careCompositionApproval === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.careCompositionApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <input
+                            type="text"
+                            value={material.careCompositionRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Text"
                           />
                         </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MANUFACTURER ID</label>
-                          <input
-                            type="text"
-                            value={material.manufacturerId}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'manufacturerId', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., RN# / CA#"
-                          />
                         </div>
                       </>
                     )}
@@ -461,40 +1158,296 @@ const Step4 = ({
                     {/* Specific Fields for RFID / SECURITY TAGS */}
                     {material.artworkCategory === 'RFID / SECURITY TAGS' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FORM FACTOR</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
                           <select
-                            value={material.formFactor}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'formFactor', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            value={material.rfidType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'rfidTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <option value="">Select</option>
-                            <option value="Adhesive Label">Adhesive Label</option>
-                            <option value="Integrated Woven Label">Integrated Woven Label</option>
+                            {RFID_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
                           </select>
+                          {material.rfidType === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.rfidTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
                     </div>
+
+                        {/* FORM FACTOR - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CHIP / FREQUENCY</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FORM FACTOR</label>
+                          <select
+                            value={material.rfidFormFactor || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidFormFactor', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'rfidFormFactorText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {RFID_FORM_FACTORS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.rfidFormFactor === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.chipFrequency}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'chipFrequency', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.rfidFormFactorText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidFormFactorText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., 860-960 MHz for UHF"
+                              placeholder="Enter FORM FACTOR"
                           />
+                          )}
                   </div>
+
+                        {/* ARTWORK SPEC */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CODING</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidArtworkSpecFile', e.target.files[0])}
+                            className="hidden"
+                            id={`rfid-artwork-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`rfid-artwork-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.rfidArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* CHIP MODEL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CHIP MODEL</label>
+                          <select
+                            value={material.rfidChipModel || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidChipModel', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'rfidChipModelText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {RFID_CHIP_MODELS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.rfidChipModel === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.coding}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'coding', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.rfidChipModelText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidChipModelText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Pre-Encoded / Sequential"
+                              placeholder="Enter CHIP MODEL"
                           />
+                          )}
+                        </div>
+
+                        {/* SIZE */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                                  value={material.rfidSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.rfidSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.rfidSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {RFID_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* PLACEMENT - Text input with Upload Image Reference */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                              value={material.rfidPlacementText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidPlacementText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`rfid-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`rfid-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              style={{ padding: '10px 14px', height: '44px', width: '150px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.rfidPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option and Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.rfidTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT FIELD)') {
+                                handleArtworkMaterialChange(materialIndex, 'rfidTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {RFID_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.rfidTestingRequirements === 'OTHERS (TEXT FIELD)' && (
+                          <input
+                            type="text"
+                              value={material.rfidTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidTestingRequirementsFile', e.target.files[0])}
+                            className="hidden"
+                            id={`rfid-testing-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`rfid-testing-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.rfidTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.rfidQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
+                          />
+                        </div>
+
+                            {/* SURPLUS % */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                          <input
+                            type="text"
+                                value={material.rfidSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                          />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidApprovalFile', e.target.files[0])}
+                            className="hidden"
+                            id={`rfid-approval-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`rfid-approval-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.rfidApprovalFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.rfidRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px' }}
+                            placeholder="Text"
+                          />
+                        </div>
                 </div>
                       </>
                     )}
@@ -502,60 +1455,259 @@ const Step4 = ({
                     {/* Specific Fields for LAW LABEL / CONTENTS TAG */}
                     {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
                             value={material.lawLabelType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Permanent Sew-in Label, Attached Label"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          >
+                            <option value="">Select</option>
+                            {LAW_LABEL_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.lawLabelType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
+                              value={material.lawLabelTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
                             value={material.lawLabelMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Cotton, Polyester, Blend, Tyvek"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FILLING MATERIALS</label>
+                          >
+                            <option value="">Select</option>
+                            {LAW_LABEL_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.lawLabelMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.fillingMaterials || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'fillingMaterials', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.lawLabelMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Full disclosure of filling materials"
+                              placeholder="Enter MATERIAL"
                           />
+                          )}
                         </div>
+
+                        {/* ARTWORK SPEC */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">NEW/USED STATUS</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelArtworkSpecFile', e.target.files[0])}
+                            className="hidden"
+                            id={`law-label-artwork-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`law-label-artwork-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.lawLabelArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* SIZE */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
                           <input
                             type="text"
-                            value={material.newUsedStatus || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'newUsedStatus', e.target.value)}
+                                  value={material.lawLabelSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelSizeWidth', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.lawLabelSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.lawLabelSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {LAW_LABEL_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* PLACEMENT - Full width with text input and upload */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.lawLabelPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder='e.g., "ALL NEW MATERIAL"'
-                          />
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`law-label-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`law-label-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.lawLabelPlacementImageRef ? 'UPLOADED' : 'UPLOAD (REFERENCE IMAGE)'}</span>
+                            </label>
                         </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">REGISTRATION/LICENSES</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.lawLabelTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {LAW_LABEL_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.lawLabelTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.registrationLicenses || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'registrationLicenses', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.lawLabelTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Manufacturer's License Number"
+                              placeholder="Enter TESTING REQUIREMENTS"
                           />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.lawLabelQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
+                          />
+                        </div>
+
+                            {/* SURPLUS % */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                          <input
+                            type="text"
+                                value={material.lawLabelSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                          />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.lawLabelApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {LAW_LABEL_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.lawLabelApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.lawLabelApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.lawLabelRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
+                            placeholder="Enter REMARKS"
+                          />
+                        </div>
                         </div>
                       </>
                     )}
@@ -563,71 +1715,266 @@ const Step4 = ({
                     {/* Specific Fields for HANG TAG SEALS / STRINGS */}
                     {material.artworkCategory === 'HANG TAG SEALS / STRINGS' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.hangTagSealsType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {HANG_TAG_SEALS_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.hangTagSealsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.hangTagType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.hangTagSealsTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Plastic Loop Lock, String & Seal, Security Pin"
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.hangTagSealsMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {HANG_TAG_SEALS_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.hangTagSealsMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.hangTagSealsMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC and SIZE in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* ARTWORK SPEC - Upload */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="file"
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsArtworkSpecFile', e.target.files[0])}
+                                  className="hidden"
+                                  id={`hang-tag-seals-artwork-${materialIndex}`}
+                                />
+                                <label
+                                  htmlFor={`hang-tag-seals-artwork-${materialIndex}`}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <span className="truncate">{material.hangTagSealsArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                                </label>
+                              </div>
+                            </div>
+
+                            {/* SIZE */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                              <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                                  value={material.hangTagSealsSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.hangTagSealsSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.hangTagSealsSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {HANG_TAG_SEALS_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.hangTagSealsPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`hang-tag-seals-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`hang-tag-seals-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.hangTagSealsPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                        </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Simple Dropdown */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.hangTagSealsTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {HANG_TAG_SEALS_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.hangTagSealsTestingRequirements === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.hangTagSealsTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.hangTagSealsQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
                           />
                         </div>
+
+                            {/* SURPLUS % */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.hangTagMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.hangTagSealsSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Plastic, Nylon, Polyester, Cotton String"
+                                placeholder="e.g., 5%"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.hangTagSealsApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {HANG_TAG_SEALS_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.hangTagSealsApproval === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.hangTagSealsApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.hangTagSealsRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
+                            placeholder="Enter REMARKS"
                           />
                         </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SEAL SHAPE</label>
-                          <input
-                            type="text"
-                            value={material.sealShape || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sealShape', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Bullet Shape / Rectangular"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FASTENING</label>
-                          <input
-                            type="text"
-                            value={material.fastening || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'fastening', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Permanent Lock / Reusable"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PRE-STRINGING</label>
-                          <input
-                            type="text"
-                            value={material.preStringing || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'preStringing', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Supplied Pre-strung"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                          <input
-                            type="text"
-                            value={material.application || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'application', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Manual Attachment / Machine Application"
-                          />
                         </div>
                       </>
                     )}
@@ -635,71 +1982,238 @@ const Step4 = ({
                     {/* Specific Fields for HEAT TRANSFER LABELS */}
                     {material.artworkCategory === 'HEAT TRANSFER LABELS' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
                             value={material.heatTransferType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Brand Logo, Size Tag, Minimal Care, Instructions, Reflective"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL BASE</label>
+                          >
+                            <option value="">Select</option>
+                            {HEAT_TRANSFER_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.heatTransferType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
+                              value={material.heatTransferTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL BASE - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL BASE</label>
+                          <select
                             value={material.heatTransferMaterialBase || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBase', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBase', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBaseText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Polyester Film, PU, TPU, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION SPEC</label>
+                          >
+                            <option value="">Select</option>
+                            {HEAT_TRANSFER_MATERIAL_BASE_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.heatTransferMaterialBase === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.applicationSpec || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'applicationSpec', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Temperature, Pressure, Time"
-                          />
+                              value={material.heatTransferMaterialBaseText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBaseText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL BASE"
+                            />
+                          )}
                         </div>
+
+                        {/* SIZE */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                                  value={material.heatTransferSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.heatTransferSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.heatTransferSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {HEAT_TRANSFER_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.heatTransferPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`heat-transfer-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`heat-transfer-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.heatTransferPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                        </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.heatTransferTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {HEAT_TRANSFER_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.heatTransferTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.colours || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'colours', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.heatTransferTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="DTM / Colour Code (Pantone TPX/TCX)"
+                              placeholder="Enter TESTING REQUIREMENTS"
                           />
+                          )}
                         </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces / Sheets */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/HAND FEEL</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
                           <input
                             type="text"
-                            value={material.finishHandFeel || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishHandFeel', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.heatTransferQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Soft, Smooth, Textured"
+                                placeholder="Pieces / Sheets (rolls of transfer film)"
                           />
                         </div>
+
+                            {/* SURPLUS % */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.placement || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.heatTransferSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Collar, Side Seam, Care Label Area"
+                                placeholder="%AGE"
                           />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.heatTransferApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {HEAT_TRANSFER_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.heatTransferApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.heatTransferApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.heatTransferRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
+                            placeholder="Enter REMARKS"
+                          />
+                        </div>
                         </div>
                       </>
                     )}
@@ -722,71 +2236,258 @@ const Step4 = ({
                     {/* Specific Fields for UPC LABEL / BARCODE STICKER */}
                     {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.upcBarcodeType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {UPC_BARCODE_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.upcBarcodeType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.upcType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.upcBarcodeTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Adhesive Sticker, Pre-Printed Barcode Area"
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.upcBarcodeMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {UPC_BARCODE_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.upcBarcodeMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.upcBarcodeMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC - File Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeArtworkSpecFile', e.target.files[0])}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
                           />
                         </div>
+
+                        {/* SIZE - Width, Height, Unit with Upload Image Reference */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-2 mb-2">
+                            <input
+                              type="text"
+                              value={material.upcBarcodeSizeWidth || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeWidth', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="WIDTH"
+                            />
+                            <span className="text-gray-500">×</span>
+                            <input
+                              type="text"
+                              value={material.upcBarcodeSizeHeight || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeHeight', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="HEIGHT"
+                            />
+                            <select
+                              value={material.upcBarcodeSizeUnit || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeUnit', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px', width: '100px' }}
+                            >
+                              <option value="">Unit</option>
+                              {UPC_BARCODE_SIZE_UNITS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeImageFile', e.target.files[0])}
+                              className="hidden"
+                              id={`upc-barcode-size-image-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`upc-barcode-size-image-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              style={{ padding: '10px 14px', height: '44px', width: '110px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              UPLOAD
+                            </label>
+                            <input
+                              type="text"
+                              value={material.upcBarcodeSizeImageRef || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeImageRef', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="IMAGE REFERENCE"
+                            />
+                          </div>
+                        </div>
+
+                        {/* PLACEMENT - Text input */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
                           <input
                             type="text"
-                            value={material.upcMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.upcBarcodePlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodePlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Paper, Synthetic, Vinyl, DTM"
+                              placeholder="Text"
+                            />
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQ.</label>
+                          <select
+                            value={material.upcBarcodeTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {UPC_BARCODE_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.upcBarcodeTestingRequirements === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.upcBarcodeTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces / Rolls */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.upcBarcodeQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces / Rolls"
                           />
                         </div>
+
+                            {/* SURPLUS % */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.upcBarcodeSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="UPC Code, Barcode, Product Info"
+                                placeholder="5%"
                           />
                         </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">QUALITY</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.upcBarcodeApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {UPC_BARCODE_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.upcBarcodeApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.quality || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'quality', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.upcBarcodeApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Print Contrast Ratio"
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.upcBarcodeRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px' }}
+                            placeholder="Text"
                           />
                         </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
-                          <input
-                            type="text"
-                            value={material.adhesive || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'adhesive', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Permanent, Removable"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
-                            type="text"
-                            value={material.placement || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Inside Label, Hang Tag, Packaging"
-                          />
                         </div>
                       </>
                     )}
@@ -794,215 +2495,600 @@ const Step4 = ({
                     {/* Specific Fields for PRICE TICKET / BARCODE TAG */}
                     {material.artworkCategory === 'PRICE TICKET / BARCODE TAG' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
                             value={material.priceTicketType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'priceTicketTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Adhesive Sticker, Printed Area, Dedicated Small Tag"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          >
+                            <option value="">Select</option>
+                            {PRICE_TICKET_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.priceTicketType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
+                              value={material.priceTicketTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
                             value={material.priceTicketMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'priceTicketMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Paper, Card Stock, Synthetic, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          >
+                            <option value="">Select</option>
+                            {PRICE_TICKET_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.priceTicketMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.priceTicketMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Price, SKU, Barcode, Product Info"
+                              placeholder="Enter MATERIAL"
                           />
+                          )}
                         </div>
+
+                        {/* ARTWORK SPEC */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">BARCODE TYPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketArtworkSpecFile', e.target.files[0])}
+                            className="hidden"
+                            id={`price-ticket-artwork-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`price-ticket-artwork-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.priceTicketArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* SIZE */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
                           <input
                             type="text"
-                            value={material.barcodeType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'barcodeType', e.target.value)}
+                                  value={material.priceTicketSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketSizeWidth', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., UPC / EAN-13 / Code 128"
-                          />
-                        </div>
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.priceTicketSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.priceTicketSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {PRICE_TICKET_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* PLACEMENT - Text input */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
                           <input
                             type="text"
-                            value={material.adhesive || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'adhesive', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            value={material.priceTicketPlacement || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketPlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Permanent, Removable, Repositionable"
+                            placeholder="Text"
                           />
                         </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.priceTicketTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {PRICE_TICKET_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.priceTicketTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.finishing || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.priceTicketTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Matte, Gloss, Lamination"
+                              placeholder="Enter TESTING REQUIREMENTS"
                           />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces / Rolls */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.priceTicketQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces / Rolls"
+                          />
+                        </div>
+
+                            {/* SURPLUS % */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                          <input
+                            type="text"
+                                value={material.priceTicketSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                          />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.priceTicketApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'priceTicketApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {PRICE_TICKET_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.priceTicketApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.priceTicketApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.priceTicketRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
+                            placeholder="Enter REMARKS"
+                          />
+                        </div>
                         </div>
                       </>
                     )}
 
-                    {/* Specific Fields for SIZE LABELS (INDIVIDUAL) */}
-                    {material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' && (
-                      <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
-                            value={material.sizeLabelType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Woven Flag Label, Printed Flag Label, Heat Transfer, Small Sticker"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                          <input
-                            type="text"
-                            value={material.sizeLabelMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Polyester, Cotton, Satin, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                          <input
-                            type="text"
-                            value={material.finishing || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Matte, Gloss, Lamination"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                          <input
-                            type="text"
-                            value={material.colours || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'colours', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="DTM / Colour Code (Pantone TPX/TCX)"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
-                            type="text"
-                            value={material.placement || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Collar, Side Seam, Care Label Area"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
-                          <input
-                            type="text"
-                            value={material.permanence || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Permanent, Temporary"
-                          />
-                        </div>
-                      </>
-                    )}
 
                     {/* Specific Fields for ANTI-COUNTERFEIT & HOLOGRAMS */}
                     {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
                             value={material.antiCounterfeitType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitType', e.target.value)}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitTypeText', '');
+                              }
+                            }}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Hologram Sticker, Void/Tamper-Evident Label, Authenticity Patch, Invisible Ink Print"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          >
+                            <option value="">Select</option>
+                            {ANTI_COUNTERFEIT_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.antiCounterfeitType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
+                              value={material.antiCounterfeitTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                            />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
                             value={material.antiCounterfeitMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterial', e.target.value)}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterialText', '');
+                              }
+                            }}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Holographic Film, Security Paper, Synthetic, DTM"
-                          />
+                          >
+                            <option value="">Select</option>
+                            {ANTI_COUNTERFEIT_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.antiCounterfeitMaterial === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.antiCounterfeitMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                            />
+                          )}
                         </div>
+
+                        {/* ARTWORK SPEC and SIZE in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* ARTWORK SPEC - Upload */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SECURITY FEATURE</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="file"
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'artworkSpecFile', e.target.files[0])}
+                                  className="hidden"
+                                  id={`anti-counterfeit-artwork-${materialIndex}`}
+                                />
+                                <label
+                                  htmlFor={`anti-counterfeit-artwork-${materialIndex}`}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <span className="truncate">{material.artworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                                </label>
+                              </div>
+                            </div>
+
+                            {/* SIZE */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                              <div className="flex items-center gap-3">
                           <input
                             type="text"
-                            value={material.securityFeature || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'securityFeature', e.target.value)}
+                                  value={material.antiCounterfeitSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSizeWidth', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Hologram, UV Ink, Microtext, QR Code"
-                          />
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.antiCounterfeitSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.antiCounterfeitSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {ANTI_COUNTERFEIT_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
                         </div>
+
+                        {/* SECURITY FEATURE, HOLOGRAM TYPE, NUMBERING in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                            {/* SECURITY FEATURE - Dropdown with Others option */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SECURITY</label>
+                              <select
+                                value={material.securityFeature || ''}
+                                onChange={(e) => {
+                                  handleArtworkMaterialChange(materialIndex, 'securityFeature', e.target.value);
+                                  if (e.target.value === 'OTHERS (TEXT)') {
+                                    handleArtworkMaterialChange(materialIndex, 'securityFeatureText', '');
+                                  }
+                                }}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ANTI_COUNTERFEIT_SECURITY_FEATURES.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                              {material.securityFeature === 'OTHERS (TEXT)' && (
+                                <input
+                                  type="text"
+                                  value={material.securityFeatureText || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'securityFeatureText', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                  style={{ padding: '10px 14px', height: '44px' }}
+                                  placeholder="Enter SECURITY"
+                                />
+                              )}
+                        </div>
+
+                            {/* HOLOGRAM TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>HOLOGRAM TYPE</label>
+                              <select
+                                value={material.hologramType || ''}
+                                onChange={(e) => {
+                                  handleArtworkMaterialChange(materialIndex, 'hologramType', e.target.value);
+                                  if (e.target.value === 'OTHERS (TEXT)') {
+                                    handleArtworkMaterialChange(materialIndex, 'hologramTypeText', '');
+                                  }
+                                }}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ANTI_COUNTERFEIT_HOLOGRAM_TYPES.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                              {material.hologramType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.application || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'application', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  value={material.hologramTypeText || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hologramTypeText', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Adhesive, Sew-in, Heat Transfer"
+                                  placeholder="Enter HOLOGRAM TYPE"
                           />
+                              )}
                         </div>
+
+                            {/* NUMBERING - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>NUMBERING</label>
+                              <select
+                                value={material.numbering || ''}
+                                onChange={(e) => {
+                                  handleArtworkMaterialChange(materialIndex, 'numbering', e.target.value);
+                                  if (e.target.value === 'OTHERS (TEXT)') {
+                                    handleArtworkMaterialChange(materialIndex, 'numberingText', '');
+                                  }
+                                }}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ANTI_COUNTERFEIT_NUMBERING_OPTIONS.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                              {material.numbering === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.placement || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  value={material.numberingText || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'numberingText', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Inside Label, Hang Tag, Packaging"
+                                  placeholder="Enter NUMBERING"
                           />
+                              )}
                         </div>
+                          </div>
+                        </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.antiCounterfeitPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`anti-counterfeit-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`anti-counterfeit-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.placementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS, QTY, SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                            {/* TESTING REQUIREMENTS - Simple Dropdown */}
+                            <div className="md:col-span-2 flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                              <select
+                                value={material.testingRequirements || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'testingRequirements', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => e.target.style.boxShadow = ''}
+                              >
+                                <option value="">Select</option>
+                                {ANTI_COUNTERFEIT_TESTING_REQUIREMENTS.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* QTY - Pieces */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">VERIFICATION</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                              <input
+                                type="number"
+                                value={material.antiCounterfeitQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
+                              />
+                            </div>
+
+                            {/* SURPLUS % */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.verification || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'verification', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.antiCounterfeitSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="App Scan, UV Light, Visual Check"
+                                placeholder="%AGE"
                           />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL and REMARKS in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                              <select
+                                value={material.antiCounterfeitApproval || ''}
+                                onChange={(e) => {
+                                  handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApproval', e.target.value);
+                                  if (e.target.value === 'OTHERS (TEXT)') {
+                                    handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApprovalText', '');
+                                  }
+                                }}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ANTI_COUNTERFEIT_APPROVAL_OPTIONS.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                              {material.antiCounterfeitApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                                  value={material.antiCounterfeitApprovalText || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApprovalText', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                  placeholder="Enter APPROVAL"
+                                />
+                              )}
+                            </div>
+
+                            {/* REMARKS */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                              <input
+                                type="text"
+                                value={material.antiCounterfeitRemarks || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitRemarks', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Text"
+                              />
+                            </div>
+                          </div>
+                        </div>
                         </div>
                       </>
                     )}
@@ -1010,71 +3096,353 @@ const Step4 = ({
                     {/* Specific Fields for QC / INSPECTION LABELS */}
                     {material.artworkCategory === 'QC / INSPECTION LABELS' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.qcInspectionType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'qcInspectionTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {QC_INSPECTION_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.qcInspectionType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.qcLabelType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcLabelType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.qcInspectionTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Passed/Inspected Sticker, Hold/Defective Sticker, Audit Sample Tag"
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.qcInspectionMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {QC_INSPECTION_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.qcInspectionMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.qcInspectionMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionArtworkSpecFile', e.target.files[0])}
+                            className="hidden"
+                            id={`qc-inspection-artwork-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`qc-inspection-artwork-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.qcInspectionArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* SIZE */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                                  value={material.qcInspectionSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.qcInspectionSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.qcInspectionSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {QC_INSPECTION_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* CONTENT - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CONTENT</label>
+                          <select
+                            value={material.qcInspectionContent || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionContent', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'qcInspectionContentText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {QC_INSPECTION_CONTENT.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.qcInspectionContent === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.qcInspectionContentText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionContentText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter CONTENT"
+                          />
+                          )}
+                        </div>
+
+                        {/* CODING SYSTEM - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CODING SYSTEM</label>
+                          <select
+                            value={material.qcInspectionCodingSystem || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystem', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystemText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {QC_INSPECTION_CODING_SYSTEM.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.qcInspectionCodingSystem === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.qcInspectionCodingSystemText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystemText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter CODING SYSTEM"
+                          />
+                          )}
+                        </div>
+
+                        {/* GUMMING QUALITY - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>GUMMING QU.</label>
+                          <select
+                            value={material.qcInspectionGummingQuality || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQuality', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQualityText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {QC_INSPECTION_GUMMING_QUALITY.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.qcInspectionGummingQuality === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.qcInspectionGummingQualityText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQualityText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter GUMMING QUALITY"
+                          />
+                          )}
+                        </div>
+
+                        {/* PLACEMENT - Text input with Upload Image Reference */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                              value={material.qcInspectionPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionPlacementImageFile', e.target.files[0])}
+                              className="hidden"
+                              id={`qc-inspection-placement-image-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`qc-inspection-placement-image-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              style={{ padding: '10px 14px', height: '44px', width: '110px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.qcInspectionPlacementImageFile ? 'DONE' : 'UPLOAD'}</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.qcInspectionTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {QC_INSPECTION_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.qcInspectionTestingRequirements === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.qcInspectionTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.qcInspectionQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
                           />
                         </div>
+
+                            {/* SURPLUS % */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.qcLabelMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcLabelMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.qcInspectionSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Paper, Synthetic, Vinyl, DTM"
+                                placeholder="%AGE"
                           />
                         </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.qcInspectionApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'qcInspectionApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {QC_INSPECTION_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.qcInspectionApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.qcInspectionApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Passed, Hold, Defective, Audit Info"
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Text input */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <input
+                            type="text"
+                            value={material.qcInspectionRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Enter REMARKS"
                           />
                         </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                          <input
-                            type="text"
-                            value={material.application || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'application', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Adhesive, Sew-in, Tag"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">REMOVAL</label>
-                          <input
-                            type="text"
-                            value={material.removal || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'removal', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Permanent, Removable, Before Shipping"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TRACEABILITY</label>
-                          <input
-                            type="text"
-                            value={material.traceability || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'traceability', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Batch Number, Date, Inspector ID"
-                          />
                         </div>
                       </>
                     )}
@@ -1082,71 +3450,300 @@ const Step4 = ({
                     {/* Specific Fields for BELLY BAND / WRAPPER */}
                     {material.artworkCategory === 'BELLY BAND / WRAPPER' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
                             value={material.bellyBandType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Cardboard Sleeve, Printed Paper Band, Plastic Film Wrapper"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                          >
+                            <option value="">Select</option>
+                            {BELLY_BAND_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.bellyBandType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
+                              value={material.bellyBandTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
                             value={material.bellyBandMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Card Stock GSM, Paper, Plastic Film, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CLOSURE</label>
+                          >
+                            <option value="">Select</option>
+                            {BELLY_BAND_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.bellyBandMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.closure || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'closure', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.bellyBandMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Adhesive, Tuck-in, Overlap"
+                              placeholder="Enter MATERIAL"
                           />
+                          )}
                         </div>
+
+                        {/* ARTWORK SPEC and SIZE in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* ARTWORK SPEC - Upload */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="file"
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandArtworkSpecFile', e.target.files[0])}
+                                  className="hidden"
+                                  id={`belly-band-artwork-${materialIndex}`}
+                                />
+                                <label
+                                  htmlFor={`belly-band-artwork-${materialIndex}`}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <span className="truncate">{material.bellyBandArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                                </label>
+                              </div>
+                            </div>
+
+                            {/* SIZE */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                              <div className="flex items-center gap-3">
                           <input
                             type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
+                                  value={material.bellyBandSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandSizeWidth', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Brand Info, Product Details, Care Instructions"
-                          />
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.bellyBandSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.bellyBandSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {BELLY_BAND_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
                         </div>
+
+                        {/* CLOSURE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CLOSURE/FINISH</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CLOSURE</label>
+                          <select
+                            value={material.bellyBandClosure || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandClosure', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandClosureText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {BELLY_BAND_CLOSURE_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.bellyBandClosure === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.bellyBandClosureText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandClosureText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter CLOSURE"
+                            />
+                          )}
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Simple Dropdown */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.bellyBandTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                            onBlur={(e) => e.target.style.boxShadow = ''}
+                          >
+                            <option value="">Select</option>
+                            {BELLY_BAND_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.bellyBandTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.closureFinish || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'closureFinish', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.bellyBandTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Sealed, Open End, Perforated"
+                              placeholder="Enter TESTING REQUIREMENTS"
                           />
+                          )}
                         </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.bellyBandPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`belly-band-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`belly-band-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.bellyBandPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                              <input
+                                type="number"
+                                value={material.bellyBandQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
+                              />
+                            </div>
+
+                            {/* SURPLUS % */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.durability || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.bellyBandSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Temporary, Reusable, Single Use"
+                                placeholder="%AGE"
                           />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.bellyBandApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {BELLY_BAND_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.bellyBandApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.bellyBandApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <input
+                            type="text"
+                            value={material.bellyBandRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Text"
+                          />
+                        </div>
                         </div>
                       </>
                     )}
@@ -1295,21 +3892,703 @@ const Step4 = ({
                       </>
                     )}
 
+                    {/* Specific Fields for SIZE LABELS (INDIVIDUAL) */}
+                    {material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.sizeLabelsType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {SIZE_LABELS_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.sizeLabelsType === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.sizeLabelsTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.sizeLabelsMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {SIZE_LABELS_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.sizeLabelsMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.sizeLabelsMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsArtworkSpecFile', e.target.files[0])}
+                            className="hidden"
+                            id={`size-labels-artwork-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`size-labels-artwork-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.sizeLabelsArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* SIZE */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                                  value={material.sizeLabelsSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.sizeLabelsSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.sizeLabelsSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {SIZE_LABELS_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* SIZE SYSTEM - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE SYSTEM</label>
+                          <select
+                            value={material.sizeLabelsSizeSystem || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystem', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystemText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {SIZE_LABELS_SIZE_SYSTEM_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.sizeLabelsSizeSystem === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.sizeLabelsSizeSystemText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystemText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter SIZE SYSTEM"
+                          />
+                          )}
+                        </div>
+
+                        {/* SIZE / CODE - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE / CODE</label>
+                          <select
+                            value={material.sizeLabelsSizeCode || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCode', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCodeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {SIZE_LABELS_SIZE_CODE_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.sizeLabelsSizeCode === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.sizeLabelsSizeCodeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCodeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter SIZE / CODE"
+                          />
+                          )}
+                        </div>
+
+                        {/* FOLD TYPE - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FOLD TYPE</label>
+                          <select
+                            value={material.sizeLabelsFoldType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {SIZE_LABELS_FOLD_TYPE_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.sizeLabelsFoldType === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.sizeLabelsFoldTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter FOLD TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* PLACEMENT - Text input with Upload Image Reference */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                              value={material.sizeLabelsPlacementText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsPlacementText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`size-labels-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`size-labels-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              style={{ padding: '10px 14px', height: '44px', width: '150px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.sizeLabelsPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.sizeLabelsTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {SIZE_LABELS_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.sizeLabelsTestingRequirements === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.sizeLabelsTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces or Rolls */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.sizeLabelsQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces or Rolls"
+                          />
+                        </div>
+
+                            {/* SURPLUS % */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                          <input
+                            type="text"
+                                value={material.sizeLabelsSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                          />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.sizeLabelsApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {SIZE_LABELS_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.sizeLabelsApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.sizeLabelsApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.sizeLabelsRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px' }}
+                            placeholder="Text"
+                          />
+                        </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for TAGS & SPECIAL LABELS */}
+                    {material.artworkCategory === 'TAGS & SPECIAL LABELS' && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.tagsSpecialLabelsType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {TAGS_SPECIAL_LABELS_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.tagsSpecialLabelsType === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.tagsSpecialLabelsTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.tagsSpecialLabelsMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {TAGS_SPECIAL_LABELS_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.tagsSpecialLabelsMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.tagsSpecialLabelsMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC - File Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsArtworkSpecFile', e.target.files[0])}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+
+                        {/* SIZE - Width, Height, Unit */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={material.tagsSpecialLabelsSizeWidth || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSizeWidth', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="WIDTH"
+                            />
+                            <span className="text-gray-500">×</span>
+                            <input
+                              type="text"
+                              value={material.tagsSpecialLabelsSizeHeight || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSizeHeight', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="HEIGHT"
+                            />
+                            <select
+                              value={material.tagsSpecialLabelsSizeUnit || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSizeUnit', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px', width: '100px' }}
+                            >
+                              <option value="">Unit</option>
+                              {TAGS_SPECIAL_LABELS_SIZE_UNITS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* ATTACHMENT - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ATTACHMENT</label>
+                          <select
+                            value={material.tagsSpecialLabelsAttachment || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachment', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachmentText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {TAGS_SPECIAL_LABELS_ATTACHMENT_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.tagsSpecialLabelsAttachment === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.tagsSpecialLabelsAttachmentText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachmentText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter ATTACHMENT"
+                          />
+                          )}
+                        </div>
+
+                        {/* FINISHING - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FINISHING</label>
+                          <select
+                            value={material.tagsSpecialLabelsFinishing || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishing', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishingText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {TAGS_SPECIAL_LABELS_FINISHING_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.tagsSpecialLabelsFinishing === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.tagsSpecialLabelsFinishingText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishingText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter FINISHING"
+                          />
+                          )}
+                        </div>
+
+                        {/* PLACEMENT - Text input with Upload Image Reference */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                              value={material.tagsSpecialLabelsPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsPlacementImageFile', e.target.files[0])}
+                              className="hidden"
+                              id={`tags-special-labels-placement-image-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`tags-special-labels-placement-image-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              style={{ padding: '10px 14px', height: '44px', width: '110px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              UPLOAD
+                            </label>
+                            <input
+                              type="text"
+                              value={material.tagsSpecialLabelsPlacementImageRef || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsPlacementImageRef', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                              placeholder="REFERENCE"
+                            />
+                          </div>
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - PCS/R LENGTH */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.tagsSpecialLabelsQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="PCS/R LENGTH"
+                          />
+                        </div>
+
+                            {/* SURPLUS % */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                          <input
+                            type="text"
+                                value={material.tagsSpecialLabelsSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                          />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option and File Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQ.</label>
+                          <select
+                            value={material.tagsSpecialLabelsTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {TAGS_SPECIAL_LABELS_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.tagsSpecialLabelsTestingRequirements === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.tagsSpecialLabelsTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirementsFile', e.target.files[0])}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.tagsSpecialLabelsApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.tagsSpecialLabelsApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.tagsSpecialLabelsApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApprovalFile', e.target.files[0])}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.tagsSpecialLabelsRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px' }}
+                            placeholder="Text"
+                          />
+                        </div>
+                        </div>
+                      </>
+                    )}
+
                     {/* SIZE / DIMENSIONS Field */}
-                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                    {(['TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'LABELS (BRAND/MAIN)' ? 'SIZE / ARTWORK ID' :
-                           material.artworkCategory === 'TAGS & SPECIAL LABELS' ? 'SIZE / SHAPE' : 
-                           material.artworkCategory === 'HANG TAG SEALS / STRINGS' ? 'SIZE / LENGTH' : 
                            material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' ? 'SIZE / CODE' : 
                            material.artworkCategory === 'TYVEK LABELS' ? 'SIZE / FORMAT' : 
                            material.artworkCategory === 'TAFFETA LABELS' ? 'SIZE / FOLD' :
                            material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'SIZE / COLOUR' :
                            material.artworkCategory === 'PRICE TICKET / BARCODE TAG' ? 'SIZE / DIMENSION' :
                            material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'SIZE / ARTWORK ID' :
-                           material.artworkCategory === 'UPC LABEL / BARCODE STICKER' ? 'SIZE / SPEC' :
-                           material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' ? 'SIZE / ARTWORK' :
                            material.artworkCategory === 'QC / INSPECTION LABELS' ? 'SIZE / COLOUR' :
                            material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'SIZE / DIMENSIONS' : 'SIZE / DIMENSIONS'}
                   </label>
@@ -1324,24 +4603,9 @@ const Step4 = ({
                       </div>
                     )}
 
-                    {/* FOLD TYPE Field */}
-                    {material.artworkCategory === 'LABELS (BRAND/MAIN)' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">FOLD TYPE</label>
-                  <select
-                          value={material.foldType}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'foldType', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          {['End-fold', 'Center-fold', 'Miter-fold', 'Straight Cut'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                  </select>
-                      </div>
-                    )}
 
-                    {/* COLOURS Field */}
-                    {(['LABELS (BRAND/MAIN)', 'HANG TAG SEALS / STRINGS'].includes(material.artworkCategory)) && (
+                    {/* COLOURS Field - Excluded for LABELS (BRAND/MAIN) - has its own section */}
+                    {false && (['LABELS (BRAND/MAIN)'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOURS</label>
                         <input
@@ -1355,121 +4619,278 @@ const Step4 = ({
                 </div>
                     )}
                 
-                    {/* ATTACHMENT / CLOSURE Field */}
-                    {(['TAGS & SPECIAL LABELS'].includes(material.artworkCategory)) && (
-                      <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'TAGS & SPECIAL LABELS' ? 'ATTACHMENT' : 'CLOSURE'}
-                  </label>
-                  <input
-                    type="text"
-                          value={material.attachment}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'attachment', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Adhesive"
-                        />
-                      </div>
-                    )}
-
-                    {/* CONTENT Field */}
-                    {(['TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'LAW LABEL / CONTENTS TAG'].includes(material.artworkCategory)) && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'CONTENT MANDATES' : 'CONTENT'}
-                        </label>
-                        <input
-                          type="text"
-                          value={material.content}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Barcode"
-                        />
-                </div>
-                    )}
                 
-                    {/* SYMBOL Field */}
-                    {(['CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS'].includes(material.artworkCategory)) && (
-                      <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'CARE & COMPOSITION' ? 'CARE SYMBOLS' : 'SYMBOL'}
-                  </label>
-                  <input
-                    type="text"
-                          value={material.symbol}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'symbol', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Bleaching"
-                        />
-                      </div>
-                    )}
-
-                    {/* CERTIFICATION ID Field - Only for FLAMMABILITY / SAFETY LABELS */}
+                    {/* Specific Fields for FLAMMABILITY / SAFETY LABELS */}
                     {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION ID</label>
-                        <input
-                          type="text"
-                          value={material.certificationId}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'certificationId', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.flammabilitySafetyType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {FLAMMABILITY_SAFETY_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.flammabilitySafetyType === 'OTHERS (TEXT)' && (
+                  <input
+                    type="text"
+                              value={material.flammabilitySafetyTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Test Report Reference Number / Certification Body ID"
+                              placeholder="Enter TYPE"
                         />
+                          )}
                       </div>
-                    )}
 
-                    {/* LANGUAGE Field */}
-                    {(['CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS'].includes(material.artworkCategory)) && (
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.flammabilitySafetyMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {FLAMMABILITY_SAFETY_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.flammabilitySafetyMaterial === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.flammabilitySafetyMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC and SIZE in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* ARTWORK SPEC - Upload */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LANGUAGE</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="file"
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyArtworkSpecFile', e.target.files[0])}
+                                  className="hidden"
+                                  id={`flammability-safety-artwork-${materialIndex}`}
+                                />
+                                <label
+                                  htmlFor={`flammability-safety-artwork-${materialIndex}`}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <span className="truncate">{material.flammabilitySafetyArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                                </label>
+                              </div>
+                            </div>
+
+                            {/* SIZE */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                              <div className="flex items-center gap-3">
                         <input
                           type="text"
-                          value={material.language}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'language', e.target.value)}
+                                  value={material.flammabilitySafetySizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySizeWidth', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.flammabilitySafetySizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.flammabilitySafetySizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {FLAMMABILITY_SAFETY_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.flammabilitySafetyPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., English, French"
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`flammability-safety-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`flammability-safety-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.flammabilitySafetyPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                      </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Simple Dropdown */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.flammabilitySafetyTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.flammabilitySafetyTestingRequirements === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.flammabilitySafetyTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                            />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                      <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                        <input
+                          type="text"
+                                value={material.flammabilitySafetyQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
                         />
                 </div>
+
+                            {/* SURPLUS % */}
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
+                              <input
+                                type="text"
+                                value={material.flammabilitySafetySurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.flammabilitySafetyApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {FLAMMABILITY_SAFETY_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.flammabilitySafetyApproval === 'OTHERS (TEXT)' && (
+                            <input
+                              type="text"
+                              value={material.flammabilitySafetyApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <input
+                            type="text"
+                            value={material.flammabilitySafetyRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Text"
+                          />
+                        </div>
+                        </div>
+                      </>
                     )}
                 
-                    {/* FINISHING / FINISH Field */}
-                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory)) && (
-                      <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'FINISH / HAND FEEL' : 'FINISHING'}
-                  </label>
-                        <input
-                          type="text"
-                          value={material.finishing}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Hot-cut"
-                        />
-                      </div>
-                    )}
 
-                    {/* PLACEMENT Field (Specific to artwork category) */}
-                    {(['LABELS (BRAND/MAIN)', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS'].includes(material.artworkCategory)) && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                        <input
-                          type="text"
-                          value={material.placement}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'placement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Inside seam"
-                        />
-                      </div>
-                    )}
-
-                    {/* PERMANENCE / DURABILITY Field */}
-                    {(['CARE & COMPOSITION'].includes(material.artworkCategory)) && (
+                    {/* PERMANENCE / DURABILITY Field - Excluded for CARE & COMPOSITION (has its own in Advanced Filter) */}
+                    {(['TYVEK LABELS', 'TAFFETA LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'BELLY BAND / WRAPPER' || material.artworkCategory === 'TYVEK LABELS' || material.artworkCategory === 'TAFFETA LABELS' ? 'DURABILITY' : 'PERMANENCE'}
@@ -1485,41 +4906,8 @@ const Step4 = ({
                       </div>
                     )}
 
-                    {/* PERMANENCE Field with Upload for LAW LABEL / CONTENTS TAG */}
-                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
-                          <input
-                            type="text"
-                            value={material.permanence || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Permanent"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanenceFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-permanence-law-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-permanence-law-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.permanenceFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
-                        </div>
-                      </div>
-                    )}
-
                     {/* ADHESIVE Field */}
-                    {(['RFID / SECURITY TAGS', 'PRICE TICKET / BARCODE TAG', 'UPC LABEL / BARCODE STICKER'].includes(material.artworkCategory)) && (
+                    {(['UPC LABEL / BARCODE STICKER'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
                         <input
@@ -1534,126 +4922,257 @@ const Step4 = ({
                     )}
 
                     {/* APPLICATION SPEC Field */}
-                    {material.artworkCategory === 'HEAT TRANSFER LABELS' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION SPEC</label>
-                        <input
-                          type="text"
-                          value={material.applicationSpec}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'applicationSpec', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Temp / Dwell Time / Pressure"
-                        />
-                      </div>
-                    )}
 
-                    {/* SECURITY / SECURITY FEATURE Field */}
-                    {(['RFID / SECURITY TAGS', 'ANTI-COUNTERFEIT & HOLOGRAMS'].includes(material.artworkCategory)) && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' ? 'SECURITY FEATURE' : 'SECURITY'}
-                        </label>
-                        <input
-                          type="text"
-                          value={material.security}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'security', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 3D Holography"
-                        />
-                      </div>
-                    )}
 
-                    {/* VERIFICATION Field */}
-                    {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">VERIFICATION</label>
-                        <input
-                          type="text"
-                          value={material.verification}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'verification', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Web Link"
-                        />
-                      </div>
-                    )}
-
-                    {/* REMOVAL / TRACEABILITY Field */}
-                    {material.artworkCategory === 'QC / INSPECTION LABELS' && (
-                      <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">REMOVAL</label>
-                          <input
-                            type="text"
-                            value={material.removal}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'removal', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Easily removable"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TRACEABILITY</label>
-                          <input
-                            type="text"
-                            value={material.traceability}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'traceability', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Sequential numbering"
-                          />
-                        </div>
-                      </>
-                    )}
 
                     {/* Specific Fields for INSERT CARDS */}
                     {material.artworkCategory === 'INSERT CARDS' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SIZE / SHAPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.insertCardsType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {INSERT_CARDS_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.insertCardsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.sizeShape}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeShape', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.insertCardsTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Dimensions / Die-Cut Shape"
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.insertCardsMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {INSERT_CARDS_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.insertCardsMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.insertCardsMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="text"
+                            value={material.insertCardsArtworkSpec || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsArtworkSpec', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Artwork specifications"
                           />
                         </div>
+
+                        {/* SIZE */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE</label>
+                          <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                                  value={material.insertCardsSizeWidth || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsSizeWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="WIDTH"
+                                />
+                                <span className="text-gray-600" style={{ flexShrink: 0 }}>x</span>
+                                <input
+                                  type="text"
+                                  value={material.insertCardsSizeHeight || ''}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsSizeHeight', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                                  placeholder="HEIGHT"
+                                />
+                                <select
+                                  value={material.insertCardsSizeUnit || 'MM'}
+                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsSizeUnit', e.target.value)}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                >
+                                  {INSERT_CARDS_SIZE_UNITS.map(unit => (
+                                    <option key={unit} value={unit}>{unit}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.insertCardsPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsPlacement', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsPlacementImageRef', e.target.files[0])}
+                              className="hidden"
+                              id={`insert-cards-placement-${materialIndex}`}
+                            />
+                            <label
+                              htmlFor={`insert-cards-placement-${materialIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.insertCardsPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                        </div>
+                        </div>
+
+                        {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.insertCardsTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {INSERT_CARDS_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.insertCardsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.content}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.insertCardsTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Promotional Text / Product Features / Brand Story"
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.insertCardsQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
                           />
                         </div>
+
+                            {/* SURPLUS % */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.finishing}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.insertCardsSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Matte / Gloss Lamination / Varnished"
+                                placeholder="%AGE"
                           />
                         </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <select
+                            value={material.insertCardsApproval || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsApproval', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsApprovalText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {INSERT_CARDS_APPROVAL_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.insertCardsApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.permanence}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.insertCardsApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsApprovalText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Temporary (Removed by consumer)"
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.insertCardsRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
+                            placeholder="Enter REMARKS"
                           />
+                        </div>
                         </div>
                       </>
                     )}
@@ -1661,55 +5180,217 @@ const Step4 = ({
                     {/* Specific Fields for RIBBONS */}
                     {material.artworkCategory === 'RIBBONS' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
+                          <select
+                            value={material.ribbonsType || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsType', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'ribbonsTypeText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {RIBBONS_TYPES.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.ribbonsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.ribbonWidth}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonWidth', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.ribbonsTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsTypeText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
+                          <select
+                            value={material.ribbonsMaterial || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsMaterial', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'ribbonsMaterialText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {RIBBONS_MATERIALS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.ribbonsMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.ribbonsMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsMaterialText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsArtworkSpecFile', e.target.files[0])}
+                            className="hidden"
+                            id={`ribbons-artwork-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`ribbons-artwork-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.ribbonsArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* WIDTH */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>WIDTH</label>
+                          <input
+                            type="text"
+                            value={material.ribbonsWidth || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsWidth', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="e.g., 10mm, 1 inch"
                           />
                         </div>
+
+                        {/* ROLL LENGTH */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ROLL LENGTH</label>
                           <input
                             type="text"
-                            value={material.colours}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'colours', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            value={material.ribbonsRollLength || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsRollLength', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="DTM / Colour Code (Pantone TPX/TCX)"
+                            placeholder="e.g., 100m, 500 yards"
                           />
                         </div>
+
+                        {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
+                          <select
+                            value={material.ribbonsTestingRequirements || ''}
+                            onChange={(e) => {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirements', e.target.value);
+                              if (e.target.value === 'OTHERS (TEXT)') {
+                                handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirementsText', '');
+                              }
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <option value="">Select</option>
+                            {RIBBONS_TESTING_REQUIREMENTS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          {material.ribbonsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
-                            value={material.finishing}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              value={material.ribbonsTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirementsText', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Single Face / Double Face / Wired Edge"
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY and SURPLUS % in one row */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                        <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
+                          <input
+                            type="text"
+                                value={material.ribbonsQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsQty', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
                           />
                         </div>
+
+                            {/* SURPLUS % */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
                           <input
                             type="text"
-                            value={material.usage}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'usage', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                value={material.ribbonsSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsSurplus', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Packaging Tie / Decorative Trim / Hanging Loop"
+                                placeholder="%AGE"
                           />
+                        </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL - Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsApprovalFile', e.target.files[0])}
+                            className="hidden"
+                            id={`ribbons-approval-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`ribbons-approval-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.ribbonsApprovalFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.ribbonsRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'ribbonsRemarks', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            style={{ padding: '10px 14px', minHeight: '80px' }}
+                            placeholder="Text"
+                          />
+                        </div>
                         </div>
                       </>
                     )}
 
-                    {/* TESTING REQUIREMENT Field with Image Upload - For all except LAW LABEL / CONTENTS TAG */}
-                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && (
+
+                    {/* TESTING REQUIREMENT Field with Image Upload - For all except LAW LABEL / CONTENTS TAG, ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER */}
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col md:col-span-2">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
                       <div className="flex items-center gap-2">
@@ -1741,23 +5422,9 @@ const Step4 = ({
                     </div>
                     )}
 
-                    {/* TESTING REQUIREMENT Field - Standalone for LAW LABEL / CONTENTS TAG */}
-                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., Wash Fastness, Durability"
-                        />
-                      </div>
-                    )}
 
-                    {/* LENGTH / QUANTITY Field - For all except LAW LABEL / CONTENTS TAG */}
-                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && (
+                    {/* LENGTH / QUANTITY Field - For all except LAW LABEL / CONTENTS TAG, ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER */}
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH / QUANTITY</label>
                       <input
@@ -1771,36 +5438,9 @@ const Step4 = ({
                     </div>
                     )}
 
-                    {/* LENGTH / QUANTITY Field with FOR-SECTION - For LAW LABEL / CONTENTS TAG */}
-                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                          <input
-                            type="text"
-                            value={material.lengthQuantity || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., 5000 pcs"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.lengthQuantityForSection || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lengthQuantityForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
-                      </div>
-                    )}
 
-                    {/* SURPLUS Field with FOR SECTION - For all except LAW LABEL / CONTENTS TAG */}
-                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && (
+                    {/* SURPLUS Field with FOR SECTION - For all except LAW LABEL / CONTENTS TAG, ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER */}
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col md:col-span-2">
                       <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR)</label>
                       <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
@@ -1824,22 +5464,9 @@ const Step4 = ({
                     </div>
                     )}
 
-                    {/* SURPLUS Field - Standalone for LAW LABEL / CONTENTS TAG */}
-                    {material.artworkCategory === 'LAW LABEL / CONTENTS TAG' && (
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                        <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5%)"
-                        />
-                      </div>
-                    )}
 
-                    {/* APPROVAL Field */}
+                    {/* APPROVAL Field - Excluded for ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), LAW LABEL / CONTENTS TAG, PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER (have their own) */}
+                    {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                   <select
@@ -1856,8 +5483,10 @@ const Step4 = ({
                         <option value="TOP">TOP</option>
                   </select>
                 </div>
+                    )}
 
-                    {/* REMARKS Field */}
+                    {/* REMARKS Field - Excluded for ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), LAW LABEL / CONTENTS TAG, PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER (have their own) */}
+                    {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="col-span-full flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                       <textarea
@@ -1871,7 +5500,1802 @@ const Step4 = ({
                         placeholder="Additional notes..."
                       ></textarea>
                     </div>
+                    )}
                   </div>
+
+                  {/* Advanced Filter for INSERT CARDS - At the very bottom after all fields */}
+                  {material.artworkCategory === 'INSERT CARDS' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    {/* Show/Hide Advance Filter Button */}
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(materialIndex, 'showInsertCardsAdvancedFilter', !material.showInsertCardsAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showInsertCardsAdvancedFilter ? '#667eea' : '#ffffff',
+                          borderColor: material.showInsertCardsAdvancedFilter ? '#667eea' : '#e5e7eb',
+                          color: material.showInsertCardsAdvancedFilter ? '#ffffff' : '#374151'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showInsertCardsAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showInsertCardsAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+                    </div>
+                    
+                    {/* Advanced Filter UI Table */}
+                    {material.showInsertCardsAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* FUNCTION - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FUNCTION
+                            </label>
+                            <select
+                              value={material.insertCardsFunction || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsFunction', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'insertCardsFunctionText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {INSERT_CARDS_FUNCTION_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.insertCardsFunction === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.insertCardsFunctionText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsFunctionText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FUNCTION"
+                              />
+                )}
+              </div>
+
+                          {/* CONTENT - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              CONTENT
+                            </label>
+                            <select
+                              value={material.insertCardsContent || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsContent', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'insertCardsContentText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {INSERT_CARDS_CONTENT_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.insertCardsContent === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.insertCardsContentText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsContentText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter CONTENT"
+                              />
+                            )}
+                          </div>
+
+                          {/* PRINTING - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PRINTING
+                            </label>
+                            <select
+                              value={material.insertCardsPrinting || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsPrinting', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'insertCardsPrintingText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {INSERT_CARDS_PRINTING_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.insertCardsPrinting === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.insertCardsPrintingText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsPrintingText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PRINTING"
+                              />
+                            )}
+                          </div>
+
+                          {/* FINISH - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FINISH
+                            </label>
+                            <select
+                              value={material.insertCardsFinish || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsFinish', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'insertCardsFinishText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {INSERT_CARDS_FINISH_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.insertCardsFinish === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.insertCardsFinishText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsFinishText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FINISH"
+                              />
+                            )}
+                          </div>
+
+                          {/* STIFFNESS - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              STIFFNESS
+                            </label>
+                            <select
+                              value={material.insertCardsStiffness || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsStiffness', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'insertCardsStiffnessText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {INSERT_CARDS_STIFFNESS_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.insertCardsStiffness === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.insertCardsStiffnessText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsStiffnessText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter STIFFNESS"
+                              />
+                            )}
+                          </div>
+
+                          {/* ACID-FREE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              ACID-FREE
+                            </label>
+                            <select
+                              value={material.insertCardsAcidFree || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFree', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFreeText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {INSERT_CARDS_ACID_FREE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.insertCardsAcidFree === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.insertCardsAcidFreeText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFreeText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter ACID-FREE"
+                              />
+                            )}
+                          </div>
+
+                          {/* BRANDING - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              BRANDING
+                            </label>
+                            <select
+                              value={material.insertCardsBranding || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'insertCardsBranding', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'insertCardsBrandingText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {INSERT_CARDS_BRANDING_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.insertCardsBranding === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.insertCardsBrandingText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsBrandingText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter BRANDING"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+
+                  {/* Advanced Filter for HEAT TRANSFER LABELS - At the very bottom after all fields */}
+                  {material.artworkCategory === 'HEAT TRANSFER LABELS' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    {/* Show/Hide Advance Filter Button */}
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(materialIndex, 'showHeatTransferAdvancedFilter', !material.showHeatTransferAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showHeatTransferAdvancedFilter ? '#667eea' : '#ffffff',
+                          borderColor: material.showHeatTransferAdvancedFilter ? '#667eea' : '#e5e7eb',
+                          color: material.showHeatTransferAdvancedFilter ? '#ffffff' : '#374151'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showHeatTransferAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showHeatTransferAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+                    </div>
+                    
+                    {/* Advanced Filter UI Table */}
+                    {material.showHeatTransferAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* INK TYPE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              INK TYPE
+                            </label>
+                            <select
+                              value={material.heatTransferInkType || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferInkType', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'heatTransferInkTypeText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HEAT_TRANSFER_INK_TYPE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.heatTransferInkType === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.heatTransferInkTypeText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferInkTypeText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter INK TYPE"
+                              />
+                )}
+              </div>
+                          
+                          {/* FABRIC COMPATIBILITY - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FABRIC COMPATIBILITY
+                            </label>
+                            <select
+                              value={material.heatTransferFabricCompatibility || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibility', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibilityText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.heatTransferFabricCompatibility === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.heatTransferFabricCompatibilityText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibilityText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FABRIC COMPATIBILITY"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* APPLICATION SPEC - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              APPLICATION SPEC
+                            </label>
+                            <select
+                              value={material.heatTransferApplicationSpec || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpec', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpecText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.heatTransferApplicationSpec === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.heatTransferApplicationSpecText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpecText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter APPLICATION SPEC"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* PEEL TYPE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PEEL TYPE
+                            </label>
+                            <select
+                              value={material.heatTransferPeelType || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferPeelType', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'heatTransferPeelTypeText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HEAT_TRANSFER_PEEL_TYPE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.heatTransferPeelType === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.heatTransferPeelTypeText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferPeelTypeText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PEEL TYPE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* FINISH / HAND FEEL - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FINISH / HAND FEEL
+                            </label>
+                            <select
+                              value={material.heatTransferFinishHandFeel || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeel', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeelText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.heatTransferFinishHandFeel === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.heatTransferFinishHandFeelText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeelText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FINISH / HAND FEEL"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* STRETCH - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              STRETCH
+                            </label>
+                            <select
+                              value={material.heatTransferStretch || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferStretch', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'heatTransferStretchText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HEAT_TRANSFER_STRETCH_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.heatTransferStretch === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.heatTransferStretchText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferStretchText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter STRETCH"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+
+                  {/* Advanced Filter for HANG TAG SEALS / STRINGS - At the very bottom after all fields */}
+                  {material.artworkCategory === 'HANG TAG SEALS / STRINGS' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    {/* Show/Hide Advance Filter Button */}
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(materialIndex, 'showHangTagSealsAdvancedFilter', !material.showHangTagSealsAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showHangTagSealsAdvancedFilter ? '#667eea' : '#ffffff',
+                          borderColor: material.showHangTagSealsAdvancedFilter ? '#667eea' : '#e5e7eb',
+                          color: material.showHangTagSealsAdvancedFilter ? '#ffffff' : '#374151'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showHangTagSealsAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showHangTagSealsAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+                    </div>
+                    
+                    {/* Advanced Filter UI Table */}
+                    {material.showHangTagSealsAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* FASTENING - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FASTENING
+                            </label>
+                            <select
+                              value={material.hangTagSealsFastening || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsFastening', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsFasteningText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HANG_TAG_SEALS_FASTENING_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.hangTagSealsFastening === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.hangTagSealsFasteningText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsFasteningText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FASTENING"
+                              />
+                )}
+              </div>
+                          
+                          {/* PRE-STRINGING - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PRE-STRINGING
+                            </label>
+                            <select
+                              value={material.hangTagSealsPreStringing || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringing', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringingText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HANG_TAG_SEALS_PRE_STRINGING_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.hangTagSealsPreStringing === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.hangTagSealsPreStringingText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringingText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PRE-STRINGING"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* STRING FINISH - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              STRING FINISH
+                            </label>
+                            <select
+                              value={material.hangTagSealsStringFinish || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinish', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinishText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HANG_TAG_SEALS_STRING_FINISH_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.hangTagSealsStringFinish === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.hangTagSealsStringFinishText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinishText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter STRING FINISH"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* SEAL SHAPE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              SEAL SHAPE
+                            </label>
+                            <select
+                              value={material.hangTagSealsSealShape || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShape', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShapeText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.hangTagSealsSealShape === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.hangTagSealsSealShapeText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShapeText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter SEAL SHAPE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* COLOUR - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              COLOUR
+                            </label>
+                            <select
+                              value={material.hangTagSealsColour || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsColour', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsColourText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HANG_TAG_SEALS_COLOUR_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.hangTagSealsColour === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.hangTagSealsColourText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsColourText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter COLOUR"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* LOGO/BRANDING - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              LOGO/BRANDING
+                            </label>
+                            <select
+                              value={material.hangTagSealsLogoBranding || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBranding', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBrandingText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.hangTagSealsLogoBranding === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.hangTagSealsLogoBrandingText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBrandingText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter LOGO/BRANDING"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+
+                  {/* Advanced Filter for ANTI-COUNTERFEIT & HOLOGRAMS - At the very bottom after all fields */}
+                  {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    {/* Show/Hide Advance Filter Button */}
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(materialIndex, 'showAntiCounterfeitAdvancedFilter', !material.showAntiCounterfeitAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showAntiCounterfeitAdvancedFilter ? '#667eea' : '#ffffff',
+                          borderColor: material.showAntiCounterfeitAdvancedFilter ? '#667eea' : '#e5e7eb',
+                          color: material.showAntiCounterfeitAdvancedFilter ? '#ffffff' : '#374151'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showAntiCounterfeitAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showAntiCounterfeitAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+              </div>
+                    
+                    {/* Advanced Filter UI Table */}
+                    {material.showAntiCounterfeitAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* VERIFICATION - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              VERIFICATION
+                            </label>
+                            <select
+                              value={material.verification || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'verification', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'verificationText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {ANTI_COUNTERFEIT_VERIFICATION_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.verification === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.verificationText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'verificationText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter VERIFICATION"
+                              />
+                )}
+              </div>
+                          
+                          {/* QR/CODE CONTENT - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              QR/CODE CONTENT
+                            </label>
+                            <select
+                              value={material.qrCodeContent || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'qrCodeContent', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'qrCodeContentText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.qrCodeContent === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.qrCodeContentText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qrCodeContentText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter QR/CODE CONTENT"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* APPLICATION - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              APPLICATION
+                            </label>
+                            <select
+                              value={material.antiCounterfeitApplication || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplication', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplicationText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {ANTI_COUNTERFEIT_APPLICATION_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.antiCounterfeitApplication === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.antiCounterfeitApplicationText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplicationText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter APPLICATION"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* TAMPER EVIDENCE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              TAMPER EVIDENCE
+                            </label>
+                            <select
+                              value={material.tamperEvidence || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'tamperEvidence', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'tamperEvidenceText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.tamperEvidence === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.tamperEvidenceText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tamperEvidenceText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter TAMPER EVIDENCE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* DATABASE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              DATABASE
+                            </label>
+                            <select
+                              value={material.antiCounterfeitDatabase || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabase', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabaseText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {ANTI_COUNTERFEIT_DATABASE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.antiCounterfeitDatabase === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.antiCounterfeitDatabaseText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabaseText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter DATABASE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* GUMMING QUALITY - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              GUMMING QUALITY
+                            </label>
+                            <select
+                              value={material.gummingQuality || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'gummingQuality', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'gummingQualityText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.gummingQuality === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.gummingQualityText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'gummingQualityText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter GUMMING QUALITY"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+
+                  {/* Advanced Filter for CARE & COMPOSITION - At the very bottom after all fields */}
+                  {material.artworkCategory === 'CARE & COMPOSITION' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    {/* Show/Hide Advance Filter Button */}
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(materialIndex, 'showCareCompositionAdvancedFilter', !material.showCareCompositionAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showCareCompositionAdvancedFilter ? '#667eea' : '#ffffff',
+                          borderColor: material.showCareCompositionAdvancedFilter ? '#667eea' : '#e5e7eb',
+                          color: material.showCareCompositionAdvancedFilter ? '#ffffff' : '#374151'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showCareCompositionAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showCareCompositionAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+                    </div>
+                    
+                    {/* Advanced Filter UI Table */}
+                    {material.showCareCompositionAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* PRINT TYPE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PRINT TYPE
+                            </label>
+                            <select
+                              value={material.careCompositionPrintType || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionPrintType', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'careCompositionPrintTypeText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {CARE_COMPOSITION_PRINT_TYPE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.careCompositionPrintType === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.careCompositionPrintTypeText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionPrintTypeText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PRINT TYPE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* INK TYPE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              INK TYPE
+                            </label>
+                            <select
+                              value={material.careCompositionInkType || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionInkType', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'careCompositionInkTypeText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {CARE_COMPOSITION_INK_TYPE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.careCompositionInkType === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.careCompositionInkTypeText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionInkTypeText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter INK TYPE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* MANUFACTURER ID - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              MANUFACTURER ID
+                            </label>
+                            <select
+                              value={material.careCompositionManufacturerId || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerId', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerIdText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.careCompositionManufacturerId === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.careCompositionManufacturerIdText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerIdText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter MANUFACTURER ID"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* PERMANENCE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PERMANENCE
+                            </label>
+                            <select
+                              value={material.careCompositionPermanence || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionPermanence', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'careCompositionPermanenceText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {CARE_COMPOSITION_PERMANENCE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.careCompositionPermanence === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.careCompositionPermanenceText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionPermanenceText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PERMANENCE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* LANGUAGE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              LANGUAGE
+                            </label>
+                            <select
+                              value={material.careCompositionLanguage || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'careCompositionLanguage', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'careCompositionLanguageText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {CARE_COMPOSITION_LANGUAGE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.careCompositionLanguage === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.careCompositionLanguageText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionLanguageText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter LANGUAGE"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+
+                  {/* Advanced Filter for FLAMMABILITY / SAFETY LABELS - At the very bottom after all fields */}
+                  {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    {/* Show/Hide Advance Filter Button */}
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(materialIndex, 'showFlammabilitySafetyAdvancedFilter', !material.showFlammabilitySafetyAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showFlammabilitySafetyAdvancedFilter ? '#667eea' : '#ffffff',
+                          borderColor: material.showFlammabilitySafetyAdvancedFilter ? '#667eea' : '#e5e7eb',
+                          color: material.showFlammabilitySafetyAdvancedFilter ? '#ffffff' : '#374151'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showFlammabilitySafetyAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showFlammabilitySafetyAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+                    </div>
+                    
+                    {/* Advanced Filter UI Table */}
+                    {material.showFlammabilitySafetyAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* REGULATION - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              REGULATION
+                            </label>
+                            <select
+                              value={material.flammabilitySafetyRegulation || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulation', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulationText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {FLAMMABILITY_SAFETY_REGULATION_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.flammabilitySafetyRegulation === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.flammabilitySafetyRegulationText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulationText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter REGULATION"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* FONT SIZE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FONT SIZE
+                            </label>
+                            <select
+                              value={material.flammabilitySafetyFontSize || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSize', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSizeText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.flammabilitySafetyFontSize === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.flammabilitySafetyFontSizeText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSizeText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FONT SIZE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* PERMANENCE - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PERMANENCE
+                            </label>
+                            <select
+                              value={material.flammabilitySafetyPermanence || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanence', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanenceText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.flammabilitySafetyPermanence === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.flammabilitySafetyPermanenceText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanenceText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PERMANENCE"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* SYMBOL - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              SYMBOL
+                            </label>
+                            <select
+                              value={material.flammabilitySafetySymbol || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbol', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbolText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {FLAMMABILITY_SAFETY_SYMBOL_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.flammabilitySafetySymbol === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.flammabilitySafetySymbolText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbolText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter SYMBOL"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* INK DURABILITY - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              INK DURABILITY
+                            </label>
+                            <select
+                              value={material.flammabilitySafetyInkDurability || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurability', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurabilityText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.flammabilitySafetyInkDurability === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.flammabilitySafetyInkDurabilityText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurabilityText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter INK DURABILITY"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* CERTIFICATION ID - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              CERTIFICATION ID
+                            </label>
+                            <select
+                              value={material.flammabilitySafetyCertificationId || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationId', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationIdText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.flammabilitySafetyCertificationId === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.flammabilitySafetyCertificationIdText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationIdText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter CERTIFICATION ID"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+
+                  {/* Advanced Filter for BELLY BAND / WRAPPER - At the very bottom after all fields */}
+                  {material.artworkCategory === 'BELLY BAND / WRAPPER' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    {/* Show/Hide Advance Filter Button */}
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(materialIndex, 'showBellyBandAdvancedFilter', !material.showBellyBandAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showBellyBandAdvancedFilter ? '#667eea' : '#ffffff',
+                          borderColor: material.showBellyBandAdvancedFilter ? '#667eea' : '#e5e7eb',
+                          color: material.showBellyBandAdvancedFilter ? '#ffffff' : '#374151'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showBellyBandAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showBellyBandAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+                    </div>
+                    
+                    {/* Advanced Filter UI Table */}
+                    {material.showBellyBandAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* PRODUCT FIT - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PRODUCT FIT
+                            </label>
+                            <select
+                              value={material.bellyBandProductFit || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandProductFit', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandProductFitText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_PRODUCT_FIT_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandProductFit === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandProductFitText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandProductFitText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PRODUCT FIT"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* PRINTING - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              PRINTING
+                            </label>
+                            <select
+                              value={material.bellyBandPrinting || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandPrinting', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandPrintingText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_PRINTING_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandPrinting === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandPrintingText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandPrintingText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter PRINTING"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* FOLD LINES - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FOLD LINES
+                            </label>
+                            <select
+                              value={material.bellyBandFoldLines || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLines', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLinesText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_FOLD_LINES_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandFoldLines === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandFoldLinesText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLinesText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FOLD LINES"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* DURABILITY - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              DURABILITY
+                            </label>
+                            <select
+                              value={material.bellyBandDurability || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandDurability', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandDurabilityText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_DURABILITY_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandDurability === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandDurabilityText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandDurabilityText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter DURABILITY"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* CONTENT - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              CONTENT
+                            </label>
+                            <select
+                              value={material.bellyBandContent || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandContent', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandContentText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_CONTENT_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandContent === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandContentText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandContentText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter CONTENT"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* COLOURS - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              COLOURS
+                            </label>
+                            <select
+                              value={material.bellyBandColours || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandColours', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandColoursText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_COLOURS_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandColours === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandColoursText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandColoursText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter COLOURS"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* FINISH - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              FINISH
+                            </label>
+                            <select
+                              value={material.bellyBandFinish || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandFinish', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandFinishText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_FINISH_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandFinish === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandFinishText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandFinishText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter FINISH"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* DIE-CUT - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              DIE-CUT
+                            </label>
+                            <select
+                              value={material.bellyBandDieCut || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandDieCut', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandDieCutText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_DIE_CUT_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandDieCut === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandDieCutText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandDieCutText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter DIE-CUT"
+                              />
+                            )}
+                          </div>
+                          
+                          {/* GUMMING QUALITY - Dropdown with Others option */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">
+                              GUMMING QUALITY
+                            </label>
+                            <select
+                              value={material.bellyBandGummingQuality || ''}
+                              onChange={(e) => {
+                                handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQuality', e.target.value);
+                                if (e.target.value === 'OTHERS (TEXT)') {
+                                  handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQualityText', '');
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <option value="">Select</option>
+                              {BELLY_BAND_GUMMING_QUALITY_OPTIONS.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            {material.bellyBandGummingQuality === 'OTHERS (TEXT)' && (
+                              <input
+                                type="text"
+                                value={material.bellyBandGummingQualityText || ''}
+                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQualityText', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Enter GUMMING QUALITY"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+                  </>
                 )}
               </div>
             </div>

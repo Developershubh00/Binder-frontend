@@ -22,6 +22,8 @@ export const getYarnDetails = (fiberType, yarnType) => {
   }
   const details = TEXTILE_FIBER_DATA[fiberType][yarnType];
   return {
+    composition: details.composition || '',
+    countRange: details.countRange || '',
     spinningMethod: details.spinningMethod,
     countSystem: details.countSystem,
     doublingOptions: details.doublingOptions,
