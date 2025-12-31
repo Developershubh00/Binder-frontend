@@ -21,7 +21,6 @@ const GenerateFactoryCode = ({ onBack }) => {
     product: '',
     poQty: '',
     overagePercentage: '',
-    overageQty: '',
     deliveryDueDate: '',
     // Step 1 - Multiple products, each with multiple components/materials with cut & sew specs
     products: [{
@@ -105,10 +104,6 @@ const GenerateFactoryCode = ({ onBack }) => {
       qcLabelMaterial: '',
       bellyBandType: '',
       bellyBandMaterial: '',
-      tyvekType: '',
-      tyvekMaterial: '',
-      taffetaType: '',
-      taffetaMaterial: '',
       closureFinish: '',
       sealShape: '',
       fastening: '',
@@ -305,9 +300,6 @@ const GenerateFactoryCode = ({ onBack }) => {
     }
     if (!formData.overagePercentage?.trim()) {
       newErrors.overagePercentage = 'Overage % is required';
-    }
-    if (!formData.overageQty) {
-      newErrors.overageQty = 'Overage Qty is required';
     }
     if (!formData.deliveryDueDate) {
       newErrors.deliveryDueDate = 'Delivery Due Date is required';
@@ -1330,8 +1322,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           heatTransferMaterialBase: '', upcType: '', upcMaterial: '',
           sizeLabelType: '', sizeLabelMaterial: '', antiCounterfeitType: '',
           antiCounterfeitMaterial: '', qcLabelType: '', qcLabelMaterial: '',
-          bellyBandType: '', bellyBandMaterial: '', tyvekType: '', tyvekMaterial: '',
-          taffetaType: '', taffetaMaterial: '', closureFinish: '',
+          bellyBandType: '', bellyBandMaterial: '', closureFinish: '',
           sealShape: '', fastening: '', preStringing: '', application: '', barcodeType: '',
           applicationSpec: '', finishHandFeel: '', quality: '', sizeCode: '',
           securityFeature: '', verification: '', removal: '', traceability: '',
@@ -1446,10 +1437,6 @@ const GenerateFactoryCode = ({ onBack }) => {
           qcLabelMaterial: '',
           bellyBandType: '',
           bellyBandMaterial: '',
-          tyvekType: '',
-          tyvekMaterial: '',
-          taffetaType: '',
-          taffetaMaterial: '',
           closureFinish: '',
           sealShape: '',
           fastening: '',

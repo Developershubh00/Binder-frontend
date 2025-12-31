@@ -111,8 +111,8 @@ const Step0 = ({ formData, errors, handleInputChange }) => {
           </div>
         </div>
 
-        {/* Row 2: Overage %, Overage Qty, Delivery Date */}
-        <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: '24px', marginBottom: '24px' }}>
+        {/* Row 2: Overage %, Delivery Date */}
+        <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '24px', marginBottom: '24px' }}>
           {/* OVERAGE (%AGE) */}
           <div className="flex flex-col">
             <label htmlFor="overagePercentage" className="text-sm font-semibold text-gray-700 mb-2">
@@ -143,39 +143,6 @@ const Step0 = ({ formData, errors, handleInputChange }) => {
             />
             {errors.overagePercentage && (
               <span className="text-red-600 text-xs font-medium mt-1">{errors.overagePercentage}</span>
-            )}
-          </div>
-
-          {/* OVERAGE (QTY) */}
-          <div className="flex flex-col">
-            <label htmlFor="overageQty" className="text-sm font-semibold text-gray-700 mb-2">
-              OVERAGE (QTY) <span className="text-red-600">*</span>
-            </label>
-            <input
-              type="number"
-              id="overageQty"
-              name="overageQty"
-              value={formData.overageQty}
-              onChange={handleInputChange}
-              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                errors.overageQty 
-                  ? 'border-red-600' 
-                  : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-              }`}
-              style={{ padding: '12px 16px', height: '48px' }}
-              onFocus={(e) => {
-                if (!errors.overageQty) {
-                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.boxShadow = '';
-              }}
-              placeholder="e.g., 50"
-              required
-            />
-            {errors.overageQty && (
-              <span className="text-red-600 text-xs font-medium mt-1">{errors.overageQty}</span>
             )}
           </div>
 

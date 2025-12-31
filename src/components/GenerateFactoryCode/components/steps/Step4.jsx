@@ -539,8 +539,6 @@ const Step4 = ({
                     <option value="ANTI-COUNTERFEIT & HOLOGRAMS">ANTI-COUNTERFEIT & HOLOGRAMS</option>
                     <option value="QC / INSPECTION LABELS">QC / INSPECTION LABELS</option>
                     <option value="BELLY BAND / WRAPPER">BELLY BAND / WRAPPER</option>
-                    <option value="TYVEK LABELS">TYVEK LABELS</option>
-                    <option value="TAFFETA LABELS">TAFFETA LABELS</option>
                     <option value="INSERT CARDS">INSERT CARDS</option>
                     <option value="RIBBONS">RIBBONS</option>
                   </select>
@@ -550,7 +548,7 @@ const Step4 = ({
                   <>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
                     {/* TYPE Field */}
-                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                       <select
@@ -567,14 +565,12 @@ const Step4 = ({
                         {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && ['Hologram Sticker', 'Void/Tamper-Evident Label', 'Authenticity Patch', 'Invisible Ink Print'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'QC / INSPECTION LABELS' && ['Passed/Inspected Sticker', 'Hold/Defective Sticker', 'Audit Sample Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         {material.artworkCategory === 'BELLY BAND / WRAPPER' && ['Cardboard Sleeve', 'Printed Paper Band', 'Plastic Film Wrapper'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'TYVEK LABELS' && ['Law Label', 'Shipping Tag', 'Permanent Industrial/Outdoor Care Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'TAFFETA LABELS' && ['Printed Care Label', 'Composition Label', 'Temporary Size Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                       </select>
                     </div>
                     )}
 
                     {/* MATERIAL Field */}
-                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'CARE & COMPOSITION' ? 'FIBER CONTENT' : 'MATERIAL'}
@@ -2218,20 +2214,6 @@ const Step4 = ({
                       </>
                     )}
 
-                    {/* Specific Field for TAFFETA LABELS */}
-                    {material.artworkCategory === 'TAFFETA LABELS' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">PRINT QUALITY</label>
-                        <input
-                          type="text"
-                          value={material.printQuality}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'printQuality', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="High Contrast Printing"
-                        />
-                      </div>
-                    )}
 
                     {/* Specific Fields for UPC LABEL / BARCODE STICKER */}
                     {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && (
@@ -3748,149 +3730,6 @@ const Step4 = ({
                       </>
                     )}
 
-                    {/* Specific Fields for TYVEK LABELS */}
-                    {material.artworkCategory === 'TYVEK LABELS' && (
-                      <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
-                            value={material.tyvekType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tyvekType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Law Label, Shipping Tag, Permanent Industrial/Outdoor Care Label"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                          <input
-                            type="text"
-                            value={material.tyvekMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tyvekMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Tyvek, Synthetic Paper, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
-                          <input
-                            type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Care Instructions, Composition, Law Label Info"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">INK TYPE</label>
-                          <input
-                            type="text"
-                            value={material.inkType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'inkType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Durable, Solvent-Resistant"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
-                          <input
-                            type="text"
-                            value={material.durability || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Waterproof, Tear-Resistant, UV Resistant"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
-                          <input
-                            type="text"
-                            value={material.permanence || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Permanent, Temporary"
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {/* Specific Fields for TAFFETA LABELS */}
-                    {material.artworkCategory === 'TAFFETA LABELS' && (
-                      <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
-                            value={material.taffetaType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'taffetaType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Printed Care Label, Composition Label, Temporary Size Label"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                          <input
-                            type="text"
-                            value={material.taffetaMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'taffetaMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Taffeta, Polyester, Satin, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
-                          <input
-                            type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Care Instructions, Composition, Size Info"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PRINT QUALITY</label>
-                          <input
-                            type="text"
-                            value={material.printQuality || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'printQuality', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="High Contrast Printing"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
-                          <input
-                            type="text"
-                            value={material.durability || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Wash Fastness, Fade Resistance"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISHING</label>
-                          <input
-                            type="text"
-                            value={material.finishing || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Matte, Gloss, Lamination"
-                          />
-                        </div>
-                      </>
-                    )}
 
                     {/* Specific Fields for SIZE LABELS (INDIVIDUAL) */}
                     {material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' && (
@@ -4579,13 +4418,11 @@ const Step4 = ({
                     )}
 
                     {/* SIZE / DIMENSIONS Field */}
-                    {(['TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                    {false && (
                       <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'LABELS (BRAND/MAIN)' ? 'SIZE / ARTWORK ID' :
                            material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' ? 'SIZE / CODE' : 
-                           material.artworkCategory === 'TYVEK LABELS' ? 'SIZE / FORMAT' : 
-                           material.artworkCategory === 'TAFFETA LABELS' ? 'SIZE / FOLD' :
                            material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'SIZE / COLOUR' :
                            material.artworkCategory === 'PRICE TICKET / BARCODE TAG' ? 'SIZE / DIMENSION' :
                            material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'SIZE / ARTWORK ID' :
@@ -4890,10 +4727,10 @@ const Step4 = ({
                 
 
                     {/* PERMANENCE / DURABILITY Field - Excluded for CARE & COMPOSITION (has its own in Advanced Filter) */}
-                    {(['TYVEK LABELS', 'TAFFETA LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
+                    {(['BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'BELLY BAND / WRAPPER' || material.artworkCategory === 'TYVEK LABELS' || material.artworkCategory === 'TAFFETA LABELS' ? 'DURABILITY' : 'PERMANENCE'}
+                          {material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'DURABILITY' : 'PERMANENCE'}
                         </label>
                         <input
                           type="text"
