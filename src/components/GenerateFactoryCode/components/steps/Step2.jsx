@@ -236,6 +236,24 @@ const Step2 = ({
                     </span>
                   )}
                 </div>
+
+                <div className='flex flex-col'>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL TYPE</label>
+                  <SearchableDropdown
+                    value={material.materialType || ''}
+                    onChange={(selectedMaterialType) => handleRawMaterialChange(materialIndex, 'materialType', selectedMaterialType)}
+                    options={['Fabric', 'Yarn']}
+                    placeholder="select material"
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                    }}
+                  />
+                  {errors[`rawMaterial_${materialIndex}_materialType`] && (
+                    <span className="text-red-600 text-xs mt-1 font-medium">
+                      {errors[`rawMaterial_${materialIndex}_materialType`]}
+                    </span>
+                  )}
+                </div>
                 
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
@@ -309,6 +327,7 @@ const Step2 = ({
               </div>
               
               {/* Fiber Type Hierarchy Dropdowns */}
+              {material.materialType === "Yarn" && (<>
               <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
                 <h3 className="text-sm font-bold text-gray-800 mb-4">FIBER SPECIFICATIONS</h3>
                 <div className="flex flex-wrap items-start gap-6">
@@ -714,9 +733,11 @@ const Step2 = ({
                   );
                 })()}
               </div>
+              </>)}
             </div>
             
             {/* Fabric Specifications Section */}
+            {material.materialType == "Fabric" && (<>
             <div style={{ marginTop: '32px' }}>
               <div style={{ marginBottom: '16px' }}>
                 <h3 className="text-sm font-bold text-gray-800">FABRIC SPECIFICATIONS</h3>
@@ -1071,6 +1092,7 @@ const Step2 = ({
                 )}
               </div>
             </div>
+            </>)}
             
             {/* Work Orders Section */}
             <div style={{ marginTop: '20px' }}>
@@ -1810,6 +1832,7 @@ const Step2 = ({
                                 if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
                                   e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                 }
+                                
                               }}
                               onBlur={(e) => e.target.style.boxShadow = ''}
                               placeholder="%AGE"
