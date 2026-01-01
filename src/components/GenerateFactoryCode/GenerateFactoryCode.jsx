@@ -2683,7 +2683,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                 type="button"
                 onClick={() => setSelectedSku(index)}
                 style={{
-                  padding: '12px 20px',
+                  padding: '10px 14px',
                   borderRadius: '8px',
                   border: selectedSku === index ? '2px solid #667eea' : '1px solid #d1d5db',
                   background: selectedSku === index ? '#eef2ff' : '#ffffff',
@@ -2693,9 +2693,11 @@ const GenerateFactoryCode = ({ onBack }) => {
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  minWidth: '180px',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: 'fit-content',
+                  maxWidth: '240px',
                   boxShadow: selectedSku === index ? '0 2px 8px rgba(102, 126, 234, 0.2)' : 'none'
                 }}
                 onMouseEnter={(e) => {
@@ -2711,32 +2713,73 @@ const GenerateFactoryCode = ({ onBack }) => {
                   }
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
-                  {selectedSku === index && (
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <circle cx="8" cy="8" r="6" fill="#667eea" />
-                      <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                {/* Product Image */}
+                <div style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  border: '1px solid #e5e7eb',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#f9fafb'
+                }}>
+                  {skuItem.imagePreview ? (
+                    <img
+                      src={skuItem.imagePreview}
+                      alt={`SKU ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  ) : (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
                     </svg>
                   )}
-                  <span style={{ fontWeight: '600' }}>SKU #{index + 1}</span>
                 </div>
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: selectedSku === index ? '#6366f1' : '#6b7280',
-                  marginTop: '4px',
-                  textAlign: 'left',
-                  width: '100%'
-                }}>
-                  {skuItem.sku || 'No SKU code'}
-                </div>
-                <div style={{ 
-                  fontSize: '11px', 
-                  color: '#9ca3af',
-                  marginTop: '2px',
-                  textAlign: 'left',
-                  width: '100%'
-                }}>
-                  {skuItem.product || 'No product'}
+
+                {/* SKU Details */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                    {selectedSku === index && (
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="6" fill="#667eea" />
+                        <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                    <span style={{ fontWeight: '600' }}>SKU #{index + 1}</span>
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: selectedSku === index ? '#6366f1' : '#6b7280',
+                    marginTop: '4px',
+                    textAlign: 'left',
+                    width: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {skuItem.sku || 'No SKU code'}
+                  </div>
+                  <div style={{ 
+                    fontSize: '11px', 
+                    color: '#9ca3af',
+                    marginTop: '2px',
+                    textAlign: 'left',
+                    width: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {skuItem.product || 'No product'}
+                  </div>
                 </div>
               </button>
             ))}
