@@ -14,15 +14,17 @@ const GenerateFactoryCode = ({ onBack }) => {
   const scrollContainerRef = useRef(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
-    // Step 0 - Single product
-    sku: '',
-    image: null,
-    imagePreview: null,
-    itemNo: '',
-    product: '',
-    poQty: '',
-    overagePercentage: '',
-    deliveryDueDate: '',
+    // Step 0 - Multiple SKUs
+    buyerCode: '',
+    skus: [{
+      sku: '',
+      product: '',
+      poQty: '',
+      overagePercentage: '',
+      deliveryDueDate: '',
+      image: null,
+      imagePreview: null,
+    }],
     // Step 1 - Multiple products, each with multiple components/materials with cut & sew specs
     products: [{
       name: '',
@@ -261,6 +263,66 @@ const GenerateFactoryCode = ({ onBack }) => {
     }
   };
 
+  // SKU handlers
+  const handleSkuChange = (skuIndex, field, value) => {
+    setFormData(prev => {
+      const updatedSkus = [...prev.skus];
+      updatedSkus[skuIndex] = {
+        ...updatedSkus[skuIndex],
+        [field]: value
+      };
+      return {
+        ...prev,
+        skus: updatedSkus
+      };
+    });
+  };
+
+  const handleSkuImageChange = (skuIndex, file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => {
+          const updatedSkus = [...prev.skus];
+          updatedSkus[skuIndex] = {
+            ...updatedSkus[skuIndex],
+            image: file,
+            imagePreview: reader.result
+          };
+          return {
+            ...prev,
+            skus: updatedSkus
+          };
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const addSku = () => {
+    setFormData(prev => ({
+      ...prev,
+      skus: [...prev.skus, {
+        sku: '',
+        product: '',
+        poQty: '',
+        overagePercentage: '',
+        deliveryDueDate: '',
+        image: null,
+        imagePreview: null,
+      }]
+    }));
+  };
+
+  const removeSku = (skuIndex) => {
+    if (formData.skus.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        skus: prev.skus.filter((_, index) => index !== skuIndex)
+      }));
+    }
+  };
+
   // Helpers to decide if a row has any user input (for optional navigation)
   const isRawMaterialFilled = (material = {}) => {
     const hasWorkOrderSelection = material.workOrders?.some(wo => wo?.workOrder?.trim());
@@ -287,24 +349,27 @@ const GenerateFactoryCode = ({ onBack }) => {
   const validateStep0 = () => {
     const newErrors = {};
     
-    if (!formData.sku?.trim()) {
-      newErrors.sku = 'SKU / Item No. is required';
-    }
-    if (!formData.image) {
-      newErrors.image = 'Image is required';
-    }
-    if (!formData.product?.trim()) {
-      newErrors.product = 'Product is required';
-    }
-    if (!formData.poQty) {
-      newErrors.poQty = 'PO Qty is required';
-    }
-    if (!formData.overagePercentage?.trim()) {
-      newErrors.overagePercentage = 'Overage % is required';
-    }
-    if (!formData.deliveryDueDate) {
-      newErrors.deliveryDueDate = 'Delivery Due Date is required';
-    }
+    // Validate each SKU
+    formData.skus.forEach((sku, index) => {
+      if (!sku.sku?.trim()) {
+        newErrors[`sku_${index}`] = 'SKU / Item No. is required';
+      }
+      if (!sku.image) {
+        newErrors[`image_${index}`] = 'Image is required';
+      }
+      if (!sku.product?.trim()) {
+        newErrors[`product_${index}`] = 'Product is required';
+      }
+      if (!sku.poQty) {
+        newErrors[`poQty_${index}`] = 'PO Qty is required';
+      }
+      if (!sku.overagePercentage?.trim()) {
+        newErrors[`overagePercentage_${index}`] = 'Overage % is required';
+      }
+      if (!sku.deliveryDueDate) {
+        newErrors[`deliveryDueDate_${index}`] = 'Delivery Due Date is required';
+      }
+    });
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -1936,7 +2001,17 @@ const GenerateFactoryCode = ({ onBack }) => {
     try {
       switch (currentStep) {
         case 0:
-          return <Step0 formData={formData} errors={errors} handleInputChange={handleInputChange} />;
+          return (
+            <Step0 
+              formData={formData} 
+              errors={errors} 
+              handleInputChange={handleInputChange}
+              handleSkuChange={handleSkuChange}
+              handleSkuImageChange={handleSkuImageChange}
+              addSku={addSku}
+              removeSku={removeSku}
+            />
+          );
         case 1:
           return (
             <Step1
