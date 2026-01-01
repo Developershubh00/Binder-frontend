@@ -1210,19 +1210,15 @@ const Step2 = ({
                       {workOrder.workOrder === 'CUTTING' && (
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={workOrder.cuttingType || ''}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'cuttingType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'cuttingType', selectedValue)}
+                            options={['SCISSOR', 'STRAIGHT KNIFE', 'ROUND KNIFE', 'BAND KNIFE', 'DIE CUTTER', 'CNC CUTTER', 'LASER', 'WATERJET', 'ULTRASONIC', 'ROTARY HAND', 'OTHERS']}
+                            placeholder="Select or type Type"
+                            style={{ width: '160px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                            <option value="">Select Type</option>
-                            {['SCISSOR', 'STRAIGHT KNIFE', 'ROUND KNIFE', 'BAND KNIFE', 'DIE CUTTER', 'CNC CUTTER', 'LASER', 'WATERJET', 'ULTRASONIC', 'ROTARY HAND', 'OTHERS'].map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                         </div>
                       )}
 
@@ -1230,23 +1226,24 @@ const Step2 = ({
                       {(['WEAVING', 'TUFTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET', 'CUTTING'].includes(workOrder.workOrder)) && (
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">MACHINE TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={workOrder.machineType || ''}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'machineType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', width: '160px', height: '44px' }}
+                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'machineType', selectedValue)}
+                            options={
+                              workOrder.workOrder === 'WEAVING' ? getAllWeavingMachineTypes() :
+                              workOrder.workOrder === 'TUFTING' ? getAllTuftingMachineTypes() :
+                              workOrder.workOrder === 'KNITTING' ? getAllKnittingMachineTypes() :
+                              workOrder.workOrder === 'EMBROIDERY' ? getAllEmbroideryMachineTypes() :
+                              workOrder.workOrder === 'BRAIDING' ? ['HAND BRAID', 'MACHINE BRAID', 'ROPE MACHINE', 'OTHERS'] :
+                              workOrder.workOrder === 'CARPET' ? ['HAND KNOTTED', 'HAND TUFTED', 'FLATWEAVE', 'WILTON', 'AXMINSTER', 'MACHINE MADE- WAN DE VEILE', 'BROADLOOM', 'WALL 2 WALL', 'NEEDLE PUNCH', 'OTHERS'] :
+                              workOrder.workOrder === 'CUTTING' ? ['SCISSOR', 'STRAIGHT KNIFE', 'ROUND KNIFE', 'BAND KNIFE', 'DIE CUTTER', 'CNC CUTTER', 'LASER', 'WATERJET', 'ULTRASONIC', 'ROTARY HAND', 'OTHERS'] :
+                              []
+                            }
+                            placeholder="Select or type Machine Type"
+                            style={{ width: '160px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                            <option value="">Select</option>
-                            {workOrder.workOrder === 'WEAVING' && getAllWeavingMachineTypes().map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                            {workOrder.workOrder === 'TUFTING' && getAllTuftingMachineTypes().map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                            {workOrder.workOrder === 'KNITTING' && getAllKnittingMachineTypes().map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                            {workOrder.workOrder === 'EMBROIDERY' && getAllEmbroideryMachineTypes().map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                            {workOrder.workOrder === 'BRAIDING' && ['HAND BRAID', 'MACHINE BRAID', 'ROPE MACHINE', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                            {workOrder.workOrder === 'CARPET' && ['HAND KNOTTED', 'HAND TUFTED', 'FLATWEAVE', 'WILTON', 'AXMINSTER', 'MACHINE MADE- WAN DE VEILE', 'BROADLOOM', 'WALL 2 WALL', 'NEEDLE PUNCH', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                            {workOrder.workOrder === 'CUTTING' && ['SCISSOR', 'STRAIGHT KNIFE', 'ROUND KNIFE', 'BAND KNIFE', 'DIE CUTTER', 'CNC CUTTER', 'LASER', 'WATERJET', 'ULTRASONIC', 'ROTARY HAND', 'OTHERS'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                          </select>
+                          />
                         </div>
                       )}
 
@@ -1310,19 +1307,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={BRAIDING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Approval</option>
-                              {BRAIDING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                          </select>
+                            />
                         </div>
 
                           {/* DESIGN REF (Upload) */}
@@ -1491,17 +1484,15 @@ const Step2 = ({
                           {/* QUILTING TYPE */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">QUILTING TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={workOrder.quiltingType || ''}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'quiltingType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'quiltingType', selectedValue)}
+                            options={getAllQuiltingTypes()}
+                            placeholder="Select or type Quilting Type"
+                            style={{ width: '200px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                              <option value="">Select Quilting Type</option>
-                              {getAllQuiltingTypes().map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                          </select>
+                          />
                         </div>
 
                           {/* DESIGN REF (Upload) */}
@@ -1602,19 +1593,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={QUILTING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Approval</option>
-                              {QUILTING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                            />
                           </div>
 
                           {/* REMARKS */}
@@ -1640,17 +1627,15 @@ const Step2 = ({
                           {/* PRINTING TYPE */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={workOrder.printingType || ''}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'printingType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'printingType', selectedValue)}
+                            options={getAllPrintingTypes()}
+                            placeholder="Select or type Printing Type"
+                            style={{ width: '200px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                              <option value="">Select Printing Type</option>
-                              {getAllPrintingTypes().map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                          </select>
+                          />
                         </div>
 
                           {/* DESIGN REF (Upload) */}
@@ -1729,19 +1714,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                          <select
+                          <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={PRINTING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                              <option value="">Select Approval</option>
-                              {PRINTING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                          </select>
+                          />
                         </div>
 
                           {/* REMARKS */}
@@ -1789,19 +1770,15 @@ const Step2 = ({
                                 </span>
                               )}
                             </label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.threadType || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'threadType', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '220px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'threadType', selectedValue)}
+                              options={SEWING_THREAD_TYPE_OPTIONS}
+                              placeholder="Select or type Thread Type"
+                              style={{ width: '220px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Thread Type</option>
-                              {SEWING_THREAD_TYPE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                            />
                           </div>
 
                           {/* WASTAGE % */}
@@ -1836,19 +1813,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                          <select
+                          <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={SEWING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                              <option value="">Select Approval</option>
-                              {SEWING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                          </select>
+                          />
                         </div>
 
                           {/* REMARKS */}
@@ -1876,30 +1849,26 @@ const Step2 = ({
                           {/* DYEING TYPE */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">DYEING TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={workOrder.dyeingType || ''}
-                              onChange={(e) => {
-                                const selectedType = e.target.value;
-                                handleWorkOrderChange(materialIndex, woIndex, 'dyeingType', selectedType);
-                                // Clear COLOR REF and REFERENCE TYPE when dyeing type changes
-                                if (!selectedType) {
-                                  handleWorkOrderChange(materialIndex, woIndex, 'colorRef', '');
-                                  handleWorkOrderChange(materialIndex, woIndex, 'referenceType', '');
-                                } else {
-                                  handleWorkOrderChange(materialIndex, woIndex, 'colorRef', '');
-                                  handleWorkOrderChange(materialIndex, woIndex, 'referenceType', '');
-                                }
-                              }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                            onChange={(selectedValue) => {
+                              const selectedType = selectedValue;
+                              handleWorkOrderChange(materialIndex, woIndex, 'dyeingType', selectedType);
+                              // Clear COLOR REF and REFERENCE TYPE when dyeing type changes
+                              if (!selectedType) {
+                                handleWorkOrderChange(materialIndex, woIndex, 'colorRef', '');
+                                handleWorkOrderChange(materialIndex, woIndex, 'referenceType', '');
+                              } else {
+                                handleWorkOrderChange(materialIndex, woIndex, 'colorRef', '');
+                                handleWorkOrderChange(materialIndex, woIndex, 'referenceType', '');
+                              }
+                            }}
+                            options={getAllDyeingTypes()}
+                            placeholder="Select or type Dyeing Type"
+                            style={{ width: '200px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                              <option value="">Select Dyeing Type</option>
-                              {getAllDyeingTypes().map(type => (
-                                <option key={type} value={type}>{type}</option>
-                              ))}
-                          </select>
+                          />
                         </div>
 
                           {/* COLOR REF */}
@@ -2000,19 +1969,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                         <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                          <select
+                          <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={DYEING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                              <option value="">Select Approval</option>
-                              {DYEING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                          </select>
+                          />
                         </div>
                       
                           {/* REMARKS */}
@@ -2229,19 +2194,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                                 <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={WEAVING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Approval</option>
-                              {WEAVING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                            />
                           </div>
 
                           {/* REMARKS */}
@@ -2364,19 +2325,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                             <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={TUFTING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Approval</option>
-                              {TUFTING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                            />
                           </div>
 
                           {/* REMARKS */}
@@ -2480,19 +2437,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                                 <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={CARPET_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Approval</option>
-                              {CARPET_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                            />
                           </div>
 
                           {/* DESIGN REF (Upload) */}
@@ -2652,19 +2605,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={CUTTING_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Approval</option>
-                              {CUTTING_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                            />
                           </div>
 
                           {/* REMARKS */}
@@ -2827,19 +2776,15 @@ const Step2 = ({
                           {/* APPROVAL */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                            <select
+                            <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'approval', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              options={EMBROIDERY_APPROVAL_OPTIONS}
+                              placeholder="Select or type Approval"
+                              style={{ width: '200px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                               onBlur={(e) => e.target.style.boxShadow = ''}
-                            >
-                              <option value="">Select Approval</option>
-                              {EMBROIDERY_APPROVAL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                            />
                           </div>
 
                           {/* REMARKS */}
@@ -3393,10 +3338,10 @@ const Step2 = ({
                                   <label className="text-sm font-semibold text-gray-700 mb-2">
                                     MACHINE TYPE
                                   </label>
-                            <select
+                            <SearchableDropdown
                                     value={workOrder.sewingMachineType || ''}
-                                    onChange={(e) => {
-                                      const selectedType = e.target.value;
+                                    onChange={(selectedValue) => {
+                                      const selectedType = selectedValue;
                                       handleWorkOrderChange(materialIndex, woIndex, 'sewingMachineType', selectedType);
                                       // Auto-populate STITCH TYPE when machine type changes
                                       if (selectedType) {
@@ -3404,20 +3349,15 @@ const Step2 = ({
                                         handleWorkOrderChange(materialIndex, woIndex, 'threadType', getSewingThreadType(selectedType));
                                       }
                                     }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                    style={{ padding: '10px 14px', height: '44px' }}
+                                    options={getAllSewingMachineTypes()}
+                                    placeholder="Select or type Machine Type"
                                     onFocus={(e) => {
                                       e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                     }}
                                     onBlur={(e) => {
                                       e.target.style.boxShadow = '';
                                     }}
-                                  >
-                                    <option value="">Select Machine Type</option>
-                                    {getAllSewingMachineTypes().map(opt => (
-                                      <option key={opt} value={opt}>{opt}</option>
-                                    ))}
-                            </select>
+                                  />
                           </div>
                                 
                                 {/* STITCH TYPE */}
