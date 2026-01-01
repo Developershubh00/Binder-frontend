@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TEXTILE_FIBER_DATA from './data/textileFiberData';
 import { getFiberTypes, getYarnTypes, getSpinningMethod, getYarnDetails } from './utils/yarnHelpers';
 import { initializeRawMaterials, initializeConsumptionMaterials } from './utils/initializers';
@@ -11,6 +11,7 @@ import Step4 from './components/steps/Step4';
 import Step5 from './components/steps/Step5';
 
 const GenerateFactoryCode = ({ onBack }) => {
+  const scrollContainerRef = useRef(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     // Step 0 - Single product
@@ -1906,12 +1907,24 @@ const GenerateFactoryCode = ({ onBack }) => {
     
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
+      // Scroll to top after step change
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top after step change
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
@@ -2009,7 +2022,7 @@ const GenerateFactoryCode = ({ onBack }) => {
   };
 
   return (
-    <div className="w-full h-full bg-white rounded-xl shadow-sm overflow-y-auto" style={{ padding: '40px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
+    <div ref={scrollContainerRef} className="w-full h-full bg-white rounded-xl shadow-sm overflow-y-auto" style={{ padding: '40px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
       <div style={{ marginBottom: '40px' }}>
         <button 
           className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
@@ -2073,6 +2086,12 @@ const GenerateFactoryCode = ({ onBack }) => {
                 onClick={() => {
                   // Allow direct navigation for testing - bypass validation
                   setCurrentStep(i);
+                  // Scroll to top after step change
+                  setTimeout(() => {
+                    if (scrollContainerRef.current) {
+                      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }, 100);
                 }}
                 title={`Go to ${stepLabels[i]}`}
               >
