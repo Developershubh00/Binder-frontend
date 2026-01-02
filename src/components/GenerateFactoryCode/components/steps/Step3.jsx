@@ -2357,7 +2357,7 @@ const Step3 = ({
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS (MULTISELECT)</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
                           <SearchableDropdown
                             value={material.bucklesTestingRequirements || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'bucklesTestingRequirements', selectedValue)}
@@ -3257,7 +3257,7 @@ const Step3 = ({
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS (MULTISELECT)</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
                           <SearchableDropdown
                             value={material.cableTieTestingRequirements || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieTestingRequirements', selectedValue)}
