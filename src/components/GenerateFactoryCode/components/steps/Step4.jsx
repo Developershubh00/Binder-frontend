@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import SearchableDropdown from '../SearchableDropdown';
 import {
   ANTI_COUNTERFEIT_TYPES,
   ANTI_COUNTERFEIT_MATERIALS,
@@ -346,15 +347,15 @@ const Step4 = ({
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                     UNIT <span className="text-red-600">*</span>
                   </label>
-                  <select
-                    value={material.unit}
-                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'unit', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`artworkMaterial_${materialIndex}_unit`] 
-                        ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                    }`}
-                    style={{ padding: '10px 14px', width: '130px', height: '44px' }}
+                  <SearchableDropdown
+                    value={material.unit || ''}
+                    onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'unit', selectedValue)}
+                    options={['R METERS', 'CM', 'Inches', 'Meter', 'KGS']}
+                    placeholder="Select or type Unit"
+                    className={errors[`artworkMaterial_${materialIndex}_unit`] 
+                      ? 'border-red-600' 
+                      : ''}
+                    style={{ width: '130px' }}
                     onFocus={(e) => {
                       if (!errors[`artworkMaterial_${materialIndex}_unit`]) {
                         e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
@@ -363,15 +364,7 @@ const Step4 = ({
                     onBlur={(e) => {
                       e.target.style.boxShadow = '';
                     }}
-                    required
-                  >
-                    <option value="">Select</option>
-                    <option value="R METERS">R METERS</option>
-                    <option value="CM">CM</option>
-                    <option value="Inches">Inches</option>
-                    <option value="Meter">Meter</option>
-                    <option value="KGS">KGS</option>
-                  </select>
+                  />
                   {errors[`artworkMaterial_${materialIndex}_unit`] && (
                     <span className="text-red-600 text-xs mt-1 font-medium">
                       {errors[`artworkMaterial_${materialIndex}_unit`]}
@@ -419,32 +412,23 @@ const Step4 = ({
                       <label className="text-sm font-semibold text-gray-700 mb-2">
                       WORK ORDER <span className="text-red-600">*</span>
                       </label>
-                    <select
-                      value={material.workOrder}
-                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'workOrder', e.target.value)}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                        errors[`artworkMaterial_${materialIndex}_workOrder`] 
-                            ? 'border-red-600' 
-                            : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                        }`}
-                        style={{ padding: '12px 16px' }}
-                        onFocus={(e) => {
+                    <SearchableDropdown
+                      value={material.workOrder || ''}
+                      onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'workOrder', selectedValue)}
+                      options={['Sewing', 'DYEING', 'WEAVING', 'PRINTING', 'CUTTING']}
+                      placeholder="Select or type Work Order"
+                      className={errors[`artworkMaterial_${materialIndex}_workOrder`] 
+                        ? 'border-red-600' 
+                        : ''}
+                      onFocus={(e) => {
                         if (!errors[`artworkMaterial_${materialIndex}_workOrder`]) {
-                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                          }
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.boxShadow = '';
-                        }}
-                        required
-                    >
-                      <option value="">Select Work Order</option>
-                      <option value="Sewing">Sewing</option>
-                      <option value="DYEING">DYEING</option>
-                      <option value="WEAVING">WEAVING</option>
-                      <option value="PRINTING">PRINTING</option>
-                      <option value="CUTTING">CUTTING</option>
-                    </select>
+                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.boxShadow = '';
+                      }}
+                    />
                     {errors[`artworkMaterial_${materialIndex}_workOrder`] && (
                         <span className="text-red-600 text-xs mt-1 font-medium">
                         {errors[`artworkMaterial_${materialIndex}_workOrder`]}
@@ -496,18 +480,13 @@ const Step4 = ({
                   
                   <div className="flex flex-col">
                     <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
-                    <select
+                    <SearchableDropdown
                       value={material.sizeUnit || ''}
-                      onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeUnit', e.target.value)}
-                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                      style={{ padding: '10px 14px', width: '130px', height: '44px' }}
-                    >
-                      <option value="">Select</option>
-                      <option value="CMS">CMS</option>
-                      <option value="INCHES">INCHES</option>
-                      <option value="MM">MM</option>
-                      <option value="CM">CM</option>
-                    </select>
+                      onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'sizeUnit', selectedValue)}
+                      options={['CMS', 'INCHES', 'MM', 'CM']}
+                      placeholder="Select or type Unit"
+                      style={{ width: '130px' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -516,65 +495,44 @@ const Step4 = ({
               <div className="w-full" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
                 <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
                   <label className="text-sm font-bold text-gray-800 mb-2">ARTWORK CATEGORY</label>
-                  <select
-                    value={material.artworkCategory}
-                    onChange={(e) => handleArtworkMaterialChange(materialIndex, 'artworkCategory', e.target.value)}
-                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                    style={{ padding: '10px 14px', height: '44px' }}
+                  <SearchableDropdown
+                    value={material.artworkCategory || ''}
+                    onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'artworkCategory', selectedValue)}
+                    options={['LABELS (BRAND/MAIN)', 'CARE & COMPOSITION', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'INSERT CARDS', 'RIBBONS']}
+                    placeholder="Select or type Category"
+                    style={{ width: '280px' }}
                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                     onBlur={(e) => e.target.style.boxShadow = ''}
-                  >
-                    <option value="">Select Category</option>
-                    <option value="LABELS (BRAND/MAIN)">LABELS (BRAND/MAIN)</option>
-                    <option value="CARE & COMPOSITION">CARE & COMPOSITION</option>
-                    <option value="TAGS & SPECIAL LABELS">TAGS & SPECIAL LABELS</option>
-                    <option value="FLAMMABILITY / SAFETY LABELS">FLAMMABILITY / SAFETY LABELS</option>
-                    <option value="RFID / SECURITY TAGS">RFID / SECURITY TAGS</option>
-                    <option value="LAW LABEL / CONTENTS TAG">LAW LABEL / CONTENTS TAG</option>
-                    <option value="HANG TAG SEALS / STRINGS">HANG TAG SEALS / STRINGS</option>
-                    <option value="PRICE TICKET / BARCODE TAG">PRICE TICKET / BARCODE TAG</option>
-                    <option value="HEAT TRANSFER LABELS">HEAT TRANSFER LABELS</option>
-                    <option value="UPC LABEL / BARCODE STICKER">UPC LABEL / BARCODE STICKER</option>
-                    <option value="SIZE LABELS (INDIVIDUAL)">SIZE LABELS (INDIVIDUAL)</option>
-                    <option value="ANTI-COUNTERFEIT & HOLOGRAMS">ANTI-COUNTERFEIT & HOLOGRAMS</option>
-                    <option value="QC / INSPECTION LABELS">QC / INSPECTION LABELS</option>
-                    <option value="BELLY BAND / WRAPPER">BELLY BAND / WRAPPER</option>
-                    <option value="TYVEK LABELS">TYVEK LABELS</option>
-                    <option value="TAFFETA LABELS">TAFFETA LABELS</option>
-                    <option value="INSERT CARDS">INSERT CARDS</option>
-                    <option value="RIBBONS">RIBBONS</option>
-                  </select>
+                  />
                 </div>
 
                 {material.artworkCategory && (
                   <>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
                     {/* TYPE Field */}
-                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                      <select
-                        value={material.specificType}
-                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'specificType', e.target.value)}
-                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                        style={{ padding: '10px 14px', height: '44px' }}
-                      >
-                        <option value="">Select</option>
-                          {material.artworkCategory === 'LABELS (BRAND/MAIN)' && ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather', 'Metal'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'CARE & COMPOSITION' && ['Woven', 'Printed', 'Heat Transfer'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' && ['Permanent Sew-in Label', 'Removable Hang Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'PRICE TICKET / BARCODE TAG' && ['Adhesive Sticker', 'Printed Area', 'Dedicated Small Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' && ['Hologram Sticker', 'Void/Tamper-Evident Label', 'Authenticity Patch', 'Invisible Ink Print'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'QC / INSPECTION LABELS' && ['Passed/Inspected Sticker', 'Hold/Defective Sticker', 'Audit Sample Tag'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'BELLY BAND / WRAPPER' && ['Cardboard Sleeve', 'Printed Paper Band', 'Plastic Film Wrapper'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'TYVEK LABELS' && ['Law Label', 'Shipping Tag', 'Permanent Industrial/Outdoor Care Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        {material.artworkCategory === 'TAFFETA LABELS' && ['Printed Care Label', 'Composition Label', 'Temporary Size Label'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                      </select>
+                      <SearchableDropdown
+                        value={material.specificType || ''}
+                        onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'specificType', selectedValue)}
+                        options={
+                          material.artworkCategory === 'LABELS (BRAND/MAIN)' ? ['Woven (Damask, Taffeta, Satin)', 'Printed (Satin, Cotton)', 'Heat Transfer', 'Leather', 'Metal'] :
+                          material.artworkCategory === 'CARE & COMPOSITION' ? ['Woven', 'Printed', 'Heat Transfer'] :
+                          material.artworkCategory === 'FLAMMABILITY / SAFETY LABELS' ? ['Permanent Sew-in Label', 'Removable Hang Tag'] :
+                          material.artworkCategory === 'PRICE TICKET / BARCODE TAG' ? ['Adhesive Sticker', 'Printed Area', 'Dedicated Small Tag'] :
+                          material.artworkCategory === 'ANTI-COUNTERFEIT & HOLOGRAMS' ? ['Hologram Sticker', 'Void/Tamper-Evident Label', 'Authenticity Patch', 'Invisible Ink Print'] :
+                          material.artworkCategory === 'QC / INSPECTION LABELS' ? ['Passed/Inspected Sticker', 'Hold/Defective Sticker', 'Audit Sample Tag'] :
+                          material.artworkCategory === 'BELLY BAND / WRAPPER' ? ['Cardboard Sleeve', 'Printed Paper Band', 'Plastic Film Wrapper'] :
+                          []
+                        }
+                        placeholder="Select or type Type"
+                      />
                     </div>
                     )}
 
                     {/* MATERIAL Field */}
-                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'TYVEK LABELS', 'TAFFETA LABELS', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'CARE & COMPOSITION' ? 'FIBER CONTENT' : 'MATERIAL'}
@@ -601,22 +559,17 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={material.labelsBrandType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'labelsBrandType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'labelsBrandTypeText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LABELS_BRAND_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={LABELS_BRAND_TYPES}
+                            placeholder="Select or type Type"
+                          />
                           {material.labelsBrandType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -632,22 +585,17 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                          <SearchableDropdown
                             value={material.labelsBrandMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'labelsBrandMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'labelsBrandMaterialText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LABELS_BRAND_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={LABELS_BRAND_MATERIALS}
+                            placeholder="Select or type Material"
+                          />
                           {material.labelsBrandMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -702,16 +650,13 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
+                                <SearchableDropdown
                                   value={material.labelsBrandSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'labelsBrandSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {LABELS_BRAND_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                  onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'labelsBrandSizeUnit', selectedValue)}
+                                  options={LABELS_BRAND_SIZE_UNITS}
+                                  placeholder="Select or type Unit"
+                                  style={{ width: '120px' }}
+                                />
                               </div>
                             </div>
 
@@ -749,22 +694,17 @@ const Step4 = ({
                         {/* ATTACHMENT - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ATTACHMENT</label>
-                          <select
+                          <SearchableDropdown
                             value={material.labelsBrandAttachment || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'labelsBrandAttachment', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandAttachment', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'labelsBrandAttachmentText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LABELS_BRAND_ATTACHMENT_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={LABELS_BRAND_ATTACHMENT_OPTIONS}
+                            placeholder="Select or type Attachment"
+                          />
                           {material.labelsBrandAttachment === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -780,22 +720,17 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                          <SearchableDropdown
                             value={material.labelsBrandTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'labelsBrandTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'labelsBrandTestingRequirementsText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LABELS_BRAND_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={LABELS_BRAND_TESTING_REQUIREMENTS}
+                            placeholder="Select or type Testing Requirements"
+                          />
                           {material.labelsBrandTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -842,22 +777,17 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                          <SearchableDropdown
                             value={material.labelsBrandApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'labelsBrandApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'labelsBrandApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'labelsBrandApprovalText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LABELS_BRAND_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={LABELS_BRAND_APPROVAL_OPTIONS}
+                            placeholder="Select or type Approval"
+                          />
                           {material.labelsBrandApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -892,22 +822,17 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={material.careCompositionType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'careCompositionType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'careCompositionTypeText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {CARE_COMPOSITION_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={CARE_COMPOSITION_TYPES}
+                            placeholder="Select or type Type"
+                          />
                           {material.careCompositionType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -923,22 +848,17 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                          <SearchableDropdown
                             value={material.careCompositionMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'careCompositionMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'careCompositionMaterialText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {CARE_COMPOSITION_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={CARE_COMPOSITION_MATERIALS}
+                            placeholder="Select or type Material"
+                          />
                           {material.careCompositionMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -998,16 +918,13 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="Length (mm)"
                                 />
-                                <select
+                                <SearchableDropdown
                                   value={material.careCompositionSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'careCompositionSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {CARE_COMPOSITION_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                  onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'careCompositionSizeUnit', selectedValue)}
+                                  options={CARE_COMPOSITION_SIZE_UNITS}
+                                  placeholder="Select or type Unit"
+                                  style={{ width: '120px' }}
+                                />
                               </div>
                             </div>
                           </div>
@@ -1047,24 +964,19 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                          <SearchableDropdown
                             value={material.careCompositionTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'careCompositionTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'careCompositionTestingRequirementsText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
+                            options={CARE_COMPOSITION_TESTING_REQUIREMENTS}
+                            placeholder="Select or type Testing Requirements"
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                            <option value="">Select</option>
-                            {CARE_COMPOSITION_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.careCompositionTestingRequirements === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -1111,22 +1023,17 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                          <SearchableDropdown
                             value={material.careCompositionApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'careCompositionApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'careCompositionApprovalText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {CARE_COMPOSITION_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={CARE_COMPOSITION_APPROVAL_OPTIONS}
+                            placeholder="Select or type Approval"
+                          />
                           {material.careCompositionApproval === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -1162,22 +1069,17 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                          <SearchableDropdown
                             value={material.rfidType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'rfidType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'rfidTypeText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {RFID_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={RFID_TYPES}
+                            placeholder="Select or type Type"
+                          />
                           {material.rfidType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1193,22 +1095,17 @@ const Step4 = ({
                         {/* FORM FACTOR - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FORM FACTOR</label>
-                          <select
+                          <SearchableDropdown
                             value={material.rfidFormFactor || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'rfidFormFactor', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidFormFactor', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'rfidFormFactorText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {RFID_FORM_FACTORS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={RFID_FORM_FACTORS}
+                            placeholder="Select or type Form Factor"
+                          />
                           {material.rfidFormFactor === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1245,22 +1142,17 @@ const Step4 = ({
                         {/* CHIP MODEL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CHIP MODEL</label>
-                          <select
+                          <SearchableDropdown
                             value={material.rfidChipModel || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'rfidChipModel', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidChipModel', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
                                 handleArtworkMaterialChange(materialIndex, 'rfidChipModelText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {RFID_CHIP_MODELS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={RFID_CHIP_MODELS}
+                            placeholder="Select or type Chip Model"
+                          />
                           {material.rfidChipModel === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1294,16 +1186,13 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
+                                <SearchableDropdown
                                   value={material.rfidSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'rfidSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {RFID_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                  onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'rfidSizeUnit', selectedValue)}
+                                  options={RFID_SIZE_UNITS}
+                                  placeholder="Select or type Unit"
+                                  style={{ width: '120px' }}
+                                />
                               </div>
                             </div>
 
@@ -1341,22 +1230,17 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option and Upload */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                          <SearchableDropdown
                             value={material.rfidTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'rfidTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT FIELD)') {
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(materialIndex, 'rfidTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT FIELD)') {
                                 handleArtworkMaterialChange(materialIndex, 'rfidTestingRequirementsText', '');
                               }
                             }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {RFID_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                            options={RFID_TESTING_REQUIREMENTS}
+                            placeholder="Select or type Testing Requirements"
+                          />
                           {material.rfidTestingRequirements === 'OTHERS (TEXT FIELD)' && (
                           <input
                             type="text"
@@ -1459,22 +1343,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.lawLabelType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'lawLabelTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelTypeText', '');
+                              }
                               }
                             }}
+                            options={LAW_LABEL_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LAW_LABEL_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.lawLabelType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1490,22 +1372,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.lawLabelMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'lawLabelMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelMaterialText', '');
+                              }
                               }
                             }}
+                            options={LAW_LABEL_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LAW_LABEL_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.lawLabelMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1560,16 +1440,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.lawLabelSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'lawLabelSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {LAW_LABEL_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.lawLabelSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'lawLabelSizeUnit', selectedValue)}
+                            options={LAW_LABEL_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
 
@@ -1607,22 +1485,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.lawLabelTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={LAW_LABEL_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LAW_LABEL_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.lawLabelTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1669,22 +1545,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.lawLabelApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'lawLabelApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'lawLabelApprovalText', '');
+                              }
                               }
                             }}
+                            options={LAW_LABEL_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {LAW_LABEL_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.lawLabelApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1719,22 +1593,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.hangTagSealsType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsTypeText', '');
+                              }
                               }
                             }}
+                            options={HANG_TAG_SEALS_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HANG_TAG_SEALS_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.hangTagSealsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1750,22 +1622,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.hangTagSealsMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterialText', '');
+                              }
                               }
                             }}
+                            options={HANG_TAG_SEALS_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HANG_TAG_SEALS_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.hangTagSealsMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1825,16 +1695,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.hangTagSealsSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {HANG_TAG_SEALS_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.hangTagSealsSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSizeUnit', selectedValue)}
+                            options={HANG_TAG_SEALS_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
                           </div>
@@ -1874,22 +1742,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.hangTagSealsTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={HANG_TAG_SEALS_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HANG_TAG_SEALS_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.hangTagSealsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -1936,22 +1802,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.hangTagSealsApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsApprovalText', '');
+                              }
                               }
                             }}
+                            options={HANG_TAG_SEALS_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HANG_TAG_SEALS_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.hangTagSealsApproval === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -1986,22 +1850,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.heatTransferType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferTypeText', '');
+                              }
                               }
                             }}
+                            options={HEAT_TRANSFER_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HEAT_TRANSFER_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.heatTransferType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2017,22 +1879,20 @@ const Step4 = ({
                         {/* MATERIAL BASE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL BASE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.heatTransferMaterialBase || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBase', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBaseText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBase', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBaseText', '');
+                              }
                               }
                             }}
+                            options={HEAT_TRANSFER_MATERIAL_BASE_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HEAT_TRANSFER_MATERIAL_BASE_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.heatTransferMaterialBase === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2066,16 +1926,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.heatTransferSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'heatTransferSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {HEAT_TRANSFER_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.heatTransferSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'heatTransferSizeUnit', selectedValue)}
+                            options={HEAT_TRANSFER_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
 
@@ -2113,22 +1971,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.heatTransferTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={HEAT_TRANSFER_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HEAT_TRANSFER_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.heatTransferTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2175,22 +2031,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.heatTransferApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferApprovalText', '');
+                              }
                               }
                             }}
+                            options={HEAT_TRANSFER_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {HEAT_TRANSFER_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.heatTransferApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2218,20 +2072,6 @@ const Step4 = ({
                       </>
                     )}
 
-                    {/* Specific Field for TAFFETA LABELS */}
-                    {material.artworkCategory === 'TAFFETA LABELS' && (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">PRINT QUALITY</label>
-                        <input
-                          type="text"
-                          value={material.printQuality}
-                          onChange={(e) => handleArtworkMaterialChange(materialIndex, 'printQuality', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="High Contrast Printing"
-                        />
-                      </div>
-                    )}
 
                     {/* Specific Fields for UPC LABEL / BARCODE STICKER */}
                     {material.artworkCategory === 'UPC LABEL / BARCODE STICKER' && (
@@ -2240,22 +2080,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.upcBarcodeType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeTypeText', '');
+                              }
                               }
                             }}
+                            options={UPC_BARCODE_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {UPC_BARCODE_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.upcBarcodeType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2271,22 +2109,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.upcBarcodeMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterialText', '');
+                              }
                               }
                             }}
+                            options={UPC_BARCODE_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {UPC_BARCODE_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.upcBarcodeMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2331,17 +2167,14 @@ const Step4 = ({
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="HEIGHT"
                             />
-                            <select
-                              value={material.upcBarcodeSizeUnit || ''}
-                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeUnit', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px', width: '100px' }}
-                            >
-                              <option value="">Unit</option>
-                              {UPC_BARCODE_SIZE_UNITS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.upcBarcodeSizeUnit || ''}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeUnit', selectedValue)}
+                            options={UPC_BARCODE_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '100px' }}
+                          />
                           </div>
                           <div className="flex items-center gap-2">
                             <input
@@ -2387,22 +2220,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQ.</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.upcBarcodeTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={UPC_BARCODE_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {UPC_BARCODE_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.upcBarcodeTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2449,22 +2280,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.upcBarcodeApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeApprovalText', '');
+                              }
                               }
                             }}
+                            options={UPC_BARCODE_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {UPC_BARCODE_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.upcBarcodeApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2499,22 +2328,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.priceTicketType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'priceTicketType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'priceTicketTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketTypeText', '');
+                              }
                               }
                             }}
+                            options={PRICE_TICKET_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {PRICE_TICKET_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.priceTicketType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2530,22 +2357,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.priceTicketMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'priceTicketMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'priceTicketMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketMaterialText', '');
+                              }
                               }
                             }}
+                            options={PRICE_TICKET_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {PRICE_TICKET_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.priceTicketMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2600,16 +2425,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.priceTicketSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'priceTicketSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {PRICE_TICKET_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.priceTicketSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'priceTicketSizeUnit', selectedValue)}
+                            options={PRICE_TICKET_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
 
@@ -2629,22 +2452,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.priceTicketTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={PRICE_TICKET_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {PRICE_TICKET_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.priceTicketTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2691,22 +2512,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.priceTicketApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'priceTicketApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'priceTicketApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'priceTicketApprovalText', '');
+                              }
                               }
                             }}
+                            options={PRICE_TICKET_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {PRICE_TICKET_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.priceTicketApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2742,22 +2561,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.antiCounterfeitType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitTypeText', '');
+                              }
                               }
                             }}
+                            options={ANTI_COUNTERFEIT_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {ANTI_COUNTERFEIT_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.antiCounterfeitType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2773,22 +2590,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.antiCounterfeitMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterialText', '');
+                              }
                               }
                             }}
+                            options={ANTI_COUNTERFEIT_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {ANTI_COUNTERFEIT_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.antiCounterfeitMaterial === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -2848,16 +2663,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.antiCounterfeitSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {ANTI_COUNTERFEIT_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.antiCounterfeitSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSizeUnit', selectedValue)}
+                            options={ANTI_COUNTERFEIT_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
                           </div>
@@ -2869,22 +2682,20 @@ const Step4 = ({
                             {/* SECURITY FEATURE - Dropdown with Others option */}
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SECURITY</label>
-                              <select
-                                value={material.securityFeature || ''}
-                                onChange={(e) => {
-                                  handleArtworkMaterialChange(materialIndex, 'securityFeature', e.target.value);
-                                  if (e.target.value === 'OTHERS (TEXT)') {
-                                    handleArtworkMaterialChange(materialIndex, 'securityFeatureText', '');
-                                  }
-                                }}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                              >
-                                <option value="">Select</option>
-                                {ANTI_COUNTERFEIT_SECURITY_FEATURES.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
+                                                        <SearchableDropdown
+                            value={material.securityFeature || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'securityFeature', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'securityFeatureText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_SECURITY_FEATURES}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                          />
                               {material.securityFeature === 'OTHERS (TEXT)' && (
                                 <input
                                   type="text"
@@ -2900,22 +2711,20 @@ const Step4 = ({
                             {/* HOLOGRAM TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>HOLOGRAM TYPE</label>
-                              <select
-                                value={material.hologramType || ''}
-                                onChange={(e) => {
-                                  handleArtworkMaterialChange(materialIndex, 'hologramType', e.target.value);
-                                  if (e.target.value === 'OTHERS (TEXT)') {
-                                    handleArtworkMaterialChange(materialIndex, 'hologramTypeText', '');
-                                  }
-                                }}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              >
-                                <option value="">Select</option>
-                                {ANTI_COUNTERFEIT_HOLOGRAM_TYPES.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
+                                                        <SearchableDropdown
+                            value={material.hologramType || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hologramType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hologramTypeText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_HOLOGRAM_TYPES}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                          />
                               {material.hologramType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2931,22 +2740,20 @@ const Step4 = ({
                             {/* NUMBERING - Dropdown with Others option */}
                         <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>NUMBERING</label>
-                              <select
-                                value={material.numbering || ''}
-                                onChange={(e) => {
-                                  handleArtworkMaterialChange(materialIndex, 'numbering', e.target.value);
-                                  if (e.target.value === 'OTHERS (TEXT)') {
-                                    handleArtworkMaterialChange(materialIndex, 'numberingText', '');
-                                  }
-                                }}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              >
-                                <option value="">Select</option>
-                                {ANTI_COUNTERFEIT_NUMBERING_OPTIONS.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
+                                                        <SearchableDropdown
+                            value={material.numbering || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'numbering', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'numberingText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_NUMBERING_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                          />
                               {material.numbering === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -2998,19 +2805,15 @@ const Step4 = ({
                             {/* TESTING REQUIREMENTS - Simple Dropdown */}
                             <div className="md:col-span-2 flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                              <select
-                                value={material.testingRequirements || ''}
-                                onChange={(e) => handleArtworkMaterialChange(materialIndex, 'testingRequirements', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                                onBlur={(e) => e.target.style.boxShadow = ''}
-                              >
-                                <option value="">Select</option>
-                                {ANTI_COUNTERFEIT_TESTING_REQUIREMENTS.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
+                                                        <SearchableDropdown
+                            value={material.testingRequirements || ''}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'testingRequirements', selectedValue)}
+                            options={ANTI_COUNTERFEIT_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                            onBlur={(e) => e.target.style.boxShadow = ''}
+                          />
                             </div>
 
                             {/* QTY - Pieces */}
@@ -3047,22 +2850,20 @@ const Step4 = ({
                             {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                              <select
-                                value={material.antiCounterfeitApproval || ''}
-                                onChange={(e) => {
-                                  handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApproval', e.target.value);
-                                  if (e.target.value === 'OTHERS (TEXT)') {
-                                    handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApprovalText', '');
-                                  }
-                                }}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              >
-                                <option value="">Select</option>
-                                {ANTI_COUNTERFEIT_APPROVAL_OPTIONS.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
+                                                        <SearchableDropdown
+                            value={material.antiCounterfeitApproval || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApprovalText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                          />
                               {material.antiCounterfeitApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3100,22 +2901,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.qcInspectionType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'qcInspectionType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'qcInspectionTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionTypeText', '');
+                              }
                               }
                             }}
+                            options={QC_INSPECTION_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {QC_INSPECTION_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.qcInspectionType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3131,22 +2930,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.qcInspectionMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterialText', '');
+                              }
                               }
                             }}
+                            options={QC_INSPECTION_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {QC_INSPECTION_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.qcInspectionMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3201,38 +2998,34 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.qcInspectionSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {QC_INSPECTION_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.qcInspectionSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSizeUnit', selectedValue)}
+                            options={QC_INSPECTION_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
 
                         {/* CONTENT - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CONTENT</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.qcInspectionContent || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'qcInspectionContent', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'qcInspectionContentText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionContent', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionContentText', '');
+                              }
                               }
                             }}
+                            options={QC_INSPECTION_CONTENT}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {QC_INSPECTION_CONTENT.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.qcInspectionContent === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3248,22 +3041,20 @@ const Step4 = ({
                         {/* CODING SYSTEM - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CODING SYSTEM</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.qcInspectionCodingSystem || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystem', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystemText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystem', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystemText', '');
+                              }
                               }
                             }}
+                            options={QC_INSPECTION_CODING_SYSTEM}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {QC_INSPECTION_CODING_SYSTEM.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.qcInspectionCodingSystem === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3279,22 +3070,20 @@ const Step4 = ({
                         {/* GUMMING QUALITY - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>GUMMING QU.</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.qcInspectionGummingQuality || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQuality', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQualityText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQuality', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQualityText', '');
+                              }
                               }
                             }}
+                            options={QC_INSPECTION_GUMMING_QUALITY}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {QC_INSPECTION_GUMMING_QUALITY.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.qcInspectionGummingQuality === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3341,22 +3130,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.qcInspectionTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={QC_INSPECTION_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {QC_INSPECTION_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.qcInspectionTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3403,22 +3190,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.qcInspectionApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'qcInspectionApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'qcInspectionApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qcInspectionApprovalText', '');
+                              }
                               }
                             }}
+                            options={QC_INSPECTION_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {QC_INSPECTION_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.qcInspectionApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3454,22 +3239,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.bellyBandType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'bellyBandType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandTypeText', '');
+                              }
                               }
                             }}
+                            options={BELLY_BAND_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {BELLY_BAND_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.bellyBandType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3485,22 +3268,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.bellyBandMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'bellyBandMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandMaterialText', '');
+                              }
                               }
                             }}
+                            options={BELLY_BAND_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {BELLY_BAND_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.bellyBandMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3560,16 +3341,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.bellyBandSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'bellyBandSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {BELLY_BAND_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.bellyBandSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'bellyBandSizeUnit', selectedValue)}
+                            options={BELLY_BAND_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
                           </div>
@@ -3578,22 +3357,20 @@ const Step4 = ({
                         {/* CLOSURE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CLOSURE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.bellyBandClosure || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'bellyBandClosure', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandClosureText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandClosure', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandClosureText', '');
+                              }
                               }
                             }}
+                            options={BELLY_BAND_CLOSURE_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {BELLY_BAND_CLOSURE_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.bellyBandClosure === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -3609,24 +3386,22 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.bellyBandTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={BELLY_BAND_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
-                          >
-                            <option value="">Select</option>
-                            {BELLY_BAND_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.bellyBandTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3704,22 +3479,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.bellyBandApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'bellyBandApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandApprovalText', '');
+                              }
                               }
                             }}
+                            options={BELLY_BAND_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {BELLY_BAND_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.bellyBandApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3748,149 +3521,6 @@ const Step4 = ({
                       </>
                     )}
 
-                    {/* Specific Fields for TYVEK LABELS */}
-                    {material.artworkCategory === 'TYVEK LABELS' && (
-                      <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
-                            value={material.tyvekType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tyvekType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Law Label, Shipping Tag, Permanent Industrial/Outdoor Care Label"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                          <input
-                            type="text"
-                            value={material.tyvekMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tyvekMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Tyvek, Synthetic Paper, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
-                          <input
-                            type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Care Instructions, Composition, Law Label Info"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">INK TYPE</label>
-                          <input
-                            type="text"
-                            value={material.inkType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'inkType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="e.g., Durable, Solvent-Resistant"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
-                          <input
-                            type="text"
-                            value={material.durability || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Waterproof, Tear-Resistant, UV Resistant"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PERMANENCE</label>
-                          <input
-                            type="text"
-                            value={material.permanence || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'permanence', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Permanent, Temporary"
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {/* Specific Fields for TAFFETA LABELS */}
-                    {material.artworkCategory === 'TAFFETA LABELS' && (
-                      <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                          <input
-                            type="text"
-                            value={material.taffetaType || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'taffetaType', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Printed Care Label, Composition Label, Temporary Size Label"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                          <input
-                            type="text"
-                            value={material.taffetaMaterial || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'taffetaMaterial', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Taffeta, Polyester, Satin, DTM"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
-                          <input
-                            type="text"
-                            value={material.content || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'content', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Care Instructions, Composition, Size Info"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PRINT QUALITY</label>
-                          <input
-                            type="text"
-                            value={material.printQuality || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'printQuality', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="High Contrast Printing"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
-                          <input
-                            type="text"
-                            value={material.durability || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'durability', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Wash Fastness, Fade Resistance"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FINISHING</label>
-                          <input
-                            type="text"
-                            value={material.finishing || ''}
-                            onChange={(e) => handleArtworkMaterialChange(materialIndex, 'finishing', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Matte, Gloss, Lamination"
-                          />
-                        </div>
-                      </>
-                    )}
 
                     {/* Specific Fields for SIZE LABELS (INDIVIDUAL) */}
                     {material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' && (
@@ -3899,22 +3529,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.sizeLabelsType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsTypeText', '');
+                              }
                               }
                             }}
+                            options={SIZE_LABELS_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {SIZE_LABELS_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.sizeLabelsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -3930,22 +3558,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.sizeLabelsMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterialText', '');
+                              }
                               }
                             }}
+                            options={SIZE_LABELS_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {SIZE_LABELS_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.sizeLabelsMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4000,38 +3626,34 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.sizeLabelsSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {SIZE_LABELS_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.sizeLabelsSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeUnit', selectedValue)}
+                            options={SIZE_LABELS_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
 
                         {/* SIZE SYSTEM - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE SYSTEM</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.sizeLabelsSizeSystem || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystem', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystemText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystem', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystemText', '');
+                              }
                               }
                             }}
+                            options={SIZE_LABELS_SIZE_SYSTEM_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {SIZE_LABELS_SIZE_SYSTEM_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.sizeLabelsSizeSystem === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4047,22 +3669,20 @@ const Step4 = ({
                         {/* SIZE / CODE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE / CODE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.sizeLabelsSizeCode || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCode', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCodeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCode', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCodeText', '');
+                              }
                               }
                             }}
+                            options={SIZE_LABELS_SIZE_CODE_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {SIZE_LABELS_SIZE_CODE_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.sizeLabelsSizeCode === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4078,22 +3698,20 @@ const Step4 = ({
                         {/* FOLD TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FOLD TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.sizeLabelsFoldType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldTypeText', '');
+                              }
                               }
                             }}
+                            options={SIZE_LABELS_FOLD_TYPE_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {SIZE_LABELS_FOLD_TYPE_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.sizeLabelsFoldType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4140,22 +3758,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.sizeLabelsTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={SIZE_LABELS_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {SIZE_LABELS_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.sizeLabelsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4202,22 +3818,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.sizeLabelsApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'sizeLabelsApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'sizeLabelsApprovalText', '');
+                              }
                               }
                             }}
+                            options={SIZE_LABELS_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {SIZE_LABELS_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.sizeLabelsApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4252,22 +3866,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.tagsSpecialLabelsType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTypeText', '');
+                              }
                               }
                             }}
+                            options={TAGS_SPECIAL_LABELS_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {TAGS_SPECIAL_LABELS_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.tagsSpecialLabelsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4283,22 +3895,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.tagsSpecialLabelsMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterialText', '');
+                              }
                               }
                             }}
+                            options={TAGS_SPECIAL_LABELS_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {TAGS_SPECIAL_LABELS_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.tagsSpecialLabelsMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4343,39 +3953,34 @@ const Step4 = ({
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="HEIGHT"
                             />
-                            <select
-                              value={material.tagsSpecialLabelsSizeUnit || ''}
-                              onChange={(e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSizeUnit', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px', width: '100px' }}
-                            >
-                              <option value="">Unit</option>
-                              {TAGS_SPECIAL_LABELS_SIZE_UNITS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.tagsSpecialLabelsSizeUnit || ''}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSizeUnit', selectedValue)}
+                            options={TAGS_SPECIAL_LABELS_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '100px' }}
+                          />
                           </div>
                         </div>
 
                         {/* ATTACHMENT - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ATTACHMENT</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.tagsSpecialLabelsAttachment || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachment', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachmentText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachment', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachmentText', '');
+                              }
                               }
                             }}
+                            options={TAGS_SPECIAL_LABELS_ATTACHMENT_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {TAGS_SPECIAL_LABELS_ATTACHMENT_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.tagsSpecialLabelsAttachment === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4391,22 +3996,20 @@ const Step4 = ({
                         {/* FINISHING - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FINISHING</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.tagsSpecialLabelsFinishing || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishing', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishingText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishing', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishingText', '');
+                              }
                               }
                             }}
+                            options={TAGS_SPECIAL_LABELS_FINISHING_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {TAGS_SPECIAL_LABELS_FINISHING_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.tagsSpecialLabelsFinishing === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4492,22 +4095,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option and File Upload */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQ.</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.tagsSpecialLabelsTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={TAGS_SPECIAL_LABELS_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {TAGS_SPECIAL_LABELS_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.tagsSpecialLabelsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4529,22 +4130,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.tagsSpecialLabelsApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApprovalText', '');
+                              }
                               }
                             }}
+                            options={TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.tagsSpecialLabelsApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4579,13 +4178,11 @@ const Step4 = ({
                     )}
 
                     {/* SIZE / DIMENSIONS Field */}
-                    {(['TYVEK LABELS', 'TAFFETA LABELS'].includes(material.artworkCategory)) && (
+                    {false && (
                       <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'LABELS (BRAND/MAIN)' ? 'SIZE / ARTWORK ID' :
                            material.artworkCategory === 'SIZE LABELS (INDIVIDUAL)' ? 'SIZE / CODE' : 
-                           material.artworkCategory === 'TYVEK LABELS' ? 'SIZE / FORMAT' : 
-                           material.artworkCategory === 'TAFFETA LABELS' ? 'SIZE / FOLD' :
                            material.artworkCategory === 'LAW LABEL / CONTENTS TAG' ? 'SIZE / COLOUR' :
                            material.artworkCategory === 'PRICE TICKET / BARCODE TAG' ? 'SIZE / DIMENSION' :
                            material.artworkCategory === 'HEAT TRANSFER LABELS' ? 'SIZE / ARTWORK ID' :
@@ -4627,22 +4224,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.flammabilitySafetyType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTypeText', '');
+                              }
                               }
                             }}
+                            options={FLAMMABILITY_SAFETY_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {FLAMMABILITY_SAFETY_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.flammabilitySafetyType === 'OTHERS (TEXT)' && (
                   <input
                     type="text"
@@ -4658,22 +4253,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.flammabilitySafetyMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterialText', '');
+                              }
                               }
                             }}
+                            options={FLAMMABILITY_SAFETY_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {FLAMMABILITY_SAFETY_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.flammabilitySafetyMaterial === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -4733,16 +4326,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.flammabilitySafetySizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {FLAMMABILITY_SAFETY_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.flammabilitySafetySizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySizeUnit', selectedValue)}
+                            options={FLAMMABILITY_SAFETY_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
                           </div>
@@ -4782,22 +4373,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.flammabilitySafetyTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.flammabilitySafetyTestingRequirements === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -4844,22 +4433,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.flammabilitySafetyApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApprovalText', '');
+                              }
                               }
                             }}
+                            options={FLAMMABILITY_SAFETY_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {FLAMMABILITY_SAFETY_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.flammabilitySafetyApproval === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
@@ -4890,10 +4477,10 @@ const Step4 = ({
                 
 
                     {/* PERMANENCE / DURABILITY Field - Excluded for CARE & COMPOSITION (has its own in Advanced Filter) */}
-                    {(['TYVEK LABELS', 'TAFFETA LABELS', 'BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
+                    {(['BELLY BAND / WRAPPER'].includes(material.artworkCategory)) && (
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
-                          {material.artworkCategory === 'BELLY BAND / WRAPPER' || material.artworkCategory === 'TYVEK LABELS' || material.artworkCategory === 'TAFFETA LABELS' ? 'DURABILITY' : 'PERMANENCE'}
+                          {material.artworkCategory === 'BELLY BAND / WRAPPER' ? 'DURABILITY' : 'PERMANENCE'}
                         </label>
                         <input
                           type="text"
@@ -4932,22 +4519,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.insertCardsType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'insertCardsType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsTypeText', '');
+                              }
                               }
                             }}
+                            options={INSERT_CARDS_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {INSERT_CARDS_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.insertCardsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -4963,22 +4548,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.insertCardsMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'insertCardsMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsMaterialText', '');
+                              }
                               }
                             }}
+                            options={INSERT_CARDS_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {INSERT_CARDS_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.insertCardsMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -5025,16 +4608,14 @@ const Step4 = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <select
-                                  value={material.insertCardsSizeUnit || 'MM'}
-                                  onChange={(e) => handleArtworkMaterialChange(materialIndex, 'insertCardsSizeUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  {INSERT_CARDS_SIZE_UNITS.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
-                                </select>
+                                                          <SearchableDropdown
+                            value={material.insertCardsSizeUnit || 'MM'}
+                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'insertCardsSizeUnit', selectedValue)}
+                            options={INSERT_CARDS_SIZE_UNITS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ width: '120px' }}
+                          />
                               </div>
                             </div>
 
@@ -5072,22 +4653,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Simple Dropdown */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.insertCardsTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={INSERT_CARDS_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {INSERT_CARDS_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.insertCardsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -5134,22 +4713,20 @@ const Step4 = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.insertCardsApproval || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'insertCardsApproval', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsApprovalText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsApprovalText', '');
+                              }
                               }
                             }}
+                            options={INSERT_CARDS_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {INSERT_CARDS_APPROVAL_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.insertCardsApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -5184,22 +4761,20 @@ const Step4 = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.ribbonsType || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'ribbonsType', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'ribbonsTypeText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsTypeText', '');
+                              }
                               }
                             }}
+                            options={RIBBONS_TYPES}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {RIBBONS_TYPES.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.ribbonsType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -5215,22 +4790,20 @@ const Step4 = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.ribbonsMaterial || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'ribbonsMaterial', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'ribbonsMaterialText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsMaterialText', '');
+                              }
                               }
                             }}
+                            options={RIBBONS_MATERIALS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {RIBBONS_MATERIALS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.ribbonsMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -5293,22 +4866,20 @@ const Step4 = ({
                         {/* TESTING REQUIREMENTS - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
-                          <select
+                                                    <SearchableDropdown
                             value={material.ribbonsTestingRequirements || ''}
-                            onChange={(e) => {
-                              handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirements', e.target.value);
-                              if (e.target.value === 'OTHERS (TEXT)') {
-                                handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirementsText', '');
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirementsText', '');
+                              }
                               }
                             }}
+                            options={RIBBONS_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          >
-                            <option value="">Select</option>
-                            {RIBBONS_TESTING_REQUIREMENTS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
+                          />
                           {material.ribbonsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
@@ -5469,19 +5040,13 @@ const Step4 = ({
                     {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                  <select
-                        value={material.approval}
-                        onChange={(e) => handleArtworkMaterialChange(materialIndex, 'approval', e.target.value)}
+                  <SearchableDropdown
+                        value={material.approval || ''}
+                        onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'approval', selectedValue)}
+                        options={["BUYER'S", 'INITIAL', 'IPP', 'PP', 'TOP']}
+                        placeholder="Select or type Approval"
                         className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                        style={{ padding: '10px 14px', height: '44px' }}
-                      >
-                        <option value="">Select</option>
-                        <option value="BUYER'S">BUYER'S</option>
-                        <option value="INITIAL">INITIAL</option>
-                        <option value="IPP">IPP</option>
-                        <option value="PP">PP</option>
-                        <option value="TOP">TOP</option>
-                  </select>
+                      />
                 </div>
                     )}
 
@@ -5547,22 +5112,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FUNCTION
                             </label>
-                            <select
-                              value={material.insertCardsFunction || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsFunction', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'insertCardsFunctionText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {INSERT_CARDS_FUNCTION_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.insertCardsFunction || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsFunction', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsFunctionText', '');
+                              }
+                              }
+                            }}
+                            options={INSERT_CARDS_FUNCTION_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.insertCardsFunction === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5580,22 +5143,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               CONTENT
                             </label>
-                            <select
-                              value={material.insertCardsContent || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsContent', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'insertCardsContentText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {INSERT_CARDS_CONTENT_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.insertCardsContent || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsContent', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsContentText', '');
+                              }
+                              }
+                            }}
+                            options={INSERT_CARDS_CONTENT_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.insertCardsContent === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5613,22 +5174,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRINTING
                             </label>
-                            <select
-                              value={material.insertCardsPrinting || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsPrinting', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'insertCardsPrintingText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {INSERT_CARDS_PRINTING_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.insertCardsPrinting || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsPrinting', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsPrintingText', '');
+                              }
+                              }
+                            }}
+                            options={INSERT_CARDS_PRINTING_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.insertCardsPrinting === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5646,22 +5205,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FINISH
                             </label>
-                            <select
-                              value={material.insertCardsFinish || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsFinish', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'insertCardsFinishText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {INSERT_CARDS_FINISH_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.insertCardsFinish || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsFinish', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsFinishText', '');
+                              }
+                              }
+                            }}
+                            options={INSERT_CARDS_FINISH_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.insertCardsFinish === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5679,22 +5236,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               STIFFNESS
                             </label>
-                            <select
-                              value={material.insertCardsStiffness || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsStiffness', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'insertCardsStiffnessText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {INSERT_CARDS_STIFFNESS_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.insertCardsStiffness || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsStiffness', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsStiffnessText', '');
+                              }
+                              }
+                            }}
+                            options={INSERT_CARDS_STIFFNESS_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.insertCardsStiffness === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5712,22 +5267,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               ACID-FREE
                             </label>
-                            <select
-                              value={material.insertCardsAcidFree || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFree', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFreeText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {INSERT_CARDS_ACID_FREE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.insertCardsAcidFree || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFree', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFreeText', '');
+                              }
+                              }
+                            }}
+                            options={INSERT_CARDS_ACID_FREE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.insertCardsAcidFree === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5745,22 +5298,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               BRANDING
                             </label>
-                            <select
-                              value={material.insertCardsBranding || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'insertCardsBranding', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'insertCardsBrandingText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {INSERT_CARDS_BRANDING_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.insertCardsBranding || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsBranding', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'insertCardsBrandingText', '');
+                              }
+                              }
+                            }}
+                            options={INSERT_CARDS_BRANDING_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.insertCardsBranding === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5822,22 +5373,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               INK TYPE
                             </label>
-                            <select
-                              value={material.heatTransferInkType || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferInkType', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'heatTransferInkTypeText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HEAT_TRANSFER_INK_TYPE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.heatTransferInkType || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferInkType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferInkTypeText', '');
+                              }
+                              }
+                            }}
+                            options={HEAT_TRANSFER_INK_TYPE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.heatTransferInkType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5855,22 +5404,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FABRIC COMPATIBILITY
                             </label>
-                            <select
-                              value={material.heatTransferFabricCompatibility || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibility', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibilityText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.heatTransferFabricCompatibility || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibility', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibilityText', '');
+                              }
+                              }
+                            }}
+                            options={HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.heatTransferFabricCompatibility === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5888,22 +5435,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               APPLICATION SPEC
                             </label>
-                            <select
-                              value={material.heatTransferApplicationSpec || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpec', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpecText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.heatTransferApplicationSpec || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpec', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpecText', '');
+                              }
+                              }
+                            }}
+                            options={HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.heatTransferApplicationSpec === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5921,22 +5466,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PEEL TYPE
                             </label>
-                            <select
-                              value={material.heatTransferPeelType || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferPeelType', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'heatTransferPeelTypeText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HEAT_TRANSFER_PEEL_TYPE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.heatTransferPeelType || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferPeelType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferPeelTypeText', '');
+                              }
+                              }
+                            }}
+                            options={HEAT_TRANSFER_PEEL_TYPE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.heatTransferPeelType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5954,22 +5497,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FINISH / HAND FEEL
                             </label>
-                            <select
-                              value={material.heatTransferFinishHandFeel || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeel', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeelText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.heatTransferFinishHandFeel || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeel', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeelText', '');
+                              }
+                              }
+                            }}
+                            options={HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.heatTransferFinishHandFeel === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -5987,22 +5528,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               STRETCH
                             </label>
-                            <select
-                              value={material.heatTransferStretch || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'heatTransferStretch', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'heatTransferStretchText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HEAT_TRANSFER_STRETCH_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.heatTransferStretch || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferStretch', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'heatTransferStretchText', '');
+                              }
+                              }
+                            }}
+                            options={HEAT_TRANSFER_STRETCH_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.heatTransferStretch === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6064,22 +5603,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FASTENING
                             </label>
-                            <select
-                              value={material.hangTagSealsFastening || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsFastening', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsFasteningText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HANG_TAG_SEALS_FASTENING_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.hangTagSealsFastening || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsFastening', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsFasteningText', '');
+                              }
+                              }
+                            }}
+                            options={HANG_TAG_SEALS_FASTENING_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.hangTagSealsFastening === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6097,22 +5634,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRE-STRINGING
                             </label>
-                            <select
-                              value={material.hangTagSealsPreStringing || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringing', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringingText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HANG_TAG_SEALS_PRE_STRINGING_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.hangTagSealsPreStringing || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringing', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringingText', '');
+                              }
+                              }
+                            }}
+                            options={HANG_TAG_SEALS_PRE_STRINGING_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.hangTagSealsPreStringing === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6130,22 +5665,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               STRING FINISH
                             </label>
-                            <select
-                              value={material.hangTagSealsStringFinish || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinish', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinishText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HANG_TAG_SEALS_STRING_FINISH_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.hangTagSealsStringFinish || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinish', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinishText', '');
+                              }
+                              }
+                            }}
+                            options={HANG_TAG_SEALS_STRING_FINISH_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.hangTagSealsStringFinish === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6163,22 +5696,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               SEAL SHAPE
                             </label>
-                            <select
-                              value={material.hangTagSealsSealShape || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShape', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShapeText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.hangTagSealsSealShape || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShape', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShapeText', '');
+                              }
+                              }
+                            }}
+                            options={HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.hangTagSealsSealShape === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6196,22 +5727,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               COLOUR
                             </label>
-                            <select
-                              value={material.hangTagSealsColour || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsColour', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsColourText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HANG_TAG_SEALS_COLOUR_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.hangTagSealsColour || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsColour', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsColourText', '');
+                              }
+                              }
+                            }}
+                            options={HANG_TAG_SEALS_COLOUR_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.hangTagSealsColour === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6229,22 +5758,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               LOGO/BRANDING
                             </label>
-                            <select
-                              value={material.hangTagSealsLogoBranding || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBranding', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBrandingText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.hangTagSealsLogoBranding || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBranding', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBrandingText', '');
+                              }
+                              }
+                            }}
+                            options={HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.hangTagSealsLogoBranding === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6306,22 +5833,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               VERIFICATION
                             </label>
-                            <select
-                              value={material.verification || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'verification', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'verificationText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {ANTI_COUNTERFEIT_VERIFICATION_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.verification || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'verification', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'verificationText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_VERIFICATION_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.verification === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6339,22 +5864,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               QR/CODE CONTENT
                             </label>
-                            <select
-                              value={material.qrCodeContent || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'qrCodeContent', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'qrCodeContentText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.qrCodeContent || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'qrCodeContent', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'qrCodeContentText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.qrCodeContent === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6372,22 +5895,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               APPLICATION
                             </label>
-                            <select
-                              value={material.antiCounterfeitApplication || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplication', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplicationText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {ANTI_COUNTERFEIT_APPLICATION_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.antiCounterfeitApplication || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplication', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplicationText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_APPLICATION_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.antiCounterfeitApplication === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6405,22 +5926,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               TAMPER EVIDENCE
                             </label>
-                            <select
-                              value={material.tamperEvidence || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'tamperEvidence', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'tamperEvidenceText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.tamperEvidence || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'tamperEvidence', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'tamperEvidenceText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.tamperEvidence === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6438,22 +5957,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               DATABASE
                             </label>
-                            <select
-                              value={material.antiCounterfeitDatabase || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabase', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabaseText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {ANTI_COUNTERFEIT_DATABASE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.antiCounterfeitDatabase || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabase', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabaseText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_DATABASE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.antiCounterfeitDatabase === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6471,22 +5988,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               GUMMING QUALITY
                             </label>
-                            <select
-                              value={material.gummingQuality || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'gummingQuality', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'gummingQualityText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.gummingQuality || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'gummingQuality', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'gummingQualityText', '');
+                              }
+                              }
+                            }}
+                            options={ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.gummingQuality === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6548,22 +6063,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRINT TYPE
                             </label>
-                            <select
-                              value={material.careCompositionPrintType || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'careCompositionPrintType', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'careCompositionPrintTypeText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {CARE_COMPOSITION_PRINT_TYPE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.careCompositionPrintType || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionPrintType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionPrintTypeText', '');
+                              }
+                              }
+                            }}
+                            options={CARE_COMPOSITION_PRINT_TYPE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.careCompositionPrintType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6581,22 +6094,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               INK TYPE
                             </label>
-                            <select
-                              value={material.careCompositionInkType || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'careCompositionInkType', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'careCompositionInkTypeText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {CARE_COMPOSITION_INK_TYPE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.careCompositionInkType || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionInkType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionInkTypeText', '');
+                              }
+                              }
+                            }}
+                            options={CARE_COMPOSITION_INK_TYPE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.careCompositionInkType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6614,22 +6125,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               MANUFACTURER ID
                             </label>
-                            <select
-                              value={material.careCompositionManufacturerId || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerId', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerIdText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.careCompositionManufacturerId || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerId', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerIdText', '');
+                              }
+                              }
+                            }}
+                            options={CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.careCompositionManufacturerId === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6647,22 +6156,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PERMANENCE
                             </label>
-                            <select
-                              value={material.careCompositionPermanence || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'careCompositionPermanence', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'careCompositionPermanenceText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {CARE_COMPOSITION_PERMANENCE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.careCompositionPermanence || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionPermanence', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionPermanenceText', '');
+                              }
+                              }
+                            }}
+                            options={CARE_COMPOSITION_PERMANENCE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.careCompositionPermanence === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6680,22 +6187,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               LANGUAGE
                             </label>
-                            <select
-                              value={material.careCompositionLanguage || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'careCompositionLanguage', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'careCompositionLanguageText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {CARE_COMPOSITION_LANGUAGE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.careCompositionLanguage || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionLanguage', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'careCompositionLanguageText', '');
+                              }
+                              }
+                            }}
+                            options={CARE_COMPOSITION_LANGUAGE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.careCompositionLanguage === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6757,22 +6262,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               REGULATION
                             </label>
-                            <select
-                              value={material.flammabilitySafetyRegulation || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulation', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulationText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {FLAMMABILITY_SAFETY_REGULATION_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.flammabilitySafetyRegulation || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulation', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulationText', '');
+                              }
+                              }
+                            }}
+                            options={FLAMMABILITY_SAFETY_REGULATION_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.flammabilitySafetyRegulation === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6790,22 +6293,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FONT SIZE
                             </label>
-                            <select
-                              value={material.flammabilitySafetyFontSize || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSize', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSizeText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.flammabilitySafetyFontSize || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSize', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSizeText', '');
+                              }
+                              }
+                            }}
+                            options={FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.flammabilitySafetyFontSize === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6823,22 +6324,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PERMANENCE
                             </label>
-                            <select
-                              value={material.flammabilitySafetyPermanence || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanence', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanenceText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.flammabilitySafetyPermanence || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanence', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanenceText', '');
+                              }
+                              }
+                            }}
+                            options={FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.flammabilitySafetyPermanence === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6856,22 +6355,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               SYMBOL
                             </label>
-                            <select
-                              value={material.flammabilitySafetySymbol || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbol', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbolText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {FLAMMABILITY_SAFETY_SYMBOL_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.flammabilitySafetySymbol || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbol', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbolText', '');
+                              }
+                              }
+                            }}
+                            options={FLAMMABILITY_SAFETY_SYMBOL_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.flammabilitySafetySymbol === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6889,22 +6386,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               INK DURABILITY
                             </label>
-                            <select
-                              value={material.flammabilitySafetyInkDurability || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurability', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurabilityText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.flammabilitySafetyInkDurability || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurability', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurabilityText', '');
+                              }
+                              }
+                            }}
+                            options={FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.flammabilitySafetyInkDurability === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6922,22 +6417,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               CERTIFICATION ID
                             </label>
-                            <select
-                              value={material.flammabilitySafetyCertificationId || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationId', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationIdText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.flammabilitySafetyCertificationId || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationId', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationIdText', '');
+                              }
+                              }
+                            }}
+                            options={FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.flammabilitySafetyCertificationId === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -6999,22 +6492,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRODUCT FIT
                             </label>
-                            <select
-                              value={material.bellyBandProductFit || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandProductFit', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandProductFitText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_PRODUCT_FIT_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandProductFit || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandProductFit', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandProductFitText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_PRODUCT_FIT_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandProductFit === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7032,22 +6523,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRINTING
                             </label>
-                            <select
-                              value={material.bellyBandPrinting || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandPrinting', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandPrintingText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_PRINTING_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandPrinting || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandPrinting', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandPrintingText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_PRINTING_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandPrinting === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7065,22 +6554,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FOLD LINES
                             </label>
-                            <select
-                              value={material.bellyBandFoldLines || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLines', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLinesText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_FOLD_LINES_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandFoldLines || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLines', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLinesText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_FOLD_LINES_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandFoldLines === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7098,22 +6585,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               DURABILITY
                             </label>
-                            <select
-                              value={material.bellyBandDurability || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandDurability', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandDurabilityText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_DURABILITY_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandDurability || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandDurability', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandDurabilityText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_DURABILITY_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandDurability === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7131,22 +6616,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               CONTENT
                             </label>
-                            <select
-                              value={material.bellyBandContent || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandContent', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandContentText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_CONTENT_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandContent || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandContent', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandContentText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_CONTENT_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandContent === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7164,22 +6647,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               COLOURS
                             </label>
-                            <select
-                              value={material.bellyBandColours || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandColours', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandColoursText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_COLOURS_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandColours || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandColours', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandColoursText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_COLOURS_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandColours === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7197,22 +6678,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FINISH
                             </label>
-                            <select
-                              value={material.bellyBandFinish || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandFinish', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandFinishText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_FINISH_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandFinish || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandFinish', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandFinishText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_FINISH_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandFinish === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7230,22 +6709,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               DIE-CUT
                             </label>
-                            <select
-                              value={material.bellyBandDieCut || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandDieCut', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandDieCutText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_DIE_CUT_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandDieCut || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandDieCut', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandDieCutText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_DIE_CUT_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandDieCut === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
@@ -7263,22 +6740,20 @@ const Step4 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               GUMMING QUALITY
                             </label>
-                            <select
-                              value={material.bellyBandGummingQuality || ''}
-                              onChange={(e) => {
-                                handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQuality', e.target.value);
-                                if (e.target.value === 'OTHERS (TEXT)') {
-                                  handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQualityText', '');
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            >
-                              <option value="">Select</option>
-                              {BELLY_BAND_GUMMING_QUALITY_OPTIONS.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
+                                                      <SearchableDropdown
+                            value={material.bellyBandGummingQuality || ''}
+                            onChange={(selectedValue) => {
+                              (e) => {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQuality', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQualityText', '');
+                              }
+                              }
+                            }}
+                            options={BELLY_BAND_GUMMING_QUALITY_OPTIONS}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          />
                             {material.bellyBandGummingQuality === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import SearchableDropdown from '../SearchableDropdown';
 
 const Step3 = ({
   formData,
@@ -111,21 +112,14 @@ const Step3 = ({
               
               <div className="flex flex-col">
                 <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
-                <select
-                  value={material.unit || ''}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'unit', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                  style={{ padding: '10px 14px', height: '44px' }}
-                >
-                  <option value="">Select</option>
-                  <option value="Kgs">Kgs</option>
-                  <option value="Pcs">Pcs</option>
-                  <option value="Meters">Meters</option>
-                  <option value="Yards">Yards</option>
-                  <option value="Sets">Sets</option>
-                  <option value="Rolls">Rolls</option>
-                  <option value="Gross">Gross</option>
-                </select>
+                                        <SearchableDropdown
+                          value={material.unit || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'unit', selectedValue)}
+                          options={['Kgs', 'Pcs', 'Meters', 'Yards', 'Sets', 'Rolls', 'Gross']}
+                          placeholder="Select or type"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
               </div>
             </div>
 
@@ -196,17 +190,14 @@ const Step3 = ({
 
               <div className="flex flex-col">
                 <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
-                <select
-                  value={material.size?.unit || ''}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'size.unit', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                  style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                >
-                  <option value="">Select</option>
-                  <option value="CMS">CMS</option>
-                  <option value="INCHES">INCHES</option>
-                  <option value="MM">MM</option>
-                </select>
+                                        <SearchableDropdown
+                          value={material.size?.unit || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'size.unit', selectedValue)}
+                          options={['CMS', 'INCHES', 'MM']}
+                          placeholder="Select or type"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ width: '120px' }}
+                        />
               </div>
               </div>
               
@@ -214,46 +205,15 @@ const Step3 = ({
             <div className="w-full mt-8 pt-6 border-t border-gray-100">
               <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
                 <label className="text-sm font-bold text-gray-800 mb-2">TRIM/ACCESSORY</label>
-                <select
+                <SearchableDropdown
                   value={material.trimAccessory || ''}
-                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                  style={{ padding: '10px 14px', height: '44px' }}
+                  onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
+                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS & EYES', 'BUCKLES & ADJUSTERS', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS / CUPS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'PLASTIC CABLE TIES / LOOPS', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS / CORD LOCKS / TOGGLES', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURES / SNAPS']}
+                  placeholder="Select or type Trim/Accessory"
+                  style={{ width: '280px' }}
                   onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                   onBlur={(e) => e.target.style.boxShadow = ''}
-                >
-                  <option value="">Select Trim/Accessory</option>
-                  <option value="ZIPPERS">ZIPPERS</option>
-                  <option value="VELCRO (Hook & Loop)">VELCRO (Hook & Loop)</option>
-                  <option value="STITCHING THREAD">STITCHING THREAD</option>
-                  <option value="BUTTONS">BUTTONS</option>
-                  <option value="RIVETS">RIVETS</option>
-                  <option value="NIWAR (Webbing/Tapes)">NIWAR (Webbing/Tapes)</option>
-                  <option value="LACE">LACE</option>
-                  <option value="INTERLINING/FUSING">INTERLINING/FUSING</option>
-                  <option value="HOOKS & EYES">HOOKS & EYES</option>
-                  <option value="BUCKLES & ADJUSTERS">BUCKLES & ADJUSTERS</option>
-                  <option value="EYELETS & GROMMETS">EYELETS & GROMMETS</option>
-                  <option value="ELASTIC">ELASTIC</option>
-                  <option value="FELT">FELT</option>
-                  <option value="SHOULDER PADS / CUPS">SHOULDER PADS / CUPS</option>
-                  <option value="TUBULAR KNITS / RIBBING">TUBULAR KNITS / RIBBING</option>
-                  <option value="RFID / EAS TAGS">RFID / EAS TAGS</option>
-                  <option value="PLASTIC CABLE TIES / LOOPS">PLASTIC CABLE TIES / LOOPS</option>
-                  <option value="FRINGE / TASSELS">FRINGE / TASSELS</option>
-                  <option value="PLASTIC PIPES / RODS">PLASTIC PIPES / RODS</option>
-                  <option value="SEAM SEALING TAPE">SEAM SEALING TAPE</option>
-                  <option value="ADHESIVES / GUNNING">ADHESIVES / GUNNING</option>
-                  <option value="PRE-CUT HEMS / BINDINGS">PRE-CUT HEMS / BINDINGS</option>
-                  <option value="REFLECTIVE TAPES / TRIMS">REFLECTIVE TAPES / TRIMS</option>
-                  <option value="FIRE RETARDANT (FR) TRIMS">FIRE RETARDANT (FR) TRIMS</option>
-                  <option value="REPAIR KITS / PATCHES">REPAIR KITS / PATCHES</option>
-                  <option value="CORD STOPS / CORD LOCKS / TOGGLES">CORD STOPS / CORD LOCKS / TOGGLES</option>
-                  <option value="D-RINGS / O-RINGS / WEBBING LOOPS">D-RINGS / O-RINGS / WEBBING LOOPS</option>
-                  <option value="FOAM / WADDING (Pre-Cut Shapes)">FOAM / WADDING (Pre-Cut Shapes)</option>
-                  <option value="PINS / TAGGING BARBS">PINS / TAGGING BARBS</option>
-                  <option value="MAGNETIC CLOSURES / SNAPS">MAGNETIC CLOSURES / SNAPS</option>
-                </select>
+                />
               </div>
 
               {/* Conditional fields based on trim/accessory type */}
@@ -275,67 +235,58 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.zipType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'zipType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'zipType', selectedValue)}
+                          options={['Concealed (Invisible)', 'Open (Separating)', 'Closed-End (Non-Separating)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Concealed (Invisible)">Concealed (Invisible)</option>
-                          <option value="Open (Separating)">Open (Separating)</option>
-                          <option value="Closed-End (Non-Separating)">Closed-End (Non-Separating)</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">BRAND</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.brand || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'brand', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'brand', selectedValue)}
+                          options={['YKK', 'RIRI', 'SBS', 'Unbranded']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="YKK, RIRI, SBS, or Unbranded - Specify supplier name"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TEETH</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.teeth || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'teeth', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'teeth', selectedValue)}
+                          options={['Coil (Nylon/Polyester)', 'Plastic (Molded Vislon)', 'Metal (Brass, Aluminium)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Coil (Nylon/Polyester)">Coil (Nylon/Polyester)</option>
-                          <option value="Plastic (Molded Vislon)">Plastic (Molded Vislon)</option>
-                          <option value="Metal (Brass, Aluminium)">Metal (Brass, Aluminium)</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PULLER</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.puller || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'puller', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'puller', selectedValue)}
+                          options={['Metal', 'DTM (Dyed-to-Match Plastic)', 'Custom Logo', 'Ring']}
+                          placeholder="Select or type Puller"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Metal / DTM (Dyed-to-Match Plastic) / Custom Logo / Ring"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PULLER TYPE</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.pullerType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pullerType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pullerType', selectedValue)}
+                          options={['Lockable (Auto-lock for secure closure)', 'Non-Lockable (Free-gliding)', 'Semi-']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Lockable (Auto-lock for secure closure)">Lockable (Auto-lock for secure closure)</option>
-                          <option value="Non-Lockable (Free-gliding)">Non-Lockable (Free-gliding)</option>
-                          <option value="Semi-">Semi-</option>
-                        </select>
+                        />
                       </div>
                     </>
                   )}
@@ -345,42 +296,36 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.velcroType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'velcroType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'velcroType', selectedValue)}
+                          options={['Sew-on tape', 'Adhesive Backed', 'Die-Cut Shapes', 'ONE-WRAP (Back-to-Back)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Sew-on tape">Sew-on tape</option>
-                          <option value="Adhesive Backed">Adhesive Backed</option>
-                          <option value="Die-Cut Shapes">Die-Cut Shapes</option>
-                          <option value="ONE-WRAP (Back-to-Back)">ONE-WRAP (Back-to-Back)</option>
-                        </select>
+                        />
               </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.velcroMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'velcroMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'velcroMaterial', selectedValue)}
+                          options={['Nylon', 'Polyester']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Nylon">Nylon</option>
-                          <option value="Polyester">Polyester</option>
-                        </select>
+                        />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.width || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'width', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'width', selectedValue)}
+                          options={['16mm', '20mm', '25mm', '50mm']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="16mm, 20mm, 25mm, 50mm"
                         />
                         </div>
                         <div className="flex flex-col">
@@ -397,24 +342,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.colour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'colour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'colour', selectedValue)}
+                          options={['DTM', 'White', 'Black']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="DTM, White, Black"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">HOOK DENSITY</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.hookDensityLoopType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookDensityLoopType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookDensityLoopType', selectedValue)}
+                          options={['HOOK Density', 'Loop Type']}
+                          placeholder="Select or type Hook Density"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="HOOK Density / Loop Type"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -430,13 +375,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">ATTACHMENT METHOD</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.attachmentMethod || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'attachmentMethod', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'attachmentMethod', selectedValue)}
+                          options={['Sewing', 'Adhesive']}
+                          placeholder="Select or type Attachment Method"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Sewing / Adhesive"
                         />
                       </div>
                     </>
@@ -447,17 +392,14 @@ const Step3 = ({
                     <>
               <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.threadType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'threadType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'threadType', selectedValue)}
+                          options={['Spun Polyester (Poly)', 'Cotton', 'Core Spun (Poly-Wrapped)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Spun Polyester (Poly)">Spun Polyester (Poly)</option>
-                          <option value="Cotton">Cotton</option>
-                          <option value="Core Spun (Poly-Wrapped)">Core Spun (Poly-Wrapped)</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FIBRE CONTENT</label>
@@ -505,27 +447,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.threadFinish || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'threadFinish', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'threadFinish', selectedValue)}
+                          options={['Bonded', 'Lubricated', 'Matte']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Bonded">Bonded</option>
-                          <option value="Lubricated">Lubricated</option>
-                          <option value="Matte">Matte</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.usage || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'usage', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'usage', selectedValue)}
+                          options={['Main seam', 'Overlock', 'Embroidery']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Main seam, Overlock, Embroidery"
                         />
                       </div>
                     </>
@@ -536,74 +475,68 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.buttonType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonType', selectedValue)}
+                          options={['Sewing (Flat/Shank)', 'Snap (Press Stud)', 'Tack']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Sewing (Flat/Shank)">Sewing (Flat/Shank)</option>
-                          <option value="Snap (Press Stud)">Snap (Press Stud)</option>
-                          <option value="Tack">Tack</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.buttonMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonMaterial', selectedValue)}
+                          options={['Polyester (Plastic)', 'Metal (Brass, Alloy)', 'Natural (Shell, Wood)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Polyester (Plastic)">Polyester (Plastic)</option>
-                          <option value="Metal (Brass, Alloy)">Metal (Brass, Alloy)</option>
-                          <option value="Natural (Shell, Wood)">Natural (Shell, Wood)</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE/LIGNE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.sizeLigne || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'sizeLigne', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'sizeLigne', selectedValue)}
+                          options={['14L', '16L', '20L', '24L']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="14L, 16L, 20L, 24L"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.finishColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'finishColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'finishColour', selectedValue)}
+                          options={['DTM', 'Contrast', 'Glossy', 'Matte']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="DTM, Contrast, Glossy, Matte"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">ATTACHMENT METHOD</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.buttonAttachmentMethod || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonAttachmentMethod', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonAttachmentMethod', selectedValue)}
+                          options={['Machine sew', 'Hand Sew', 'Pneumatic']}
+                          placeholder="Select or type Attachment Method"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Machine sew, Hand Sew, Pneumatic"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.function || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'function', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'function', selectedValue)}
+                          options={['Functional', 'Decorative']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Functional / Decorative"
                         />
                       </div>
                     </>
@@ -614,64 +547,57 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.rivetType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetType', selectedValue)}
+                          options={['Open-End', 'Close-End', 'Blind Rivet']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Open-End">Open-End</option>
-                          <option value="Close-End">Close-End</option>
-                          <option value="Blind Rivet">Blind Rivet</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <select
+                                                <SearchableDropdown
                           value={material.rivetMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetMaterial', selectedValue)}
+                          options={['Brass', 'Copper', 'Zinc Alloy', 'Steel']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        >
-                          <option value="">Select</option>
-                          <option value="Brass">Brass</option>
-                          <option value="Copper">Copper</option>
-                          <option value="Zinc Alloy">Zinc Alloy</option>
-                          <option value="Steel">Steel</option>
-                        </select>
+                        />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CAP SIZE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.capSize || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'capSize', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'capSize', selectedValue)}
+                          options={['8mm', '9mm', '10mm']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="8mm, 9mm, 10mm"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">POST HEIGHT/LENGTH</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.postHeightLength || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'postHeightLength', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'postHeightLength', selectedValue)}
+                          options={['Short', 'Medium', 'Long']}
+                          placeholder="Select or type Post Height/Length"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Short, Medium, Long"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/PLATING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.finishPlating || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'finishPlating', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'finishPlating', selectedValue)}
+                          options={['Nickel', 'Copper', 'Antique Brass']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Nickel, Copper, Antique Brass"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -704,24 +630,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.niwarType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'niwarType', selectedValue)}
+                          options={['Woven (Twill', 'Plain', 'Herringbone)', 'Knitted']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Woven (Twill, Plain, Herringbone), Knitted"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.niwarMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'niwarMaterial', selectedValue)}
+                          options={['Fibre Content (e.g', 'Cotton', 'Polyester', 'Polypropylene)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Fibre Content (e.g., Cotton, Polyester, Polypropylene)"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
@@ -761,24 +687,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.niwarColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'niwarColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'niwarColour', selectedValue)}
+                          options={['DTM', 'White', 'Black', 'Colour Code']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="DTM, White, Black, Colour Code"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH / COATING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.finishCoating || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'finishCoating', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'finishCoating', selectedValue)}
+                          options={['Soft Finish', 'Stiff Finish', 'Water Repellent', 'UV Resistant', 'Fire Retardant']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Soft Finish / Stiff Finish, Water Repellent, UV Resistant, Fire Retardant"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -800,24 +726,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.laceType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'laceType', selectedValue)}
+                          options={['Woven', 'Twill tape (Plain', 'Patterned)', 'Braided', 'Crochet', 'Knit']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Woven/Twill tape (Plain/Patterned) / Braided / Crochet / Knit"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.laceMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'laceMaterial', selectedValue)}
+                          options={['Fibre Content (e.g', '100% Cotton', 'Nylon', 'Rayon', 'Polyester)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Fibre Content (e.g., 100% Cotton, Nylon, Rayon, Polyester)"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
@@ -846,35 +772,35 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.laceColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'laceColour', selectedValue)}
+                          options={['DTM (Dyed to Match)', 'White', 'Ecru', 'Black', 'Colour Code (Pantone)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="DTM (Dyed to Match) / White / Ecru / Black / Colour Code (Pantone)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISHING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.laceFinishing || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceFinishing', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'laceFinishing', selectedValue)}
+                          options={['Starch (stiff finish)', 'Soft Finish', 'Mercerized (for Cotton)', 'Scalloped']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Starch (stiff finish) / Soft Finish / Mercerized (for Cotton) / Scalloped"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.laceUsage || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'laceUsage', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'laceUsage', selectedValue)}
+                          options={['Edging', 'Insertion', 'Applique', 'Beading']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Edging, Insertion, Applique, Beading"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -897,13 +823,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Slider Durability (Cycling test)', 'Lateral Strength (Teeth-pulling strength)', 'Puller']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Slider Durability (Cycling test), Lateral Strength (Teeth-pulling strength), Puller"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -926,13 +852,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH</label>
-                        <input
-                          type="text"
-                            value={material.length || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'length', e.target.value)}
+                                                <SearchableDropdown
+                          value={material.length || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'length', selectedValue)}
+                          options={['Specific Length (e.g', '20 cm', '7 inches', '500 mm)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Specific Length (e.g., 20 cm, 7 inches, 500 mm)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -956,7 +882,6 @@ const Step3 = ({
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-3%)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -973,13 +898,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1002,14 +927,14 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                <input
-                  type="text"
+                                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Shear Strength', 'Peel Strength', 'Cycle']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Shear Strength, Peel Strength, Cycle"
-                />
+                        />
               </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
@@ -1048,7 +973,6 @@ const Step3 = ({
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1065,13 +989,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1094,13 +1018,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                        <SearchableDropdown
+                          value={material.testingRequirement || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Tensile Strength', 'Elongation', 'Abrasion']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Tensile Strength, Elongation, Abrasion"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1151,7 +1075,6 @@ const Step3 = ({
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 1-2%)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1168,13 +1091,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1197,13 +1120,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                        <SearchableDropdown
+                          value={material.testingRequirement || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Needle Detection', 'Pull Strength']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Needle Detection, Pull Strength"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1238,13 +1161,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 3-5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -1277,13 +1199,13 @@ const Step3 = ({
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Needle Detection', 'Pull Strength']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Needle Detection, Pull Strength"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1301,13 +1223,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 3-5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
@@ -1328,13 +1249,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1357,13 +1278,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                        <SearchableDropdown
+                          value={material.testingRequirement || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Tensile strength test', 'Colour Fastness (to Light, Washing)', 'Abrasion']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Tensile strength test, Colour Fastness (to Light, Washing), Abrasion"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1385,26 +1306,25 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH / QUANTITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', selectedValue)}
+                          options={['Meters or Yards per Roll (e.g', '100m Roll)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Meters or Yards per Roll (e.g., 100m Roll)"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE (e.g., 2-5% for cutting)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -1420,13 +1340,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1449,13 +1369,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                            value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                        <SearchableDropdown
+                          value={material.testingRequirement || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Colour Fastness (to Washing, Light, Crocking)', 'Residual']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Colour Fastness (to Washing, Light, Crocking) / Residual"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1477,26 +1397,25 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH / QUANTITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', selectedValue)}
+                          options={['Meters or Yards per Roll (e.g', '50m Roll)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Meters or Yards per Roll (e.g., 50m Roll)"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE (e.g., 5-10%, due to cut ends/pattern)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -1512,13 +1431,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1540,13 +1459,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.elasticType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'elasticType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'elasticType', selectedValue)}
+                          options={['Woven', 'Braided', 'Knitted']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Woven, Braided, Knitted"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1573,24 +1492,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">STRETCH/TENSION</label>
-                <input
-                          type="text"
+                                        <SearchableDropdown
                           value={material.stretchTension || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'stretchTension', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'stretchTension', selectedValue)}
+                          options={['Stretch percentage', 'Tension']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Stretch percentage, Tension"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.elasticColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'elasticColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'elasticColour', selectedValue)}
+                          options={['DTM', 'White', 'Black']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="DTM, White, Black"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1613,14 +1532,14 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                          <input
-                            type="text"
+                          <SearchableDropdown
                             value={material.testingRequirement || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                            options={['Tensile Strength', 'Elongation', 'Recovery']}
+                            placeholder="Select or type Testing Requirements"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Tensile Strength, Elongation, Recovery"
-                        />
+                          />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
@@ -1654,13 +1573,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                           <input
-                            type="text"
-                            value={material.surplus || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE (e.g., 2-5%)"
-                        />
+                                                    type="text"
+                                                    value={material.surplus || ''}
+                                                    onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                    style={{ padding: '10px 14px', height: '44px' }}
+                                                  />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -1676,13 +1594,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1704,13 +1622,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.feltType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltType', selectedValue)}
+                          options={['Wool', 'Synthetic', 'Blended']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Wool, Synthetic, Blended"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1748,24 +1666,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.feltColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltColour', selectedValue)}
+                          options={['DTM', 'White', 'Black', 'Grey']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="DTM, White, Black, Grey"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/FORM</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.feltFinishForm || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltFinishForm', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltFinishForm', selectedValue)}
+                          options={['Smooth', 'Textured', 'Pre-cut shapes']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Smooth, Textured, Pre-cut shapes"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1788,13 +1706,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Flammability Rating', 'Pilling Resistance']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Flammability Rating, Pilling Resistance"
                         />
               </div>
                       <div className="flex flex-col">
@@ -1829,13 +1747,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5% for cutting)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -1851,13 +1768,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1912,13 +1829,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.adhesive || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'adhesive', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'adhesive', selectedValue)}
+                          options={['PA (Polyamide)', 'PES (Polyester)', 'EVA']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="PA (Polyamide), PES (Polyester), EVA"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1934,13 +1851,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FUSING SPEC</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.fusingSpec || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'fusingSpec', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'fusingSpec', selectedValue)}
+                          options={['Temperature', 'Pressure', 'Time (e.g', '150°C', '3 bar', '12 sec)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Temperature, Pressure, Time (e.g., 150°C, 3 bar, 12 sec)"
                         />
                       </div>
                     </>
@@ -1952,13 +1869,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Bond strength', 'Residual Shrinkage']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Bond strength, Residual Shrinkage"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -1998,7 +1915,6 @@ const Step3 = ({
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2015,13 +1931,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2043,13 +1959,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.hookEyeType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeType', selectedValue)}
+                          options={['Hook', 'Eye', 'Hook & Eye Set', 'Bar']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Hook, Eye, Hook & Eye Set, Bar"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2076,46 +1992,46 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.hookEyeColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeColour', selectedValue)}
+                          options={['Black', 'Silver', 'Nickel', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Black, Silver, Nickel, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.hookEyeFinish || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeFinish', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeFinish', selectedValue)}
+                          options={['Polished', 'Matte', 'Plated', 'Coated']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Polished, Matte, Plated, Coated"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.strength || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'strength', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'strength', selectedValue)}
+                          options={['Holding Power (e.g', '10kg)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Holding Power (e.g., 5kg, 10kg)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.application || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'application', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'application', selectedValue)}
+                          options={['Waistband', 'Bra closure', 'Garment fastening']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Waistband, Bra closure, Garment fastening"
                         />
                       </div>
                     </>
@@ -2127,13 +2043,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Holding Power Test', 'Corrosion Resistance']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Holding Power Test, Corrosion Resistance"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2168,13 +2084,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 3-5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -2190,13 +2105,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2218,24 +2133,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.buckleType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buckleType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buckleType', selectedValue)}
+                          options={['Side Release', 'Center Bar', 'Ladder Lock']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Side Release, Center Bar, Ladder Lock"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.buckleMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buckleMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buckleMaterial', selectedValue)}
+                          options={['Plastic', 'Metal', 'Nylon']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Plastic, Metal, Nylon"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2262,13 +2177,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.buckleFunction || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buckleFunction', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buckleFunction', selectedValue)}
+                          options={['Adjustable', 'Quick Release', 'Locking']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Adjustable, Quick Release, Locking"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2291,13 +2206,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Corrosion Resistance', 'Salt Spray']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Corrosion Resistance, Salt Spray"
                         />
               </div>
                       <div className="flex flex-col">
@@ -2332,13 +2247,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 3-5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -2354,13 +2268,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2382,24 +2296,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.eyeletType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'eyeletType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'eyeletType', selectedValue)}
+                          options={['Eyelet', 'Grommet', 'Two-piece set']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Eyelet, Grommet, Two-piece set"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.eyeletMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'eyeletMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'eyeletMaterial', selectedValue)}
+                          options={['Brass', 'Steel', 'Aluminium', 'Plastic']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Brass, Steel, Aluminium, Plastic"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2426,13 +2340,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.eyeletColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'eyeletColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'eyeletColour', selectedValue)}
+                          options={['Black', 'Silver', 'DTM', 'Nickel Plated']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Black, Silver, DTM, Nickel Plated"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2448,13 +2362,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TOOLING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.tooling || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'tooling', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'tooling', selectedValue)}
+                          options={['Hand tool', 'Machine press', 'Die set']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Hand tool, Machine press, Die set"
                         />
                       </div>
                     </>
@@ -2466,13 +2380,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
+                          options={['Pull-Off Strength', 'Corrosion']}
+                          placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pull-Off Strength, Corrosion"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2507,13 +2421,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5-8%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -2529,13 +2442,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2590,24 +2503,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SHAPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.shape || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'shape', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'shape', selectedValue)}
+                          options={['Rounded', 'Square', 'Tapered', 'Contoured']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Rounded, Square, Tapered, Contoured"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COVERING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.covering || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'covering', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'covering', selectedValue)}
+                          options={['Fabric', 'Mesh', 'Non-woven', 'Uncovered']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Fabric, Mesh, Non-woven, Uncovered"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2623,13 +2536,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WEIGHT</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.weight || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'weight', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'weight', selectedValue)}
+                          options={['Light', 'Medium', 'Heavy (e.g', '5g', '10g)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Light, Medium, Heavy (e.g., 5g, 10g)"
                         />
                       </div>
                     </>
@@ -2681,24 +2594,12 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
-                          value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
-                        />
+                                                  type="text"
+                                                  value={material.approval || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
@@ -2719,13 +2620,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.tubularType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'tubularType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'tubularType', selectedValue)}
+                          options={['1x1 Rib', '2x2 Rib', 'Interlock', 'Jersey']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="1x1 Rib, 2x2 Rib, Interlock, Jersey"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2752,24 +2653,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WEIGHT/DENSITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.weightDensity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'weightDensity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'weightDensity', selectedValue)}
+                          options={['GSM or oz', 'yd² (e.g', '5.3 oz', 'yd²)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="GSM or oz/yd² (e.g., 180 GSM, 5.3 oz/yd²)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.tubularColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'tubularColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'tubularColour', selectedValue)}
+                          options={['White', 'Black', 'Navy', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="White, Black, Navy, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2785,13 +2686,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CUTTING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cutting || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cutting', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cutting', selectedValue)}
+                          options={['Straight cut', 'Bias cut', 'Anti-curl']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Straight cut, Bias cut, Anti-curl"
                         />
                       </div>
                     </>
@@ -2849,7 +2750,6 @@ const Step3 = ({
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2866,13 +2766,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2894,46 +2794,46 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.rfidType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rfidType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rfidType', selectedValue)}
+                          options={['UHF RFID', 'HF RFID', 'LF RFID', 'EAS Tag']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="UHF RFID, HF RFID, LF RFID, EAS Tag"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FORM FACTOR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.formFactor || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'formFactor', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'formFactor', selectedValue)}
+                          options={['Label', 'Sticker', 'Hard Tag', 'Inlay']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Label, Sticker, Hard Tag, Inlay"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FREQUENCY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.frequency || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'frequency', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'frequency', selectedValue)}
+                          options={['860-960 MHz (UHF)', '13.56 MHz (HF)', '125 kHz (LF)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="860-960 MHz (UHF), 13.56 MHz (HF), 125 kHz (LF)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CHIP/IC TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.chipIcType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'chipIcType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'chipIcType', selectedValue)}
+                          options={['Impinj Monza', 'NXP UCODE', 'Alien Higgs']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Impinj Monza, NXP UCODE, Alien Higgs"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -2949,24 +2849,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CODING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.coding || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'coding', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'coding', selectedValue)}
+                          options={['EPC Gen 2', 'ISO 18000-6C', 'TID Programming']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="EPC Gen 2, ISO 18000-6C, TID Programming"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SECURITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.security || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'security', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'security', selectedValue)}
+                          options={['Tamper-evident', 'Kill Password', 'Lock Memory']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Tamper-evident, Kill Password, Lock Memory"
                         />
                       </div>
                     </>
@@ -3019,13 +2919,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -3041,13 +2940,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Technical Integration']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP / Technical Integration"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -3069,13 +2968,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cableTieType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cableTieType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieType', selectedValue)}
+                          options={['Standard', 'Releasable', 'Beaded', 'Loop']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Standard, Releasable, Beaded, Loop"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3091,24 +2990,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cableTieSize || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cableTieSize', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieSize', selectedValue)}
+                          options={['Length x Width (e.g', '100mm x 2.5mm', '150mm x 3.6mm)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Length x Width (e.g., 100mm x 2.5mm, 150mm x 3.6mm)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cableTieColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cableTieColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieColour', selectedValue)}
+                          options={['White', 'Black', 'Natural', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="White, Black, Natural, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3124,24 +3023,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cableTieFinish || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cableTieFinish', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieFinish', selectedValue)}
+                          options={['Smooth', 'Textured', 'UV Stabilized']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Smooth, Textured, UV Stabilized"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cableTieUsage || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cableTieUsage', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieUsage', selectedValue)}
+                          options={['Hang tags', 'Security loops', 'Cable management']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Hang tags, Security loops, Cable management"
                         />
                       </div>
                     </>
@@ -3194,13 +3093,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5-10%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -3216,13 +3114,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -3244,24 +3142,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.fringeType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'fringeType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'fringeType', selectedValue)}
+                          options={['Fringe', 'Tassel', 'Pom-pom', 'Bullion']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Fringe, Tassel, Pom-pom, Bullion"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.fringeMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'fringeMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'fringeMaterial', selectedValue)}
+                          options={['Cotton', 'Polyester', 'Rayon', 'Wool', 'Blend']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Cotton, Polyester, Rayon, Wool, Blend"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3288,35 +3186,35 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.fringeColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'fringeColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'fringeColour', selectedValue)}
+                          options={['White', 'Black', 'Navy', 'DTM', 'Multi-color']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="White, Black, Navy, DTM, Multi-color"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.fringeFinish || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'fringeFinish', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'fringeFinish', selectedValue)}
+                          options={['Brushed', 'Twisted', 'Knotted', 'Cut edge']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Brushed, Twisted, Knotted, Cut edge"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CONSTRUCTION</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.construction || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'construction', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'construction', selectedValue)}
+                          options={['Hand-tied', 'Machine-made', 'Woven', 'Knitted']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Hand-tied, Machine-made, Woven, Knitted"
                         />
                       </div>
                     </>
@@ -3369,13 +3267,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5-10%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -3391,13 +3288,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Design Sample Approval']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP / Design Sample Approval"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -3419,24 +3316,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pipeType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pipeType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pipeType', selectedValue)}
+                          options={['Round Pipe', 'Square Rod', 'Flat Bar', 'Custom Shape']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Round Pipe, Square Rod, Flat Bar, Custom Shape"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pipeMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pipeMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pipeMaterial', selectedValue)}
+                          options={['PVC', 'Polypropylene', 'Nylon', 'ABS', 'Polyethylene']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="PVC, Polypropylene, Nylon, ABS, Polyethylene"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3463,46 +3360,46 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pipeColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pipeColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pipeColour', selectedValue)}
+                          options={['White', 'Black', 'Clear', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="White, Black, Clear, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">END CAPS</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.endCaps || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'endCaps', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'endCaps', selectedValue)}
+                          options={['Open', 'Closed', 'Rounded', 'Flat']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Open, Closed, Rounded, Flat"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FLEXIBILITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.flexibility || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'flexibility', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'flexibility', selectedValue)}
+                          options={['Rigid', 'Semi-flexible', 'Flexible']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Rigid, Semi-flexible, Flexible"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">USAGE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pipeUsage || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pipeUsage', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pipeUsage', selectedValue)}
+                          options={['Hood drawstring channel', 'Waistband support', 'Reinforcement']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Hood drawstring channel, Waistband support, Reinforcement"
                         />
                       </div>
                     </>
@@ -3554,24 +3451,12 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
-                          value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
-                        />
+                                                  type="text"
+                                                  value={material.approval || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
@@ -3592,24 +3477,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.seamTapeType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'seamTapeType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'seamTapeType', selectedValue)}
+                          options={['PU Tape', 'TPU Tape', 'Hot Melt']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="PU Tape, TPU Tape, Hot Melt"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                <input
-                  type="text"
+                                        <SearchableDropdown
                           value={material.seamTapeMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'seamTapeMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'seamTapeMaterial', selectedValue)}
+                          options={['Polyurethane', 'Thermoplastic Polyurethane']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Polyurethane, Thermoplastic Polyurethane"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3625,13 +3510,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.seamTapeColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'seamTapeColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'seamTapeColour', selectedValue)}
+                          options={['Transparent', 'White', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Transparent, White, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3658,13 +3543,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">ELASTICITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.elasticity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'elasticity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'elasticity', selectedValue)}
+                          options={['Stretch %', 'Recovery %', 'Elastic Modulus']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Stretch %, Recovery %, Elastic Modulus"
                         />
                       </div>
                     </>
@@ -3717,13 +3602,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5-10%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -3739,13 +3623,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Technical Data Sheet']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S / INITIAL / IPP / Technical Data Sheet"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -3767,24 +3651,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.adhesiveType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'adhesiveType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'adhesiveType', selectedValue)}
+                          options={['Hot Melt', 'Contact Adhesive', 'Spray Adhesive']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Hot Melt, Contact Adhesive, Spray Adhesive"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL BASE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.materialBase || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'materialBase', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'materialBase', selectedValue)}
+                          options={['EVA', 'PU', 'Polyamide', 'Acrylic', 'Rubber-based']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="EVA, PU, Polyamide, Acrylic, Rubber-based"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3800,13 +3684,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">VISCOSITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.viscosity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'viscosity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'viscosity', selectedValue)}
+                          options={['Low', 'Medium', 'High (e.g', '5000 cPs', '15000 cPs)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Low, Medium, High (e.g., 5000 cPs, 15000 cPs)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3822,24 +3706,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.adhesiveColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'adhesiveColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'adhesiveColour', selectedValue)}
+                          options={['Transparent', 'White', 'Yellow', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Transparent, White, Yellow, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATOR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.applicator || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'applicator', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'applicator', selectedValue)}
+                          options={['Gun applicator', 'Spray gun', 'Roller', 'Brush']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Gun applicator, Spray gun, Roller, Brush"
                         />
                       </div>
                     </>
@@ -3879,26 +3763,25 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', selectedValue)}
+                          options={['Liters (L)', 'Kilograms (Kgs)', 'Cans']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Liters (L), Kilograms (Kgs), or Cans"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5-10%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -3914,13 +3797,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Safety Data Sheet (SDS)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S / INITIAL / IPP / Safety Data Sheet (SDS)"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -3942,35 +3825,35 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.hemType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hemType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hemType', selectedValue)}
+                          options={['Bias Binding', 'Straight Cut', 'Curved Hem']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Bias Binding, Straight Cut, Curved Hem"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                <input
-                  type="text"
+                                        <SearchableDropdown
                           value={material.hemMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hemMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hemMaterial', selectedValue)}
+                          options={['Cotton', 'Polyester', 'Blend', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Cotton, Polyester, Blend, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CUT TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cutType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cutType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cutType', selectedValue)}
+                          options={['Straight', 'Bias (45°)', 'Curved']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Straight, Bias (45°), Curved"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -3986,35 +3869,35 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FOLD TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.foldType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'foldType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'foldType', selectedValue)}
+                          options={['Single fold', 'Double fold', 'Unfolded']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Single fold, Double fold, Unfolded"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.hemColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hemColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hemColour', selectedValue)}
+                          options={['White', 'Black', 'Navy', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="White, Black, Navy, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PACKAGING</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.hemPackaging || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hemPackaging', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hemPackaging', selectedValue)}
+                          options={['Roll', 'Folded', 'Continuous length']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Roll, Folded, Continuous length"
                         />
                       </div>
                     </>
@@ -4067,13 +3950,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -4089,13 +3971,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4117,13 +3999,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.reflectiveType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveType', selectedValue)}
+                          options={['Glass Bead', 'Prismatic', 'Microprismatic']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Glass Bead, Prismatic, Microprismatic"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -4161,24 +4043,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.certification || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'certification', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'certification', selectedValue)}
+                          options={['EN ISO 20471', 'ANSI', 'ISEA 107', 'CSA Z96']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="EN ISO 20471, ANSI/ISEA 107, CSA Z96"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">BASE FABRIC</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.baseFabric || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'baseFabric', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'baseFabric', selectedValue)}
+                          options={['Polyester', 'Nylon', 'Cotton', 'Blend']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Polyester, Nylon, Cotton, Blend"
                         />
                       </div>
                     </>
@@ -4230,24 +4112,23 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5-10%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Compliance Certificate']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP / Compliance Certificate"
                         />
                       </div>
                         <div className="flex flex-col">
@@ -4281,24 +4162,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.frType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'frType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'frType', selectedValue)}
+                          options={['Tape', 'Trim', 'Binding', 'Webbing']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Tape, Trim, Binding, Webbing"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.frMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'frMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'frMaterial', selectedValue)}
+                          options={['Nomex', 'Kevlar', 'FR Cotton', 'FR Polyester']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Nomex, Kevlar, FR Cotton, FR Polyester"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -4314,35 +4195,35 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.frColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'frColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'frColour', selectedValue)}
+                          options={['Yellow', 'Orange', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Yellow, Orange, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.durability || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'durability', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'durability', selectedValue)}
+                          options={['Wash durability', 'Lightfastness', 'Abrasion resistance']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Wash durability, Lightfastness, Abrasion resistance"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COMPONENTS</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.frComponents || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'frComponents', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'frComponents', selectedValue)}
+                          options={['Base fabric', 'Coating', 'Thread', 'Adhesive']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Base fabric, Coating, Thread, Adhesive"
                         />
                       </div>
                     </>
@@ -4394,24 +4275,23 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Certification Test Report']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP / Certification Test Report"
                         />
                       </div>
                         <div className="flex flex-col">
@@ -4445,13 +4325,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.repairKitType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'repairKitType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'repairKitType', selectedValue)}
+                          options={['Patch Kit', 'Repair Tape', 'Adhesive Patch']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Patch Kit, Repair Tape, Adhesive Patch"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -4511,13 +4391,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CONTENTS</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.contents || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'contents', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'contents', selectedValue)}
+                          options={['Patch', 'Adhesive', 'Instructions', 'Cleaning wipes']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Patch, Adhesive, Instructions, Cleaning wipes"
                         />
                       </div>
                     </>
@@ -4570,13 +4450,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5-10%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -4592,13 +4471,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Instruction Manual']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP / Instruction Manual"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4620,13 +4499,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cordStopType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopType', selectedValue)}
+                          options={['Cord Stop', 'Cord Lock', 'Toggle', 'Spring Lock']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Cord Stop, Cord Lock, Toggle, Spring Lock"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -4653,13 +4532,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.cordStopColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopColour', selectedValue)}
+                          options={['Black', 'White', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Black, White, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -4733,24 +4612,23 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 3-5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Functionality Approval']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S / INITIAL / IPP / Functionality Approval"
                         />
                       </div>
                         <div className="flex flex-col">
@@ -4784,24 +4662,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.dRingType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'dRingType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'dRingType', selectedValue)}
+                          options={['D-Ring', 'O-Ring', 'Webbing Loop', 'Triangle Ring']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="D-Ring, O-Ring, Webbing Loop, Triangle Ring"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.dRingMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'dRingMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'dRingMaterial', selectedValue)}
+                          options={['Steel', 'Stainless Steel', 'Brass', 'Aluminium', 'Plastic']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Steel, Stainless Steel, Brass, Aluminium, Plastic"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -4914,7 +4792,6 @@ const Step3 = ({
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -4931,13 +4808,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Load Test Certificate']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S / INITIAL / IPP / Load Test Certificate"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4959,13 +4836,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.foamType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'foamType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'foamType', selectedValue)}
+                          options={['Polyurethane', 'Polyethylene', 'EVA', 'Memory Foam']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Polyurethane, Polyethylene, EVA, Memory Foam"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -5003,35 +4880,35 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.foamColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'foamColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'foamColour', selectedValue)}
+                          options={['White', 'Grey', 'Black', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="White, Grey, Black, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PROPERTIES</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.properties || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'properties', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'properties', selectedValue)}
+                          options={['Firm', 'Soft', 'High resilience', 'Anti-microbial']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Firm, Soft, High resilience, Anti-microbial"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">ATTACHMENT</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.foamAttachment || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'foamAttachment', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'foamAttachment', selectedValue)}
+                          options={['Adhesive-backed', 'Sewn-in', 'Velcro', 'Snap-on']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Adhesive-backed, Sewn-in, Velcro, Snap-on"
                         />
                       </div>
                     </>
@@ -5084,13 +4961,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
@@ -5106,13 +4982,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Foam Sample Approval']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP / Foam Sample Approval"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -5134,24 +5010,24 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pinType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinType', selectedValue)}
+                          options={['Tagging Pin', 'Safety Pin', 'T-Pin', 'U-Pin']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Tagging Pin, Safety Pin, T-Pin, U-Pin"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pinMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinMaterial', selectedValue)}
+                          options={['Stainless Steel', 'Nickel-plated', 'Brass', 'Plastic']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Stainless Steel, Nickel-plated, Brass, Plastic"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -5167,13 +5043,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pinColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinColour', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinColour', selectedValue)}
+                          options={['Silver', 'Gold', 'Black', 'DTM']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Silver, Gold, Black, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -5189,24 +5065,24 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">HEAD TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.headType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'headType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'headType', selectedValue)}
+                          options={['Round head', 'Flat head', 'Ball head', 'T-head']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Round head, Flat head, Ball head, T-head"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.pinApplication || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinApplication', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinApplication', selectedValue)}
+                          options={['Tagging', 'Pattern holding', 'Temporary fastening']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Tagging, Pattern holding, Temporary fastening"
                         />
                       </div>
                     </>
@@ -5259,13 +5135,12 @@ const Step3 = ({
                         <div className="flex flex-col flex-1">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 10%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
@@ -5281,13 +5156,13 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -5309,13 +5184,13 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.magneticType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticType', selectedValue)}
+                          options={['Magnetic Snap', 'Magnetic Button', 'Magnetic Closure']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Magnetic Snap, Magnetic Button, Magnetic Closure"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -5353,13 +5228,13 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">POLARITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.polarity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'polarity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'polarity', selectedValue)}
+                          options={['North-South', 'Attracting pair', 'Repelling pair']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="North-South, Attracting pair, Repelling pair"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -5392,35 +5267,34 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', selectedValue)}
+                          options={['Pairs (Male', 'Female set)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Pairs (Male/Female set)"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                         <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 3-5%)"
-                        />
+                                                  type="text"
+                                                  value={material.surplus || ''}
+                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <input
-                          type="text"
+                                                <SearchableDropdown
                           value={material.approval || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'approval', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Magnet Field Strength']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="BUYER'S/INITIAL/IPP / Magnet Field Strength"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">

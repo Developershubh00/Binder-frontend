@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import SearchableDropdown from '../SearchableDropdown';
 
 const Step5 = ({
   formData,
@@ -266,22 +267,13 @@ const Step5 = ({
             <div className="w-full mt-6 pt-6 border-t border-gray-100">
               <div className="flex flex-col" style={{ width: '280px', marginBottom: '24px' }}>
                 <label className="text-sm font-bold text-gray-800 mb-2">PACKAGING MATERIAL TYPE</label>
-                <select
+                <SearchableDropdown
                   value={material.packagingMaterialType || ''}
-                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                  style={{ padding: '10px 14px', height: '44px' }}
-                >
-                  <option value="">Select Type</option>
-                  <option value="CARTONS/CORRUGATED BOX">CARTONS/CORRUGATED BOX</option>
-                  <option value="PACKAGING ACCESSORIES">PACKAGING ACCESSORIES</option>
-                  <option value="TAPE">TAPE</option>
-                  <option value="POLYBAG">POLYBAG</option>
-                  <option value="POLY BAG WITH FLAP">POLY BAG WITH FLAP</option>
-                  <option value="POLYSHEET">POLYSHEET</option>
-                  <option value="BALE WRAP">BALE WRAP</option>
-                  <option value="OTHER">OTHER</option>
-                </select>
+                  onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', selectedValue)}
+                  options={['CARTONS/CORRUGATED BOX', 'PACKAGING ACCESSORIES', 'TAPE', 'POLYBAG', 'POLY BAG WITH FLAP', 'POLYSHEET', 'BALE WRAP', 'OTHER']}
+                  placeholder="Select or type Material Type"
+                  style={{ width: '280px' }}
+                />
               </div>
 
               {material.packagingMaterialType && (
@@ -291,24 +283,20 @@ const Step5 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">NO. OF PLYS</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.noOfPlys || ''}
-                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'noOfPlys', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="5 PLY/7 PLY"
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'noOfPlys', selectedValue)}
+                          options={['5 PLY', '7 PLY']}
+                          placeholder="Select or type No. of Plys"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.jointType || ''}
-                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'jointType', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="STAPLE/BINDED"
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'jointType', selectedValue)}
+                          options={['STAPLE', 'BINDED']}
+                          placeholder="Select or type Joint Type"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -341,13 +329,11 @@ const Step5 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.gummingQuality || ''}
-                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="High/Standard"
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', selectedValue)}
+                          options={['High', 'Standard']}
+                          placeholder="Select or type Gumming Quality"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -420,13 +406,11 @@ const Step5 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.gummingQuality || ''}
-                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Strong/Standard"
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', selectedValue)}
+                          options={['Strong', 'Standard']}
+                          placeholder="Select or type Gumming Quality"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -569,13 +553,11 @@ const Step5 = ({
                   {/* Approval Against - For all types */}
                   <div className="flex flex-col">
                     <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL AGAINST</label>
-                    <input
-                      type="text"
+                    <SearchableDropdown
                       value={material.approvalAgainst || ''}
-                      onChange={(e) => handlePackagingMaterialChange(materialIndex, 'approvalAgainst', e.target.value)}
-                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                      style={{ padding: '10px 14px', height: '44px' }}
-                      placeholder="BUYER'S/INITIAL/PP SAMPLE"
+                      onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'approvalAgainst', selectedValue)}
+                      options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                      placeholder="Select or type Approval Against"
                     />
                   </div>
 

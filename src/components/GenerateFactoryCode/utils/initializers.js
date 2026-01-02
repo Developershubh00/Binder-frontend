@@ -14,6 +14,7 @@ export const initializeRawMaterials = (formData) => {
         materialDescription: '',
         netConsumption: '',
         unit: component.unit || '',
+        materialType: '', // 'Yarn' or 'Fabric'
         fiberType: '',
         yarnType: '',
         spinningMethod: '',
@@ -41,12 +42,12 @@ export const initializeRawMaterials = (formData) => {
         fabricTestingRequirements: '',
         fabricFiberCategory: '',
         fabricOrigin: '',
-        fabricCertifications: null,
+        fabricCertifications: '',
         spinningType: '',
         testingRequirements: '',
         fiberCategory: '',
         origin: '',
-        certifications: null,
+        certifications: '',
         workOrders: [{
           workOrder: '',
           wastage: '',
