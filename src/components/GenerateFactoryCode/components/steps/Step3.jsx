@@ -208,7 +208,7 @@ const Step3 = ({
                 <SearchableDropdown
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
-                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS & EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS / CORD LOCKS / TOGGLES', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURES / SNAPS']}
+                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS / CORD LOCKS / TOGGLES', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURES / SNAPS']}
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
                   onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1954,177 +1954,240 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* HOOKS & EYES Fields */}
-                  {material.trimAccessory === 'HOOKS & EYES' && (
+                  {/* HOOKS & EYES Fields - Complete implementation based on image data */}
+                  {material.trimAccessory === 'HOOKS-EYES' && (
                     <>
+                      {/* TYPE */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                                                <SearchableDropdown
+                        <SearchableDropdown
                           value={material.hookEyeType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeType', selectedValue)}
-                          options={['Hook', 'Eye', 'Hook & Eye Set', 'Bar']}
+                          options={['Standard Hook & Eye', 'Trouser Hook & Bar', 'Skirt Hook & Bar', 'Bra Hook', 'Fur Hook', 'Covered']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
+
+                      {/* MATERIAL */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.hookEyeMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeMaterial', selectedValue)}
+                          options={['Metal (Brass, Stainless Steel, Nickel-Free)', 'Nylon (lingerie)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Brass, Steel, Nickel Plated, DTM"
                         />
                       </div>
+
+                      {/* SIZE */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
-                        <input
-                          type="text"
-                          value={material.hookEyeSize || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeSize', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., #1, #2, #3, Small, Medium, Large"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                                                <SearchableDropdown
-                          value={material.hookEyeColour || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeColour', selectedValue)}
-                          options={['Black', 'Silver', 'Nickel', 'DTM']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                                                <SearchableDropdown
-                          value={material.hookEyeFinish || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeFinish', selectedValue)}
-                          options={['Polished', 'Matte', 'Plated', 'Coated']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
-                                                <SearchableDropdown
-                          value={material.strength || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'strength', selectedValue)}
-                          options={['Holding Power (e.g', '10kg)']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                                                <SearchableDropdown
-                          value={material.application || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'application', selectedValue)}
-                          options={['Waistband', 'Bra closure', 'Garment fastening']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* HOOKS & EYES - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'HOOKS & EYES' && (
-                    <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
                         <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Holding Power Test', 'Corrosion Resistance']}
-                          placeholder="Select or type Testing Requirements"
+                          value={material.hookEyeSize || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeSize', selectedValue)}
+                          options={['Small', 'Medium', 'Large', 'Length of Hook/Bar (mm)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
+
+                      {/* COLOUR/FINISH */}
                       <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                          id={`upload-hooks-${materialIndex}`}
-                        />
-                        <label
-                          htmlFor={`upload-hooks-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                        </label>
-                      </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                        <input
-                          type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR/FINISH</label>
+                        <SearchableDropdown
+                          value={material.hookEyeColourFinish || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeColourFinish', selectedValue)}
+                          options={['Black', 'Silver', 'Antique Brass', 'Thread Covered (DTM)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Gross (144 sets) or Sets"
                         />
                       </div>
+
+                      {/* FINISH TYPE */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISH TYPE</label>
+                        <SearchableDropdown
+                          value={material.hookEyeFinishType || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeFinishType', selectedValue)}
+                          options={['Plating', 'Non-Pinching', 'Round Edge (comfort)']}
+                          placeholder="Select or type"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+
+                      {/* PLACEMENT with UPLOAD REFERENCE IMAGE */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                        <input
-                                                  type="text"
-                                                  value={material.surplus || ''}
-                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                                                />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
                           <input
                             type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                            value={material.hookEyePlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyePlacement', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="TEXT"
                           />
                         </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD REFERENCE IMAGE</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-hooks-reference-${materialIndex}`}
+                          />
+                          <label
+                            htmlFor={`upload-hooks-reference-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '140px' }}
+                          >
+                            {material.hookEyeReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
+                          </label>
+                        </div>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+
+                      {/* QTY */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
+                        <input
+                          type="text"
+                          value={material.hookEyeQty || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeQty', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="PAIR PER PC"
+                        />
+                      </div>
+
+                      {/* TESTING REQUIREMENTS DROPDOWN */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                        <SearchableDropdown
+                          value={material.hookEyeTestingRequirements || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeTestingRequirements', selectedValue)}
+                          options={['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
+
+                      {/* SURPLUS %} */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
+                        <input
+                          type="text"
+                          value={material.hookEyeSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeSurplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., 3-5%)"
+                        />
+                      </div>
+
+                      {/* WASTAGE %} */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                        <input
+                          type="text"
+                          value={material.hookEyeWastage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeWastage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE (e.g., Waistband, Neckline, Bra Back, Side Closure)"
+                        />
+                      </div>
+
+                      {/* APPROVAL */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <SearchableDropdown
+                          value={material.hookEyeApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeApproval', selectedValue)}
+                          options={["BUYER'S / INITIAL / PP SAMPLE", 'BUYER\'S', 'INITIAL', 'PP SAMPLE']}
+                          placeholder="Select or type"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+
+                      {/* REMARKS */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.hookEyeRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'hookEyeRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Ensure the bar is flat and non-bulky..."
+                          style={{ padding: '10px 14px', minHeight: '80px' }}
+                          rows="3"
+                          placeholder="Flat bar, Prevent accidental release"
                         />
                       </div>
+
+                      {/* ADVANCE DATA Button */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex justify-start mt-4">
+                        <button
+                          type="button"
+                          onClick={() => handleConsumptionMaterialChange(materialIndex, 'hookEyeAdvanceDataOpen', !material.hookEyeAdvanceDataOpen)}
+                          className="border rounded-md cursor-pointer text-sm font-medium transition-all"
+                          style={{
+                            backgroundColor: '#f3f4f6',
+                            borderColor: '#d1d5db',
+                            color: '#374151',
+                            padding: '10px 16px',
+                            marginBottom: '0'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                            e.currentTarget.style.transform = 'translateX(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6';
+                            e.currentTarget.style.transform = 'translateX(0)';
+                          }}
+                        >
+                          {material.hookEyeAdvanceDataOpen ? 'HIDE ADVANCE DATA' : 'ADVANCE DATA'}
+                        </button>
+                      </div>
+
+                      {/* STRENGTH and APPLICATION - Only show when ADVANCE DATA is open */}
+                      {material.hookEyeAdvanceDataOpen && (
+                        <>
+                          {/* STRENGTH - From ADVANCE SPEC~UI */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
+                            <SearchableDropdown
+                              value={material.hookEyeStrength || ''}
+                              onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeStrength', selectedValue)}
+                              options={['Holding Power (force to pull apart)']}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            />
+                          </div>
+
+                          {/* APPLICATION - From ADVANCE SPEC~UI */}
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                            <SearchableDropdown
+                              value={material.hookEyeApplication || ''}
+                              onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeApplication', selectedValue)}
+                              options={['Waistband', 'Bra/Lingerie', 'Neckline', 'Fur Coat']}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            />
+                          </div>
+                        </>
+                      )}
                     </>
                   )}
 
