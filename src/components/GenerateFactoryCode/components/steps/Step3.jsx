@@ -2042,45 +2042,34 @@ const Step3 = ({
                   {/* INTERLINING/FUSING Fields */}
                   {material.trimAccessory === 'INTERLINING/FUSING' && (
                     <>
-              <div className="flex flex-col">
+                      <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.interliningType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningType', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningType', selectedValue)}
+                          options={['Woven', 'Non-Woven', 'Knit', 'Fusible (adhesive)', 'Non-Fusible (sew-in)', 'Weft Insert', 'Bi-Stretch']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Woven, Non-woven, Knitted, Fusible"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.interliningMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningMaterial', selectedValue)}
+                          options={['Polyester', 'Cotton', 'Cellulose (Rayon)', 'Polyamide', 'Blends']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Polyester, Cotton, Viscose, Blend"
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">GSM/WEIGHT</label>
-                        <input
-                          type="text"
-                          value={material.gsmWeight || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'gsmWeight', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 80 GSM, 100 GSM, 120 GSM"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE</label>
-                                                <SearchableDropdown
-                          value={material.adhesive || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'adhesive', selectedValue)}
-                          options={['PA (Polyamide)', 'PES (Polyester)', 'EVA']}
+                        <label className="text-sm font-semibold text-gray-700 mb-2">ADHESIVE TYPE</label>
+                        <SearchableDropdown
+                          value={material.interliningAdhesiveType || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningAdhesiveType', selectedValue)}
+                          options={['PA (Polyamide)', 'LDPE', 'PES (Polyester)', 'Double Dot', 'Scatter Coat', 'Paste']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -2088,25 +2077,94 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.interliningColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningColour', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="White, Black, Grey, DTM"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">FUSING SPEC</label>
-                                                <SearchableDropdown
-                          value={material.fusingSpec || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'fusingSpec', selectedValue)}
-                          options={['Temperature', 'Pressure', 'Time (e.g', '150°C', '3 bar', '12 sec)']}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningColour', selectedValue)}
+                          options={['White', 'Black', 'Grey', 'Charcoal', 'DTM']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
+                      </div>
+                      <div className="flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                          <input
+                            type="text"
+                            value={material.interliningPlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningPlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Text"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningPlacementReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-interlining-placement-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-interlining-placement-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
+                          >
+                            {material.interliningPlacementReferenceImage ? 'UPLOADED' : 'REF IMAGE'}
+                          </label>
+                        </div>
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
+                        <SearchableDropdown
+                          value={material.interliningSizeSpec || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningSizeSpec', selectedValue)}
+                          options={['CM']}
+                          placeholder="Select SIZE SPEC"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px', marginBottom: '16px' }}
+                        />
+                        
+                        {/* Fields shown when CM is selected */}
+                        {material.interliningSizeSpec === 'CM' && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">GSM</label>
+                              <input
+                                type="text"
+                                value={material.interliningGsm || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningGsm', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="GSM"
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">LENGTH</label>
+                              <input
+                                type="text"
+                                value={material.interliningLength || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningLength', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="LENGTH"
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">WIDTH</label>
+                              <input
+                                type="text"
+                                value={material.interliningWidth || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningWidth', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="WIDTH"
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -2114,75 +2172,80 @@ const Step3 = ({
                   {/* INTERLINING/FUSING - Complete fields matching table exactly */}
                   {material.trimAccessory === 'INTERLINING/FUSING' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.interliningQty || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningQty', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Pieces"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.interliningKgs || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningKgs', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="KGS (CNS PER PC)"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.interliningYardage || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningYardage', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="YARDAGE (CNS PER PC)"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
                         <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Bond strength', 'Residual Shrinkage']}
+                          value={material.interliningTestingRequirements || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningTestingRequirements', selectedValue)}
+                          options={['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through']}
                           placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
                         <input
-                          type="file"
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                          id={`upload-interlining-${materialIndex}`}
+                          type="text"
+                          value={material.interliningSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningSurplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 2-5%"
                         />
-                        <label
-                          htmlFor={`upload-interlining-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                </label>
-                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                        <input
-                          type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Meters or Yards per Roll"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                        <input
-                          type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                        <SearchableDropdown
+                          value={material.interliningWastage || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningWastage', selectedValue)}
+                          options={['Collar', 'Cuff', 'Placket', 'Waistband', 'Facing', 'Full Front']}
+                          placeholder="Select or type Wastage %"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                        <SearchableDropdown
+                          value={material.interliningApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningApproval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -2191,13 +2254,96 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.interliningRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Specific hand feel required, Low shrinkage..."
+                          placeholder="Hand feel required, Low shrinkage, Shell compatible"
                         />
+                      </div>
+
+                      {/* INTERLINING/FUSING - Advance Spec Button and Fields */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
+                        {/* Show/Hide Advance Spec Button */}
+                        <div style={{ marginBottom: '20px', width: '100%' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleConsumptionMaterialChange(materialIndex, 'showInterliningAdvancedSpec', !material.showInterliningAdvancedSpec)}
+                            className="border-2 rounded-lg text-sm font-medium transition-all"
+                            style={{
+                              padding: '10px 20px',
+                              height: '44px',
+                              backgroundColor: material.showInterliningAdvancedSpec ? '#667eea' : '#ffffff',
+                              borderColor: material.showInterliningAdvancedSpec ? '#667eea' : '#e5e7eb',
+                              color: material.showInterliningAdvancedSpec ? '#ffffff' : '#374151'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!material.showInterliningAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#f9fafb';
+                                e.currentTarget.style.borderColor = '#d1d5db';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!material.showInterliningAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.borderColor = '#e5e7eb';
+                              }
+                            }}
+                          >
+                            ADVANCE SPEC
+                          </button>
+                        </div>
+                        
+                        {/* Advanced Spec Fields */}
+                        {material.showInterliningAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">DOT DENSITY</label>
+                              <SearchableDropdown
+                                value={material.interliningDotDensity || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningDotDensity', selectedValue)}
+                                options={['Light', 'Medium', 'Heavy (affects bond & hand)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">STRETCH</label>
+                              <SearchableDropdown
+                                value={material.interliningStretch || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningStretch', selectedValue)}
+                                options={['Non-Stretch', 'Warp Stretch', 'Bi-Stretch (2-way)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">FUSING SPEC</label>
+                              <SearchableDropdown
+                                value={material.interliningFusingSpec || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningFusingSpec', selectedValue)}
+                                options={['Temperature (±5°C)', 'Pressure (±0.5 Bar)', 'Time (±1 sec)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">HAND FEEL</label>
+                              <SearchableDropdown
+                                value={material.interliningHandFeel || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningHandFeel', selectedValue)}
+                                options={['Soft', 'Medium', 'Crisp', 'Firm']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
