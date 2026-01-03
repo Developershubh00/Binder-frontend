@@ -209,7 +209,7 @@ const Step3 = ({
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
 
-                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS / CORD LOCKS / TOGGLES', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURES / SNAPS']}
+                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURES / SNAPS']}
 
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
@@ -5076,15 +5076,15 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* CORD STOPS / CORD LOCKS / TOGGLES Fields */}
-                  {material.trimAccessory === 'CORD STOPS / CORD LOCKS / TOGGLES' && (
+                  {/* CORD RING Fields */}
+                  {material.trimAccessory === 'CORD STOPS' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                                                <SearchableDropdown
+                        <SearchableDropdown
                           value={material.cordStopType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopType', selectedValue)}
-                          options={['Cord Stop', 'Cord Lock', 'Toggle', 'Spring Lock']}
+                          options={['Single Hole', 'Double Hole', 'Barrel Lock', 'Toggle', 'Spring Loaded', 'Squeeze Release', 'Ball Lock']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -5092,32 +5092,32 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.cordStopMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopMaterial', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopMaterial', selectedValue)}
+                          options={['Plastic (Acetal/POM)', 'Plastic (Nylon)', 'Plastic (ABS)', 'Metal (Zinc Alloy)', 'Metal (Brass)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Nylon, Acetal, POM, Plastic"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.cordStopSize || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopSize', e.target.value)}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopSize', selectedValue)}
+                          options={['3mm', '4mm', '5mm', '6mm']}
+                          placeholder="Select or type (Cord Diameter fit)"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 3mm, 4mm, 5mm, Small, Medium, Large"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                                                <SearchableDropdown
+                        <SearchableDropdown
                           value={material.cordStopColour || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopColour', selectedValue)}
-                          options={['Black', 'White', 'DTM']}
+                          options={['DTM', 'Black', 'Clear', 'Plating (metal)']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -5125,116 +5125,197 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LOCKING MECHANISM</label>
-                        <input
-                          type="text"
-                          value={material.lockingMechanism || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lockingMechanism', e.target.value)}
+                        <SearchableDropdown
+                          value={material.cordStopLockingMechanism || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopLockingMechanism', selectedValue)}
+                          options={['Spring Tension (force to depress)', 'Grip Type']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Spring-loaded, Friction, Cam lock, Push-pull"
                         />
                       </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
-                        <input
-                          type="text"
-                          value={material.cordStopFunction || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopFunction', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Adjustable tension, Lock cord, Release mechanism"
-                        />
+                      <div className="flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                          <input
+                            type="text"
+                            value={material.cordStopPlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopPlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Text"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-cord-placement-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-cord-placement-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm  cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
+                          >
+                            {material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                          </label>
+                        </div>
                       </div>
                     </>
                   )}
 
-                  {/* CORD STOPS / CORD LOCKS / TOGGLES - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'CORD STOPS / CORD LOCKS / TOGGLES' && (
+                  {/* CORD RING - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'CORD STOPS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Locking Strength, UV"
-                        />
-                      </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                          <SearchableDropdown
+                            value={material.cordStopTestingRequirements || ''}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopTestingRequirements', selectedValue)}
+                            options={['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic']}
+                            placeholder="Select or type Testing Requirements"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-cord-placement-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-cord-placement-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
+                          >
+                            {material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
                         <input
                           type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          value={material.cordStopQty || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopQty', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="Unit: Pieces"
                         />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-cord-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-cord-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
-                        </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
+                        <input
+                          type="text"
+                          value={material.cordStopSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopSurplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 3-5%"
+                        />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
                         <input
-                                                  type="text"
-                                                  value={material.surplus || ''}
-                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                                                />
+                          type="text"
+                          value={material.cordStopWastage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopWastage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 3-5%"
+                        />
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                        <SearchableDropdown
+                          value={material.cordStopApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopApproval', selectedValue)}
                           options={["BUYER'S", 'INITIAL', 'IPP', 'Functionality Approval']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
-                      </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.cordStopRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Required: ergonomic finger grip, No snagging edges..."
+                          placeholder="Ergonomic grip, No snagging on cord opening"
                         />
+                      </div>
+
+                      {/* CORD RING - Advance Spec Button and Fields */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
+                        {/* Show/Hide Advance Spec Button */}
+                        <div style={{ marginBottom: '20px', width: '100%' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleConsumptionMaterialChange(materialIndex, 'showCordStopAdvancedSpec', !material.showCordStopAdvancedSpec)}
+                            className="border-2 rounded-lg text-sm font-medium transition-all"
+                            style={{
+                              padding: '10px 20px',
+                              height: '44px',
+                              backgroundColor: material.showCordStopAdvancedSpec ? '#667eea' : '#ffffff',
+                              borderColor: material.showCordStopAdvancedSpec ? '#667eea' : '#e5e7eb',
+                              color: material.showCordStopAdvancedSpec ? '#ffffff' : '#374151'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!material.showCordStopAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#f9fafb';
+                                e.currentTarget.style.borderColor = '#d1d5db';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!material.showCordStopAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.borderColor = '#e5e7eb';
+                              }
+                            }}
+                          >
+                            ADVANCE SPEC
+                          </button>
+                        </div>
+                        
+                        {/* Advanced Spec Fields */}
+                        {material.showCordStopAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
+                              <SearchableDropdown
+                                value={material.cordStopFunction || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopFunction', selectedValue)}
+                                options={['Adjustment', 'Decoration', "Safety Breakaway (children's wear)"]}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">BREAKAWAY</label>
+                              <SearchableDropdown
+                                value={material.cordStopBreakaway || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopBreakaway', selectedValue)}
+                                options={['Standard', 'Safety Breakaway (child safety)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
