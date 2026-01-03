@@ -209,7 +209,7 @@ const Step3 = ({
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
 
-                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PIN-BARBS', 'MAGNETIC CLOSURE']}
+                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PIN-BARBS', 'MAGNETIC CLOSURE']}
 
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
@@ -2039,8 +2039,8 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* INTERLINING/FUSING Fields */}
-                  {material.trimAccessory === 'INTERLINING/FUSING' && (
+                  {/* INTERLINING Fields */}
+                  {material.trimAccessory === 'INTERLINING' && (
                     <>
               <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
@@ -2169,8 +2169,8 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* INTERLINING/FUSING - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'INTERLINING/FUSING' && (
+                  {/* INTERLINING - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'INTERLINING' && (
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
@@ -2263,7 +2263,7 @@ const Step3 = ({
                         />
                       </div>
 
-                      {/* INTERLINING/FUSING - Advance Spec Button and Fields */}
+                      {/* INTERLINING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         {/* Show/Hide Advance Spec Button */}
                         <div style={{ marginBottom: '20px', width: '100%' }}>
@@ -4835,15 +4835,15 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* REFLECTIVE TAPES / TRIMS Fields */}
-                  {material.trimAccessory === 'REFLECTIVE TAPES / TRIMS' && (
+                  {/* REFLECTIVE TAPES Fields */}
+                  {material.trimAccessory === 'REFLECTIVE TAPES' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                                                 <SearchableDropdown
-                          value={material.reflectiveType || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveType', selectedValue)}
-                          options={['Glass Bead', 'Prismatic', 'Microprismatic']}
+                          value={material.reflectiveTapeType || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeType', selectedValue)}
+                          options={['Sew-on Tape', 'Heat Transfer Film', 'Piping', 'Segmented/Perforated', 'Stretch Reflective']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -4851,43 +4851,21 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
-                          value={material.reflectiveMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveMaterial', e.target.value)}
+                        <SearchableDropdown
+                          value={material.reflectiveTapeMaterial || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeMaterial', selectedValue)}
+                          options={['Glass Bead Technology', 'Micro-Prismatic Vinyl (higher)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="PVC, Polyester, Polyurethane, Fabric-backed"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
-                        <input
-                          type="text"
-                          value={material.reflectiveWidth || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveWidth', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 25mm, 50mm, 75mm"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <input
-                          type="text"
-                          value={material.reflectiveColour || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveColour', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Silver, Yellow, Orange, DTM"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
-                                                <SearchableDropdown
-                          value={material.certification || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'certification', selectedValue)}
-                          options={['EN ISO 20471', 'ANSI', 'ISEA 107', 'CSA Z96']}
+                        <SearchableDropdown
+                          value={material.reflectiveTapeColour || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeColour', selectedValue)}
+                          options={['Silver/Grey', 'Fluorescent Yellow/Lime', 'Fluorescent Orange', 'Coloured']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -4896,104 +4874,265 @@ const Step3 = ({
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">BASE FABRIC</label>
                                                 <SearchableDropdown
-                          value={material.baseFabric || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'baseFabric', selectedValue)}
-                          options={['Polyester', 'Nylon', 'Cotton', 'Blend']}
+                          value={material.reflectiveTapeBaseFabric || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeBaseFabric', selectedValue)}
+                          options={['Polyester', 'Cotton', 'FR (flame retardant)']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                    </>
-                  )}
-
-                  {/* REFLECTIVE TAPES / TRIMS - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'REFLECTIVE TAPES / TRIMS' && (
-                    <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Retro-reflection Coefficient"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                        <input
-                          type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Meters or Yards per Roll"
-                        />
-                      </div>
                       <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                        <div className="flex items-end gap-4">
+                          <input
+                            type="text"
+                            value={material.reflectiveTapePlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapePlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Enter placement"
+                          />
                           <input
                             type="file"
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapePlacementReferenceImage', e.target.files[0])}
                             className="hidden"
-                            id={`upload-reflective-${materialIndex}`}
+                            id={`upload-reflective-tape-placement-${materialIndex}`}
+                            accept="image/*"
                           />
                           <label
-                            htmlFor={`upload-reflective-${materialIndex}`}
+                            htmlFor={`upload-reflective-tape-placement-${materialIndex}`}
                             className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
                             style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
                           >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            {material.reflectiveTapePlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
+                          </label>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* REFLECTIVE TAPES - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'REFLECTIVE TAPES' && (
+                    <>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                          <SearchableDropdown
+                            value={material.reflectiveTapeTestingRequirements || ''}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeTestingRequirements', selectedValue)}
+                            options={['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance']}
+                            placeholder="Select or type Testing Requirements"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeTestingRequirementFile', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-reflective-tape-testing-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-reflective-tape-testing-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
+                          >
+                            {material.reflectiveTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
                           </label>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
+                        <SearchableDropdown
+                          value={material.reflectiveTapeSizeSpec || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeSizeSpec', selectedValue)}
+                          options={['CM']}
+                          placeholder="Select SIZE SPEC"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px', marginBottom: '16px' }}
+                        />
+                        
+                        {/* Fields shown when CM is selected */}
+                        {material.reflectiveTapeSizeSpec === 'CM' && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">GSM</label>
+                        <input
+                          type="text"
+                                value={material.reflectiveTapeGsm || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeGsm', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="GSM"
+                        />
+                      </div>
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">LENGTH</label>
+                        <input
+                          type="text"
+                                value={material.reflectiveTapeLengthCm || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeLengthCm', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="LENGTH"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">WIDTH</label>
+                          <input
+                                type="text"
+                                value={material.reflectiveTapeWidthCm || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeWidthCm', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="WIDTH"
+                              />
+                        </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="flex flex-col">
                         <input
                                                   type="text"
-                                                  value={material.surplus || ''}
-                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                              value={material.reflectiveTapeQty || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeQty', e.target.value)}
                                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                                   style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Pieces"
                                                 />
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.reflectiveTapeKgs || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeKgs', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="KGS (CNS PER PC)"
+                        />
+                      </div>
+                        <div className="flex flex-col">
+                          <input
+                            type="text"
+                              value={material.reflectiveTapeYardage || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeYardage', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="YARDAGE (CNS PER PC)"
+                          />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
+                        <input
+                          type="text"
+                          value={material.reflectiveTapeSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeSurplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="5-10%"
+                        />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                        <input
+                          type="text"
+                          value={material.reflectiveTapeWastage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeWastage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="5-10%"
+                        />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                        <SearchableDropdown
+                          value={material.reflectiveTapeApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeApproval', selectedValue)}
                           options={["BUYER'S", 'INITIAL', 'IPP', 'Compliance Certificate']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
-                      </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.reflectiveTapeRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Required: must be compatible with industrial laundering..."
+                          placeholder="Industrial launder compatible, No peel or crack"
                         />
+                      </div>
+
+                      {/* ADVANCE SPEC Section */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => handleConsumptionMaterialChange(materialIndex, 'showReflectiveTapeAdvancedSpec', !material.showReflectiveTapeAdvancedSpec)}
+                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
+                          style={{
+                            backgroundColor: '#f3f4f6',
+                            borderColor: '#d1d5db',
+                            color: '#374151',
+                            marginBottom: '16px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6';
+                          }}
+                        >
+                          {material.showReflectiveTapeAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
+                        </button>
+                        {material.showReflectiveTapeAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
+                              <SearchableDropdown
+                                value={material.reflectiveTapeCertification || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeCertification', selectedValue)}
+                                options={['ISO 20471', 'ANSI/ISEA 107', 'EN 469', 'EN 1150']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">WASH DURABILITY</label>
+                              <SearchableDropdown
+                                value={material.reflectiveTapeWashDurability || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeWashDurability', selectedValue)}
+                                options={['Wash cycles maintaining reflectivity (25, 50, Industrial)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">REFLECTIVITY</label>
+                              <SearchableDropdown
+                                value={material.reflectiveTapeReflectivity || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeReflectivity', selectedValue)}
+                                options={['Retro-reflection Coefficient (cd/lux/m²) - Class 1, 2']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -6109,8 +6248,19 @@ const Step3 = ({
                         <button
                           type="button"
                           onClick={() => handleConsumptionMaterialChange(materialIndex, 'showPinBarbAdvancedSpec', !material.showPinBarbAdvancedSpec)}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50 self-start"
-                          style={{ padding: '10px 20px', marginBottom: '16px' }}
+                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
+                          style={{
+                            backgroundColor: '#f3f4f6',
+                            borderColor: '#d1d5db',
+                            color: '#374151',
+                            marginBottom: '16px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6';
+                          }}
                         >
                           {material.showPinBarbAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
                         </button>
@@ -6331,28 +6481,20 @@ const Step3 = ({
                           <button
                             type="button"
                             onClick={() => handleConsumptionMaterialChange(materialIndex, 'showMagneticClosureAdvancedSpec', !material.showMagneticClosureAdvancedSpec)}
-                            className="border-2 rounded-lg text-sm font-medium transition-all"
+                            className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
                             style={{
-                              padding: '10px 20px',
-                              height: '44px',
-                              backgroundColor: material.showMagneticClosureAdvancedSpec ? '#667eea' : '#ffffff',
-                              borderColor: material.showMagneticClosureAdvancedSpec ? '#667eea' : '#e5e7eb',
-                              color: material.showMagneticClosureAdvancedSpec ? '#ffffff' : '#374151'
+                              backgroundColor: '#f3f4f6',
+                              borderColor: '#d1d5db',
+                              color: '#374151'
                             }}
                             onMouseEnter={(e) => {
-                              if (!material.showMagneticClosureAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#f9fafb';
-                                e.currentTarget.style.borderColor = '#d1d5db';
-                              }
+                              e.currentTarget.style.backgroundColor = '#e5e7eb';
                             }}
                             onMouseLeave={(e) => {
-                              if (!material.showMagneticClosureAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#ffffff';
-                                e.currentTarget.style.borderColor = '#e5e7eb';
-                              }
+                              e.currentTarget.style.backgroundColor = '#f3f4f6';
                             }}
                           >
-                            ADVANCE SPEC
+                            {material.showMagneticClosureAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
                           </button>
                         </div>
                         
