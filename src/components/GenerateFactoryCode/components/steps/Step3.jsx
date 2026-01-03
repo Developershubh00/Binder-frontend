@@ -209,7 +209,7 @@ const Step3 = ({
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
 
-                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURE']}
+                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PIN-BARBS', 'MAGNETIC CLOSURE']}
 
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
@@ -477,7 +477,7 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.buttonType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonType', selectedValue)}
                           options={['Sewing (Flat/Shank)', 'Snap (Press Stud)', 'Tack (Jeans)', 'Toggle', 'Magnetic', 'Covered']}
@@ -488,7 +488,7 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.buttonMaterial || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonMaterial', selectedValue)}
                           options={['Polyester', 'Metal (Brass, Alloy, Zinc)', 'Shell', 'Wood', 'Horn', 'Corozo', 'Coconut']}
@@ -510,7 +510,7 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LIGNE</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.buttonLigne || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonLigne', selectedValue)}
                           options={['14L', '16L', '18L', '20L', '22L', '24L', '26L', '28L', '30L', '32L', '34L', '36L', '38L', '40L']}
@@ -532,7 +532,7 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/COLOUR</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.buttonFinishColour || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonFinishColour', selectedValue)}
                           options={['DTM', 'Glossy', 'Matte', 'Engraved', 'Plated (Nickel)', 'Plated (Antique Brass)', 'Plated (Gunmetal)']}
@@ -1133,33 +1133,33 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
+                        <SearchableDropdown
                             value={material.buttonTestingRequirements || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonTestingRequirements', selectedValue)}
                             options={['Needle Detection', 'Pull Strength', 'Colour Fastness', 'REACH/OEKO-TEX', 'Corrosion']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                          placeholder="Select or type Testing Requirements"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
+                        <input
+                          type="file"
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
+                          className="hidden"
                             id={`upload-button-testing-${materialIndex}`}
                             accept="image/*"
-                          />
-                          <label
+                        />
+                        <label
                             htmlFor={`upload-button-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
                             style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
+                        >
                             {material.buttonTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
-                        </div>
+                </label>
                       </div>
+              </div>
                       
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
@@ -1171,11 +1171,11 @@ const Step3 = ({
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="Unit: Pieces"
                         />
-                      </div>
+            </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
                         <input
-                          type="text"
+                                                  type="text"
                           value={material.buttonSurplus || ''}
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonSurplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
@@ -1202,13 +1202,13 @@ const Step3 = ({
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonApproval', selectedValue)}
                             options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
+                        <input
                             type="file"
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonColorReference', e.target.files[0])}
                             className="hidden"
@@ -1222,17 +1222,17 @@ const Step3 = ({
                           >
                             {material.buttonColorReference ? 'UPLOADED' : 'UPLOAD COLOR REFERENCE'}
                           </label>
-                        </div>
+                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                          <textarea
+                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
+                        <textarea
                             value={material.buttonRemarks || ''}
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'buttonRemarks', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', minHeight: '44px' }}
-                            rows="1"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', minHeight: '44px' }}
+                          rows="1"
                             placeholder="Self-Shank, Laser Engraved Logo"
                           />
                         </div>
@@ -1757,7 +1757,7 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.feltType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltType', selectedValue)}
                           options={['Pressed Wool', 'Needle-Punched', 'Synthetic (Acrylic, Polyester, PP)', 'Non-Woven', 'Eco Felt']}
@@ -1785,13 +1785,13 @@ const Step3 = ({
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltColour', selectedValue)}
                             options={['Standard Colours', 'Pantone TPX/TCX', 'Heathered']}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px', width: '100%' }}
-                          />
-                        </div>
+                        />
+                      </div>
                         <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
+                        <input
                             type="file"
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltColorReference', e.target.files[0])}
                             className="hidden"
@@ -1805,11 +1805,11 @@ const Step3 = ({
                           >
                             {material.feltColorReference ? 'UPLOADED' : 'UPLOAD COLOUR'}
                           </label>
-                        </div>
+                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.feltSizeSpec || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltSizeSpec', selectedValue)}
                           options={['CM']}
@@ -1827,32 +1827,32 @@ const Step3 = ({
                                 type="text"
                                 value={material.feltGsm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltGsm', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="GSM"
-                              />
-                            </div>
-                            <div className="flex flex-col">
+                        />
+                      </div>
+                      <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">LENGTH</label>
                               <input
                                 type="text"
                                 value={material.feltLengthCm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltLengthCm', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="LENGTH"
-                              />
-                            </div>
-                            <div className="flex flex-col">
+                        />
+                      </div>
+                      <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                              <input
-                                type="text"
+                        <input
+                          type="text"
                                 value={material.feltWidthCm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltWidthCm', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="WIDTH"
-                              />
+                        />
                             </div>
                           </div>
                         )}
@@ -1871,13 +1871,13 @@ const Step3 = ({
                               type="text"
                               value={material.feltQty || ''}
                               onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltQty', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Pieces"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <input
+                        />
+              </div>
+                      <div className="flex flex-col">
+                        <input
                               type="text"
                               value={material.feltKgs || ''}
                               onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltKgs', e.target.value)}
@@ -1885,17 +1885,17 @@ const Step3 = ({
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="KGS (CNS PER PC)"
                             />
-                          </div>
+                      </div>
                           <div className="flex flex-col">
-                            <input
-                              type="text"
+                        <input
+                          type="text"
                               value={material.feltYardage || ''}
                               onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltYardage', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="YARDAGE (CNS PER PC)"
-                            />
-                          </div>
+                        />
+                      </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1912,13 +1912,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
                         <input
-                          type="text"
+                                                  type="text"
                           value={material.feltSurplus || ''}
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., 5%"
-                        />
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
@@ -1933,7 +1933,7 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.feltApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltApproval', selectedValue)}
                           options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
@@ -2042,7 +2042,7 @@ const Step3 = ({
                   {/* INTERLINING/FUSING Fields */}
                   {material.trimAccessory === 'INTERLINING/FUSING' && (
                     <>
-                      <div className="flex flex-col">
+              <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                         <SearchableDropdown
                           value={material.interliningType || ''}
@@ -2089,16 +2089,16 @@ const Step3 = ({
                       <div className="flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
-                            type="text"
+                        <input
+                          type="text"
                             value={material.interliningPlacement || ''}
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningPlacement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -2118,7 +2118,7 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.interliningSizeSpec || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningSizeSpec', selectedValue)}
                           options={['CM']}
@@ -2136,32 +2136,32 @@ const Step3 = ({
                                 type="text"
                                 value={material.interliningGsm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningGsm', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="GSM"
-                              />
-                            </div>
-                            <div className="flex flex-col">
+                        />
+                      </div>
+                      <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                              <input
-                                type="text"
+                        <input
+                          type="text"
                                 value={material.interliningLength || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningLength', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="LENGTH"
-                              />
-                            </div>
-                            <div className="flex flex-col">
+                        />
+                      </div>
+                      <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">WIDTH</label>
                               <input
                                 type="text"
                                 value={material.interliningWidth || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningWidth', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="WIDTH"
-                              />
+                        />
                             </div>
                           </div>
                         )}
@@ -2180,13 +2180,13 @@ const Step3 = ({
                               type="text"
                               value={material.interliningQty || ''}
                               onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningQty', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Pieces"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <input
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <input
                               type="text"
                               value={material.interliningKgs || ''}
                               onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningKgs', e.target.value)}
@@ -2194,17 +2194,17 @@ const Step3 = ({
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="KGS (CNS PER PC)"
                             />
-                          </div>
+                      </div>
                           <div className="flex flex-col">
-                            <input
-                              type="text"
+                        <input
+                          type="text"
                               value={material.interliningYardage || ''}
                               onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningYardage', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="YARDAGE (CNS PER PC)"
-                            />
-                          </div>
+                        />
+                      </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2220,15 +2220,15 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
+                          <input
+                            type="text"
                           value={material.interliningSurplus || ''}
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., 2-5%"
-                        />
-                      </div>
+                          />
+                        </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
                         <SearchableDropdown
@@ -2242,7 +2242,7 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.interliningApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningApproval', selectedValue)}
                           options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
@@ -5340,7 +5340,7 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.cordStopType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopType', selectedValue)}
                           options={['Single Hole', 'Double Hole', 'Barrel Lock', 'Toggle', 'Spring Loaded', 'Squeeze Release', 'Ball Lock']}
@@ -5373,7 +5373,7 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.cordStopColour || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopColour', selectedValue)}
                           options={['DTM', 'Black', 'Clear', 'Plating (metal)']}
@@ -5396,12 +5396,12 @@ const Step3 = ({
                       <div className="flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
-                            type="text"
+                        <input
+                          type="text"
                             value={material.cordStopPlacement || ''}
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopPlacement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
                         </div>
@@ -5437,11 +5437,11 @@ const Step3 = ({
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopTestingRequirements', selectedValue)}
                             options={['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic']}
                             placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -5463,13 +5463,13 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
                         <input
-                          type="text"
+                                                  type="text"
                           value={material.cordStopQty || ''}
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="Unit: Pieces"
-                        />
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
@@ -5484,15 +5484,15 @@ const Step3 = ({
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
+                          <input
+                            type="text"
                           value={material.cordStopWastage || ''}
                           onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'cordStopWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., 3-5%"
-                        />
-                      </div>
+                          />
+                        </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                         <SearchableDropdown
@@ -5927,15 +5927,15 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* PINS / TAGGING BARBS Fields */}
-                  {material.trimAccessory === 'PINS / TAGGING BARBS' && (
+                  {/* PIN-BARBS Fields */}
+                  {material.trimAccessory === 'PIN-BARBS' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                                                 <SearchableDropdown
-                          value={material.pinType || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinType', selectedValue)}
-                          options={['Tagging Pin', 'Safety Pin', 'T-Pin', 'U-Pin']}
+                          value={material.pinBarbType || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbType', selectedValue)}
+                          options={['Safety Pin', 'Straight Pin', 'Tagging Barb (plastic fastener)', 'Loop Pin', 'Ball Head Pin']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -5944,9 +5944,9 @@ const Step3 = ({
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
                                                 <SearchableDropdown
-                          value={material.pinMaterial || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinMaterial', selectedValue)}
-                          options={['Stainless Steel', 'Nickel-plated', 'Brass', 'Plastic']}
+                          value={material.pinBarbMaterial || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbMaterial', selectedValue)}
+                          options={['Plastic (Polypropylene)', 'Metal (Brass, Steel)', 'Stainless Steel']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -5956,132 +5956,137 @@ const Step3 = ({
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
                         <input
                           type="text"
-                          value={material.pinSize || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinSize', e.target.value)}
+                          value={material.pinBarbSize || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbSize', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 1.5 inch, 2 inch, 3 inch, Small, Medium, Large"
+                          placeholder="Length (25mm, 50mm, 1 inch), Needle Gauge (straight pins)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
                                                 <SearchableDropdown
-                          value={material.pinColour || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinColour', selectedValue)}
-                          options={['Silver', 'Gold', 'Black', 'DTM']}
+                          value={material.pinBarbColour || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbColour', selectedValue)}
+                          options={['Clear', 'Black', 'White', 'Plated (metal)']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TENSILE STRENGTH</label>
-                        <input
-                          type="text"
-                          value={material.pinTensileStrength || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinTensileStrength', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 5kg, 10kg, 15kg"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">HEAD TYPE</label>
                                                 <SearchableDropdown
-                          value={material.headType || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'headType', selectedValue)}
-                          options={['Round head', 'Flat head', 'Ball head', 'T-head']}
+                          value={material.pinBarbHeadType || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbHeadType', selectedValue)}
+                          options={['Pear Head', 'T-Bar', 'Smooth', 'Ball Head', 'Flat Head']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                                                <SearchableDropdown
-                          value={material.pinApplication || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinApplication', selectedValue)}
-                          options={['Tagging', 'Pattern holding', 'Temporary fastening']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                        <div className="flex items-end gap-4">
+                          <input
+                            type="text"
+                            value={material.pinBarbPlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbPlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                            placeholder="Enter placement"
+                          />
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbPlacementReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-pin-barb-placement-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-pin-barb-placement-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
+                          >
+                            {material.pinBarbPlacementReferenceImage ? 'UPLOADED' : 'IMAGE'}
+                          </label>
+                        </div>
                       </div>
                     </>
                   )}
 
-                  {/* PINS / TAGGING BARBS - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'PINS / TAGGING BARBS' && (
+                  {/* PIN-BARBS - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'PIN-BARBS' && (
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS DROPDOWN</label>
+                          <SearchableDropdown
+                            value={material.pinBarbTestingRequirements || ''}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbTestingRequirements', selectedValue)}
+                            options={['Needle Sharpness', 'Non-Rusting', 'Metal Detection (ferrous)']}
+                            placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Needle sharpness, Non-Rusting"
                         />
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbTestingRequirementFile', e.target.files[0])}
                             className="hidden"
-                            id={`upload-pins-${materialIndex}`}
+                            id={`upload-pin-barb-testing-${materialIndex}`}
+                            accept="image/*"
                           />
                           <label
-                            htmlFor={`upload-pins-${materialIndex}`}
+                            htmlFor={`upload-pin-barb-testing-${materialIndex}`}
                             className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
                             style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
                           >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            {material.pinBarbTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
                           </label>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
                         <input
                           type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          value={material.pinBarbQty || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbQty', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Pieces or Boxes"
+                          placeholder="PAIR PER PC"
                         />
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
                         <input
                                                   type="text"
-                                                  value={material.surplus || ''}
-                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          value={material.pinBarbSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbSurplus', e.target.value)}
                                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                                   style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="10%"
                                                 />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
                         <input
                           type="text"
-                          value={material.surplusForSection || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          value={material.pinBarbWastage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbWastage', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                          placeholder="FOR"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="10%"
                         />
-                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                                                 <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          value={material.pinBarbApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbApproval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -6090,13 +6095,62 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.pinBarbRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pinBarbRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Required: must be non-marking on delicate fabrics..."
+                          placeholder="Non-marking on delicate fabrics, Standard magazine cartridges"
                         />
+                      </div>
+
+                      {/* ADVANCE SPEC Section */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => handleConsumptionMaterialChange(materialIndex, 'showPinBarbAdvancedSpec', !material.showPinBarbAdvancedSpec)}
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50 self-start"
+                          style={{ padding: '10px 20px', marginBottom: '16px' }}
+                        >
+                          {material.showPinBarbAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
+                        </button>
+                        {material.showPinBarbAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">TENSILE STRENGTH</label>
+                              <SearchableDropdown
+                                value={material.pinBarbTensileStrength || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbTensileStrength', selectedValue)}
+                                options={['Holding Power (prevents tag removal)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                              <SearchableDropdown
+                                value={material.pinBarbApplication || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbApplication', selectedValue)}
+                                options={['Price Tagging', 'Securing Folds', 'Temporary Attachment', 'Sample Pinning']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">MAGAZINE/CARTRIDGE</label>
+                              <SearchableDropdown
+                                value={material.pinBarbMagazineCartridge || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbMagazineCartridge', selectedValue)}
+                                options={['Compatible magazine for tagging guns']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -6106,7 +6160,7 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.magneticClosureType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureType', selectedValue)}
                           options={['Sew-In Magnet (encased)', 'Clasp Magnet (metal body)', 'Snap Magnet', 'Hidden Magnet', 'Magnetic Button']}
@@ -6139,7 +6193,7 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.magneticClosureStrength || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureStrength', selectedValue)}
                           options={['Pull Force (Newtons)', 'Pull Force (Kilograms)']}
@@ -6151,12 +6205,12 @@ const Step3 = ({
                       <div className="flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
-                            type="text"
+                        <input
+                          type="text"
                             value={material.magneticClosurePlacement || ''}
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosurePlacement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
                         </div>
@@ -6243,13 +6297,13 @@ const Step3 = ({
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureWastage', selectedValue)}
                           options={['Flap', 'Hidden Closure', 'Decorative', 'Removable']}
                           placeholder="Select or type Wastage %"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
+                                                />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.magneticClosureApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureApproval', selectedValue)}
                           options={["BUYER'S", 'INITIAL', 'IPP', 'Magnet Strength Check']}
