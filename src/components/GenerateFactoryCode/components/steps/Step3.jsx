@@ -1757,10 +1757,10 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                                                <SearchableDropdown
+                        <SearchableDropdown
                           value={material.feltType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltType', selectedValue)}
-                          options={['Wool', 'Synthetic', 'Blended']}
+                          options={['Pressed Wool', 'Needle-Punched', 'Synthetic (Acrylic, Polyester, PP)', 'Non-Woven', 'Eco Felt']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1768,69 +1768,122 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
                           value={material.feltMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltMaterial', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Fibre Content"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
-                        <input
-                          type="text"
-                          value={material.feltThickness || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltThickness', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 2mm, 3mm, 5mm"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">DENSITY/GSM</label>
-                        <input
-                          type="text"
-                          value={material.densityGsm || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'densityGsm', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 200 GSM, 300 GSM"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                                                <SearchableDropdown
-                          value={material.feltColour || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltColour', selectedValue)}
-                          options={['DTM', 'White', 'Black', 'Grey']}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltMaterial', selectedValue)}
+                          options={['100% Wool', '100% Polyester', 'Wool/Rayon Blend', 'Acrylic', 'Recycled PET']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/FORM</label>
-                                                <SearchableDropdown
-                          value={material.feltFinishForm || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltFinishForm', selectedValue)}
-                          options={['Smooth', 'Textured', 'Pre-cut shapes']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                      <div className="flex items-end gap-4">
+                        <div className="flex flex-col" style={{ flex: '1 1 70%', minWidth: '300px' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                          <SearchableDropdown
+                            value={material.feltColour || ''}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltColour', selectedValue)}
+                            options={['Standard Colours', 'Pantone TPX/TCX', 'Heathered']}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px', width: '100%' }}
+                          />
+                        </div>
+                        <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltColorReference', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-felt-color-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-felt-color-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
+                          >
+                            {material.feltColorReference ? 'UPLOADED' : 'UPLOAD COLOUR'}
+                          </label>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                        <input
-                          type="text"
-                          value={material.feltApplication || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltApplication', e.target.value)}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
+                        <SearchableDropdown
+                          value={material.feltSizeSpec || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltSizeSpec', selectedValue)}
+                          options={['CM', 'KGS', 'YARDAGE']}
+                          placeholder="Select SIZE SPEC"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Padding, Insulation, Reinforcement"
+                          style={{ padding: '10px 14px', height: '44px', marginBottom: '16px' }}
                         />
+                        
+                        {/* Conditional fields based on SIZE SPEC selection */}
+                        {material.feltSizeSpec === 'CM' && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">GSM</label>
+                              <input
+                                type="text"
+                                value={material.feltGsm || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltGsm', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="GSM"
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">LENGTH (CM)</label>
+                              <input
+                                type="text"
+                                value={material.feltLengthCm || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltLengthCm', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="LENGTH (CM)"
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">WIDTH (CM)</label>
+                              <input
+                                type="text"
+                                value={material.feltWidthCm || ''}
+                                onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltWidthCm', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="WIDTH (CM)"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        {material.feltSizeSpec === 'KGS' && (
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">KGS (CNS PER PC)</label>
+                            <input
+                              type="text"
+                              value={material.feltKgs || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltKgs', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="KGS (CNS PER PC)"
+                            />
+                          </div>
+                        )}
+                        
+                        {material.feltSizeSpec === 'YARDAGE' && (
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">YARDAGE (CNS PER PC)</label>
+                            <input
+                              type="text"
+                              value={material.feltYardage || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltYardage', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="YARDAGE (CNS PER PC)"
+                            />
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -1838,75 +1891,56 @@ const Step3 = ({
                   {/* FELT - Complete fields matching table exactly */}
                   {material.trimAccessory === 'FELT' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
+                        <input
+                          type="text"
+                          value={material.feltQty || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltQty', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Pieces"
+                        />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
                         <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Flammability Rating', 'Pilling Resistance']}
+                          value={material.feltTestingRequirements || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltTestingRequirements', selectedValue)}
+                          options={['Flammability', 'Pilling', 'Colour Fastness', 'Tensile', 'Compression']}
                           placeholder="Select or type Testing Requirements"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
-              </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                          id={`upload-felt-${materialIndex}`}
-                        />
-                        <label
-                          htmlFor={`upload-felt-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                        </label>
-                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
                         <input
                           type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          value={material.feltSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltSurplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Meters or Yards or Sheets"
+                          placeholder="e.g., 5%"
                         />
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                        <input
-                                                  type="text"
-                                                  value={material.surplus || ''}
-                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                                                />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
                         <input
                           type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          value={material.feltWastage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltWastage', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 5%"
                         />
-                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                        <SearchableDropdown
+                          value={material.feltApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltApproval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1915,13 +1949,96 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.feltRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Required: Non-Toxic, Anti-Fraying edge..."
+                          placeholder="Non-Toxic, Anti-Fraying, Heat press suitable"
                         />
+                      </div>
+
+                      {/* FELT - Advance Spec Button and Fields */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
+                        {/* Show/Hide Advance Spec Button */}
+                        <div style={{ marginBottom: '20px', width: '100%' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleConsumptionMaterialChange(materialIndex, 'showFeltAdvancedSpec', !material.showFeltAdvancedSpec)}
+                            className="border-2 rounded-lg text-sm font-medium transition-all"
+                            style={{
+                              padding: '10px 20px',
+                              height: '44px',
+                              backgroundColor: material.showFeltAdvancedSpec ? '#667eea' : '#ffffff',
+                              borderColor: material.showFeltAdvancedSpec ? '#667eea' : '#e5e7eb',
+                              color: material.showFeltAdvancedSpec ? '#ffffff' : '#374151'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!material.showFeltAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#f9fafb';
+                                e.currentTarget.style.borderColor = '#d1d5db';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!material.showFeltAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.borderColor = '#e5e7eb';
+                              }
+                            }}
+                          >
+                            ADVANCE SPEC
+                          </button>
+                        </div>
+                        
+                        {/* Advanced Spec Fields */}
+                        {material.showFeltAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
+                              <SearchableDropdown
+                                value={material.feltThickness || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltThickness', selectedValue)}
+                                options={['1mm', '2mm', '3mm', '5mm', '1/8 inch', '1/4 inch']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/FORM</label>
+                              <SearchableDropdown
+                                value={material.feltFinishForm || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltFinishForm', selectedValue)}
+                                options={['Rolls', 'Sheets', 'Die-Cut Shapes', 'Adhesive Backed', 'Plain']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                              <SearchableDropdown
+                                value={material.feltApplication || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltApplication', selectedValue)}
+                                options={['Padding', 'Interlining', 'Craft', 'Insulation', 'Acoustic']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">STIFFNESS</label>
+                              <SearchableDropdown
+                                value={material.feltStiffness || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltStiffness', selectedValue)}
+                                options={['Soft', 'Medium', 'Stiff', 'Extra Stiff']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
