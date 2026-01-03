@@ -208,7 +208,9 @@ const Step3 = ({
                 <SearchableDropdown
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
+
                   options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS / CORD LOCKS / TOGGLES', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURES / SNAPS']}
+
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
                   onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1960,10 +1962,12 @@ const Step3 = ({
                       {/* TYPE */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+
                         <SearchableDropdown
                           value={material.hookEyeType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeType', selectedValue)}
                           options={['Standard Hook & Eye', 'Trouser Hook & Bar', 'Skirt Hook & Bar', 'Bra Hook', 'Fur Hook', 'Covered']}
+
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1996,7 +2000,9 @@ const Step3 = ({
                         />
                       </div>
 
+
                       {/* COLOUR/FINISH */}
+
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR/FINISH</label>
                         <SearchableDropdown
@@ -2103,6 +2109,7 @@ const Step3 = ({
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="%AGE (e.g., Waistband, Neckline, Bra Back, Side Closure)"
+
                         />
                       </div>
 
@@ -2861,6 +2868,7 @@ const Step3 = ({
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
+
 
                       {/* DENSITY */}
                       <div className="flex flex-col">
