@@ -1812,13 +1812,13 @@ const Step3 = ({
                         <SearchableDropdown
                           value={material.feltSizeSpec || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltSizeSpec', selectedValue)}
-                          options={['CM', 'KGS', 'YARDAGE']}
+                          options={['CM']}
                           placeholder="Select SIZE SPEC"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px', marginBottom: '16px' }}
                         />
                         
-                        {/* Conditional fields based on SIZE SPEC selection */}
+                        {/* Fields shown when CM is selected */}
                         {material.feltSizeSpec === 'CM' && (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div className="flex flex-col">
@@ -1833,55 +1833,27 @@ const Step3 = ({
                               />
                             </div>
                             <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">LENGTH (CM)</label>
+                              <label className="text-xs text-gray-600 mb-1">LENGTH</label>
                               <input
                                 type="text"
                                 value={material.feltLengthCm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltLengthCm', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                 style={{ padding: '10px 14px', height: '44px' }}
-                                placeholder="LENGTH (CM)"
+                                placeholder="LENGTH"
                               />
                             </div>
                             <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">WIDTH (CM)</label>
+                              <label className="text-xs text-gray-600 mb-1">WIDTH</label>
                               <input
                                 type="text"
                                 value={material.feltWidthCm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltWidthCm', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                 style={{ padding: '10px 14px', height: '44px' }}
-                                placeholder="WIDTH (CM)"
+                                placeholder="WIDTH"
                               />
                             </div>
-                          </div>
-                        )}
-                        
-                        {material.feltSizeSpec === 'KGS' && (
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">KGS (CNS PER PC)</label>
-                            <input
-                              type="text"
-                              value={material.feltKgs || ''}
-                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltKgs', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="KGS (CNS PER PC)"
-                            />
-                          </div>
-                        )}
-                        
-                        {material.feltSizeSpec === 'YARDAGE' && (
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">YARDAGE (CNS PER PC)</label>
-                            <input
-                              type="text"
-                              value={material.feltYardage || ''}
-                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltYardage', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="YARDAGE (CNS PER PC)"
-                            />
                           </div>
                         )}
                       </div>
@@ -1893,14 +1865,38 @@ const Step3 = ({
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.feltQty || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pieces"
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.feltQty || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltQty', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Pieces"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.feltKgs || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltKgs', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="KGS (CNS PER PC)"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.feltYardage || ''}
+                              onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'feltYardage', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="YARDAGE (CNS PER PC)"
+                            />
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
