@@ -209,7 +209,7 @@ const Step3 = ({
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
 
-                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PIN-BARBS', 'MAGNETIC CLOSURE']}
+                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'RINGS-LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PIN-BARBS', 'MAGNETIC CLOSURE']}
 
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
@@ -1989,50 +1989,50 @@ const Step3 = ({
                         {/* Advanced Spec Fields */}
                         {material.showFeltAdvancedSpec && (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
-                            <div className="flex flex-col">
+              <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
                               <SearchableDropdown
                                 value={material.feltThickness || ''}
                                 onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltThickness', selectedValue)}
                                 options={['1mm', '2mm', '3mm', '5mm', '1/8 inch', '1/4 inch']}
                                 placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/FORM</label>
                               <SearchableDropdown
                                 value={material.feltFinishForm || ''}
                                 onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltFinishForm', selectedValue)}
                                 options={['Rolls', 'Sheets', 'Die-Cut Shapes', 'Adhesive Backed', 'Plain']}
                                 placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
                               <SearchableDropdown
                                 value={material.feltApplication || ''}
                                 onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltApplication', selectedValue)}
                                 options={['Padding', 'Interlining', 'Craft', 'Insulation', 'Acoustic']}
                                 placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">STIFFNESS</label>
-                              <SearchableDropdown
+                                                <SearchableDropdown
                                 value={material.feltStiffness || ''}
                                 onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltStiffness', selectedValue)}
                                 options={['Soft', 'Medium', 'Stiff', 'Extra Stiff']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
+                          placeholder="Select or type"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
                           </div>
                         )}
                       </div>
@@ -2042,7 +2042,7 @@ const Step3 = ({
                   {/* INTERLINING Fields */}
                   {material.trimAccessory === 'INTERLINING' && (
                     <>
-              <div className="flex flex-col">
+                      <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                         <SearchableDropdown
                           value={material.interliningType || ''}
@@ -2055,7 +2055,7 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.interliningMaterial || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningMaterial', selectedValue)}
                           options={['Polyester', 'Cotton', 'Cellulose (Rayon)', 'Polyamide', 'Blends']}
@@ -2100,21 +2100,21 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
+                        <input
+                          type="file"
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
+                          className="hidden"
                             id={`upload-interlining-placement-${materialIndex}`}
                             accept="image/*"
-                          />
-                          <label
+                        />
+                        <label
                             htmlFor={`upload-interlining-placement-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
                             style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
+                        >
                             {material.interliningPlacementReferenceImage ? 'UPLOADED' : 'REF IMAGE'}
-                          </label>
-                        </div>
+                </label>
+                      </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
@@ -2132,8 +2132,8 @@ const Step3 = ({
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">GSM</label>
-                              <input
-                                type="text"
+                        <input
+                          type="text"
                                 value={material.interliningGsm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningGsm', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
@@ -2154,15 +2154,15 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                              <input
-                                type="text"
+                          <input
+                            type="text"
                                 value={material.interliningWidth || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'interliningWidth', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="WIDTH"
-                        />
-                            </div>
+                          />
+                        </div>
                           </div>
                         )}
                       </div>
@@ -4862,7 +4862,7 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                        <SearchableDropdown
+                                                <SearchableDropdown
                           value={material.reflectiveTapeColour || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeColour', selectedValue)}
                           options={['Silver/Grey', 'Fluorescent Yellow/Lime', 'Fluorescent Orange', 'Coloured']}
@@ -4885,8 +4885,8 @@ const Step3 = ({
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
                         <div className="flex items-end gap-4">
-                          <input
-                            type="text"
+                        <input
+                          type="text"
                             value={material.reflectiveTapePlacement || ''}
                             onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapePlacement', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
@@ -4907,7 +4907,7 @@ const Step3 = ({
                           >
                             {material.reflectiveTapePlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
                           </label>
-                        </div>
+                      </div>
                       </div>
                     </>
                   )}
@@ -4923,11 +4923,11 @@ const Step3 = ({
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeTestingRequirements', selectedValue)}
                             options={['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance']}
                             placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
@@ -4962,13 +4962,13 @@ const Step3 = ({
                             <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">GSM</label>
                         <input
-                          type="text"
+                                                  type="text"
                                 value={material.reflectiveTapeGsm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeGsm', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
+                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                                  style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="GSM"
-                        />
+                                                />
                       </div>
                             <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">LENGTH</label>
@@ -4981,16 +4981,16 @@ const Step3 = ({
                                 placeholder="LENGTH"
                         />
                       </div>
-                      <div className="flex flex-col">
+                        <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">WIDTH</label>
                           <input
-                                type="text"
+                            type="text"
                                 value={material.reflectiveTapeWidthCm || ''}
                                 onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeWidthCm', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="WIDTH"
-                              />
+                          />
                         </div>
                           </div>
                         )}
@@ -5718,15 +5718,15 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* D-RINGS / O-RINGS / WEBBING LOOPS Fields */}
-                  {material.trimAccessory === 'D-RINGS / O-RINGS / WEBBING LOOPS' && (
+                  {/* RINGS-LOOPS Fields */}
+                  {material.trimAccessory === 'RINGS-LOOPS' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                                                <SearchableDropdown
-                          value={material.dRingType || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'dRingType', selectedValue)}
-                          options={['D-Ring', 'O-Ring', 'Webbing Loop', 'Triangle Ring']}
+                        <SearchableDropdown
+                          value={material.ringsLoopsType || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsType', selectedValue)}
+                          options={['D-Ring (Welded/Non-Welded)', 'O-Ring', 'Square Ring', 'Loop Fastener', 'Rectangular Ring']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -5734,10 +5734,10 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                                                <SearchableDropdown
-                          value={material.dRingMaterial || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'dRingMaterial', selectedValue)}
-                          options={['Steel', 'Stainless Steel', 'Brass', 'Aluminium', 'Plastic']}
+                        <SearchableDropdown
+                          value={material.ringsLoopsMaterial || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsMaterial', selectedValue)}
+                          options={['Metal (Stainless Steel, Brass, Zinc Alloy)', 'Plastic (Acetal, Nylon)']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -5747,131 +5747,136 @@ const Step3 = ({
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
                         <input
                           type="text"
-                          value={material.dRingSize || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'dRingSize', e.target.value)}
+                          value={material.ringsLoopsSize || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsSize', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 25mm, 38mm, 50mm, 1 inch, 1.5 inch"
+                          placeholder="Inner Diameter or Webbing Width (25mm, 38mm, 50mm, 1 inch, 1.5 inch)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS/GAUGE</label>
-                        <input
-                          type="text"
-                          value={material.thicknessGauge || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'thicknessGauge', e.target.value)}
+                        <SearchableDropdown
+                          value={material.ringsLoopsThicknessGauge || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsThicknessGauge', selectedValue)}
+                          options={['Wire Diameter (metal)', 'Material Gauge']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 2mm, 3mm, 16 gauge, 18 gauge"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/PLATING</label>
-                        <input
-                          type="text"
-                          value={material.dRingFinishPlating || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'dRingFinishPlating', e.target.value)}
+                        <SearchableDropdown
+                          value={material.ringsLoopsFinishPlating || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsFinishPlating', selectedValue)}
+                          options={['Nickel', 'Black Oxide', 'Antique Brass', 'Matte (plastic)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Zinc plated, Nickel plated, Black oxide, DTM"
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LOAD RATING</label>
-                        <input
-                          type="text"
-                          value={material.loadRating || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'loadRating', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 50kg, 100kg, 200kg, 500 lbs"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                        <input
-                          type="text"
-                          value={material.dRingApplication || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'dRingApplication', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Backpack straps, Bag handles, Load bearing, Attachment point"
-                        />
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                        <div className="flex items-end gap-4">
+                          <input
+                            type="text"
+                            value={material.ringsLoopsPlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsPlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Enter placement"
+                          />
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsPlacementReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-rings-loops-placement-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-rings-loops-placement-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
+                          >
+                            {material.ringsLoopsPlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
+                          </label>
+                        </div>
                       </div>
                     </>
                   )}
 
-                  {/* D-RINGS / O-RINGS / WEBBING LOOPS - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'D-RINGS / O-RINGS / WEBBING LOOPS' && (
+                  {/* RINGS-LOOPS - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'RINGS-LOOPS' && (
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Tensile strength, Corrosion Resistance"
-                        />
-                      </div>
-                      <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS DROPDOWN</label>
+                          <SearchableDropdown
+                            value={material.ringsLoopsTestingRequirements || ''}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsTestingRequirements', selectedValue)}
+                            options={['Tensile Strength', 'Corrosion (Salt Spray)', 'Weld Integrity']}
+                            placeholder="Select or type Testing Requirements"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+                        <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsTestingRequirementFile', e.target.files[0])}
                             className="hidden"
-                            id={`upload-drings-${materialIndex}`}
+                            id={`upload-rings-loops-testing-${materialIndex}`}
+                            accept="image/*"
                           />
                           <label
-                            htmlFor={`upload-drings-${materialIndex}`}
+                            htmlFor={`upload-rings-loops-testing-${materialIndex}`}
                             className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
                             style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
                           >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            {material.ringsLoopsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
                           </label>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
                         <input
                           type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
+                          value={material.ringsLoopsQty || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsQty', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Pieces"
+                          placeholder="Pieces"
                         />
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
                         <input
                           type="text"
-                          value={material.surplus || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          value={material.ringsLoopsSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsSurplus', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="2-5%"
                         />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                        <input
+                          type="text"
+                          value={material.ringsLoopsWastage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsWastage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="2-5%"
+                        />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
+                        <SearchableDropdown
+                          value={material.ringsLoopsApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsApproval', selectedValue)}
                           options={["BUYER'S", 'INITIAL', 'IPP', 'Load Test Certificate']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
@@ -5881,13 +5886,73 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.ringsLoopsRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Required: must be non-magnetic for military use..."
+                          placeholder="Non-magnetic (military), Smooth burr-free edges"
                         />
+                      </div>
+
+                      {/* ADVANCE SPEC Section */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => handleConsumptionMaterialChange(materialIndex, 'showRingsLoopsAdvancedSpec', !material.showRingsLoopsAdvancedSpec)}
+                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
+                          style={{
+                            backgroundColor: '#f3f4f6',
+                            borderColor: '#d1d5db',
+                            color: '#374151',
+                            marginBottom: '16px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6';
+                          }}
+                        >
+                          {material.showRingsLoopsAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
+                        </button>
+                        {material.showRingsLoopsAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">LOAD RATING</label>
+                              <SearchableDropdown
+                                value={material.ringsLoopsLoadRating || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsLoadRating', selectedValue)}
+                                options={['Breaking Strength', 'Working Load Limit (WLL)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">WELDED</label>
+                              <SearchableDropdown
+                                value={material.ringsLoopsWelded || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsWelded', selectedValue)}
+                                options={['Welded (stronger)', 'Non-Welded (lighter)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                              <SearchableDropdown
+                                value={material.ringsLoopsApplication || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsApplication', selectedValue)}
+                                options={['Strap Attachment', 'Hanging Point', 'Decoration']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
