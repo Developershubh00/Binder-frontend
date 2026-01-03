@@ -1325,7 +1325,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           dRingType: '', dRingMaterial: '', dRingSize: '', thicknessGauge: '', dRingFinishPlating: '', loadRating: '', dRingApplication: '',
           foamType: '', foamDensity: '', foamThickness: '', shapeId: '', foamColour: '', properties: '', foamAttachment: '',
           pinType: '', pinMaterial: '', pinSize: '', pinColour: '', pinTensileStrength: '', headType: '', pinApplication: '',
-          magneticType: '', magneticMaterial: '', magneticSize: '', magneticStrength: '', polarity: '', magneticApplication: '',
+          magneticClosureType: '', magneticClosureMaterial: '', magneticClosureSize: '', magneticClosureStrength: '', magneticClosurePlacement: '', magneticClosurePlacementReferenceImage: null, magneticClosureTestingRequirements: '', magneticClosureTestingRequirementFile: null, magneticClosureQty: '', magneticClosureSurplus: '', magneticClosureWastage: '', magneticClosureApproval: '', magneticClosureRemarks: '', magneticClosurePolarity: '', magneticClosureApplication: '', magneticClosureEncasing: '', magneticClosureShielding: '', showMagneticClosureAdvancedSpec: false,
           // Clear common fields
           testingRequirement: '', testingRequirementFile: null, lengthQuantity: '', buyersInitialIpp: '', unitAdditional: '',
         };
@@ -1694,12 +1694,24 @@ const GenerateFactoryCode = ({ onBack }) => {
           headType: '',
           pinApplication: '',
           // MAGNETIC CLOSURES
-          magneticType: '',
-          magneticMaterial: '',
-          magneticSize: '',
-          magneticStrength: '',
-          polarity: '',
-          magneticApplication: '',
+          magneticClosureType: '',
+          magneticClosureMaterial: '',
+          magneticClosureSize: '',
+          magneticClosureStrength: '',
+          magneticClosurePlacement: '',
+          magneticClosurePlacementReferenceImage: null,
+          magneticClosureTestingRequirements: '',
+          magneticClosureTestingRequirementFile: null,
+          magneticClosureQty: '',
+          magneticClosureSurplus: '',
+          magneticClosureWastage: '',
+          magneticClosureApproval: '',
+          magneticClosureRemarks: '',
+          magneticClosurePolarity: '',
+          magneticClosureApplication: '',
+          magneticClosureEncasing: '',
+          magneticClosureShielding: '',
+          showMagneticClosureAdvancedSpec: false,
         }]
       };
     });

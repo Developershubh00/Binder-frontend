@@ -209,7 +209,7 @@ const Step3 = ({
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
 
-                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURES / SNAPS']}
+                  options={['ZIPPERS', 'VELCRO (Hook & Loop)', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING/FUSING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM SEALING TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES / TRIMS', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'D-RINGS / O-RINGS / WEBBING LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PINS / TAGGING BARBS', 'MAGNETIC CLOSURE']}
 
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
@@ -6101,15 +6101,15 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* MAGNETIC CLOSURES / SNAPS Fields */}
-                  {material.trimAccessory === 'MAGNETIC CLOSURES / SNAPS' && (
+                  {/* MAGNETIC CLOSURE Fields */}
+                  {material.trimAccessory === 'MAGNETIC CLOSURE' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                                                <SearchableDropdown
-                          value={material.magneticType || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticType', selectedValue)}
-                          options={['Magnetic Snap', 'Magnetic Button', 'Magnetic Closure']}
+                        <SearchableDropdown
+                          value={material.magneticClosureType || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureType', selectedValue)}
+                          options={['Sew-In Magnet (encased)', 'Clasp Magnet (metal body)', 'Snap Magnet', 'Hidden Magnet', 'Magnetic Button']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -6117,103 +6117,142 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                        <input
-                          type="text"
-                          value={material.magneticMaterial || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticMaterial', e.target.value)}
+                        <SearchableDropdown
+                          value={material.magneticClosureMaterial || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureMaterial', selectedValue)}
+                          options={['Neodymium (strongest)', 'Ferrite', 'Encasing (PVC)', 'Encasing (Stainless Steel)', 'Encasing (Fabric)']}
+                          placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Neodymium, Ferrite, Samarium Cobalt, Plastic housing"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
                         <input
                           type="text"
-                          value={material.magneticSize || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticSize', e.target.value)}
+                          value={material.magneticClosureSize || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureSize', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 12mm, 15mm, 20mm, Small, Medium, Large"
+                          placeholder="CM (e.g., 10mm, 14mm, 18mm, 20mm, Thickness)"
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
-                        <input
-                          type="text"
-                          value={material.magneticStrength || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticStrength', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pull force (e.g., 1kg, 2kg, 3kg, 5 lbs)"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">POLARITY</label>
-                                                <SearchableDropdown
-                          value={material.polarity || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'polarity', selectedValue)}
-                          options={['North-South', 'Attracting pair', 'Repelling pair']}
+                        <SearchableDropdown
+                          value={material.magneticClosureStrength || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureStrength', selectedValue)}
+                          options={['Pull Force (Newtons)', 'Pull Force (Kilograms)']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                        <input
-                          type="text"
-                          value={material.magneticApplication || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticApplication', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pocket closure, Bag closure, Garment fastening"
-                        />
+                      <div className="flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                          <input
+                            type="text"
+                            value={material.magneticClosurePlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosurePlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Text"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosurePlacementReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-magnetic-placement-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-magnetic-placement-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
+                          >
+                            {material.magneticClosurePlacementReferenceImage ? 'UPLOADED' : 'REF IMAGE'}
+                          </label>
+                        </div>
                       </div>
                     </>
                   )}
 
-                  {/* MAGNETIC CLOSURES / SNAPS - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'MAGNETIC CLOSURES / SNAPS' && (
+                  {/* MAGNETIC CLOSURE - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'MAGNETIC CLOSURE' && (
                     <>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                          <SearchableDropdown
+                            value={material.magneticClosureTestingRequirements || ''}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureTestingRequirements', selectedValue)}
+                            options={['Pull Force Test', 'Corrosion', 'Needle Detection (if shielded)']}
+                            placeholder="Select or type Testing Requirements"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureTestingRequirementFile', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-magnetic-testing-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-magnetic-testing-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
+                          >
+                            {material.magneticClosureTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                          </label>
+                        </div>
+                      </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
                         <input
                           type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', e.target.value)}
+                          value={material.magneticClosureQty || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureQty', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pull Force test, Corrosion Resistance"
+                          placeholder="Pairs (Male/Female set) PER PC"
                         />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                                                <SearchableDropdown
-                          value={material.lengthQuantity || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', selectedValue)}
-                          options={['Pairs (Male', 'Female set)']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
                         <input
-                                                  type="text"
-                                                  value={material.surplus || ''}
-                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                                                />
+                          type="text"
+                          value={material.magneticClosureSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureSurplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 3-5%"
+                        />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                        <SearchableDropdown
+                          value={material.magneticClosureWastage || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureWastage', selectedValue)}
+                          options={['Flap', 'Hidden Closure', 'Decorative', 'Removable']}
+                          placeholder="Select or type Wastage %"
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                        />
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Magnet Field Strength']}
+                        <SearchableDropdown
+                          value={material.magneticClosureApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureApproval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'IPP', 'Magnet Strength Check']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -6222,13 +6261,96 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.magneticClosureRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Required: must be RF-shielded if near RFID tags..."
+                          placeholder="RF-shielded if near RFID, Care label warn about pacemakers"
                         />
+                      </div>
+
+                      {/* MAGNETIC CLOSURE - Advance Spec Button and Fields */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
+                        {/* Show/Hide Advance Spec Button */}
+                        <div style={{ marginBottom: '20px', width: '100%' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleConsumptionMaterialChange(materialIndex, 'showMagneticClosureAdvancedSpec', !material.showMagneticClosureAdvancedSpec)}
+                            className="border-2 rounded-lg text-sm font-medium transition-all"
+                            style={{
+                              padding: '10px 20px',
+                              height: '44px',
+                              backgroundColor: material.showMagneticClosureAdvancedSpec ? '#667eea' : '#ffffff',
+                              borderColor: material.showMagneticClosureAdvancedSpec ? '#667eea' : '#e5e7eb',
+                              color: material.showMagneticClosureAdvancedSpec ? '#ffffff' : '#374151'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!material.showMagneticClosureAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#f9fafb';
+                                e.currentTarget.style.borderColor = '#d1d5db';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!material.showMagneticClosureAdvancedSpec) {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.borderColor = '#e5e7eb';
+                              }
+                            }}
+                          >
+                            ADVANCE SPEC
+                          </button>
+                        </div>
+                        
+                        {/* Advanced Spec Fields */}
+                        {material.showMagneticClosureAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">POLARITY</label>
+                              <SearchableDropdown
+                                value={material.magneticClosurePolarity || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosurePolarity', selectedValue)}
+                                options={['North/South Orientation (must be consistent for mating pairs)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
+                              <SearchableDropdown
+                                value={material.magneticClosureApplication || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureApplication', selectedValue)}
+                                options={['Hidden Closure', 'Quick-Attach Flap', 'Bag Closure', 'Garment Closure']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">ENCASING</label>
+                              <SearchableDropdown
+                                value={material.magneticClosureEncasing || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureEncasing', selectedValue)}
+                                options={['PVC Covered', 'Fabric Covered', 'Metal Shell', 'Plastic Shell']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">SHIELDING</label>
+                              <SearchableDropdown
+                                value={material.magneticClosureShielding || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureShielding', selectedValue)}
+                                options={['Standard', 'RF-Shielded (if near RFID)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
