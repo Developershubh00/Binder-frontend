@@ -560,10 +560,10 @@ const Step3 = ({
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                                                <SearchableDropdown
+                        <SearchableDropdown
                           value={material.rivetType || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetType', selectedValue)}
-                          options={['Open-End', 'Close-End', 'Blind Rivet']}
+                          options={['Open-End', 'Closed-End', 'Blind Rivet', 'Cap Rivet', 'Tubular', 'Double Cap', 'Tubular Rivet', 'Solid/Blind Rivet', 'Decorative Rivet', 'Jeans Rivet', 'Burr Rivet', 'Eyelet Rivet']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -571,10 +571,10 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
-                                                <SearchableDropdown
+                        <SearchableDropdown
                           value={material.rivetMaterial || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetMaterial', selectedValue)}
-                          options={['Brass', 'Copper', 'Zinc Alloy', 'Steel']}
+                          options={['Brass', 'Copper', 'Zinc Alloy', 'Steel', 'Aluminium', 'Stainless Steel']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -582,58 +582,63 @@ const Step3 = ({
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">CAP SIZE</label>
-                                                <SearchableDropdown
-                          value={material.capSize || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'capSize', selectedValue)}
-                          options={['8mm', '9mm', '10mm']}
-                          placeholder="Select or type"
+                        <SearchableDropdown
+                          value={material.rivetCapSize || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetCapSize', selectedValue)}
+                          options={['6mm', '7mm', '8mm', '9mm', '10mm', '12mm']}
+                          placeholder="Select or type Diameter"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">POST HEIGHT/LENGTH</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">POST HEIGHT</label>
                         <SearchableDropdown
-                          value={material.postHeightLength || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'postHeightLength', selectedValue)}
-                          options={['Short', 'Medium', 'Long']}
-                          placeholder="Select or type Post Height/Length"
+                          value={material.rivetPostHeight || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetPostHeight', selectedValue)}
+                          options={['Short (5mm)', 'Medium (6mm)', 'Long (7mm, 8mm)']}
+                          placeholder="Select or type (match fabric thickness)"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/PLATING</label>
-                                                <SearchableDropdown
-                          value={material.finishPlating || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'finishPlating', selectedValue)}
-                          options={['Nickel', 'Copper', 'Antique Brass']}
+                        <SearchableDropdown
+                          value={material.rivetFinishPlating || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetFinishPlating', selectedValue)}
+                          options={['Nickel', 'Copper', 'Antique Brass', 'Gunmetal', 'Black Oxide', 'Matte', 'Shiny']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">PULLER</label>
-                        <input
-                          type="text"
-                          value={material.pullerStrength || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'pullerStrength', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pull Strength"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">PULLER TYPE</label>
-                        <input
-                          type="text"
-                          value={material.rivetPullerType || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetPullerType', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Machine Applied"
-                        />
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                        <div className="flex items-end gap-4">
+                          <input
+                            type="text"
+                            value={material.rivetPlacement || ''}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetPlacement', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Enter placement"
+                          />
+                          <input
+                            type="file"
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetPlacementReferenceImage', e.target.files[0])}
+                            className="hidden"
+                            id={`upload-rivet-placement-${materialIndex}`}
+                            accept="image/*"
+                          />
+                          <label
+                            htmlFor={`upload-rivet-placement-${materialIndex}`}
+                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
+                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
+                          >
+                            {material.rivetPlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
+                          </label>
+                        </div>
                       </div>
                     </>
                   )}
@@ -1332,62 +1337,75 @@ const Step3 = ({
                   {/* RIVETS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'RIVETS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Needle Detection', 'Pull Strength']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
-                        <input
-                          type="text"
-                          value={material.lengthQuantity || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'lengthQuantity', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Gross (144 pcs) or Pieces"
-                        />
-                      </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                        <input
-                                                  type="text"
-                                                  value={material.surplus || ''}
-                                                  onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'surplus', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                                                />
-                      </div>
-                      <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS DROPDOWN</label>
+                          <SearchableDropdown
+                            value={material.rivetTestingRequirements || ''}
+                            onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetTestingRequirements', selectedValue)}
+                            options={['Needle Detection', 'Pull Strength (90N)', 'Corrosion (Salt Spray)']}
+                            placeholder="Select or type Testing Requirements"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                          />
+                        </div>
+                        <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
                           <input
                             type="file"
-                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                            onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetTestingRequirementFile', e.target.files[0])}
                             className="hidden"
-                            id={`upload-rivets-${materialIndex}`}
+                            id={`upload-rivet-testing-${materialIndex}`}
+                            accept="image/*"
                           />
                           <label
-                            htmlFor={`upload-rivets-${materialIndex}`}
+                            htmlFor={`upload-rivet-testing-${materialIndex}`}
                             className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
                             style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
                           >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            {material.rivetTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
                           </label>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
+                        <input
+                          type="text"
+                          value={material.rivetQty || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetQty', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="PCS"
+                        />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
+                        <input
+                          type="text"
+                          value={material.rivetSurplus || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetSurplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE"
+                        />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                        <input
+                          type="text"
+                          value={material.rivetWastage || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetWastage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE"
+                        />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.approval || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                        <SearchableDropdown
+                          value={material.rivetApproval || ''}
+                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetApproval', selectedValue)}
+                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1396,13 +1414,62 @@ const Step3 = ({
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
-                          value={material.remarks || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'remarks', e.target.value)}
+                          value={material.rivetRemarks || ''}
+                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'rivetRemarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', minHeight: '44px' }}
                           rows="1"
-                          placeholder="Specific Logo Engraving on Cap..."
+                          placeholder="TEXT"
                         />
+                      </div>
+
+                      {/* ADVANCE SPEC Section */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => handleConsumptionMaterialChange(materialIndex, 'showRivetAdvancedSpec', !material.showRivetAdvancedSpec)}
+                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
+                          style={{
+                            backgroundColor: '#f3f4f6',
+                            borderColor: '#d1d5db',
+                            color: '#374151',
+                            marginBottom: '16px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6';
+                          }}
+                        >
+                          {material.showRivetAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
+                        </button>
+                        {material.showRivetAdvancedSpec && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">LOGO</label>
+                              <SearchableDropdown
+                                value={material.rivetLogo || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetLogo', selectedValue)}
+                                options={['Plain', 'Embossed', 'Custom', 'Laser Engraved']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">SETTING</label>
+                              <SearchableDropdown
+                                value={material.rivetSetting || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetSetting', selectedValue)}
+                                options={['Machine Applied (specific die)', 'Hand Press']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
