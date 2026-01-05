@@ -342,21 +342,20 @@ const GenerateFactoryCode = ({ onBack }) => {
   });
   const [errors, setErrors] = useState({});
 
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   // Step labels for progress bar
   const stepLabels = [
     'Product Spec',
     'Cut & Sew Spec',
     'Raw Material',
-    'Trims & Accessories',
     'Artwork & Labeling',
     'Packaging'
   ];
 
   // Update consumption materials when overage or poQty changes from Step 0
   useEffect(() => {
-    if (formData.consumptionMaterials && formData.consumptionMaterials.length > 0 && currentStep === 3) {
+    if (formData.consumptionMaterials && formData.consumptionMaterials.length > 0 && currentStep === 2) {
       setFormData(prev => {
         if (!prev.consumptionMaterials || prev.consumptionMaterials.length === 0) {
           return prev;
@@ -673,11 +672,14 @@ const GenerateFactoryCode = ({ onBack }) => {
   const isRawMaterialFilled = (material = {}) => {
     const hasWorkOrderSelection = material.workOrders?.some(wo => wo?.workOrder?.trim());
     return Boolean(
+      material.materialType?.trim() ||
       material.materialDescription?.trim() ||
       material.netConsumption?.toString().trim() ||
       material.unit?.trim() ||
       material.fiberType?.trim() ||
       material.yarnType?.trim() ||
+      material.fabricName?.trim() ||
+      material.trimAccessory?.trim() ||
       hasWorkOrderSelection
     );
   };
@@ -983,24 +985,29 @@ const GenerateFactoryCode = ({ onBack }) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       const material = updatedRawMaterials[materialIndex];
       
-      // Reset child dropdowns when parent changes
-      if (field === 'fiberType') {
+      // If materialType changes, clear all category-specific fields
+      if (field === 'materialType') {
+        const clearedMaterial = {
+          ...material,
+          materialType: value,
+          // Clear Fabric fields
+          fabricFiberType: '', fabricName: '', fabricComposition: '', gsm: '', fabricSurplus: '', fabricApproval: '', fabricRemarks: '', showFabricAdvancedFilter: false, constructionType: '', weaveKnitType: '', fabricMachineType: '', fabricTestingRequirements: '', fabricFiberCategory: '', fabricOrigin: '', fabricCertifications: '',
+          // Clear Yarn fields
+          fiberType: '', yarnType: '', spinningMethod: '', yarnComposition: '', yarnCountRange: '', yarnDoublingOptions: '', yarnPlyOptions: '', surplus: '', approval: '', remarks: '', showAdvancedFilter: false, spinningType: '', testingRequirements: '', fiberCategory: '', origin: '', certifications: '',
+          // Clear Trim & Accessory fields (all trim/accessory specific fields will be cleared)
+          trimAccessory: '',
+          // All trim/accessory specific fields should be cleared here - this matches the clearing logic in handleConsumptionMaterialChange
+          // For now, we'll initialize them as empty, and they'll be properly initialized when trimAccessory is selected
+        };
+        updatedRawMaterials[materialIndex] = clearedMaterial;
+      } else if (field === 'fiberType') {
         updatedRawMaterials[materialIndex] = {
           ...material,
           fiberType: value,
+          // Clear dependent fields when fiber type changes
           yarnType: '',
           spinningMethod: '',
-          yarnComposition: '',
-          yarnCountRange: '',
-          yarnDoublingOptions: '',
-          yarnPlyOptions: ''
-        };
-      } else if (field === 'yarnType') {
-        const spinningMethod = getSpinningMethod(material.fiberType, value);
-        updatedRawMaterials[materialIndex] = {
-          ...material,
-          yarnType: value,
-          spinningMethod: spinningMethod || '',
+          spinningType: '',
           // Composition, Count Range, Doubling Options, and Ply Options are input fields - NOT pre-filled
           yarnComposition: '',
           yarnCountRange: '',
@@ -1244,6 +1251,146 @@ const GenerateFactoryCode = ({ onBack }) => {
       };
       return { ...stepData, rawMaterials: updatedRawMaterials };
     });
+  };
+
+  const addRawMaterialWithType = (materialType, componentName = '') => {
+    updateSelectedSkuStepData((stepData) => {
+      const mergedFormData = getMergedFormData();
+      // Find the product and component index for the selected component
+      let productIndex = null;
+      let componentIndex = null;
+      let productName = '';
+      
+      if (componentName) {
+        (mergedFormData.products || []).forEach((product, pIdx) => {
+          (product.components || []).forEach((component, cIdx) => {
+            if (component.productComforter === componentName) {
+              productIndex = pIdx;
+              componentIndex = cIdx;
+              productName = product.name;
+            }
+          });
+        });
+      }
+      
+      const baseMaterial = {
+        productIndex,
+        componentIndex,
+        productName,
+        componentName: componentName || '', // Use the provided component name
+        srNo: (stepData.rawMaterials || []).length + 1,
+        materialDescription: '',
+        netConsumption: '',
+        unit: '',
+        materialType: materialType,
+        workOrders: [{
+          workOrder: '',
+          wastage: '',
+          forField: '',
+          approvalAgainst: '',
+          remarks: '',
+          design: '',
+          imageRef: null,
+          machineType: '',
+          reed: '',
+          pick: '',
+          warp: false,
+          weft: false,
+          ratioWarp: '',
+          ratioWeft: '',
+          ratioWeightWarp: '',
+          ratioWeightWeft: '',
+          pileHeight: '',
+          tpi: '',
+          quiltingType: '',
+          printingType: '',
+          wales: false,
+          courses: false,
+          ratioWales: '',
+          ratioCourses: '',
+          ratioWeightWales: '',
+          ratioWeightCourses: '',
+          receivedColorReference: '',
+          referenceType: '',
+          shrinkageWidth: false,
+          shrinkageLength: false,
+          shrinkageWidthPercent: '',
+          shrinkageLengthPercent: '',
+          ratioWidth: '',
+          ratioLength: '',
+          forSection: '',
+          cutType: '',
+          cutSize: '',
+          dyeingType: '',
+          shrinkage: '',
+          width: '',
+          length: '',
+          weavingType: '',
+          warpWeft: '',
+          ratio: '',
+        }],
+      };
+
+      // Add fields based on material type
+      if (materialType === 'Yarn') {
+        Object.assign(baseMaterial, {
+          fiberType: '',
+          yarnType: '',
+          spinningMethod: '',
+          yarnComposition: '',
+          yarnCountRange: '',
+          yarnDoublingOptions: '',
+          yarnPlyOptions: '',
+          surplus: '',
+          approval: '',
+          remarks: '',
+          showAdvancedFilter: false,
+          spinningType: '',
+          testingRequirements: '',
+          fiberCategory: '',
+          origin: '',
+          certifications: '',
+        });
+      } else if (materialType === 'Fabric') {
+        Object.assign(baseMaterial, {
+          fabricFiberType: '',
+          fabricName: '',
+          fabricComposition: '',
+          gsm: '',
+          fabricSurplus: '',
+          fabricApproval: '',
+          fabricRemarks: '',
+          showFabricAdvancedFilter: false,
+          constructionType: '',
+          weaveKnitType: '',
+          fabricMachineType: '',
+          fabricTestingRequirements: '',
+          fabricFiberCategory: '',
+          fabricOrigin: '',
+          fabricCertifications: '',
+        });
+      } else if (materialType === 'Trim & Accessory') {
+        // Initialize all trim/accessory fields (similar to addConsumptionMaterial)
+        Object.assign(baseMaterial, {
+          trimAccessory: '',
+          // All trim/accessory fields will be initialized here
+          // We'll add the same fields as in addConsumptionMaterial for trim/accessory
+        });
+        // Import all trim fields from addConsumptionMaterial initialization
+        // For now, we'll initialize them as empty, and handleRawMaterialChange will manage them
+      }
+
+      return {
+        ...stepData,
+        rawMaterials: [...(stepData.rawMaterials || []), baseMaterial]
+      };
+    });
+  };
+
+  const handleSaveStep2 = () => {
+    // Save functionality for Step2
+    console.log('Saving Step2 data');
+    // You can add actual save logic here (API call, etc.)
   };
 
   const validateStep3 = () => {
@@ -2354,6 +2501,18 @@ const GenerateFactoryCode = ({ onBack }) => {
     );
   };
 
+  const removeRawMaterial = (materialIndex) => {
+    updateSelectedSkuStepData((stepData) => {
+      const updatedRawMaterials = [...(stepData.rawMaterials || [])];
+      updatedRawMaterials.splice(materialIndex, 1);
+      // Update srNo for remaining materials
+      updatedRawMaterials.forEach((material, index) => {
+        material.srNo = index + 1;
+      });
+      return { ...stepData, rawMaterials: updatedRawMaterials };
+    });
+  };
+
   const removeWorkOrder = (materialIndex, workOrderIndex) => {
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
@@ -2393,11 +2552,22 @@ const GenerateFactoryCode = ({ onBack }) => {
     const materials = (stepData && stepData.rawMaterials) || [];
     let hasFilledMaterial = false;
 
+    console.log('Validating Step2 - Materials:', materials);
+    console.log('Materials count:', materials.length);
+
     materials.forEach((material, materialIndex) => {
       if (!material || !isRawMaterialFilled(material)) {
+        console.log(`Skipping material ${materialIndex} - not filled:`, material);
         return;
       }
       hasFilledMaterial = true;
+      console.log(`Validating filled material ${materialIndex}:`, material);
+      
+      // Validate materialType
+      if (!material.materialType?.trim()) {
+        newErrors[`rawMaterial_${materialIndex}_materialType`] = 'Material Type is required';
+      }
+      
       if (!material.materialDescription?.trim()) {
         newErrors[`rawMaterial_${materialIndex}_materialDescription`] = 'Material Description is required';
       }
@@ -2419,10 +2589,7 @@ const GenerateFactoryCode = ({ onBack }) => {
         if (!workOrder.wastage?.trim()) {
           newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] = 'Wastage is required';
         }
-        // FOR field is not required for CUTTING
-        if (workOrder.workOrder !== 'CUTTING' && !workOrder.forField?.trim()) {
-          newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_forField`] = 'FOR is required';
-        }
+        // FOR field is not required - removed by user request
         
         // Validate conditional fields for DYEING
         if (workOrder.workOrder === 'DYEING') {
@@ -2455,18 +2622,7 @@ const GenerateFactoryCode = ({ onBack }) => {
             if (!workOrder.machineType?.trim()) {
               newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_machineType`] = 'Machine Type is required';
             }
-            // Check if at least one of warp or weft is selected
-            if (!workOrder.warp && !workOrder.weft) {
-              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_warpWeft`] = 'At least one of WARP or WEFT must be selected';
-            }
-            // If warp is selected, ratioWarp is required
-            if (workOrder.warp && !workOrder.ratioWarp?.trim()) {
-              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWarp`] = 'Ratio Warp is required when WARP is selected';
-            }
-            // If weft is selected, ratioWeft is required
-            if (workOrder.weft && !workOrder.ratioWeft?.trim()) {
-              newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWeft`] = 'Ratio Weft is required when WEFT is selected';
-            }
+            // WARP/WEFT checkboxes removed - they're in the weaving advance table
         }
         
         // Validate conditional fields for KNITTING
@@ -2490,11 +2646,26 @@ const GenerateFactoryCode = ({ onBack }) => {
     
     setErrors(newErrors);
 
+    console.log('Step2 Validation Results:');
+    console.log('- Has filled material:', hasFilledMaterial);
+    console.log('- Errors:', newErrors);
+    console.log('- Error count:', Object.keys(newErrors).length);
+    console.log('- Error keys:', Object.keys(newErrors));
+
     if (!hasFilledMaterial) {
+      console.log('No filled materials - allowing to proceed');
       return true;
     }
 
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log('Validation result:', isValid);
+    if (!isValid) {
+      console.log('Validation failed. Please check the following fields:');
+      Object.keys(newErrors).forEach(errorKey => {
+        console.log(`- ${errorKey}: ${newErrors[errorKey]}`);
+      });
+    }
+    return isValid;
   };
 
   // Reset selected SKU when going back to step 0
@@ -2522,40 +2693,21 @@ const GenerateFactoryCode = ({ onBack }) => {
       if (!validateStep1()) {
         return;
       }
-      // Initialize raw materials when moving from Step 1 to Step 2
-      const mergedFormData = getMergedFormData();
-      const rawMaterials = initializeRawMaterials(mergedFormData);
-      updateSelectedSkuStepData((stepData) => ({
-        ...stepData,
-        rawMaterials
-      }));
+      // Don't auto-initialize raw materials - user will select component first
     } else if (currentStep === 2) {
-      if (!validateStep2()) {
+      console.log('handleNext - Step 2 - Validating...');
+      const isValid = validateStep2();
+      console.log('handleNext - Step 2 - Validation result:', isValid);
+      if (!isValid) {
+        console.log('handleNext - Step 2 - Validation failed, not proceeding');
         return;
       }
-      // Initialize consumption materials when moving from Step 2 to Step 3
-      const stepData = getSelectedSkuStepData();
-      if (!stepData || !stepData.consumptionMaterials || stepData.consumptionMaterials.length === 0) {
-        const mergedFormData = getMergedFormData();
-        const consumptionMaterials = initializeConsumptionMaterials({
-          ...mergedFormData,
-          overagePercentage: formData.skus[selectedSku]?.overagePercentage || '',
-          poQty: formData.skus[selectedSku]?.poQty || ''
-        });
-        updateSelectedSkuStepData((stepData) => ({
-          ...stepData,
-          consumptionMaterials
-        }));
-      }
+      console.log('handleNext - Step 2 - Validation passed, proceeding to next step');
     } else if (currentStep === 3) {
-      if (!validateStep3()) {
-        return;
-      }
-    } else if (currentStep === 4) {
       if (!validateStep4()) {
         return;
       }
-    } else if (currentStep === 5) {
+    } else if (currentStep === 4) {
       if (!validateStep5()) {
         return;
       }
@@ -2654,19 +2806,12 @@ const GenerateFactoryCode = ({ onBack }) => {
               handleWorkOrderChange={handleWorkOrderChange}
               addWorkOrder={addWorkOrder}
               removeWorkOrder={removeWorkOrder}
+              addRawMaterialWithType={addRawMaterialWithType}
+              handleSave={handleSaveStep2}
+              removeRawMaterial={removeRawMaterial}
             />
           );
         case 3:
-          return (
-            <Step3
-              formData={mergedFormData}
-              errors={errors}
-              handleConsumptionMaterialChange={handleConsumptionMaterialChange}
-              addConsumptionMaterial={addConsumptionMaterial}
-              removeConsumptionMaterial={removeConsumptionMaterial}
-            />
-          );
-        case 4:
           return (
             <Step4
               formData={mergedFormData}
@@ -2676,7 +2821,7 @@ const GenerateFactoryCode = ({ onBack }) => {
               removeArtworkMaterial={removeArtworkMaterial}
             />
           );
-        case 5:
+        case 4:
           return (
             <Step5
               formData={mergedFormData}

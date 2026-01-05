@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { 
   getFiberTypes, 
   getYarnTypes, 
@@ -26,6 +26,7 @@ import {
   getFabricApprovalOptions
 } from '../../data/textileFabricHelpers';
 import SearchableDropdown from '../SearchableDropdown';
+import TrimAccessoryFields from '../TrimAccessoryFields';
 import { 
   FIBER_CATEGORIES, 
   ORIGINS, 
@@ -144,10 +145,52 @@ const Step2 = ({
   handleRawMaterialChange,
   handleWorkOrderChange,
   addWorkOrder,
-  removeWorkOrder
+  removeWorkOrder,
+  addRawMaterialWithType,
+  handleSave,
+  removeRawMaterial
 }) => {
   const prevWorkOrdersLengthRef = useRef({});
   const isInitialMountRef = useRef(true);
+  const [selectedComponent, setSelectedComponent] = useState(''); // Component selected at top
+  const [showMaterialTypeModal, setShowMaterialTypeModal] = useState(false);
+  const [savedComponents, setSavedComponents] = useState(new Set()); // Track which components are saved/done
+  const [lastAddedMaterialIndex, setLastAddedMaterialIndex] = useState(null);
+  const [scrollToMaterialIndex, setScrollToMaterialIndex] = useState(null); // Index to scroll to after removal
+
+  // Get all components for dropdown with done status
+  const getAllComponents = () => {
+    const components = [];
+    (formData.products || []).forEach((product) => {
+      (product.components || []).forEach((component) => {
+        if (component.productComforter) {
+          components.push(component.productComforter);
+        }
+      });
+    });
+    return [...new Set(components)]; // Remove duplicates
+  };
+
+  // Check if a component is "done" (saved)
+  const isComponentDone = (componentName) => {
+    return savedComponents.has(componentName);
+  };
+
+  // Get materials for selected component
+  const getMaterialsForSelectedComponent = () => {
+    if (!selectedComponent) return [];
+    return formData.rawMaterials?.filter(m => m.componentName === selectedComponent) || [];
+  };
+
+  // Handle bottom SAVE button - marks component as done
+  const handleBottomSave = () => {
+    if (!selectedComponent) {
+      alert('Please select a component first');
+      return;
+    }
+    setSavedComponents(prev => new Set([...prev, selectedComponent]));
+    handleSave(); // Call the parent save function
+  };
 
   useEffect(() => {
     if (isInitialMountRef.current) {
@@ -164,7 +207,7 @@ const Step2 = ({
       
       if (currentWorkOrdersLength > prevLength) {
         setTimeout(() => {
-          const lastWorkOrder = document.querySelector(`[data-material-index="${materialIndex}"][data-work-order-index]:last-child`);
+          const lastWorkOrder = document.querySelector(`[data-material-index="${materialIndex + 1}"][data-work-order-index]:last-child`);
           if (lastWorkOrder) {
             lastWorkOrder.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
@@ -174,37 +217,243 @@ const Step2 = ({
     });
   }, [formData.rawMaterials]);
 
+  // Scroll to newly added material
+  useEffect(() => {
+    if (lastAddedMaterialIndex !== null && formData.rawMaterials && formData.rawMaterials.length > lastAddedMaterialIndex) {
+      // Wait for React to render the new material
+      setTimeout(() => {
+        const element = document.querySelector(`[data-raw-material-index="${lastAddedMaterialIndex}"]`);
+        if (element) {
+          // Scroll to start (top) of the material card
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setLastAddedMaterialIndex(null); // Reset after scrolling
+        } else {
+          // Retry after a bit more time if element not found
+          setTimeout(() => {
+            const retryElement = document.querySelector(`[data-raw-material-index="${lastAddedMaterialIndex}"]`);
+            if (retryElement) {
+              retryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              setLastAddedMaterialIndex(null);
+            }
+          }, 200);
+        }
+      }, 100);
+    }
+  }, [lastAddedMaterialIndex, formData.rawMaterials]);
+
+  // Scroll to material after removal
+  useEffect(() => {
+    if (scrollToMaterialIndex !== null && selectedComponent) {
+      const materialsForComponent = getMaterialsForSelectedComponent();
+      
+      setTimeout(() => {
+        if (scrollToMaterialIndex === -1) {
+          // Scroll to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (scrollToMaterialIndex >= 0 && scrollToMaterialIndex < materialsForComponent.length) {
+          // Find the material at the target index
+          const targetMaterial = materialsForComponent[scrollToMaterialIndex];
+          if (targetMaterial) {
+            const targetActualIndex = formData.rawMaterials.findIndex(m => 
+              m === targetMaterial || 
+              (m.componentName === targetMaterial.componentName && 
+               m.materialDescription === targetMaterial.materialDescription)
+            );
+            
+            if (targetActualIndex !== -1) {
+              const element = document.querySelector(`[data-raw-material-index="${targetActualIndex}"]`);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }
+          }
+        }
+        
+        setScrollToMaterialIndex(null); // Reset after scrolling
+      }, 200);
+    }
+  }, [scrollToMaterialIndex, formData.rawMaterials, selectedComponent]);
+
+  const materialsForComponent = getMaterialsForSelectedComponent();
+
   return (
-<div className="w-full">
+    <div className="w-full">
       {/* Header with proper spacing */}
       <div style={{ marginBottom: '28px' }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-2 RAW MATERIAL SOURCING</h2>
         <p className="text-sm text-gray-600">Bill of material & work order</p>
       </div>
-      
-      {/* Raw Materials Table */}
-      <div>
-        {formData.rawMaterials.map((material, materialIndex) => (
-          <div key={materialIndex} className="bg-gray-50 rounded-xl border border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
-            {/* Material Header */}
-            <div className="mb-5">
-              <div className="flex flex-wrap items-end gap-3" style={{ marginBottom: '24px' }}>
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    COMPONENT
-                  </label>
-                  <input
-                    type="text"
-                    value={material.componentName}
-                    readOnly
-                    className="border-2 rounded-lg text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
-                    style={{ padding: '10px 14px', width: '160px', height: '44px', borderColor: '#e5e7eb' }}
-                  />
-                </div>
+
+      {/* Component Selection - OUTSIDE form border */}
+      <div style={{ marginBottom: '24px', padding: '20px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+        <div style={{ maxWidth: '300px' }}>
+          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ display: 'block', marginBottom: '8px' }}>
+            COMPONENT
+          </label>
+          <SearchableDropdown
+            value={selectedComponent ? (isComponentDone(selectedComponent) ? `${selectedComponent} ✓` : selectedComponent) : ''}
+            onChange={(selectedValue) => {
+              const cleanValue = selectedValue?.replace(' ✓', '') || '';
+              setSelectedComponent(cleanValue);
+            }}
+            options={getAllComponents().map(comp => {
+              const isDone = isComponentDone(comp);
+              return isDone ? `${comp} ✓` : comp;
+            })}
+            placeholder="Select component"
+            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+            style={{ padding: '10px 14px', height: '44px', width: '100%' }}
+            onFocus={(e) => {
+              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.boxShadow = '';
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Form for selected component */}
+      {selectedComponent && (
+        <div className="bg-gray-50 rounded-xl border border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
+          {materialsForComponent.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <p style={{ marginBottom: '20px', color: '#6b7280' }}>Add raw materials for this component</p>
+              <div style={{ maxWidth: '300px', margin: '0 auto' }}>
+                <SearchableDropdown
+                  options={['Fabric', 'Yarn', 'Trim & Accessory']}
+                  onChange={(selectedType) => {
+                    if (selectedType) {
+                      const currentLength = formData.rawMaterials?.length || 0;
+                      addRawMaterialWithType(selectedType, selectedComponent);
+                      setShowMaterialTypeModal(false);
+                      // Set the index of the newly added material
+                      setLastAddedMaterialIndex(currentLength);
+                    }
+                  }}
+                  placeholder="Select material type"
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', height: '44px', width: '100%' }}
+                  onFocus={(e) => {
+                    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = '';
+                  }}
+                />
               </div>
+            </div>
+          ) : (
+            materialsForComponent.map((material, materialIndex) => {
+              // Find the actual index in rawMaterials array
+              // Try multiple matching strategies to handle newly added materials
+              let actualIndex = formData.rawMaterials.findIndex(m => m === material);
               
-              {/* Material Details */}
+              // If direct reference fails, try matching by component and material type
+              // This works even when materialDescription is empty
+              if (actualIndex === -1) {
+                const materialsForThisComponent = formData.rawMaterials
+                  .map((m, idx) => ({ m, idx }))
+                  .filter(({ m }) => m.componentName === selectedComponent);
+                
+                // Find the material at the same position in the filtered list
+                if (materialIndex < materialsForThisComponent.length) {
+                  actualIndex = materialsForThisComponent[materialIndex].idx;
+                } else {
+                  // Fallback: match by componentName and materialType
+                  actualIndex = formData.rawMaterials.findIndex(m => 
+                    m.componentName === material.componentName && 
+                    m.materialType === material.materialType &&
+                    (m.materialDescription === material.materialDescription || 
+                     (!m.materialDescription && !material.materialDescription))
+                  );
+                }
+              }
+              
+              // Safety check: if still not found, log warning but continue
+              if (actualIndex === -1) {
+                console.warn('Could not find material index:', material, 'in rawMaterials:', formData.rawMaterials);
+                // Use materialIndex as fallback (not ideal but prevents crashes)
+                actualIndex = materialIndex;
+              }
+              
+              // Use a more stable key that includes component and position
+              const stableKey = `${selectedComponent}-${materialIndex}-${actualIndex}`;
+              const materialNumber = materialIndex + 1;
+              return (
+                <div key={stableKey} data-raw-material-index={actualIndex} style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: materialIndex < materialsForComponent.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
+                  {/* Material Header */}
+                  <div className="mb-5">
+                    <div className="flex items-center justify-between" style={{ marginBottom: '24px' }}>
+                      <h4 className="text-sm font-bold text-gray-700">MATERIAL {materialNumber}</h4>
+                      {materialsForComponent.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to remove this material?')) {
+                              // Store which material index to scroll to after removal
+                              if (materialIndex > 0) {
+                                // Scroll to previous material (will be at materialIndex - 1 after removal)
+                                setScrollToMaterialIndex(materialIndex - 1);
+                              } else {
+                                // If removing first material, scroll to top
+                                setScrollToMaterialIndex(-1);
+                              }
+                              
+                              removeRawMaterial(actualIndex);
+                            }
+                          }}
+                          className="border rounded-md cursor-pointer text-xs font-medium transition-all hover:-translate-x-0.5"
+                          style={{
+                            backgroundColor: '#f3f4f6',
+                            borderColor: '#d1d5db',
+                            color: '#374151',
+                            padding: '4px 10px',
+                            height: '28px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6';
+                          }}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    
+                    {/* Material Details */}
               <div className="flex flex-wrap items-start gap-6">
+                <div className='flex flex-col'>
+                  <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL TYPE</label>
+                  <SearchableDropdown
+                    value={material.materialType || ''}
+                    onChange={(selectedMaterialType) => handleRawMaterialChange(actualIndex, 'materialType', selectedMaterialType)}
+                    options={['Fabric', 'Yarn', 'Trim & Accessory']}
+                    placeholder="select material"
+                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                      errors[`rawMaterial_${actualIndex}_materialType`] 
+                        ? 'border-red-600' 
+                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                    }`}
+                    style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                    onFocus={(e) => {
+                      if (!errors[`rawMaterial_${actualIndex}_materialType`]) {
+                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = '';
+                    }}
+                  />
+                  {errors[`rawMaterial_${actualIndex}_materialType`] && (
+                    <span className="text-red-600 text-xs mt-1 font-medium">
+                      {errors[`rawMaterial_${actualIndex}_materialType`]}
+                    </span>
+                  )}
+                </div>
+
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                     MATERIAL DESC <span className="text-red-600">*</span>
@@ -212,15 +461,15 @@ const Step2 = ({
                   <input
                     type="text"
                     value={material.materialDescription}
-                    onChange={(e) => handleRawMaterialChange(materialIndex, 'materialDescription', e.target.value)}
+                    onChange={(e) => handleRawMaterialChange(actualIndex, 'materialDescription', e.target.value)}
                     className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`rawMaterial_${materialIndex}_materialDescription`] 
+                      errors[`rawMaterial_${actualIndex}_materialDescription`] 
                         ? 'border-red-600' 
                         : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                     }`}
                     style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                     onFocus={(e) => {
-                      if (!errors[`rawMaterial_${materialIndex}_materialDescription`]) {
+                      if (!errors[`rawMaterial_${actualIndex}_materialDescription`]) {
                         e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                       }
                     }}
@@ -230,27 +479,9 @@ const Step2 = ({
                     placeholder="e.g., Cotton 200TC"
                     required
                   />
-                  {errors[`rawMaterial_${materialIndex}_materialDescription`] && (
+                  {errors[`rawMaterial_${actualIndex}_materialDescription`] && (
                     <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`rawMaterial_${materialIndex}_materialDescription`]}
-                    </span>
-                  )}
-                </div>
-
-                <div className='flex flex-col'>
-                  <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL TYPE</label>
-                  <SearchableDropdown
-                    value={material.materialType || ''}
-                    onChange={(selectedMaterialType) => handleRawMaterialChange(materialIndex, 'materialType', selectedMaterialType)}
-                    options={['Fabric', 'Yarn']}
-                    placeholder="select material"
-                    onFocus={(e) => {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }}
-                  />
-                  {errors[`rawMaterial_${materialIndex}_materialType`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`rawMaterial_${materialIndex}_materialType`]}
+                      {errors[`rawMaterial_${actualIndex}_materialDescription`]}
                     </span>
                   )}
                 </div>
@@ -263,15 +494,15 @@ const Step2 = ({
                     type="number"
                     step="0.001"
                     value={material.netConsumption}
-                    onChange={(e) => handleRawMaterialChange(materialIndex, 'netConsumption', e.target.value)}
+                    onChange={(e) => handleRawMaterialChange(actualIndex, 'netConsumption', e.target.value)}
                     className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`rawMaterial_${materialIndex}_netConsumption`] 
+                      errors[`rawMaterial_${actualIndex}_netConsumption`] 
                         ? 'border-red-600' 
                         : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                     }`}
                     style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                     onFocus={(e) => {
-                      if (!errors[`rawMaterial_${materialIndex}_netConsumption`]) {
+                      if (!errors[`rawMaterial_${actualIndex}_netConsumption`]) {
                         e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                       }
                     }}
@@ -281,9 +512,9 @@ const Step2 = ({
                     placeholder="0.000"
                     required
                   />
-                  {errors[`rawMaterial_${materialIndex}_netConsumption`] && (
+                  {errors[`rawMaterial_${actualIndex}_netConsumption`] && (
                     <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`rawMaterial_${materialIndex}_netConsumption`]}
+                      {errors[`rawMaterial_${actualIndex}_netConsumption`]}
                     </span>
                   )}
                 </div>
@@ -294,15 +525,15 @@ const Step2 = ({
                   </label>
                   <select
                     value={material.unit}
-                    onChange={(e) => handleRawMaterialChange(materialIndex, 'unit', e.target.value)}
+                    onChange={(e) => handleRawMaterialChange(actualIndex, 'unit', e.target.value)}
                     className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                      errors[`rawMaterial_${materialIndex}_unit`] 
+                      errors[`rawMaterial_${actualIndex}_unit`] 
                         ? 'border-red-600' 
                         : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                     }`}
                     style={{ padding: '10px 14px', width: '130px', height: '44px' }}
                     onFocus={(e) => {
-                      if (!errors[`rawMaterial_${materialIndex}_unit`]) {
+                      if (!errors[`rawMaterial_${actualIndex}_unit`]) {
                         e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                       }
                     }}
@@ -318,9 +549,9 @@ const Step2 = ({
                     <option value="Meter">Meter</option>
                     <option value="KGS">KGS</option>
                   </select>
-                  {errors[`rawMaterial_${materialIndex}_unit`] && (
+                  {errors[`rawMaterial_${actualIndex}_unit`] && (
                     <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`rawMaterial_${materialIndex}_unit`]}
+                      {errors[`rawMaterial_${actualIndex}_unit`]}
                     </span>
                   )}
                 </div>
@@ -339,12 +570,12 @@ const Step2 = ({
                     <SearchableDropdown
                       value={material.fiberType || ''}
                       onChange={(selectedFiberType) => {
-                        handleRawMaterialChange(materialIndex, 'fiberType', selectedFiberType);
+                        handleRawMaterialChange(actualIndex, 'fiberType', selectedFiberType);
                         // Reset yarn type when fiber type changes
                         if (selectedFiberType !== material.fiberType) {
-                          handleRawMaterialChange(materialIndex, 'yarnType', '');
-                          handleRawMaterialChange(materialIndex, 'spinningMethod', '');
-                          handleRawMaterialChange(materialIndex, 'spinningType', '');
+                          handleRawMaterialChange(actualIndex, 'yarnType', '');
+                          handleRawMaterialChange(actualIndex, 'spinningMethod', '');
+                          handleRawMaterialChange(actualIndex, 'spinningType', '');
                         }
                       }}
                       options={getFiberTypes()}
@@ -366,16 +597,16 @@ const Step2 = ({
                     <SearchableDropdown
                       value={material.yarnType || ''}
                       onChange={(selectedYarnType) => {
-                        handleRawMaterialChange(materialIndex, 'yarnType', selectedYarnType);
+                        handleRawMaterialChange(actualIndex, 'yarnType', selectedYarnType);
                         // Clear dependent fields when yarn type changes
                         if (selectedYarnType !== material.yarnType) {
-                          handleRawMaterialChange(materialIndex, 'yarnComposition', '');
-                          handleRawMaterialChange(materialIndex, 'yarnCountRange', '');
-                          handleRawMaterialChange(materialIndex, 'yarnDoublingOptions', '');
-                          handleRawMaterialChange(materialIndex, 'yarnPlyOptions', '');
-                          handleRawMaterialChange(materialIndex, 'spinningMethod', '');
-                          handleRawMaterialChange(materialIndex, 'spinningType', '');
-                          handleRawMaterialChange(materialIndex, 'windingOptions', '');
+                          handleRawMaterialChange(actualIndex, 'yarnComposition', '');
+                          handleRawMaterialChange(actualIndex, 'yarnCountRange', '');
+                          handleRawMaterialChange(actualIndex, 'yarnDoublingOptions', '');
+                          handleRawMaterialChange(actualIndex, 'yarnPlyOptions', '');
+                          handleRawMaterialChange(actualIndex, 'spinningMethod', '');
+                          handleRawMaterialChange(actualIndex, 'spinningType', '');
+                          handleRawMaterialChange(actualIndex, 'windingOptions', '');
                         }
                       }}
                       options={material.fiberType ? getYarnTypes(material.fiberType) : []}
@@ -410,7 +641,7 @@ const Step2 = ({
                           </label>
                           <SearchableDropdown
                             value={material.yarnComposition || ''}
-                            onChange={(value) => handleRawMaterialChange(materialIndex, 'yarnComposition', value)}
+                            onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnComposition', value)}
                             options={material.fiberType && material.yarnType 
                               ? getYarnCompositionOptions(material.fiberType, material.yarnType)
                               : []}
@@ -431,7 +662,7 @@ const Step2 = ({
                           </label>
                           <SearchableDropdown
                             value={material.yarnCountRange || ''}
-                            onChange={(value) => handleRawMaterialChange(materialIndex, 'yarnCountRange', value)}
+                            onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnCountRange', value)}
                             options={material.fiberType && material.yarnType 
                               ? getYarnCountRangeOptions(material.fiberType, material.yarnType)
                               : []}
@@ -452,7 +683,7 @@ const Step2 = ({
                           </label>
                           <SearchableDropdown
                             value={material.yarnDoublingOptions || ''}
-                            onChange={(value) => handleRawMaterialChange(materialIndex, 'yarnDoublingOptions', value)}
+                            onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnDoublingOptions', value)}
                             options={material.fiberType && material.yarnType 
                               ? getYarnDoublingOptions(material.fiberType, material.yarnType)
                               : []}
@@ -473,7 +704,7 @@ const Step2 = ({
                           </label>
                           <SearchableDropdown
                             value={material.yarnPlyOptions || ''}
-                            onChange={(value) => handleRawMaterialChange(materialIndex, 'yarnPlyOptions', value)}
+                            onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnPlyOptions', value)}
                             options={material.fiberType && material.yarnType 
                               ? getYarnPlyOptions(material.fiberType, material.yarnType)
                               : []}
@@ -507,7 +738,7 @@ const Step2 = ({
                           </label>
                           <SearchableDropdown
                             value={material.windingOptions || details.windingOptions || ''}
-                            onChange={(value) => handleRawMaterialChange(materialIndex, 'windingOptions', value)}
+                            onChange={(value) => handleRawMaterialChange(actualIndex, 'windingOptions', value)}
                             options={material.fiberType && material.yarnType 
                               ? getYarnWindingOptions(material.fiberType, material.yarnType)
                               : []}
@@ -529,7 +760,7 @@ const Step2 = ({
                           <input
                             type="text"
                             value={material.surplus || ''}
-                            onChange={(e) => handleRawMaterialChange(materialIndex, 'surplus', e.target.value)}
+                            onChange={(e) => handleRawMaterialChange(actualIndex, 'surplus', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="%AGE"
@@ -542,7 +773,7 @@ const Step2 = ({
                           </label>
                           <SearchableDropdown
                             value={material.approval || ''}
-                            onChange={(value) => handleRawMaterialChange(materialIndex, 'approval', value)}
+                            onChange={(value) => handleRawMaterialChange(actualIndex, 'approval', value)}
                             options={['BUYER\'S', 'PROTO', 'FIT', 'SIZE SET', 'PP', 'TOP SAMPLE']}
                             placeholder="Select or type Approval"
                             onFocus={(e) => {
@@ -561,7 +792,7 @@ const Step2 = ({
                           <input
                             type="text"
                             value={material.remarks || ''}
-                            onChange={(e) => handleRawMaterialChange(materialIndex, 'remarks', e.target.value)}
+                            onChange={(e) => handleRawMaterialChange(actualIndex, 'remarks', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Enter remarks"
@@ -573,7 +804,7 @@ const Step2 = ({
                       <div style={{ marginTop: '20px', marginBottom: '20px' }}>
                         <button
                           type="button"
-                          onClick={() => handleRawMaterialChange(materialIndex, 'showAdvancedFilter', !material.showAdvancedFilter)}
+                          onClick={() => handleRawMaterialChange(actualIndex, 'showAdvancedFilter', !material.showAdvancedFilter)}
                           className="border-2 rounded-lg text-sm font-medium transition-all"
                           style={{
                             padding: '10px 20px',
@@ -613,8 +844,8 @@ const Step2 = ({
                               <SearchableDropdown
                                 value={material.spinningType || material.spinningMethod || ''}
                                 onChange={(value) => {
-                                  handleRawMaterialChange(materialIndex, 'spinningType', value);
-                                  handleRawMaterialChange(materialIndex, 'spinningMethod', value);
+                                  handleRawMaterialChange(actualIndex, 'spinningType', value);
+                                  handleRawMaterialChange(actualIndex, 'spinningMethod', value);
                                 }}
                                 options={material.fiberType && material.yarnType 
                                   ? getYarnSpinningMethodOptions(material.fiberType, material.yarnType)
@@ -638,7 +869,7 @@ const Step2 = ({
                               <input
                                 type="text"
                                 value={material.testingRequirements || ''}
-                                onChange={(e) => handleRawMaterialChange(materialIndex, 'testingRequirements', e.target.value)}
+                                onChange={(e) => handleRawMaterialChange(actualIndex, 'testingRequirements', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 onFocus={(e) => {
@@ -658,7 +889,7 @@ const Step2 = ({
                               </label>
                               <SearchableDropdown
                                 value={material.fiberCategory || ''}
-                                onChange={(value) => handleRawMaterialChange(materialIndex, 'fiberCategory', value)}
+                                onChange={(value) => handleRawMaterialChange(actualIndex, 'fiberCategory', value)}
                                 options={FIBER_CATEGORIES}
                                 placeholder="Select or type Fiber Category"
                                 onFocus={(e) => {
@@ -677,7 +908,7 @@ const Step2 = ({
                               </label>
                               <SearchableDropdown
                                 value={material.origin || ''}
-                                onChange={(value) => handleRawMaterialChange(materialIndex, 'origin', value)}
+                                onChange={(value) => handleRawMaterialChange(actualIndex, 'origin', value)}
                                 options={ORIGINS}
                                 placeholder="Select or type Origin"
                                 onFocus={(e) => {
@@ -697,7 +928,7 @@ const Step2 = ({
                               <input
                                 type="text"
                                 value={material.certifications || ''}
-                                onChange={(e) => handleRawMaterialChange(materialIndex, 'certifications', e.target.value)}
+                                onChange={(e) => handleRawMaterialChange(actualIndex, 'certifications', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter certificate label"
@@ -737,10 +968,10 @@ const Step2 = ({
                     <SearchableDropdown
                       value={material.fabricFiberType || ''}
                       onChange={(selectedFiberType) => {
-                        handleRawMaterialChange(materialIndex, 'fabricFiberType', selectedFiberType);
+                        handleRawMaterialChange(actualIndex, 'fabricFiberType', selectedFiberType);
                         // Clear fabric name when fiber type changes
                         if (selectedFiberType !== material.fabricFiberType) {
-                          handleRawMaterialChange(materialIndex, 'fabricName', '');
+                          handleRawMaterialChange(actualIndex, 'fabricName', '');
                         }
                       }}
                       options={getTextileFabricFiberTypes()}
@@ -762,13 +993,13 @@ const Step2 = ({
                     <SearchableDropdown
                       value={material.fabricName || ''}
                       onChange={(selectedFabricName) => {
-                        handleRawMaterialChange(materialIndex, 'fabricName', selectedFabricName);
+                        handleRawMaterialChange(actualIndex, 'fabricName', selectedFabricName);
                         // Clear dependent fields when fabric name changes
                         if (selectedFabricName !== material.fabricName) {
-                          handleRawMaterialChange(materialIndex, 'fabricComposition', '');
-                          handleRawMaterialChange(materialIndex, 'constructionType', '');
-                          handleRawMaterialChange(materialIndex, 'weaveKnitType', '');
-                          handleRawMaterialChange(materialIndex, 'fabricApproval', '');
+                          handleRawMaterialChange(actualIndex, 'fabricComposition', '');
+                          handleRawMaterialChange(actualIndex, 'constructionType', '');
+                          handleRawMaterialChange(actualIndex, 'weaveKnitType', '');
+                          handleRawMaterialChange(actualIndex, 'fabricApproval', '');
                         }
                       }}
                       options={material.fabricFiberType ? getTextileFabricNames(material.fabricFiberType) : []}
@@ -792,7 +1023,7 @@ const Step2 = ({
                     </label>
                     <SearchableDropdown
                       value={material.fabricComposition || ''}
-                      onChange={(value) => handleRawMaterialChange(materialIndex, 'fabricComposition', value)}
+                      onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricComposition', value)}
                       options={material.fabricFiberType && material.fabricName 
                         ? getFabricCompositionOptions(material.fabricFiberType, material.fabricName)
                         : []}
@@ -815,7 +1046,7 @@ const Step2 = ({
                     <input
                       type="text"
                       value={material.gsm || ''}
-                      onChange={(e) => handleRawMaterialChange(materialIndex, 'gsm', e.target.value)}
+                      onChange={(e) => handleRawMaterialChange(actualIndex, 'gsm', e.target.value)}
                       className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                       style={{ padding: '10px 14px', height: '44px' }}
                       placeholder="e.g., 90"
@@ -830,7 +1061,7 @@ const Step2 = ({
                     <input
                       type="text"
                       value={material.fabricSurplus || ''}
-                      onChange={(e) => handleRawMaterialChange(materialIndex, 'fabricSurplus', e.target.value)}
+                      onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricSurplus', e.target.value)}
                       className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                       style={{ padding: '10px 14px', height: '44px' }}
                       placeholder="%AGE"
@@ -844,7 +1075,7 @@ const Step2 = ({
                     </label>
                     <SearchableDropdown
                       value={material.fabricApproval || ''}
-                      onChange={(value) => handleRawMaterialChange(materialIndex, 'fabricApproval', value)}
+                      onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricApproval', value)}
                       options={material.fabricFiberType && material.fabricName 
                         ? getFabricApprovalOptions(material.fabricFiberType, material.fabricName)
                         : []}
@@ -867,7 +1098,7 @@ const Step2 = ({
                     <input
                       type="text"
                       value={material.fabricRemarks || ''}
-                      onChange={(e) => handleRawMaterialChange(materialIndex, 'fabricRemarks', e.target.value)}
+                      onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricRemarks', e.target.value)}
                       className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                       style={{ padding: '10px 14px', height: '44px' }}
                       placeholder="Text"
@@ -879,7 +1110,7 @@ const Step2 = ({
                 <div style={{ marginTop: '20px', marginBottom: '20px' }}>
                   <button
                     type="button"
-                    onClick={() => handleRawMaterialChange(materialIndex, 'showFabricAdvancedFilter', !material.showFabricAdvancedFilter)}
+                    onClick={() => handleRawMaterialChange(actualIndex, 'showFabricAdvancedFilter', !material.showFabricAdvancedFilter)}
                     className="border-2 rounded-lg text-sm font-medium transition-all"
                     style={{
                       padding: '10px 20px',
@@ -918,7 +1149,7 @@ const Step2 = ({
                         </label>
                         <SearchableDropdown
                           value={material.constructionType || ''}
-                          onChange={(value) => handleRawMaterialChange(materialIndex, 'constructionType', value)}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'constructionType', value)}
                           options={material.fabricFiberType && material.fabricName 
                             ? getFabricConstructionTypeOptions(material.fabricFiberType, material.fabricName)
                             : []}
@@ -940,7 +1171,7 @@ const Step2 = ({
                         </label>
                         <SearchableDropdown
                           value={material.weaveKnitType || ''}
-                          onChange={(value) => handleRawMaterialChange(materialIndex, 'weaveKnitType', value)}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'weaveKnitType', value)}
                           options={material.fabricFiberType && material.fabricName 
                             ? getFabricWeaveKnitTypeOptions(material.fabricFiberType, material.fabricName)
                             : []}
@@ -962,7 +1193,7 @@ const Step2 = ({
                         </label>
                         <SearchableDropdown
                           value={material.fabricMachineType || ''}
-                          onChange={(value) => handleRawMaterialChange(materialIndex, 'fabricMachineType', value)}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricMachineType', value)}
                           options={['Powerloom', 'Handloom', 'Circular Knitting', 'Flatbed Knitting', 'Warp Knitting', 'Others']}
                           placeholder="Select or type Machine Type"
                           onFocus={(e) => {
@@ -982,7 +1213,7 @@ const Step2 = ({
                         <input
                           type="text"
                           value={material.fabricTestingRequirements || ''}
-                          onChange={(e) => handleRawMaterialChange(materialIndex, 'fabricTestingRequirements', e.target.value)}
+                          onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricTestingRequirements', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           onFocus={(e) => {
@@ -1002,7 +1233,7 @@ const Step2 = ({
                         </label>
                         <SearchableDropdown
                           value={material.fabricFiberCategory || ''}
-                          onChange={(value) => handleRawMaterialChange(materialIndex, 'fabricFiberCategory', value)}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricFiberCategory', value)}
                           options={FIBER_CATEGORIES}
                           placeholder="Select or type Fiber Category"
                           onFocus={(e) => {
@@ -1021,7 +1252,7 @@ const Step2 = ({
                         </label>
                         <SearchableDropdown
                           value={material.fabricOrigin || ''}
-                          onChange={(value) => handleRawMaterialChange(materialIndex, 'fabricOrigin', value)}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricOrigin', value)}
                           options={ORIGINS}
                           placeholder="Select or type Origin"
                           onFocus={(e) => {
@@ -1041,7 +1272,7 @@ const Step2 = ({
                         <input
                           type="text"
                           value={material.fabricCertifications || ''}
-                          onChange={(e) => handleRawMaterialChange(materialIndex, 'fabricCertifications', e.target.value)}
+                          onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricCertifications', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="Enter certificate label"
@@ -1059,6 +1290,44 @@ const Step2 = ({
               </div>
             </div>
             </>)}
+
+            {/* Trim & Accessory Section */}
+            {material.materialType === "Trim & Accessory" && (
+              <>
+                <div style={{ marginTop: '32px' }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <h3 className="text-sm font-bold text-gray-800">TRIM & ACCESSORY SPECIFICATIONS</h3>
+                  </div>
+                  
+                  <div className="bg-white rounded-lg border border-gray-200" style={{ padding: '20px' }}>
+                    {/* Import Trim/Accessory fields from Step3 */}
+                    {/* For now, we'll conditionally render a basic structure */}
+                    {/* The full trim/accessory fields will be imported from Step3 rendering logic */}
+                    <div className="w-full mt-8 pt-6 border-t border-gray-100">
+                      <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
+                        <label className="text-sm font-bold text-gray-800 mb-2">TRIM/ACCESSORY</label>
+                        <SearchableDropdown
+                          value={material.trimAccessory || ''}
+                          onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'trimAccessory', selectedValue)}
+                          options={['ZIPPERS', 'VELCRO', 'STITCHING THREAD', 'BUTTONS', 'RIVETS', 'NIWAR (Webbing/Tapes)', 'LACE', 'INTERLINING', 'HOOKS-EYES', 'BUCKLES & ADJUSTERS', 'BUCKLES', 'EYELETS & GROMMETS', 'ELASTIC', 'FELT', 'SHOULDER PADS', 'TUBULAR KNITS / RIBBING', 'RFID / EAS TAGS', 'CABLE-TIES', 'FRINGE / TASSELS', 'PLASTIC PIPES / RODS', 'SEAM TAPE', 'ADHESIVES / GUNNING', 'PRE-CUT HEMS / BINDINGS', 'REFLECTIVE TAPES', 'FIRE RETARDANT (FR) TRIMS', 'REPAIR KITS / PATCHES', 'CORD STOPS', 'RINGS-LOOPS', 'FOAM / WADDING (Pre-Cut Shapes)', 'PIN-BARBS', 'MAGNETIC CLOSURE']}
+                          placeholder="Select or type Trim/Accessory"
+                          style={{ width: '280px' }}
+                          onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                          onBlur={(e) => e.target.style.boxShadow = ''}
+                        />
+                      </div>
+                      
+                      {/* Conditional fields based on trim/accessory type */}
+                      <TrimAccessoryFields
+                        material={material}
+                        materialIndex={actualIndex}
+                        handleChange={handleRawMaterialChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
             
             {/* Work Orders Section */}
             <div style={{ marginTop: '20px' }}>
@@ -1067,7 +1336,7 @@ const Step2 = ({
               </div>
               
               {material.workOrders && material.workOrders.map((workOrder, woIndex) => (
-                <div key={woIndex} id={`workorder-${materialIndex}-${woIndex}`} data-work-order-index={woIndex} data-material-index={materialIndex} className="bg-white rounded-lg border border-gray-200" style={{ padding: '16px', marginBottom: '12px' }}>
+                <div key={woIndex} id={`workorder-${materialIndex + 1}-${woIndex}`} data-work-order-index={woIndex} data-material-index={materialIndex} className="bg-white rounded-lg border border-gray-200" style={{ padding: '16px', marginBottom: '12px' }}>
                   <div className="flex items-center justify-between" style={{ marginBottom: '12px' }}>
                     <h4 className="text-sm font-semibold text-gray-700">
                       WORK ORDER {woIndex + 1}
@@ -1075,7 +1344,30 @@ const Step2 = ({
                     {material.workOrders.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeWorkOrder(materialIndex, woIndex)}
+                        onClick={() => {
+                          // Find previous work order to scroll to
+                          const currentWorkOrders = material.workOrders || [];
+                          const prevWorkOrderIndex = woIndex > 0 ? woIndex - 1 : null;
+                          removeWorkOrder(actualIndex, woIndex);
+                          
+                          // Scroll to previous work order after removal
+                          if (prevWorkOrderIndex !== null && prevWorkOrderIndex < currentWorkOrders.length) {
+                            setTimeout(() => {
+                              const prevElement = document.querySelector(`[data-material-index="${actualIndex}"][data-work-order-index="${prevWorkOrderIndex}"]`);
+                              if (prevElement) {
+                                prevElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          } else if (currentWorkOrders.length === 1) {
+                            // If removing the last work order, scroll to material header
+                            setTimeout(() => {
+                              const materialElement = document.querySelector(`[data-raw-material-index="${actualIndex}"]`);
+                              if (materialElement) {
+                                materialElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          }
+                        }}
                         className="border rounded-md cursor-pointer text-xs font-medium transition-all hover:-translate-x-0.5"
                         style={{
                           backgroundColor: '#f3f4f6',
@@ -1105,17 +1397,17 @@ const Step2 = ({
                       <SearchableDropdown
                         value={workOrder.workOrder || ''}
                         onChange={(selectedValue) => {
-                          handleWorkOrderChange(materialIndex, woIndex, 'workOrder', selectedValue);
+                          handleWorkOrderChange(actualIndex, woIndex, 'workOrder', selectedValue);
                         }}
                         options={['WEAVING', 'TUFTING', 'QUILTING', 'PRINTING', 'KNITTING', 'EMBROIDERY', 'DYEING', 'BRAIDING', 'CARPET', 'CUTTING', 'SEWING']}
                         placeholder="Select Work Order"
                         strictMode={true}
-                        className={errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`] 
+                        className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_workOrder`] 
                           ? 'border-red-600' 
                           : ''}
                         style={{ width: '160px' }}
                         onFocus={(e) => {
-                          if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`]) {
+                          if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_workOrder`]) {
                             e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                           }
                         }}
@@ -1123,9 +1415,9 @@ const Step2 = ({
                           e.target.style.boxShadow = '';
                         }}
                       />
-                      {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`] && (
+                      {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_workOrder`] && (
                         <span className="text-red-600 text-xs mt-1 font-medium">
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_workOrder`]}
+                          {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_workOrder`]}
                         </span>
                       )}
                     </div>
@@ -1140,15 +1432,15 @@ const Step2 = ({
                           <input
                             type="text"
                             value={workOrder.wastage || ''}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
+                            onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
                             className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
+                              errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
                                 ? 'border-red-600' 
                                 : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                             }`}
                             style={{ padding: '10px 14px', width: '100px', height: '44px' }}
                             onFocus={(e) => {
-                              if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
+                              if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
                                 e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                               }
                             }}
@@ -1158,9 +1450,9 @@ const Step2 = ({
                             placeholder="e.g., 2"
                             required
                           />
-                          {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
+                          {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                             <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
+                              {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                             </span>
                           )}
                         </div>
@@ -1178,7 +1470,7 @@ const Step2 = ({
                           <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                           <SearchableDropdown
                             value={workOrder.cuttingType || ''}
-                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'cuttingType', selectedValue)}
+                            onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'cuttingType', selectedValue)}
                             options={['SCISSOR', 'STRAIGHT KNIFE', 'ROUND KNIFE', 'BAND KNIFE', 'DIE CUTTER', 'CNC CUTTER', 'LASER', 'WATERJET', 'ULTRASONIC', 'ROTARY HAND', 'OTHERS']}
                             placeholder="Select or type Type"
                             style={{ width: '160px' }}
@@ -1194,7 +1486,7 @@ const Step2 = ({
                           <label className="text-sm font-semibold text-gray-700 mb-2">MACHINE TYPE</label>
                           <SearchableDropdown
                             value={workOrder.machineType || ''}
-                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'machineType', selectedValue)}
+                            onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'machineType', selectedValue)}
                             options={
                               workOrder.workOrder === 'WEAVING' ? getAllWeavingMachineTypes() :
                               workOrder.workOrder === 'TUFTING' ? getAllTuftingMachineTypes() :
@@ -1229,7 +1521,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.strandCount || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'strandCount', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'strandCount', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1246,7 +1538,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.widthDiameter || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'widthDiameter', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'widthDiameter', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1261,7 +1553,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.gsm || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'gsm', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1275,7 +1567,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={BRAIDING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -1290,12 +1582,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                               <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`braiding-file-${materialIndex}-${woIndex}`}
+                                id={`braiding-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`braiding-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`braiding-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -1313,7 +1605,7 @@ const Step2 = ({
                           <input
                             type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1331,7 +1623,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showBraidingAdvancedFilter', !workOrder.showBraidingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showBraidingAdvancedFilter', !workOrder.showBraidingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -1370,7 +1662,7 @@ const Step2 = ({
                                   </label>
                           <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -1394,7 +1686,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.braidingDesign || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'braidingDesign', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'braidingDesign', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -1425,7 +1717,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.pattern || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'pattern', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pattern', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -1452,7 +1744,7 @@ const Step2 = ({
                           <label className="text-sm font-semibold text-gray-700 mb-2">QUILTING TYPE</label>
                           <SearchableDropdown
                             value={workOrder.quiltingType || ''}
-                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'quiltingType', selectedValue)}
+                            onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'quiltingType', selectedValue)}
                             options={getAllQuiltingTypes()}
                             placeholder="Select or type Quilting Type"
                             style={{ width: '200px' }}
@@ -1467,12 +1759,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                               <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`quilting-file-${materialIndex}-${woIndex}`}
+                                id={`quilting-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`quilting-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`quilting-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -1497,7 +1789,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.stitchLength || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'stitchLength', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'stitchLength', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1519,7 +1811,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.patternRepeat || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'patternRepeat', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'patternRepeat', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1534,24 +1826,24 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.wastage || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
                               className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                                errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
+                                errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
                                   ? 'border-red-600' 
                                   : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                               }`}
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                               onFocus={(e) => {
-                                if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
+                                if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
                                   e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                 }
                               }}
                               onBlur={(e) => e.target.style.boxShadow = ''}
                               placeholder="%AGE"
                             />
-                            {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
+                            {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                               <span className="text-red-600 text-xs mt-1 font-medium">
-                                {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
+                                {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                               </span>
                             )}
                           </div>
@@ -1561,7 +1853,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={QUILTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -1576,7 +1868,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1595,7 +1887,7 @@ const Step2 = ({
                           <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING TYPE</label>
                           <SearchableDropdown
                             value={workOrder.printingType || ''}
-                            onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'printingType', selectedValue)}
+                            onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'printingType', selectedValue)}
                             options={getAllPrintingTypes()}
                             placeholder="Select or type Printing Type"
                             style={{ width: '200px' }}
@@ -1610,12 +1902,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                               <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`printing-file-${materialIndex}-${woIndex}`}
+                                id={`printing-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`printing-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`printing-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -1640,7 +1932,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.repeatSize || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'repeatSize', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'repeatSize', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1655,24 +1947,24 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.wastage || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
                               className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                                errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
+                                errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
                                   ? 'border-red-600' 
                                   : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                               }`}
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                               onFocus={(e) => {
-                                if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
+                                if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
                                   e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                 }
                               }}
                               onBlur={(e) => e.target.style.boxShadow = ''}
                               placeholder="%AGE"
                             />
-                            {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
+                            {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                               <span className="text-red-600 text-xs mt-1 font-medium">
-                                {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
+                                {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                               </span>
                             )}
                           </div>
@@ -1682,7 +1974,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                           <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={PRINTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -1697,7 +1989,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1717,7 +2009,7 @@ const Step2 = ({
                           <input
                             type="text"
                               value={workOrder.spi || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'spi', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'spi', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1738,7 +2030,7 @@ const Step2 = ({
                             </label>
                             <SearchableDropdown
                               value={workOrder.threadType || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'threadType', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'threadType', selectedValue)}
                               options={SEWING_THREAD_TYPE_OPTIONS}
                               placeholder="Select or type Thread Type"
                               style={{ width: '220px' }}
@@ -1753,15 +2045,15 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.wastage || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
                               className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                                errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
+                                errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
                                   ? 'border-red-600' 
                                   : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                               }`}
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                               onFocus={(e) => {
-                                if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
+                                if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
                                   e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                 }
                                 
@@ -1769,9 +2061,9 @@ const Step2 = ({
                               onBlur={(e) => e.target.style.boxShadow = ''}
                               placeholder="%AGE"
                             />
-                            {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
+                            {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                               <span className="text-red-600 text-xs mt-1 font-medium">
-                                {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
+                                {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                               </span>
                             )}
                           </div>
@@ -1781,7 +2073,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                           <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={SEWING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -1796,7 +2088,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1819,14 +2111,14 @@ const Step2 = ({
                             value={workOrder.dyeingType || ''}
                             onChange={(selectedValue) => {
                               const selectedType = selectedValue;
-                              handleWorkOrderChange(materialIndex, woIndex, 'dyeingType', selectedType);
+                              handleWorkOrderChange(actualIndex, woIndex, 'dyeingType', selectedType);
                               // Clear COLOR REF and REFERENCE TYPE when dyeing type changes
                               if (!selectedType) {
-                                handleWorkOrderChange(materialIndex, woIndex, 'colorRef', '');
-                                handleWorkOrderChange(materialIndex, woIndex, 'referenceType', '');
+                                handleWorkOrderChange(actualIndex, woIndex, 'colorRef', '');
+                                handleWorkOrderChange(actualIndex, woIndex, 'referenceType', '');
                               } else {
-                                handleWorkOrderChange(materialIndex, woIndex, 'colorRef', '');
-                                handleWorkOrderChange(materialIndex, woIndex, 'referenceType', '');
+                                handleWorkOrderChange(actualIndex, woIndex, 'colorRef', '');
+                                handleWorkOrderChange(actualIndex, woIndex, 'referenceType', '');
                               }
                             }}
                             options={getAllDyeingTypes()}
@@ -1842,7 +2134,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">COLOR REF</label>
                             <select
                               value={workOrder.colorRef || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'colorRef', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'colorRef', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1861,7 +2153,7 @@ const Step2 = ({
                           <label className="text-sm font-semibold text-gray-700 mb-2">REFERENCE TYPE</label>
                           <select
                             value={workOrder.referenceType || ''}
-                            onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'referenceType', e.target.value)}
+                            onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'referenceType', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '300px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1881,12 +2173,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                               <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`dyeing-file-${materialIndex}-${woIndex}`}
+                                id={`dyeing-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`dyeing-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`dyeing-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -1905,7 +2197,7 @@ const Step2 = ({
                               <input
                                 type="text"
                                 value={workOrder.shrinkageWidthPercent || ''}
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'shrinkageWidthPercent', e.target.value)}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'shrinkageWidthPercent', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                 style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                                 onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1922,7 +2214,7 @@ const Step2 = ({
                           <input
                             type="text"
                                 value={workOrder.shrinkageLengthPercent || ''}
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'shrinkageLengthPercent', e.target.value)}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'shrinkageLengthPercent', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                 style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1937,7 +2229,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                           <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={DYEING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -1952,7 +2244,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -1972,12 +2264,12 @@ const Step2 = ({
                           <div className="flex items-center gap-2">
                             <input
                               type="file"
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                               className="hidden"
-                              id={`file-${materialIndex}-${woIndex}`}
+                              id={`file-${materialIndex + 1}-${woIndex}`}
                             />
                             <label
-                              htmlFor={`file-${materialIndex}-${woIndex}`}
+                              htmlFor={`file-${materialIndex + 1}-${woIndex}`}
                               className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                               style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                             >
@@ -1999,12 +2291,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                               <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`weaving-file-${materialIndex}-${woIndex}`}
+                                id={`weaving-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`weaving-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`weaving-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -2029,7 +2321,7 @@ const Step2 = ({
                                 <input
                                   type="text"
                                   value={workOrder.reed || ''}
-                                  onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'reed', e.target.value)}
+                                  onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'reed', e.target.value)}
                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                                   onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2051,7 +2343,7 @@ const Step2 = ({
                                 <input
                                   type="text"
                                   value={workOrder.pick || ''}
-                                  onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'pick', e.target.value)}
+                                  onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pick', e.target.value)}
                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                                   onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2059,60 +2351,6 @@ const Step2 = ({
                               placeholder={workOrder.machineType && getWeavingPickRange(workOrder.machineType) ? getWeavingPickRange(workOrder.machineType) : 'Numeric'}
                                 />
                             </div>
-                            
-                          {/* WARP Ratio */}
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">WARP Ratio</label>
-                                    <input
-                                      type="number"
-                                      step="0.001"
-                              min="0"
-                              max="1"
-                                      value={workOrder.ratioWarp || ''}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const clampedVal = val > 1 ? 1 : val < 0 ? 0 : val;
-                                handleWorkOrderChange(materialIndex, woIndex, 'ratioWarp', clampedVal);
-                                // Auto-calculate WEFT if both are being used (ratios should sum to 1)
-                                if (workOrder.ratioWeft !== '' && clampedVal <= 1) {
-                                  const weftVal = Math.max(0, Math.min(1, 1 - clampedVal)).toFixed(3);
-                                  handleWorkOrderChange(materialIndex, woIndex, 'ratioWeft', weftVal);
-                                }
-                              }}
-                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                                      onBlur={(e) => e.target.style.boxShadow = ''}
-                              placeholder="0-1"
-                                    />
-                                </div>
-
-                          {/* WEFT Ratio */}
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">WEFT Ratio</label>
-                                    <input
-                                      type="number"
-                                      step="0.001"
-                              min="0"
-                              max="1"
-                                      value={workOrder.ratioWeft || ''}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const clampedVal = val > 1 ? 1 : val < 0 ? 0 : val;
-                                handleWorkOrderChange(materialIndex, woIndex, 'ratioWeft', clampedVal);
-                                // Auto-calculate WARP if both are being used (ratios should sum to 1)
-                                if (workOrder.ratioWarp !== '' && clampedVal <= 1) {
-                                  const warpVal = Math.max(0, Math.min(1, 1 - clampedVal)).toFixed(3);
-                                  handleWorkOrderChange(materialIndex, woIndex, 'ratioWarp', warpVal);
-                                }
-                              }}
-                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                                      onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                                      onBlur={(e) => e.target.style.boxShadow = ''}
-                              placeholder="0-1"
-                                    />
-                                </div>
 
                           {/* GSM */}
                                 <div className="flex flex-col">
@@ -2120,7 +2358,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                               value={workOrder.gsm || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'gsm', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2135,24 +2373,24 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.wastage || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
                                     className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                                      errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
+                                      errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
                                         ? 'border-red-600' 
                                         : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                                     }`}
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                                     onFocus={(e) => {
-                                      if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
+                                      if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
                                         e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                       }
                                     }}
                                     onBlur={(e) => e.target.style.boxShadow = ''}
                                     placeholder="%AGE"
                                   />
-                                  {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
+                                  {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                                     <span className="text-red-600 text-xs mt-1 font-medium">
-                                      {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
+                                      {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                                     </span>
                                   )}
                                 </div>
@@ -2162,7 +2400,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={WEAVING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -2177,7 +2415,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2198,12 +2436,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                                 <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`tufting-file-${materialIndex}-${woIndex}`}
+                                id={`tufting-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`tufting-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`tufting-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -2221,7 +2459,7 @@ const Step2 = ({
                                 <input
                               type="text"
                               value={workOrder.gsm || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'gsm', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                                   onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2236,7 +2474,7 @@ const Step2 = ({
                                 <input
                               type="text"
                               value={workOrder.pileHeight || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'pileHeight', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pileHeight', e.target.value)}
                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                                   onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2251,7 +2489,7 @@ const Step2 = ({
                               <input
                                 type="text"
                               value={workOrder.tpi || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'tpi', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'tpi', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2266,24 +2504,24 @@ const Step2 = ({
                               <input
                                 type="text"
                                 value={workOrder.wastage || ''}
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'wastage', e.target.value)}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                                  errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] 
+                                  errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
                                     ? 'border-red-600' 
                                     : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
                                 }`}
                               style={{ padding: '10px 14px', width: '140px', height: '44px' }}
                                 onFocus={(e) => {
-                                  if (!errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]) {
+                                  if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
                                     e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                   }
                                 }}
                                 onBlur={(e) => e.target.style.boxShadow = ''}
                                 placeholder="%AGE"
                               />
-                              {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`] && (
+                              {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                                 <span className="text-red-600 text-xs mt-1 font-medium">
-                                  {errors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_wastage`]}
+                                  {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                                 </span>
                               )}
                             </div>
@@ -2293,7 +2531,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={TUFTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -2308,7 +2546,7 @@ const Step2 = ({
                               <input
                                 type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2328,7 +2566,7 @@ const Step2 = ({
                                   <input
                                 type="text"
                               value={workOrder.gsm || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'gsm', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2343,7 +2581,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                               value={workOrder.pileHeight || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'pileHeight', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pileHeight', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2358,7 +2596,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                               value={workOrder.tpiKpsi || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'tpiKpsi', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'tpiKpsi', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2372,7 +2610,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">KNOT TYPE</label>
                             <select
                               value={workOrder.knotType || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'knotType', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'knotType', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2391,7 +2629,7 @@ const Step2 = ({
                                   <input
                                 type="text"
                               value={workOrder.pitchRows || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'pitchRows', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pitchRows', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '160px', height: '44px' }}
                                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2405,7 +2643,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={CARPET_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -2420,12 +2658,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                                   <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`carpet-file-${materialIndex}-${woIndex}`}
+                                id={`carpet-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`carpet-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`carpet-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -2443,7 +2681,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2461,7 +2699,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showCarpetAdvancedFilter', !workOrder.showCarpetAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showCarpetAdvancedFilter', !workOrder.showCarpetAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -2500,7 +2738,7 @@ const Step2 = ({
                                   </label>
                         <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                 onFocus={(e) => {
@@ -2524,7 +2762,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.carpetDesign || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'carpetDesign', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'carpetDesign', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -2555,7 +2793,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">VARIANTS</label>
                             <select
                               value={workOrder.variants || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2573,7 +2811,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={CUTTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -2588,7 +2826,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2606,7 +2844,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showCuttingAdvancedFilter', !workOrder.showCuttingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showCuttingAdvancedFilter', !workOrder.showCuttingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -2645,7 +2883,7 @@ const Step2 = ({
                                   </label>
                             <select
                               value={workOrder.cutType || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'cutType', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'cutType', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -2671,7 +2909,7 @@ const Step2 = ({
                               <input
                                 type="text"
                                     value={workOrder.layers || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'layers', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'layers', e.target.value)}
                                 className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                   onFocus={(e) => {
@@ -2691,7 +2929,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.nesting || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'nesting', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'nesting', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -2722,12 +2960,12 @@ const Step2 = ({
                             <div className="flex items-center gap-2">
                                   <input
                                 type="file"
-                                onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'imageRef', e.target.files[0])}
+                                onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'imageRef', e.target.files[0])}
                                 className="hidden"
-                                id={`embroidery-file-${materialIndex}-${woIndex}`}
+                                id={`embroidery-file-${materialIndex + 1}-${woIndex}`}
                               />
                               <label
-                                htmlFor={`embroidery-file-${materialIndex}-${woIndex}`}
+                                htmlFor={`embroidery-file-${materialIndex + 1}-${woIndex}`}
                                 className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
                                 style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                               >
@@ -2744,7 +2982,7 @@ const Step2 = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
-                              onChange={(selectedValue) => handleWorkOrderChange(materialIndex, woIndex, 'approval', selectedValue)}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={EMBROIDERY_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                               style={{ width: '200px' }}
@@ -2759,7 +2997,7 @@ const Step2 = ({
                             <input
                               type="text"
                               value={workOrder.remarks || ''}
-                              onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                               onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -2777,7 +3015,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showEmbroideryAdvancedFilter', !workOrder.showEmbroideryAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showEmbroideryAdvancedFilter', !workOrder.showEmbroideryAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -2816,7 +3054,7 @@ const Step2 = ({
                                   </label>
                         <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -2841,7 +3079,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.embroideryDesign || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'embroideryDesign', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'embroideryDesign', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -2872,7 +3110,7 @@ const Step2 = ({
                                   <input
                               type="text"
                                     value={workOrder.threadColors || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'threadColors', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'threadColors', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -2898,7 +3136,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.stitchCount || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'stitchCount', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'stitchCount', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -2924,7 +3162,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.hoopFrameSize || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'hoopFrameSize', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'hoopFrameSize', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -2949,7 +3187,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showPrintingAdvancedFilter', !workOrder.showPrintingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showPrintingAdvancedFilter', !workOrder.showPrintingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -2988,7 +3226,7 @@ const Step2 = ({
                                   </label>
                         <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.printingType}
@@ -3013,7 +3251,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.printingDesign || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'printingDesign', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'printingDesign', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.printingType}
@@ -3044,7 +3282,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.numberOfScreens || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'numberOfScreens', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'numberOfScreens', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3070,7 +3308,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.colors || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'colors', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'colors', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3096,7 +3334,7 @@ const Step2 = ({
                                 <input
                                   type="text"
                                     value={workOrder.coveragePercent || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'coveragePercent', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'coveragePercent', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                   onFocus={(e) => {
@@ -3122,7 +3360,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.resolution || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'resolution', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'resolution', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3147,7 +3385,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showQuiltingAdvancedFilter', !workOrder.showQuiltingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showQuiltingAdvancedFilter', !workOrder.showQuiltingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -3186,7 +3424,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.quiltingType}
@@ -3211,7 +3449,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.quiltingDesign || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'quiltingDesign', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'quiltingDesign', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.quiltingType}
@@ -3242,7 +3480,7 @@ const Step2 = ({
                             <input
                               type="text"
                                     value={workOrder.needleSpacing || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'needleSpacing', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'needleSpacing', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3267,7 +3505,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showSewingAdvancedFilter', !workOrder.showSewingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showSewingAdvancedFilter', !workOrder.showSewingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -3308,11 +3546,11 @@ const Step2 = ({
                                     value={workOrder.sewingMachineType || ''}
                                     onChange={(selectedValue) => {
                                       const selectedType = selectedValue;
-                                      handleWorkOrderChange(materialIndex, woIndex, 'sewingMachineType', selectedType);
+                                      handleWorkOrderChange(actualIndex, woIndex, 'sewingMachineType', selectedType);
                                       // Auto-populate STITCH TYPE when machine type changes
                                       if (selectedType) {
-                                        handleWorkOrderChange(materialIndex, woIndex, 'stitchType', getSewingStitchType(selectedType));
-                                        handleWorkOrderChange(materialIndex, woIndex, 'threadType', getSewingThreadType(selectedType));
+                                        handleWorkOrderChange(actualIndex, woIndex, 'stitchType', getSewingStitchType(selectedType));
+                                        handleWorkOrderChange(actualIndex, woIndex, 'threadType', getSewingThreadType(selectedType));
                                       }
                                     }}
                                     options={getAllSewingMachineTypes()}
@@ -3334,7 +3572,7 @@ const Step2 = ({
                             <input
                               type="text"
                                     value={workOrder.stitchType || getSewingStitchType(workOrder.sewingMachineType) || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'stitchType', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'stitchType', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3355,7 +3593,7 @@ const Step2 = ({
                                   </label>
                         <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.sewingMachineType}
@@ -3381,7 +3619,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.needleSize || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'needleSize', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'needleSize', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3406,7 +3644,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showWeavingAdvancedFilter', !workOrder.showWeavingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showWeavingAdvancedFilter', !workOrder.showWeavingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -3445,7 +3683,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -3470,7 +3708,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.weavingDesign || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'weavingDesign', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'weavingDesign', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -3502,11 +3740,11 @@ const Step2 = ({
                                     onChange={(e) => {
                                       const val = parseFloat(e.target.value) || 0;
                                       const clampedVal = val > 1 ? 1 : val < 0 ? 0 : val;
-                                      handleWorkOrderChange(materialIndex, woIndex, 'advancedWarpRatio', clampedVal);
+                                      handleWorkOrderChange(actualIndex, woIndex, 'advancedWarpRatio', clampedVal);
                                       // Auto-calculate WEFT if both are being used (ratios should sum to 1)
                                       if (workOrder.advancedWeftRatio !== '' && clampedVal <= 1) {
                                         const weftVal = Math.max(0, Math.min(1, 1 - clampedVal)).toFixed(3);
-                                        handleWorkOrderChange(materialIndex, woIndex, 'advancedWeftRatio', weftVal);
+                                        handleWorkOrderChange(actualIndex, woIndex, 'advancedWeftRatio', weftVal);
                                       }
                                     }}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
@@ -3535,11 +3773,11 @@ const Step2 = ({
                                     onChange={(e) => {
                                       const val = parseFloat(e.target.value) || 0;
                                       const clampedVal = val > 1 ? 1 : val < 0 ? 0 : val;
-                                      handleWorkOrderChange(materialIndex, woIndex, 'advancedWeftRatio', clampedVal);
+                                      handleWorkOrderChange(actualIndex, woIndex, 'advancedWeftRatio', clampedVal);
                                       // Auto-calculate WARP if both are being used (ratios should sum to 1)
                                       if (workOrder.advancedWarpRatio !== '' && clampedVal <= 1) {
                                         const warpVal = Math.max(0, Math.min(1, 1 - clampedVal)).toFixed(3);
-                                        handleWorkOrderChange(materialIndex, woIndex, 'advancedWarpRatio', warpVal);
+                                        handleWorkOrderChange(actualIndex, woIndex, 'advancedWarpRatio', warpVal);
                                       }
                                     }}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
@@ -3566,7 +3804,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showTuftingAdvancedFilter', !workOrder.showTuftingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showTuftingAdvancedFilter', !workOrder.showTuftingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -3605,7 +3843,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.tuftingDesign || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'tuftingDesign', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'tuftingDesign', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -3630,7 +3868,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.machineType}
@@ -3661,7 +3899,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.machineGauge || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'machineGauge', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'machineGauge', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3687,7 +3925,7 @@ const Step2 = ({
                                   <input
                                     type="text"
                                     value={workOrder.stitchRate || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'stitchRate', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'stitchRate', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     onFocus={(e) => {
@@ -3711,7 +3949,7 @@ const Step2 = ({
                         <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                         <textarea
                           value={workOrder.remarks || ''}
-                          onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'remarks', e.target.value)}
+                          onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '12px 16px', width: '100%' }}
                           onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -3728,7 +3966,7 @@ const Step2 = ({
                           <div style={{ marginBottom: '20px', width: '100%' }}>
                             <button
                               type="button"
-                              onClick={() => handleWorkOrderChange(materialIndex, woIndex, 'showDyeingAdvancedFilter', !workOrder.showDyeingAdvancedFilter)}
+                              onClick={() => handleWorkOrderChange(actualIndex, woIndex, 'showDyeingAdvancedFilter', !workOrder.showDyeingAdvancedFilter)}
                               className="border-2 rounded-lg text-sm font-medium transition-all"
                               style={{
                                 padding: '10px 20px',
@@ -3767,7 +4005,7 @@ const Step2 = ({
                                   </label>
                                   <select
                                     value={workOrder.variants || ''}
-                                    onChange={(e) => handleWorkOrderChange(materialIndex, woIndex, 'variants', e.target.value)}
+                                    onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'variants', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                     style={{ padding: '10px 14px', height: '44px' }}
                                     disabled={!workOrder.dyeingType}
@@ -3794,50 +4032,151 @@ const Step2 = ({
                 </div>
               ))}
               
-              {/* Add Work Order Button at Bottom */}
-              <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
-                <p className="text-sm text-gray-600 mb-3">Would you like to add more work orders?</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const currentLength = formData.rawMaterials[materialIndex]?.workOrders?.length || 0;
-                    addWorkOrder(materialIndex);
-                    const newIndex = currentLength;
-                    const attemptScroll = (attempts = 0) => {
-                      if (attempts > 30) return;
-                      const element = document.getElementById(`workorder-${materialIndex}-${newIndex}`);
-                      if (element) {
-                        setTimeout(() => {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }, 150);
-                      } else {
-                        setTimeout(() => attemptScroll(attempts + 1), 50);
-                      }
-                    };
-                    attemptScroll();
-                  }}
-                  className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
+              {/* Add Work Order Button at Bottom - Only show if at least one work order exists */}
+              {material.workOrders && material.workOrders.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentLength = material.workOrders?.length || 0;
+                      addWorkOrder(actualIndex);
+                      const newIndex = currentLength;
+                      const attemptScroll = (attempts = 0) => {
+                        if (attempts > 30) return;
+                        const element = document.getElementById(`workorder-${materialIndex + 1}-${newIndex}`);
+                        if (element) {
+                          setTimeout(() => {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }, 150);
+                        } else {
+                          setTimeout(() => attemptScroll(attempts + 1), 50);
+                        }
+                      };
+                      attemptScroll();
+                    }}
+                    style={{
+                      background: '#f3f4f6',
+                      border: '1px solid #d1d5db',
+                      color: '#374151',
+                      padding: '10px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#e5e7eb';
+                      e.currentTarget.style.transform = 'translateX(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }}
+                  >
+                    + Add Work Order
+                  </button>
+                </div>
+              )}
+            </div>
+                </div>
+              );
+            })
+          )}
+
+          {/* Bottom Save and Add Raw Material Buttons - Only show when materials exist */}
+          {materialsForComponent.length > 0 && (
+            <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={handleBottomSave}
+              style={{
+                background: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                color: '#374151',
+                padding: '10px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#e5e7eb';
+                e.currentTarget.style.transform = 'translateX(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }}
+            >
+              Save
+            </button>
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => setShowMaterialTypeModal(!showMaterialTypeModal)}
+                style={{
+                  background: '#f3f4f6',
+                  border: '1px solid #d1d5db',
+                  color: '#374151',
+                  padding: '10px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e5e7eb';
+                  e.currentTarget.style.transform = 'translateX(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }}
+              >
+                Add Raw Material
+              </button>
+              {showMaterialTypeModal && (
+                <div
                   style={{
-                    backgroundColor: '#f3f4f6',
-                    borderColor: '#d1d5db',
-                    color: '#374151',
-                    padding: '10px 16px',
-                    height: '42px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e5e7eb';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '8px',
+                    background: 'white',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    padding: '8px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    zIndex: 1000,
+                    minWidth: '200px'
                   }}
                 >
-                  + Add Work Order
-                </button>
-              </div>
+                  <SearchableDropdown
+                    options={['Fabric', 'Yarn', 'Trim & Accessory']}
+                    onChange={(selectedType) => {
+                      if (selectedType) {
+                        const currentLength = formData.rawMaterials?.length || 0;
+                        addRawMaterialWithType(selectedType, selectedComponent);
+                        setShowMaterialTypeModal(false);
+                        // Set the index of the newly added material
+                        setLastAddedMaterialIndex(currentLength);
+                      }
+                    }}
+                    placeholder="Select material type"
+                    onBlur={() => {
+                      setTimeout(() => setShowMaterialTypeModal(false), 200);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
-        ))}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
