@@ -8,7 +8,11 @@ const Step0 = ({
   handleSkuChange,
   handleSkuImageChange,
   addSku,
-  removeSku
+  removeSku,
+  addSubproduct,
+  removeSubproduct,
+  handleSubproductChange,
+  handleSubproductImageChange
 }) => {
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
 
@@ -320,6 +324,265 @@ const Step0 = ({
                 </div>
               </div>
             </div>
+
+            {/* Subproducts List */}
+            {sku.subproducts && sku.subproducts.length > 0 ? (
+              <div style={{ marginTop: '24px', borderTop: '2px solid #d1d5db', paddingTop: '24px' }}>
+                <h4 className="text-base font-semibold text-gray-800 mb-4">SUBPRODUCTS</h4>
+                {sku.subproducts.map((subproduct, subproductIndex) => (
+                  <div key={subproductIndex}>
+                    <div 
+                      className="bg-white rounded-lg border border-gray-200"
+                      style={{ padding: '24px', marginBottom: '16px' }}
+                    >
+                    {/* Subproduct Header */}
+                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h5 className="text-sm font-semibold text-gray-700">Subproduct {subproductIndex + 1}</h5>
+                      <button
+                        type="button"
+                        onClick={() => removeSubproduct(skuIndex, subproductIndex)}
+                        style={{
+                          background: '#f3f4f6',
+                          border: '1px solid #d1d5db',
+                          color: 'red',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#e5e7eb';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#f3f4f6';
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    {/* SUBPRODUCT Field */}
+                    <div className="flex flex-col" style={{ marginBottom: '24px' }}>
+                      <label className="text-sm font-semibold text-gray-700 mb-2">
+                        SUBPRODUCT <span className="text-red-600">*</span>
+                      </label>
+                      <SearchableDropdown
+                        value={subproduct.subproduct || ''}
+                        onChange={(value) => handleSubproductChange(skuIndex, subproductIndex, 'subproduct', value)}
+                        options={[]}
+                        placeholder="Select or type subproduct"
+                        strictMode={false}
+                        className={errors[`subproduct_${skuIndex}_${subproductIndex}`] ? 'border-red-600' : ''}
+                        style={{ height: '48px' }}
+                        onFocus={(e) => {
+                          if (!errors[`subproduct_${skuIndex}_${subproductIndex}`]) {
+                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                          }
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.boxShadow = '';
+                        }}
+                      />
+                      {errors[`subproduct_${skuIndex}_${subproductIndex}`] && (
+                        <span className="text-red-600 text-xs font-medium mt-1">{errors[`subproduct_${skuIndex}_${subproductIndex}`]}</span>
+                      )}
+                    </div>
+
+                    {/* Row: PO QTY, Overage %, Delivery Date */}
+                    <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: '24px', marginBottom: '24px' }}>
+                      {/* PO QTY */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">
+                          PO QTY <span className="text-red-600">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          value={subproduct.poQty || ''}
+                          onChange={(e) => handleSubproductChange(skuIndex, subproductIndex, 'poQty', e.target.value)}
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                            errors[`subproduct_${skuIndex}_${subproductIndex}_poQty`] 
+                              ? 'border-red-600' 
+                              : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                          }`}
+                          style={{ padding: '12px 16px', height: '48px' }}
+                          placeholder="e.g., 1000"
+                          required
+                        />
+                        {errors[`subproduct_${skuIndex}_${subproductIndex}_poQty`] && (
+                          <span className="text-red-600 text-xs font-medium mt-1">{errors[`subproduct_${skuIndex}_${subproductIndex}_poQty`]}</span>
+                        )}
+                      </div>
+
+                      {/* OVERAGE (%AGE) */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">
+                          OVERAGE (%) <span className="text-red-600">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={subproduct.overagePercentage || ''}
+                          onChange={(e) => handleSubproductChange(skuIndex, subproductIndex, 'overagePercentage', e.target.value)}
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                            errors[`subproduct_${skuIndex}_${subproductIndex}_overagePercentage`] 
+                              ? 'border-red-600' 
+                              : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                          }`}
+                          style={{ padding: '12px 16px', height: '48px' }}
+                          placeholder="e.g., 5%"
+                          required
+                        />
+                        {errors[`subproduct_${skuIndex}_${subproductIndex}_overagePercentage`] && (
+                          <span className="text-red-600 text-xs font-medium mt-1">{errors[`subproduct_${skuIndex}_${subproductIndex}_overagePercentage`]}</span>
+                        )}
+                      </div>
+
+                      {/* DELIVERY DUE DATE */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">
+                          DELIVERY DUE DATE <span className="text-red-600">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={subproduct.deliveryDueDate || ''}
+                          onChange={(e) => handleSubproductChange(skuIndex, subproductIndex, 'deliveryDueDate', e.target.value)}
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                            errors[`subproduct_${skuIndex}_${subproductIndex}_deliveryDueDate`] 
+                              ? 'border-red-600' 
+                              : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                          }`}
+                          style={{ padding: '12px 16px', height: '48px' }}
+                          required
+                        />
+                        {errors[`subproduct_${skuIndex}_${subproductIndex}_deliveryDueDate`] && (
+                          <span className="text-red-600 text-xs font-medium mt-1">{errors[`subproduct_${skuIndex}_${subproductIndex}_deliveryDueDate`]}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Subproduct Image Upload */}
+                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                        SUBPRODUCT IMAGE <span className="text-red-600">*</span>
+                      </label>
+                      <div className="flex items-start" style={{ gap: '24px' }}>
+                        <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                          <div 
+                            className={`border-2 border-dashed rounded-lg bg-white flex items-center justify-center cursor-pointer hover:border-indigo-400 transition-all ${
+                              errors[`subproduct_${skuIndex}_${subproductIndex}_image`] ? 'border-red-600' : 'border-gray-300'
+                            }`}
+                            style={{ width: '160px', height: '120px', position: 'relative' }}
+                            onClick={() => document.getElementById(`subproduct-image-${skuIndex}-${subproductIndex}`).click()}
+                          >
+                            {subproduct.imagePreview ? (
+                              <img 
+                                src={subproduct.imagePreview} 
+                                alt="Preview" 
+                                className="w-full h-full object-contain rounded-lg"
+                              />
+                            ) : (
+                              <div className="text-center">
+                                <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p className="text-xs text-gray-500 mt-1">Click to upload</p>
+                              </div>
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            id={`subproduct-image-${skuIndex}-${subproductIndex}`}
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleSubproductImageChange(skuIndex, subproductIndex, e.target.files[0]);
+                              }
+                            }}
+                            className="hidden"
+                            required
+                          />
+                          {errors[`subproduct_${skuIndex}_${subproductIndex}_image`] && (
+                            <span className="text-red-600 text-xs font-medium mt-1">{errors[`subproduct_${skuIndex}_${subproductIndex}_image`]}</span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500" style={{ paddingTop: '8px' }}>
+                          <p className="font-medium text-gray-700 mb-1">Upload subproduct image</p>
+                          <p>Supported formats: JPG, PNG, GIF</p>
+                          <p>Maximum file size: 5MB</p>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Add Subproduct Button - Only one button at the bottom, after all subproducts */}
+                <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      addSubproduct(skuIndex);
+                    }}
+                    style={{
+                      background: '#f3f4f6',
+                      border: '1px solid #d1d5db',
+                      color: '#374151',
+                      padding: '10px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#e5e7eb';
+                      e.currentTarget.style.transform = 'translateX(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }}
+                  >
+                    + Add Subproduct
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div key="add-subproduct-initial" style={{ borderTop: '1px solid #e5e7eb', paddingTop: '24px', marginTop: '24px' }}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addSubproduct(skuIndex);
+                  }}
+                  style={{
+                    background: '#f3f4f6',
+                    border: '1px solid #d1d5db',
+                    color: '#374151',
+                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                    e.currentTarget.style.transform = 'translateX(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                >
+                  + Add Subproduct
+                </button>
+              </div>
+            )}
           </div>
         </div>
       ))}

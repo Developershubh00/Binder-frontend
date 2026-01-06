@@ -13,7 +13,7 @@ import Step5 from './components/steps/Step5';
 const GenerateFactoryCode = ({ onBack }) => {
   const scrollContainerRef = useRef(null);
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedSku, setSelectedSku] = useState(0);
+  const [selectedSku, setSelectedSku] = useState('product_0'); // Format: 'product_0' or 'subproduct_0_1'
   const [formData, setFormData] = useState({
     // Step 0 - Multiple SKUs
     buyerCode: '',
@@ -25,6 +25,7 @@ const GenerateFactoryCode = ({ onBack }) => {
       deliveryDueDate: '',
       image: null,
       imagePreview: null,
+      subproducts: [], // Array of subproducts for this SKU
       stepData: {
         products: [{
           name: '',
@@ -616,9 +617,77 @@ const GenerateFactoryCode = ({ onBack }) => {
         deliveryDueDate: '',
         image: null,
         imagePreview: null,
+        subproducts: [],
         stepData: getInitialStepData(),
       }]
     }));
+  };
+
+  // Subproduct handlers
+  const addSubproduct = (skuIndex) => {
+    setFormData(prev => {
+      const updatedSkus = [...prev.skus];
+      if (!updatedSkus[skuIndex].subproducts) {
+        updatedSkus[skuIndex].subproducts = [];
+      }
+      updatedSkus[skuIndex].subproducts.push({
+        subproduct: '',
+        poQty: '',
+        overagePercentage: '',
+        deliveryDueDate: '',
+        image: null,
+        imagePreview: null,
+        stepData: getInitialStepData(),
+      });
+      return { ...prev, skus: updatedSkus };
+    });
+  };
+
+  const removeSubproduct = (skuIndex, subproductIndex) => {
+    setFormData(prev => {
+      const updatedSkus = [...prev.skus];
+      if (updatedSkus[skuIndex].subproducts) {
+        updatedSkus[skuIndex].subproducts = updatedSkus[skuIndex].subproducts.filter(
+          (_, index) => index !== subproductIndex
+        );
+      }
+      return { ...prev, skus: updatedSkus };
+    });
+  };
+
+  const handleSubproductChange = (skuIndex, subproductIndex, field, value) => {
+    setFormData(prev => {
+      const updatedSkus = [...prev.skus];
+      if (!updatedSkus[skuIndex].subproducts) {
+        updatedSkus[skuIndex].subproducts = [];
+      }
+      updatedSkus[skuIndex].subproducts[subproductIndex] = {
+        ...updatedSkus[skuIndex].subproducts[subproductIndex],
+        [field]: value
+      };
+      return { ...prev, skus: updatedSkus };
+    });
+  };
+
+  const handleSubproductImageChange = (skuIndex, subproductIndex, file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => {
+          const updatedSkus = [...prev.skus];
+          if (!updatedSkus[skuIndex].subproducts) {
+            updatedSkus[skuIndex].subproducts = [];
+          }
+          updatedSkus[skuIndex].subproducts[subproductIndex] = {
+            ...updatedSkus[skuIndex].subproducts[subproductIndex],
+            image: file,
+            imagePreview: reader.result
+          };
+          return { ...prev, skus: updatedSkus };
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const removeSku = (skuIndex) => {
@@ -630,39 +699,87 @@ const GenerateFactoryCode = ({ onBack }) => {
     }
   };
 
+  // Helper functions to parse selectedSku string (format: 'product_0' or 'subproduct_0_1')
+  const parseSelectedSku = () => {
+    if (typeof selectedSku === 'number') {
+      // Backward compatibility: if it's a number, treat as product index
+      return { type: 'product', skuIndex: selectedSku };
+    }
+    const parts = selectedSku.split('_');
+    if (parts[0] === 'product') {
+      return { type: 'product', skuIndex: parseInt(parts[1]) };
+    } else if (parts[0] === 'subproduct') {
+      return { type: 'subproduct', skuIndex: parseInt(parts[1]), subproductIndex: parseInt(parts[2]) };
+    }
+    return { type: 'product', skuIndex: 0 };
+  };
+
   // Helper functions to get/set selected SKU's step data
   const getSelectedSkuStepData = () => {
-    if (!formData.skus || !formData.skus[selectedSku]) {
+    const parsed = parseSelectedSku();
+    const sku = formData.skus[parsed.skuIndex];
+    
+    if (!sku) {
       return null;
     }
-    // Initialize stepData if it doesn't exist (for backward compatibility)
-    if (!formData.skus[selectedSku].stepData) {
-      const updatedSkus = [...formData.skus];
-      updatedSkus[selectedSku] = {
-        ...updatedSkus[selectedSku],
-        stepData: getInitialStepData()
-      };
-      setFormData(prev => ({ ...prev, skus: updatedSkus }));
-      return getInitialStepData();
+
+    // For subproducts, get their stepData, otherwise get SKU's stepData
+    if (parsed.type === 'subproduct' && sku.subproducts && sku.subproducts[parsed.subproductIndex]) {
+      const subproduct = sku.subproducts[parsed.subproductIndex];
+      if (!subproduct.stepData) {
+        // Initialize stepData if it doesn't exist
+        const updatedSkus = [...formData.skus];
+        updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex].stepData = getInitialStepData();
+        setFormData(prev => ({ ...prev, skus: updatedSkus }));
+        return getInitialStepData();
+      }
+      return subproduct.stepData;
+    } else {
+      // For products, use SKU's stepData
+      if (!sku.stepData) {
+        const updatedSkus = [...formData.skus];
+        updatedSkus[parsed.skuIndex] = {
+          ...updatedSkus[parsed.skuIndex],
+          stepData: getInitialStepData()
+        };
+        setFormData(prev => ({ ...prev, skus: updatedSkus }));
+        return getInitialStepData();
+      }
+      return sku.stepData;
     }
-    return formData.skus[selectedSku].stepData;
   };
 
   const updateSelectedSkuStepData = (updater) => {
     setFormData(prev => {
+      const parsed = parseSelectedSku();
       const updatedSkus = [...prev.skus];
-      if (!updatedSkus[selectedSku]) return prev;
+      if (!updatedSkus[parsed.skuIndex]) return prev;
       
-      // Ensure stepData exists
-      if (!updatedSkus[selectedSku].stepData) {
-        updatedSkus[selectedSku].stepData = getInitialStepData();
+      if (parsed.type === 'subproduct' && updatedSkus[parsed.skuIndex].subproducts) {
+        const subproduct = updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex];
+        if (!subproduct) return prev;
+        
+        // Ensure stepData exists for subproduct
+        if (!subproduct.stepData) {
+          subproduct.stepData = getInitialStepData();
+        }
+        
+        // Update subproduct's stepData
+        updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex] = {
+          ...subproduct,
+          stepData: updater(subproduct.stepData || getInitialStepData())
+        };
+      } else {
+        // For products, update SKU's stepData
+        if (!updatedSkus[parsed.skuIndex].stepData) {
+          updatedSkus[parsed.skuIndex].stepData = getInitialStepData();
+        }
+        
+        updatedSkus[parsed.skuIndex] = {
+          ...updatedSkus[parsed.skuIndex],
+          stepData: updater(updatedSkus[parsed.skuIndex].stepData || getInitialStepData())
+        };
       }
-      
-      // Update stepData
-      updatedSkus[selectedSku] = {
-        ...updatedSkus[selectedSku],
-        stepData: updater(updatedSkus[selectedSku].stepData || getInitialStepData())
-      };
       
       return { ...prev, skus: updatedSkus };
     });
@@ -1500,8 +1617,14 @@ const GenerateFactoryCode = ({ onBack }) => {
       if (field === 'wastage' || field === 'netConsumption') {
         const wastage = parseFloat(updatedMaterials[materialIndex].wastage?.replace('%', '') || updatedMaterials[materialIndex].wastage || '0') || 0;
         updatedMaterials[materialIndex].totalWastage = `${wastage}%`;
-        const overagePercentage = formData.skus[selectedSku]?.overagePercentage || '0';
-        const poQty = formData.skus[selectedSku]?.poQty || '0';
+        const parsed = parseSelectedSku();
+        const sku = formData.skus[parsed.skuIndex];
+        const overagePercentage = (parsed.type === 'subproduct' && sku?.subproducts?.[parsed.subproductIndex]) 
+          ? (sku.subproducts[parsed.subproductIndex].overagePercentage || '0')
+          : (sku?.overagePercentage || '0');
+        const poQty = (parsed.type === 'subproduct' && sku?.subproducts?.[parsed.subproductIndex]) 
+          ? (sku.subproducts[parsed.subproductIndex].poQty || '0')
+          : (sku?.poQty || '0');
         updatedMaterials[materialIndex].grossConsumption = calculateGrossConsumption(
           updatedMaterials[materialIndex].netConsumption || '0',
           wastage,
@@ -2303,7 +2426,11 @@ const GenerateFactoryCode = ({ onBack }) => {
       if (['netConsumptionPerPc', 'overage'].includes(field) || field.startsWith('workOrder')) {
         const netConsumption = parseFloat(material.netConsumptionPerPc) || 0;
         const overage = parseFloat(material.overage) || 0;
-        const poQty = parseFloat(formData.skus[selectedSku]?.poQty || '0') || 0;
+        const parsed = parseSelectedSku();
+        const sku = formData.skus[parsed.skuIndex];
+        const poQty = parseFloat((parsed.type === 'subproduct' && sku?.subproducts?.[parsed.subproductIndex]) 
+          ? (sku.subproducts[parsed.subproductIndex].poQty || '0')
+          : (sku?.poQty || '0')) || 0;
         
         // Calculate total wastage from work orders
         let totalWastagePercent = 0;
@@ -2371,8 +2498,8 @@ const GenerateFactoryCode = ({ onBack }) => {
 
   // Packaging Work Order Change Handler
   const handlePackagingWorkOrderChange = (materialIndex, workOrderIndex, field, value) => {
-    setFormData(prev => {
-      const updatedMaterials = [...prev.packaging.materials];
+    updateSelectedSkuStepData((stepData) => {
+      const updatedMaterials = [...stepData.packaging.materials];
       updatedMaterials[materialIndex] = {
         ...updatedMaterials[materialIndex],
         workOrders: updatedMaterials[materialIndex].workOrders.map((wo, idx) =>
@@ -2391,7 +2518,11 @@ const GenerateFactoryCode = ({ onBack }) => {
       const material = updatedMaterials[materialIndex];
       const netConsumption = parseFloat(material.netConsumptionPerPc) || 0;
       const overage = parseFloat(material.overage) || 0;
-      const poQty = parseFloat(formData.skus[selectedSku]?.poQty || '0') || 0;
+      const parsed = parseSelectedSku();
+      const sku = formData.skus[parsed.skuIndex];
+      const poQty = parseFloat((parsed.type === 'subproduct' && sku?.subproducts?.[parsed.subproductIndex]) 
+        ? (sku.subproducts[parsed.subproductIndex].poQty || '0')
+        : (sku?.poQty || '0')) || 0;
       
       const baseConsumption = netConsumption * poQty;
       const wastageAmount = baseConsumption * (totalWastagePercent / 100);
@@ -2760,8 +2891,22 @@ const GenerateFactoryCode = ({ onBack }) => {
       artworkMaterials: stepData.artworkMaterials || [],
       packaging: stepData.packaging || formData.packaging,
       // Also include SKU-specific data for calculations
-      poQty: formData.skus[selectedSku]?.poQty || formData.poQty || '',
-      overagePercentage: formData.skus[selectedSku]?.overagePercentage || formData.overagePercentage || '',
+      poQty: (() => {
+        const parsed = parseSelectedSku();
+        const sku = formData.skus[parsed.skuIndex];
+        if (parsed.type === 'subproduct' && sku?.subproducts?.[parsed.subproductIndex]) {
+          return sku.subproducts[parsed.subproductIndex].poQty || '';
+        }
+        return sku?.poQty || formData.poQty || '';
+      })(),
+      overagePercentage: (() => {
+        const parsed = parseSelectedSku();
+        const sku = formData.skus[parsed.skuIndex];
+        if (parsed.type === 'subproduct' && sku?.subproducts?.[parsed.subproductIndex]) {
+          return sku.subproducts[parsed.subproductIndex].overagePercentage || '';
+        }
+        return sku?.overagePercentage || formData.overagePercentage || '';
+      })(),
     };
   };
 
@@ -2780,6 +2925,10 @@ const GenerateFactoryCode = ({ onBack }) => {
               handleSkuImageChange={handleSkuImageChange}
               addSku={addSku}
               removeSku={removeSku}
+              addSubproduct={addSubproduct}
+              removeSubproduct={removeSubproduct}
+              handleSubproductChange={handleSubproductChange}
+              handleSubproductImageChange={handleSubproductImageChange}
             />
           );
         case 1:
@@ -2787,11 +2936,8 @@ const GenerateFactoryCode = ({ onBack }) => {
             <Step1
               formData={mergedFormData}
               errors={errors}
-              addProduct={addProduct}
-              removeProduct={removeProduct}
               addComponent={addComponent}
               removeComponent={removeComponent}
-              handleProductNameChange={handleProductNameChange}
               handleComponentChange={handleComponentChange}
               handleComponentCuttingSizeChange={handleComponentCuttingSizeChange}
               handleComponentSewSizeChange={handleComponentSewSizeChange}
@@ -2975,113 +3121,214 @@ const GenerateFactoryCode = ({ onBack }) => {
             </div>
           </div>
           
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-            {formData.skus.map((skuItem, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setSelectedSku(index)}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '8px',
-                  border: selectedSku === index ? '2px solid #667eea' : '1px solid #d1d5db',
-                  background: selectedSku === index ? '#eef2ff' : '#ffffff',
-                  color: selectedSku === index ? '#4338ca' : '#374151',
-                  fontSize: '14px',
-                  fontWeight: selectedSku === index ? '600' : '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: '10px',
-                  width: 'fit-content',
-                  maxWidth: '240px',
-                  boxShadow: selectedSku === index ? '0 2px 8px rgba(102, 126, 234, 0.2)' : 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedSku !== index) {
-                    e.currentTarget.style.borderColor = '#9ca3af';
-                    e.currentTarget.style.background = '#f9fafb';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedSku !== index) {
-                    e.currentTarget.style.borderColor = '#d1d5db';
-                    e.currentTarget.style.background = '#ffffff';
-                  }
-                }}
-              >
-                {/* Product Image */}
-                <div style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '6px',
-                  overflow: 'hidden',
-                  border: '1px solid #e5e7eb',
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#f9fafb'
-                }}>
-                  {skuItem.imagePreview ? (
-                    <img
-                      src={skuItem.imagePreview}
-                      alt={`SKU ${index + 1}`}
-                      style={{
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Products and Subproducts */}
+            {formData.skus.map((skuItem, index) => {
+              const productId = `product_${index}`;
+              const isProductSelected = selectedSku === productId || (typeof selectedSku === 'number' && selectedSku === index);
+              
+              return (
+                <div key={productId} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* Product Button */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSku(productId)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: isProductSelected ? '2px solid #667eea' : '1px solid #d1d5db',
+                      background: isProductSelected ? '#eef2ff' : '#ffffff',
+                      color: isProductSelected ? '#4338ca' : '#374151',
+                      fontSize: '14px',
+                      fontWeight: isProductSelected ? '600' : '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: '10px',
+                      width: '100%',
+                      maxWidth: '300px',
+                      boxShadow: isProductSelected ? '0 2px 8px rgba(102, 126, 234, 0.2)' : 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isProductSelected) {
+                        e.currentTarget.style.borderColor = '#9ca3af';
+                        e.currentTarget.style.background = '#f9fafb';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isProductSelected) {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.background = '#ffffff';
+                      }
+                    }}
+                  >
+                    {/* Product Image */}
+                    <div style={{
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '6px',
+                      overflow: 'hidden',
+                      border: '1px solid #e5e7eb',
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: '#f9fafb'
+                    }}>
+                      {skuItem.imagePreview ? (
+                        <img
+                          src={skuItem.imagePreview}
+                          alt={`SKU ${index + 1}`}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      ) : (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                      )}
+                    </div>
+
+                    {/* Product Details */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                        {isProductSelected && (
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="6" fill="#667eea" />
+                            <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                        <span style={{ fontWeight: '600' }}>Product - SKU #{index + 1}</span>
+                      </div>
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: isProductSelected ? '#6366f1' : '#6b7280',
+                        marginTop: '4px',
+                        textAlign: 'left',
                         width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  ) : (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {skuItem.sku || 'No SKU code'} - {skuItem.product || 'No product name'}
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Subproducts for this SKU */}
+                  {skuItem.subproducts && skuItem.subproducts.length > 0 && (
+                    <div style={{ marginLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', borderLeft: '2px solid #e5e7eb', paddingLeft: '12px' }}>
+                      {skuItem.subproducts.map((subproduct, subproductIndex) => {
+                        const subproductId = `subproduct_${index}_${subproductIndex}`;
+                        const isSubproductSelected = selectedSku === subproductId;
+                        
+                        return (
+                          <button
+                            key={subproductId}
+                            type="button"
+                            onClick={() => setSelectedSku(subproductId)}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              border: isSubproductSelected ? '2px solid #667eea' : '1px solid #d1d5db',
+                              background: isSubproductSelected ? '#eef2ff' : '#ffffff',
+                              color: isSubproductSelected ? '#4338ca' : '#374151',
+                              fontSize: '13px',
+                              fontWeight: isSubproductSelected ? '600' : '500',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              display: 'flex',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              gap: '8px',
+                              width: '100%',
+                              maxWidth: '280px',
+                              boxShadow: isSubproductSelected ? '0 2px 8px rgba(102, 126, 234, 0.2)' : 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSubproductSelected) {
+                                e.currentTarget.style.borderColor = '#9ca3af';
+                                e.currentTarget.style.background = '#f9fafb';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSubproductSelected) {
+                                e.currentTarget.style.borderColor = '#d1d5db';
+                                e.currentTarget.style.background = '#ffffff';
+                              }
+                            }}
+                          >
+                            {/* Subproduct Image */}
+                            <div style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '6px',
+                              overflow: 'hidden',
+                              border: '1px solid #e5e7eb',
+                              flexShrink: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              background: '#f9fafb'
+                            }}>
+                              {subproduct.imagePreview ? (
+                                <img
+                                  src={subproduct.imagePreview}
+                                  alt={`Subproduct ${subproductIndex + 1}`}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                  }}
+                                />
+                              ) : (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                  <circle cx="8.5" cy="8.5" r="1.5" />
+                                  <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                              )}
+                            </div>
+
+                            {/* Subproduct Details */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
+                                {isSubproductSelected && (
+                                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                    <circle cx="8" cy="8" r="6" fill="#667eea" />
+                                    <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                )}
+                                <span style={{ fontWeight: '600', fontSize: '12px' }}>Subproduct #{subproductIndex + 1}</span>
+                              </div>
+                              <div style={{ 
+                                fontSize: '11px', 
+                                color: isSubproductSelected ? '#6366f1' : '#6b7280',
+                                marginTop: '2px',
+                                textAlign: 'left',
+                                width: '100%',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {skuItem.sku || 'No SKU code'} - {subproduct.subproduct || 'No subproduct name'}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
-
-                {/* SKU Details */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
-                    {selectedSku === index && (
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <circle cx="8" cy="8" r="6" fill="#667eea" />
-                        <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                    <span style={{ fontWeight: '600' }}>SKU #{index + 1}</span>
-                  </div>
-                  <div style={{ 
-                    fontSize: '12px', 
-                    color: selectedSku === index ? '#6366f1' : '#6b7280',
-                    marginTop: '4px',
-                    textAlign: 'left',
-                    width: '100%',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {skuItem.sku || 'No SKU code'}
-                  </div>
-                  <div style={{ 
-                    fontSize: '11px', 
-                    color: '#9ca3af',
-                    marginTop: '2px',
-                    textAlign: 'left',
-                    width: '100%',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {skuItem.product || 'No product'}
-                  </div>
-                </div>
-              </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
