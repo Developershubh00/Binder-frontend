@@ -215,27 +215,36 @@ const Step0 = ({
                 <label className="text-sm font-semibold text-gray-700 mb-2">
                   OVERAGE (%) <span className="text-red-600">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={sku.overagePercentage || ''}
-                  onChange={(e) => handleSkuChange(skuIndex, 'overagePercentage', e.target.value)}
-                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                    errors[`overagePercentage_${skuIndex}`] 
-                      ? 'border-red-600' 
-                      : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                  }`}
-                  style={{ padding: '12px 16px', height: '48px' }}
-                  onFocus={(e) => {
-                    if (!errors[`overagePercentage_${skuIndex}`]) {
-                      e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '';
-                  }}
-                  placeholder="e.g., 5%"
-                  required
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    value={sku.overagePercentage || ''}
+                    onChange={(e) => {
+                      // Store only numeric value (remove % and non-numeric chars except decimal point)
+                      const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                      handleSkuChange(skuIndex, 'overagePercentage', numericValue);
+                    }}
+                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                      errors[`overagePercentage_${skuIndex}`] 
+                        ? 'border-red-600' 
+                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                    }`}
+                    style={{ padding: '12px 40px 12px 16px', height: '48px', width: '100%' }}
+                    onFocus={(e) => {
+                      if (!errors[`overagePercentage_${skuIndex}`]) {
+                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = '';
+                    }}
+                    placeholder="e.g., 5"
+                    required
+                  />
+                  {sku.overagePercentage && (
+                    <span style={{ position: 'absolute', right: '16px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                  )}
+                </div>
                 {errors[`overagePercentage_${skuIndex}`] && (
                   <span className="text-red-600 text-xs font-medium mt-1">{errors[`overagePercentage_${skuIndex}`]}</span>
                 )}
@@ -420,19 +429,28 @@ const Step0 = ({
                         <label className="text-sm font-semibold text-gray-700 mb-2">
                           OVERAGE (%) <span className="text-red-600">*</span>
                         </label>
-                        <input
-                          type="text"
-                          value={subproduct.overagePercentage || ''}
-                          onChange={(e) => handleSubproductChange(skuIndex, subproductIndex, 'overagePercentage', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                            errors[`subproduct_${skuIndex}_${subproductIndex}_overagePercentage`] 
-                              ? 'border-red-600' 
-                              : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                          }`}
-                          style={{ padding: '12px 16px', height: '48px' }}
-                          placeholder="e.g., 5%"
-                          required
-                        />
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            value={subproduct.overagePercentage || ''}
+                            onChange={(e) => {
+                              // Store only numeric value (remove % and non-numeric chars except decimal point)
+                              const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                              handleSubproductChange(skuIndex, subproductIndex, 'overagePercentage', numericValue);
+                            }}
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                              errors[`subproduct_${skuIndex}_${subproductIndex}_overagePercentage`] 
+                                ? 'border-red-600' 
+                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                            }`}
+                            style={{ padding: '12px 40px 12px 16px', height: '48px', width: '100%' }}
+                            placeholder="e.g., 5"
+                            required
+                          />
+                          {subproduct.overagePercentage && (
+                            <span style={{ position: 'absolute', right: '16px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                          )}
+                        </div>
                         {errors[`subproduct_${skuIndex}_${subproductIndex}_overagePercentage`] && (
                           <span className="text-red-600 text-xs font-medium mt-1">{errors[`subproduct_${skuIndex}_${subproductIndex}_overagePercentage`]}</span>
                         )}

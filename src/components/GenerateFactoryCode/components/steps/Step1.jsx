@@ -171,27 +171,36 @@ const Step1 = ({
                     <label className="text-sm font-semibold text-gray-700 mb-2">
                       WASTAGE % <span className="text-red-600">*</span>
                     </label>
-                    <input
-                      type="number"
-                      value={component.wastage}
-                      onChange={(e) => handleComponentChange(0, componentIndex, 'wastage', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                        errors[`product_0_component_${componentIndex}_wastage`]
-                          ? 'border-red-600'
-                          : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                      }`}
-                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                      onFocus={(e) => {
-                        if (!errors[`product_0_component_${componentIndex}_wastage`]) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
-                      placeholder="e.g., 5"
-                      required
-                    />
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '120px' }}>
+                      <input
+                        type="text"
+                        value={component.wastage || ''}
+                        onChange={(e) => {
+                          // Store only numeric value (remove % and non-numeric chars except decimal point)
+                          const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                          handleComponentChange(0, componentIndex, 'wastage', numericValue);
+                        }}
+                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                          errors[`product_0_component_${componentIndex}_wastage`]
+                            ? 'border-red-600'
+                            : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                        }`}
+                        style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                        onFocus={(e) => {
+                          if (!errors[`product_0_component_${componentIndex}_wastage`]) {
+                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                          }
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.boxShadow = '';
+                        }}
+                        placeholder="e.g., 5"
+                        required
+                      />
+                      {component.wastage && (
+                        <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                      )}
+                    </div>
                     {errors[`product_0_component_${componentIndex}_wastage`] && (
                       <span className="text-red-600 text-xs mt-1 font-medium">
                         {errors[`product_0_component_${componentIndex}_wastage`]}

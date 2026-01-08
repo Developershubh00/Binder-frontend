@@ -728,7 +728,7 @@ const GenerateFactoryCode = ({ onBack }) => {
       const subproduct = sku.subproducts[parsed.subproductIndex];
       if (!subproduct.stepData) {
         // Initialize stepData if it doesn't exist
-        const updatedSkus = [...formData.skus];
+      const updatedSkus = [...formData.skus];
         updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex].stepData = getInitialStepData();
         setFormData(prev => ({ ...prev, skus: updatedSkus }));
         return getInitialStepData();
@@ -740,11 +740,11 @@ const GenerateFactoryCode = ({ onBack }) => {
         const updatedSkus = [...formData.skus];
         updatedSkus[parsed.skuIndex] = {
           ...updatedSkus[parsed.skuIndex],
-          stepData: getInitialStepData()
-        };
-        setFormData(prev => ({ ...prev, skus: updatedSkus }));
-        return getInitialStepData();
-      }
+        stepData: getInitialStepData()
+      };
+      setFormData(prev => ({ ...prev, skus: updatedSkus }));
+      return getInitialStepData();
+    }
       return sku.stepData;
     }
   };
@@ -758,7 +758,7 @@ const GenerateFactoryCode = ({ onBack }) => {
       if (parsed.type === 'subproduct' && updatedSkus[parsed.skuIndex].subproducts) {
         const subproduct = updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex];
         if (!subproduct) return prev;
-        
+      
         // Ensure stepData exists for subproduct
         if (!subproduct.stepData) {
           subproduct.stepData = getInitialStepData();
@@ -778,7 +778,7 @@ const GenerateFactoryCode = ({ onBack }) => {
         updatedSkus[parsed.skuIndex] = {
           ...updatedSkus[parsed.skuIndex],
           stepData: updater(updatedSkus[parsed.skuIndex].stepData || getInitialStepData())
-        };
+      };
       }
       
       return { ...prev, skus: updatedSkus };
@@ -1192,6 +1192,7 @@ const GenerateFactoryCode = ({ onBack }) => {
                 ratioWeightCourses: '',
                 receivedColorReference: '',
                 referenceType: '',
+                dyeingReference: '',
                 shrinkageWidth: false,
                 shrinkageLength: false,
                 shrinkageWidthPercent: '',
@@ -1211,6 +1212,47 @@ const GenerateFactoryCode = ({ onBack }) => {
                 weavingType: '',
                 warpWeft: '',
                 ratio: '',
+                // FRINGE/TASSELS fields
+                fringeType: '',
+                fringeMaterial: '',
+                dropLength: '',
+                tapeHeaderWidth: '',
+                fringeColour: '',
+                fringeColourRefImage: null,
+                fringePlacement: '',
+                fringePlacementRefImage: null,
+                fringeTestingRequirements: [],
+                fringeTestingRequirementsUpload: null,
+                fringeQtyType: '',
+                fringeQtyPcs: '',
+                fringeQtyCnsPerPc: '',
+                fringeQtyUpload: null,
+                fringeSurplus: '',
+                fringeWastage: '',
+                fringeApproval: '',
+                fringeRemarks: '',
+                fringeFinish: '',
+                fringeAttachment: '',
+                fringeConstruction: '',
+                showFringeAdvancedSpec: false,
+                // KNITTING fields
+                knittingDesignRef: null,
+                knittingGauge: '',
+                knittingGsm: '',
+                knittingWalesRatio: '',
+                knittingCoursesRatio: '',
+                knittingRatioWeightWales: '',
+                knittingRatioWeightCourses: '',
+                knittingDesign: '',
+                knittingVariant: '',
+                showKnittingAdvancedFilter: false,
+                // Clear old knitting fields if they exist
+                wales: false,
+                courses: false,
+                ratioWales: '',
+                ratioCourses: '',
+                ratioWeightWales: '',
+                ratioWeightCourses: '',
               };
             }
 
@@ -1242,28 +1284,27 @@ const GenerateFactoryCode = ({ onBack }) => {
               }
             }
 
-            // KNITTING: Wales/Courses logic
-            if (field === 'wales' || field === 'courses') {
-              if (updatedWO.wales && !updatedWO.courses) {
-                updatedWO.ratioWales = totalCns.toFixed(3);
-                updatedWO.ratioCourses = '';
-              } else if (!updatedWO.wales && updatedWO.courses) {
-                updatedWO.ratioCourses = totalCns.toFixed(3);
-                updatedWO.ratioWales = '';
-              } else if (!updatedWO.wales && !updatedWO.courses) {
-                updatedWO.ratioWales = '';
-                updatedWO.ratioCourses = '';
-              }
+            // KNITTING: Clear DESIGN and VARIANTS when machineType changes
+            if (field === 'machineType' && updatedWO.workOrder === 'KNITTING') {
+              updatedWO.knittingDesign = '';
+              updatedWO.knittingVariant = '';
+              updatedWO.knittingGauge = '';
             }
 
-            if (field === 'ratioWales' || field === 'ratioCourses') {
-              if (updatedWO.wales && updatedWO.courses) {
-                if (field === 'ratioWales') {
-                  const val = parseFloat(value) || 0;
-                  updatedWO.ratioCourses = Math.max(0, totalCns - val).toFixed(3);
+            // KNITTING: Wales/Courses ratio logic (using knittingWalesRatio and knittingCoursesRatio)
+            if (field === 'knittingWalesRatio' || field === 'knittingCoursesRatio') {
+              const walesRatio = parseFloat(updatedWO.knittingWalesRatio || '0');
+              const coursesRatio = parseFloat(updatedWO.knittingCoursesRatio || '0');
+              const totalRatio = walesRatio + coursesRatio;
+              
+              // If both are set and total is not 1, adjust them proportionally
+              if (walesRatio > 0 && coursesRatio > 0 && Math.abs(totalRatio - 1) > 0.001) {
+                if (field === 'knittingWalesRatio') {
+                  // Adjust courses to make total = 1
+                  updatedWO.knittingCoursesRatio = Math.max(0, Math.min(1, (1 - walesRatio).toFixed(3)));
                 } else {
-                  const val = parseFloat(value) || 0;
-                  updatedWO.ratioWales = Math.max(0, totalCns - val).toFixed(3);
+                  // Adjust wales to make total = 1
+                  updatedWO.knittingWalesRatio = Math.max(0, Math.min(1, (1 - coursesRatio).toFixed(3)));
                 }
               }
             }
@@ -1347,6 +1388,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           ratioWeightCourses: '',
           receivedColorReference: '',
           referenceType: '',
+          dyeingReference: '',
           shrinkageWidth: false,
           shrinkageLength: false,
           shrinkageWidthPercent: '',
@@ -1364,6 +1406,40 @@ const GenerateFactoryCode = ({ onBack }) => {
           weavingType: '',
           warpWeft: '',
           ratio: '',
+          // FRINGE/TASSELS fields
+          fringeType: '',
+          fringeMaterial: '',
+          dropLength: '',
+          tapeHeaderWidth: '',
+          fringeColour: '',
+          fringeColourRefImage: null,
+          fringePlacement: '',
+          fringePlacementRefImage: null,
+          fringeTestingRequirements: [],
+          fringeTestingRequirementsUpload: null,
+          fringeQtyType: '',
+          fringeQtyPcs: '',
+          fringeQtyCnsPerPc: '',
+          fringeQtyUpload: null,
+          fringeSurplus: '',
+          fringeWastage: '',
+          fringeApproval: '',
+          fringeRemarks: '',
+          fringeFinish: '',
+          fringeAttachment: '',
+          fringeConstruction: '',
+          showFringeAdvancedSpec: false,
+          // KNITTING fields
+          knittingDesignRef: null,
+          knittingGauge: '',
+          knittingGsm: '',
+          knittingWalesRatio: '',
+          knittingCoursesRatio: '',
+          knittingRatioWeightWales: '',
+          knittingRatioWeightCourses: '',
+          knittingDesign: '',
+          knittingVariant: '',
+          showKnittingAdvancedFilter: false,
         }]
       };
       return { ...stepData, rawMaterials: updatedRawMaterials };
@@ -1429,6 +1505,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           ratioWeightCourses: '',
           receivedColorReference: '',
           referenceType: '',
+          dyeingReference: '',
           shrinkageWidth: false,
           shrinkageLength: false,
           shrinkageWidthPercent: '',
@@ -3130,93 +3207,93 @@ const GenerateFactoryCode = ({ onBack }) => {
               return (
                 <div key={productId} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {/* Product Button */}
-                  <button
-                    type="button"
+              <button
+                type="button"
                     onClick={() => setSelectedSku(productId)}
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '8px',
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
                       border: isProductSelected ? '2px solid #667eea' : '1px solid #d1d5db',
                       background: isProductSelected ? '#eef2ff' : '#ffffff',
                       color: isProductSelected ? '#4338ca' : '#374151',
-                      fontSize: '14px',
+                  fontSize: '14px',
                       fontWeight: isProductSelected ? '600' : '500',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: '10px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: '10px',
                       width: '100%',
                       maxWidth: '300px',
                       boxShadow: isProductSelected ? '0 2px 8px rgba(102, 126, 234, 0.2)' : 'none'
-                    }}
-                    onMouseEnter={(e) => {
+                }}
+                onMouseEnter={(e) => {
                       if (!isProductSelected) {
-                        e.currentTarget.style.borderColor = '#9ca3af';
-                        e.currentTarget.style.background = '#f9fafb';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#9ca3af';
+                    e.currentTarget.style.background = '#f9fafb';
+                  }
+                }}
+                onMouseLeave={(e) => {
                       if (!isProductSelected) {
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                        e.currentTarget.style.background = '#ffffff';
-                      }
-                    }}
-                  >
-                    {/* Product Image */}
-                    <div style={{
-                      width: '50px',
-                      height: '50px',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      border: '1px solid #e5e7eb',
-                      flexShrink: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: '#f9fafb'
-                    }}>
-                      {skuItem.imagePreview ? (
-                        <img
-                          src={skuItem.imagePreview}
-                          alt={`SKU ${index + 1}`}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
-                          }}
-                        />
-                      ) : (
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                      )}
-                    </div>
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.background = '#ffffff';
+                  }
+                }}
+              >
+                {/* Product Image */}
+                <div style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  border: '1px solid #e5e7eb',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#f9fafb'
+                }}>
+                  {skuItem.imagePreview ? (
+                    <img
+                      src={skuItem.imagePreview}
+                      alt={`SKU ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  ) : (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  )}
+                </div>
 
                     {/* Product Details */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
                         {isProductSelected && (
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <circle cx="8" cy="8" r="6" fill="#667eea" />
-                            <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="6" fill="#667eea" />
+                        <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
                         <span style={{ fontWeight: '600' }}>Product - SKU #{index + 1}</span>
-                      </div>
-                      <div style={{ 
-                        fontSize: '12px', 
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
                         color: isProductSelected ? '#6366f1' : '#6b7280',
-                        marginTop: '4px',
-                        textAlign: 'left',
-                        width: '100%',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
+                    marginTop: '4px',
+                    textAlign: 'left',
+                    width: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
                         {skuItem.sku || 'No SKU code'} - {skuItem.product || 'No product name'}
                       </div>
                     </div>
@@ -3307,21 +3384,21 @@ const GenerateFactoryCode = ({ onBack }) => {
                                   </svg>
                                 )}
                                 <span style={{ fontWeight: '600', fontSize: '12px' }}>Subproduct #{subproductIndex + 1}</span>
-                              </div>
-                              <div style={{ 
-                                fontSize: '11px', 
+                  </div>
+                  <div style={{ 
+                    fontSize: '11px', 
                                 color: isSubproductSelected ? '#6366f1' : '#6b7280',
-                                marginTop: '2px',
-                                textAlign: 'left',
-                                width: '100%',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
+                    marginTop: '2px',
+                    textAlign: 'left',
+                    width: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
                                 {skuItem.sku || 'No SKU code'} - {subproduct.subproduct || 'No subproduct name'}
-                              </div>
-                            </div>
-                          </button>
+                  </div>
+                </div>
+              </button>
                         );
                       })}
                     </div>

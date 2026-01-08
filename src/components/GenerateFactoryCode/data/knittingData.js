@@ -6,7 +6,7 @@ export const KNITTING_MACHINE_TYPES = {
   'CIRCULAR': {
     designs: ['Single Jersey', 'Interlock', 'Rib 1x1/2x2/3x3', 'Pique', 'Lacoste', 'Ponte', 'French Terry', 'Fleece', 'Velour', 'Pointelle', 'Mesh', 'Jacquard', 'Double Knit'],
     variants: ['Single Jersey', 'Double Jersey', 'Rib', 'Interlock', 'Fleece', 'French Terry', 'Jacquard', 'Pique', 'Velour', 'Mesh'],
-    gaugeRange: ''
+    gaugeRange: '' // General circular - no specific range
   },
   'FLATBED': {
     designs: ['Plain Knit', 'Rib', 'Cable', 'Aran', 'Intarsia', 'Jacquard', 'Pointelle', 'Tuck', 'Miss', 'Links-Links', '3D Knit', 'Transfer'],

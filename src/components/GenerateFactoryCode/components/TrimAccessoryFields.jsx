@@ -581,34 +581,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                           </label>
                         </div>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.niwarTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'niwarTestingRequirements', selectedValue)}
-                            options={['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'niwarTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-niwar-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-niwar-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.niwarTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'].map((option) => {
+                                  const currentValues = Array.isArray(material.niwarTestingRequirements) 
+                                    ? material.niwarTestingRequirements 
+                                    : (material.niwarTestingRequirements ? (typeof material.niwarTestingRequirements === 'string' ? material.niwarTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.niwarTestingRequirements) 
+                                            ? material.niwarTestingRequirements 
+                                            : (material.niwarTestingRequirements ? (typeof material.niwarTestingRequirements === 'string' ? material.niwarTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'niwarTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.niwarTestingRequirements && Array.isArray(material.niwarTestingRequirements) && material.niwarTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.niwarTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'niwarTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-niwar-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-niwar-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.niwarTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -800,34 +834,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                           </label>
                         </div>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS DROPDOWN</label>
-                          <SearchableDropdown
-                            value={material.laceTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'laceTestingRequirements', selectedValue)}
-                            options={['Colour Fastness', 'Shrinkage', 'Pilling', 'Azo-Free', 'OEKO-TEX']}
-                            placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'laceTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-lace-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-lace-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.laceTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Colour Fastness', 'Shrinkage', 'Pilling', 'Azo-Free', 'OEKO-TEX'].map((option) => {
+                                  const currentValues = Array.isArray(material.laceTestingRequirements) 
+                                    ? material.laceTestingRequirements 
+                                    : (material.laceTestingRequirements ? (typeof material.laceTestingRequirements === 'string' ? material.laceTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.laceTestingRequirements) 
+                                            ? material.laceTestingRequirements 
+                                            : (material.laceTestingRequirements ? (typeof material.laceTestingRequirements === 'string' ? material.laceTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'laceTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.laceTestingRequirements && Array.isArray(material.laceTestingRequirements) && material.laceTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.laceTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'laceTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-lace-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-lace-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.laceTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -874,33 +942,67 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* ZIPPERS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'ZIPPERS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Slider Durability (Cycling test)', 'Lateral Strength (Teeth-pulling strength)', 'Puller']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-zippers-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-zippers-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Slider Durability (Cycling test)', 'Lateral Strength (Teeth-pulling strength)', 'Puller'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-zippers-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-zippers-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
@@ -938,17 +1040,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -1010,34 +1101,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                           </div>
                         </div>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <input
-                            type="text"
-                            value={material.velcroTestingRequirements || ''}
-                            onChange={(e) => handleChange(materialIndex, 'velcroTestingRequirements', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="TESTING REQUIREMENTS"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'velcroTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-velcro-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-velcro-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.velcroTestingRequirementFile ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Strength', 'Colour Fastness', 'Abrasion Resistance', 'Flammability', 'REACH/OEKO-TEX'].map((option) => {
+                                  const currentValues = Array.isArray(material.velcroTestingRequirements) 
+                                    ? material.velcroTestingRequirements 
+                                    : (material.velcroTestingRequirements ? (typeof material.velcroTestingRequirements === 'string' ? material.velcroTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.velcroTestingRequirements) 
+                                            ? material.velcroTestingRequirements 
+                                            : (material.velcroTestingRequirements ? (typeof material.velcroTestingRequirements === 'string' ? material.velcroTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'velcroTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.velcroTestingRequirements && Array.isArray(material.velcroTestingRequirements) && material.velcroTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.velcroTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'velcroTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-velcro-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-velcro-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.velcroTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -1195,34 +1320,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* STITCHING THREAD - Complete fields matching table exactly */}
                   {material.trimAccessory === 'STITCHING THREAD' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Tensile Strength', 'Elongation', 'Abrasion']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                            id={`upload-thread-${materialIndex}`}
-                        />
-                        <label
-                            htmlFor={`upload-thread-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                        </label>
-                      </div>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Strength', 'Elongation', 'Abrasion'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-thread-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-thread-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
@@ -1257,17 +1416,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -1297,36 +1445,70 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* BUTTONS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'BUTTONS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <SearchableDropdown
-                            value={material.buttonTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'buttonTestingRequirements', selectedValue)}
-                            options={['Needle Detection', 'Pull Strength', 'Colour Fastness', 'REACH/OEKO-TEX', 'Corrosion']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Needle Detection', 'Pull Strength', 'Colour Fastness', 'REACH/OEKO-TEX', 'Corrosion'].map((option) => {
+                                  const currentValues = Array.isArray(material.buttonTestingRequirements) 
+                                    ? material.buttonTestingRequirements 
+                                    : (material.buttonTestingRequirements ? (typeof material.buttonTestingRequirements === 'string' ? material.buttonTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.buttonTestingRequirements) 
+                                            ? material.buttonTestingRequirements 
+                                            : (material.buttonTestingRequirements ? (typeof material.buttonTestingRequirements === 'string' ? material.buttonTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'buttonTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.buttonTestingRequirements && Array.isArray(material.buttonTestingRequirements) && material.buttonTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.buttonTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'buttonTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-button-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-button-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.buttonTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                            onChange={(e) => handleChange(materialIndex, 'buttonTestingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                            id={`upload-button-testing-${materialIndex}`}
-                            accept="image/*"
-                        />
-                        <label
-                            htmlFor={`upload-button-testing-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.buttonTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                </label>
-                      </div>
-              </div>
                       
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
@@ -1499,34 +1681,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* RIVETS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'RIVETS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS DROPDOWN</label>
-                          <SearchableDropdown
-                            value={material.rivetTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'rivetTestingRequirements', selectedValue)}
-                            options={['Needle Detection', 'Pull Strength (90N)', 'Corrosion (Salt Spray)']}
-                            placeholder="Select or type Testing Requirements"
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                                                />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'rivetTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-rivet-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-rivet-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.rivetTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Needle Detection', 'Pull Strength (90N)', 'Corrosion (Salt Spray)'].map((option) => {
+                                  const currentValues = Array.isArray(material.rivetTestingRequirements) 
+                                    ? material.rivetTestingRequirements 
+                                    : (material.rivetTestingRequirements ? (typeof material.rivetTestingRequirements === 'string' ? material.rivetTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.rivetTestingRequirements) 
+                                            ? material.rivetTestingRequirements 
+                                            : (material.rivetTestingRequirements ? (typeof material.rivetTestingRequirements === 'string' ? material.rivetTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'rivetTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.rivetTestingRequirements && Array.isArray(material.rivetTestingRequirements) && material.rivetTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.rivetTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'rivetTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-rivet-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-rivet-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.rivetTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2032,34 +2248,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* ELASTIC - Complete fields matching table exactly */}
                   {material.trimAccessory === 'ELASTIC' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                          <SearchableDropdown
-                            value={material.testingRequirement || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'testingRequirement', selectedValue)}
-                            options={['Tensile Strength', 'Elongation', 'Recovery']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                          id={`upload-elastic-${materialIndex}`}
-                        />
-                        <label
-                          htmlFor={`upload-elastic-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                        </label>
-                      </div>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Strength', 'Elongation', 'Recovery'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-elastic-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-elastic-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
@@ -2082,17 +2332,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                                     style={{ padding: '10px 14px', height: '44px' }}
                                                   />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                        <input
-                          type="text"
-                          value={material.surplusForSection || ''}
-                          onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                          placeholder="FOR"
-                        />
                       </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2253,14 +2492,45 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <SearchableDropdown
-                          value={material.feltTestingRequirements || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'feltTestingRequirements', selectedValue)}
-                          options={['Flammability', 'Pilling', 'Colour Fastness', 'Tensile', 'Compression']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                        <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                          <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                            <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                              {['Flammability', 'Pilling', 'Colour Fastness', 'Tensile', 'Compression'].map((option) => {
+                                const currentValues = Array.isArray(material.feltTestingRequirements) 
+                                  ? material.feltTestingRequirements 
+                                  : (material.feltTestingRequirements ? (typeof material.feltTestingRequirements === 'string' ? material.feltTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                const isChecked = currentValues.includes(option);
+                                return (
+                                  <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        const currentValues = Array.isArray(material.feltTestingRequirements) 
+                                          ? material.feltTestingRequirements 
+                                          : (material.feltTestingRequirements ? (typeof material.feltTestingRequirements === 'string' ? material.feltTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                        let newValues;
+                                        if (e.target.checked) {
+                                          newValues = [...currentValues, option];
+                                        } else {
+                                          newValues = currentValues.filter(v => v !== option);
+                                        }
+                                        handleChange(materialIndex, 'feltTestingRequirements', newValues);
+                                      }}
+                                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm text-gray-900">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {material.feltTestingRequirements && Array.isArray(material.feltTestingRequirements) && material.feltTestingRequirements.length > 0 && (
+                              <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                <strong>Selected:</strong> {material.feltTestingRequirements.join(', ')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
@@ -2547,14 +2817,45 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <SearchableDropdown
-                          value={material.interliningTestingRequirements || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'interliningTestingRequirements', selectedValue)}
-                          options={['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                        <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                          <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                            <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                              {['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through'].map((option) => {
+                                const currentValues = Array.isArray(material.interliningTestingRequirements) 
+                                  ? material.interliningTestingRequirements 
+                                  : (material.interliningTestingRequirements ? (typeof material.interliningTestingRequirements === 'string' ? material.interliningTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                const isChecked = currentValues.includes(option);
+                                return (
+                                  <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        const currentValues = Array.isArray(material.interliningTestingRequirements) 
+                                          ? material.interliningTestingRequirements 
+                                          : (material.interliningTestingRequirements ? (typeof material.interliningTestingRequirements === 'string' ? material.interliningTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                        let newValues;
+                                        if (e.target.checked) {
+                                          newValues = [...currentValues, option];
+                                        } else {
+                                          newValues = currentValues.filter(v => v !== option);
+                                        }
+                                        handleChange(materialIndex, 'interliningTestingRequirements', newValues);
+                                      }}
+                                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm text-gray-900">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {material.interliningTestingRequirements && Array.isArray(material.interliningTestingRequirements) && material.interliningTestingRequirements.length > 0 && (
+                              <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                <strong>Selected:</strong> {material.interliningTestingRequirements.join(', ')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
@@ -2803,17 +3104,48 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         />
                       </div>
 
-                      {/* TESTING REQUIREMENTS DROPDOWN */}
+                      {/* TESTING REQUIREMENTS */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <SearchableDropdown
-                          value={material.hookEyeTestingRequirements || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeTestingRequirements', selectedValue)}
-                          options={['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                        <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                          <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                            <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                              {['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness'].map((option) => {
+                                const currentValues = Array.isArray(material.hookEyeTestingRequirements) 
+                                  ? material.hookEyeTestingRequirements 
+                                  : (material.hookEyeTestingRequirements ? (typeof material.hookEyeTestingRequirements === 'string' ? material.hookEyeTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                const isChecked = currentValues.includes(option);
+                                return (
+                                  <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        const currentValues = Array.isArray(material.hookEyeTestingRequirements) 
+                                          ? material.hookEyeTestingRequirements 
+                                          : (material.hookEyeTestingRequirements ? (typeof material.hookEyeTestingRequirements === 'string' ? material.hookEyeTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                        let newValues;
+                                        if (e.target.checked) {
+                                          newValues = [...currentValues, option];
+                                        } else {
+                                          newValues = currentValues.filter(v => v !== option);
+                                        }
+                                        handleChange(materialIndex, 'hookEyeTestingRequirements', newValues);
+                                      }}
+                                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm text-gray-900">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {material.hookEyeTestingRequirements && Array.isArray(material.hookEyeTestingRequirements) && material.hookEyeTestingRequirements.length > 0 && (
+                              <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                <strong>Selected:</strong> {material.hookEyeTestingRequirements.join(', ')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       {/* SURPLUS %} */}
@@ -3003,34 +3335,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* BUCKLES & ADJUSTERS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'BUCKLES & ADJUSTERS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Corrosion Resistance', 'Salt Spray']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-              </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                          id={`upload-buckles-${materialIndex}`}
-                        />
-                        <label
-                          htmlFor={`upload-buckles-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                        </label>
-                      </div>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Corrosion Resistance', 'Salt Spray'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-buckles-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-buckles-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
@@ -3054,17 +3420,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -3155,34 +3510,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* BUCKLES - Complete fields matching table exactly */}
                   {material.trimAccessory === 'BUCKLES' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.bucklesTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'bucklesTestingRequirements', selectedValue)}
-                            options={['Tensile Load', 'Corrosion (Salt Spray)', 'UV Resistance', 'REACH']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'bucklesReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-buckles-ref-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-buckles-ref-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.bucklesReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Load', 'Corrosion (Salt Spray)', 'UV Resistance', 'REACH'].map((option) => {
+                                  const currentValues = Array.isArray(material.bucklesTestingRequirements) 
+                                    ? material.bucklesTestingRequirements 
+                                    : (material.bucklesTestingRequirements ? (typeof material.bucklesTestingRequirements === 'string' ? material.bucklesTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.bucklesTestingRequirements) 
+                                            ? material.bucklesTestingRequirements 
+                                            : (material.bucklesTestingRequirements ? (typeof material.bucklesTestingRequirements === 'string' ? material.bucklesTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'bucklesTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.bucklesTestingRequirements && Array.isArray(material.bucklesTestingRequirements) && material.bucklesTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.bucklesTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'bucklesReferenceImage', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-buckles-ref-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-buckles-ref-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.bucklesReferenceImage ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -3404,34 +3793,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* EYELETS & GROMMETS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'EYELETS & GROMMETS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <SearchableDropdown
-                          value={material.testingRequirement || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'testingRequirement', selectedValue)}
-                          options={['Pull-Off Strength', 'Corrosion']}
-                          placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                          id={`upload-eyelets-${materialIndex}`}
-                        />
-                        <label
-                          htmlFor={`upload-eyelets-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                  </label>
-                      </div>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Pull-Off Strength', 'Corrosion'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-eyelets-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-eyelets-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
@@ -3455,17 +3878,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -3648,14 +4060,45 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                       {/* TESTING REQUIREMENT */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadTestingRequirements || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadTestingRequirements', selectedValue)}
-                          options={['Wash Resistance', 'Flammability', 'Hypoallergenic']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                        <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                          <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                            <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                              {['Wash Resistance', 'Flammability', 'Hypoallergenic'].map((option) => {
+                                const currentValues = Array.isArray(material.shoulderPadTestingRequirements) 
+                                  ? material.shoulderPadTestingRequirements 
+                                  : (material.shoulderPadTestingRequirements ? (typeof material.shoulderPadTestingRequirements === 'string' ? material.shoulderPadTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                const isChecked = currentValues.includes(option);
+                                return (
+                                  <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        const currentValues = Array.isArray(material.shoulderPadTestingRequirements) 
+                                          ? material.shoulderPadTestingRequirements 
+                                          : (material.shoulderPadTestingRequirements ? (typeof material.shoulderPadTestingRequirements === 'string' ? material.shoulderPadTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                        let newValues;
+                                        if (e.target.checked) {
+                                          newValues = [...currentValues, option];
+                                        } else {
+                                          newValues = currentValues.filter(v => v !== option);
+                                        }
+                                        handleChange(materialIndex, 'shoulderPadTestingRequirements', newValues);
+                                      }}
+                                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm text-gray-900">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {material.shoulderPadTestingRequirements && Array.isArray(material.shoulderPadTestingRequirements) && material.shoulderPadTestingRequirements.length > 0 && (
+                              <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                <strong>Selected:</strong> {material.shoulderPadTestingRequirements.join(', ')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       {/* MULTISELECT - Empty field as per image */}
@@ -3823,34 +4266,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                           </label>
                         </div>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.ribbingTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'ribbingTestingRequirements', selectedValue)}
-                            options={['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'ribbingTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-ribbing-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-ribbing-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.ribbingTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'].map((option) => {
+                                  const currentValues = Array.isArray(material.ribbingTestingRequirements) 
+                                    ? material.ribbingTestingRequirements 
+                                    : (material.ribbingTestingRequirements ? (typeof material.ribbingTestingRequirements === 'string' ? material.ribbingTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.ribbingTestingRequirements) 
+                                            ? material.ribbingTestingRequirements 
+                                            : (material.ribbingTestingRequirements ? (typeof material.ribbingTestingRequirements === 'string' ? material.ribbingTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'ribbingTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.ribbingTestingRequirements && Array.isArray(material.ribbingTestingRequirements) && material.ribbingTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.ribbingTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'ribbingTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-ribbing-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-ribbing-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.ribbingTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4187,34 +4664,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* RFID / EAS TAGS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'RFID / EAS TAGS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Read Range, Washing Resistance"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                          className="hidden"
-                          id={`upload-rfid-${materialIndex}`}
-                        />
-                        <label
-                          htmlFor={`upload-rfid-${materialIndex}`}
-                          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                        >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                </label>
-                      </div>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Read Range', 'Washing Resistance', 'Temperature Resistance', 'Durability'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-rfid-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-rfid-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH/QUANTITY</label>
@@ -4237,17 +4748,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                        <input
-                          type="text"
-                          value={material.surplusForSection || ''}
-                          onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                          placeholder="FOR"
-                        />
                       </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4340,34 +4840,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* PLASTIC CABLE TIES / LOOPS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'CABLE-TIES' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.cableTieTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'cableTieTestingRequirements', selectedValue)}
-                            options={['Tensile Test', 'UV Resistance', 'Chemical Resistance']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'cableTieReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-cable-ref-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-cable-ref-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.cableTieReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Test', 'UV Resistance', 'Chemical Resistance'].map((option) => {
+                                  const currentValues = Array.isArray(material.cableTieTestingRequirements) 
+                                    ? material.cableTieTestingRequirements 
+                                    : (material.cableTieTestingRequirements ? (typeof material.cableTieTestingRequirements === 'string' ? material.cableTieTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.cableTieTestingRequirements) 
+                                            ? material.cableTieTestingRequirements 
+                                            : (material.cableTieTestingRequirements ? (typeof material.cableTieTestingRequirements === 'string' ? material.cableTieTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'cableTieTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.cableTieTestingRequirements && Array.isArray(material.cableTieTestingRequirements) && material.cableTieTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.cableTieTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'cableTieReferenceImage', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-cable-ref-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-cable-ref-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.cableTieReferenceImage ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4591,33 +5125,67 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* FRINGE / TASSELS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'FRINGE / TASSELS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Colour Fastness, Washing Resistance"
-                        />
-              </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-fringe-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-fringe-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Colour Fastness', 'Washing Resistance', 'Flammability'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-fringe-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-fringe-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4642,17 +5210,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -4776,33 +5333,67 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* PLASTIC PIPES / RODS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'PLASTIC PIPES / RODS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="UV Stability, Load Bearing, Deflection"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-pipes-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-pipes-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['UV Stability', 'Load Bearing', 'Deflection', 'Temperature Resistance'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-pipes-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-pipes-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -4931,34 +5522,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* SEAM TAPE - Complete fields matching table exactly */}
                   {material.trimAccessory === 'SEAM TAPE' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.seamTapeTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeTestingRequirements', selectedValue)}
-                            options={['Hydrostatic Head', 'Wash Resistance', 'Adhesion/Peel Test']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'seamTapeTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-seam-tape-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-seam-tape-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.seamTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Hydrostatic Head', 'Wash Resistance', 'Adhesion/Peel Test'].map((option) => {
+                                  const currentValues = Array.isArray(material.seamTapeTestingRequirements) 
+                                    ? material.seamTapeTestingRequirements 
+                                    : (material.seamTapeTestingRequirements ? (typeof material.seamTapeTestingRequirements === 'string' ? material.seamTapeTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.seamTapeTestingRequirements) 
+                                            ? material.seamTapeTestingRequirements 
+                                            : (material.seamTapeTestingRequirements ? (typeof material.seamTapeTestingRequirements === 'string' ? material.seamTapeTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'seamTapeTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.seamTapeTestingRequirements && Array.isArray(material.seamTapeTestingRequirements) && material.seamTapeTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.seamTapeTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'seamTapeTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-seam-tape-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-seam-tape-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.seamTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -5165,33 +5790,67 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* ADHESIVES / GUNNING - Complete fields matching table exactly */}
                   {material.trimAccessory === 'ADHESIVES / GUNNING' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Bond strength, Toxicity / VOC Content"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-adhesives-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-adhesives-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Bond Strength', 'Toxicity / VOC Content', 'Heat Resistance', 'Wash Resistance'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-adhesives-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-adhesives-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -5216,17 +5875,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -5339,33 +5987,67 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* PRE-CUT HEMS / BINDINGS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'PRE-CUT HEMS / BINDINGS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Residual shrinkage, Skewing"
-                        />
-              </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-hems-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-hems-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Residual Shrinkage', 'Skewing', 'Colour Fastness', 'Wash Resistance'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-hems-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-hems-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -5390,17 +6072,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -5507,34 +6178,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* REFLECTIVE TAPES - Complete fields matching table exactly */}
                   {material.trimAccessory === 'REFLECTIVE TAPES' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.reflectiveTapeTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeTestingRequirements', selectedValue)}
-                            options={['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance']}
-                            placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapeTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-reflective-tape-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-reflective-tape-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.reflectiveTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance'].map((option) => {
+                                  const currentValues = Array.isArray(material.reflectiveTapeTestingRequirements) 
+                                    ? material.reflectiveTapeTestingRequirements 
+                                    : (material.reflectiveTapeTestingRequirements ? (typeof material.reflectiveTapeTestingRequirements === 'string' ? material.reflectiveTapeTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.reflectiveTapeTestingRequirements) 
+                                            ? material.reflectiveTapeTestingRequirements 
+                                            : (material.reflectiveTapeTestingRequirements ? (typeof material.reflectiveTapeTestingRequirements === 'string' ? material.reflectiveTapeTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'reflectiveTapeTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.reflectiveTapeTestingRequirements && Array.isArray(material.reflectiveTapeTestingRequirements) && material.reflectiveTapeTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.reflectiveTapeTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'reflectiveTapeTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-reflective-tape-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-reflective-tape-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.reflectiveTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -5761,34 +6466,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.frTrimsTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsTestingRequirements', selectedValue)}
-                            options={['Vertical Flame Test', 'LOI', 'Wash Durability (re-test after wash)']}
-                            placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'frTrimsTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-fr-trims-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-fr-trims-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.frTrimsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Vertical Flame Test', 'LOI', 'Wash Durability (re-test after wash)'].map((option) => {
+                                  const currentValues = Array.isArray(material.frTrimsTestingRequirements) 
+                                    ? material.frTrimsTestingRequirements 
+                                    : (material.frTrimsTestingRequirements ? (typeof material.frTrimsTestingRequirements === 'string' ? material.frTrimsTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.frTrimsTestingRequirements) 
+                                            ? material.frTrimsTestingRequirements 
+                                            : (material.frTrimsTestingRequirements ? (typeof material.frTrimsTestingRequirements === 'string' ? material.frTrimsTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'frTrimsTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.frTrimsTestingRequirements && Array.isArray(material.frTrimsTestingRequirements) && material.frTrimsTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.frTrimsTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'frTrimsTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-fr-trims-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-fr-trims-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.frTrimsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       
@@ -6077,33 +6816,67 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* REPAIR KITS / PATCHES - Complete fields matching table exactly */}
                   {material.trimAccessory === 'REPAIR KITS / PATCHES' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Adhesion strength, Shelf Life"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-repair-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-repair-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Adhesion Strength', 'Shelf Life', 'Colour Fastness', 'Wash Resistance'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-repair-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-repair-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -6127,17 +6900,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                        <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
                       </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -6259,34 +7021,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* CORD RING - Complete fields matching table exactly */}
                   {material.trimAccessory === 'CORD STOPS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.cordStopTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'cordStopTestingRequirements', selectedValue)}
-                            options={['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic']}
-                            placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-cord-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-cord-placement-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic'].map((option) => {
+                                  const currentValues = Array.isArray(material.cordStopTestingRequirements) 
+                                    ? material.cordStopTestingRequirements 
+                                    : (material.cordStopTestingRequirements ? (typeof material.cordStopTestingRequirements === 'string' ? material.cordStopTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.cordStopTestingRequirements) 
+                                            ? material.cordStopTestingRequirements 
+                                            : (material.cordStopTestingRequirements ? (typeof material.cordStopTestingRequirements === 'string' ? material.cordStopTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'cordStopTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.cordStopTestingRequirements && Array.isArray(material.cordStopTestingRequirements) && material.cordStopTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.cordStopTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-cord-placement-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-cord-placement-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       
@@ -6500,34 +7296,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* RINGS-LOOPS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'RINGS-LOOPS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS DROPDOWN</label>
-                          <SearchableDropdown
-                            value={material.ringsLoopsTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsTestingRequirements', selectedValue)}
-                            options={['Tensile Strength', 'Corrosion (Salt Spray)', 'Weld Integrity']}
-                            placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'ringsLoopsTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-rings-loops-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-rings-loops-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.ringsLoopsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Tensile Strength', 'Corrosion (Salt Spray)', 'Weld Integrity'].map((option) => {
+                                  const currentValues = Array.isArray(material.ringsLoopsTestingRequirements) 
+                                    ? material.ringsLoopsTestingRequirements 
+                                    : (material.ringsLoopsTestingRequirements ? (typeof material.ringsLoopsTestingRequirements === 'string' ? material.ringsLoopsTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.ringsLoopsTestingRequirements) 
+                                            ? material.ringsLoopsTestingRequirements 
+                                            : (material.ringsLoopsTestingRequirements ? (typeof material.ringsLoopsTestingRequirements === 'string' ? material.ringsLoopsTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'ringsLoopsTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.ringsLoopsTestingRequirements && Array.isArray(material.ringsLoopsTestingRequirements) && material.ringsLoopsTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.ringsLoopsTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'ringsLoopsTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-rings-loops-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-rings-loops-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.ringsLoopsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -6734,33 +7564,67 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* FOAM / WADDING (PRE-CUT SHAPES) - Complete fields matching table exactly */}
                   {material.trimAccessory === 'FOAM / WADDING (Pre-Cut Shapes)' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <input
-                          type="text"
-                          value={material.testingRequirement || ''}
-                          onChange={(e) => handleChange(materialIndex, 'testingRequirement', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Compression set"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-foam-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-foam-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Compression Set', 'Density', 'Flammability', 'Resilience', 'Compression Recovery'].map((option) => {
+                                  const currentValues = Array.isArray(material.testingRequirement) 
+                                    ? material.testingRequirement 
+                                    : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.testingRequirement) 
+                                            ? material.testingRequirement 
+                                            : (material.testingRequirement ? (typeof material.testingRequirement === 'string' ? material.testingRequirement.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'testingRequirement', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.testingRequirement && Array.isArray(material.testingRequirement) && material.testingRequirement.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.testingRequirement.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-foam-${materialIndex}`}
+                              />
+                              <label
+                                htmlFor={`upload-foam-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -6785,17 +7649,6 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                   style={{ padding: '10px 14px', height: '44px' }}
                                                 />
                       </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FOR</label>
-                          <input
-                            type="text"
-                            value={material.surplusForSection || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplusForSection', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                            placeholder="FOR"
-                          />
-                        </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
@@ -6913,34 +7766,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* PIN-BARBS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'PIN-BARBS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS DROPDOWN</label>
-                          <SearchableDropdown
-                            value={material.pinBarbTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbTestingRequirements', selectedValue)}
-                            options={['Needle Sharpness', 'Non-Rusting', 'Metal Detection (ferrous)']}
-                            placeholder="Select or type Testing Requirements"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'pinBarbTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-pin-barb-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-pin-barb-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.pinBarbTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Needle Sharpness', 'Non-Rusting', 'Metal Detection (ferrous)'].map((option) => {
+                                  const currentValues = Array.isArray(material.pinBarbTestingRequirements) 
+                                    ? material.pinBarbTestingRequirements 
+                                    : (material.pinBarbTestingRequirements ? (typeof material.pinBarbTestingRequirements === 'string' ? material.pinBarbTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.pinBarbTestingRequirements) 
+                                            ? material.pinBarbTestingRequirements 
+                                            : (material.pinBarbTestingRequirements ? (typeof material.pinBarbTestingRequirements === 'string' ? material.pinBarbTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'pinBarbTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.pinBarbTestingRequirements && Array.isArray(material.pinBarbTestingRequirements) && material.pinBarbTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.pinBarbTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'pinBarbTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-pin-barb-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-pin-barb-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.pinBarbTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -7144,34 +8031,68 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                   {/* MAGNETIC CLOSURE - Complete fields matching table exactly */}
                   {material.trimAccessory === 'MAGNETIC CLOSURE' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-start gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                          <SearchableDropdown
-                            value={material.magneticClosureTestingRequirements || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureTestingRequirements', selectedValue)}
-                            options={['Pull Force Test', 'Corrosion', 'Needle Detection (if shielded)']}
-                            placeholder="Select or type Testing Requirements"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'magneticClosureTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-magnetic-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-magnetic-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.magneticClosureTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
+                          <div className="flex items-start gap-2" style={{ flexWrap: 'wrap' }}>
+                            <div className="relative" style={{ minWidth: '220px', flex: '1 1 auto' }}>
+                              <div className="border-2 rounded-lg bg-white border-[#e5e7eb] focus-within:border-indigo-500" style={{ padding: '8px', minHeight: '100px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {['Pull Force Test', 'Corrosion', 'Needle Detection (if shielded)'].map((option) => {
+                                  const currentValues = Array.isArray(material.magneticClosureTestingRequirements) 
+                                    ? material.magneticClosureTestingRequirements 
+                                    : (material.magneticClosureTestingRequirements ? (typeof material.magneticClosureTestingRequirements === 'string' ? material.magneticClosureTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                  const isChecked = currentValues.includes(option);
+                                  return (
+                                    <label key={option} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const currentValues = Array.isArray(material.magneticClosureTestingRequirements) 
+                                            ? material.magneticClosureTestingRequirements 
+                                            : (material.magneticClosureTestingRequirements ? (typeof material.magneticClosureTestingRequirements === 'string' ? material.magneticClosureTestingRequirements.split(',').filter(v => v.trim()) : []) : []);
+                                          let newValues;
+                                          if (e.target.checked) {
+                                            newValues = [...currentValues, option];
+                                          } else {
+                                            newValues = currentValues.filter(v => v !== option);
+                                          }
+                                          handleChange(materialIndex, 'magneticClosureTestingRequirements', newValues);
+                                        }}
+                                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                      />
+                                      <span className="text-sm text-gray-900">{option}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {material.magneticClosureTestingRequirements && Array.isArray(material.magneticClosureTestingRequirements) && material.magneticClosureTestingRequirements.length > 0 && (
+                                <div className="text-xs text-gray-700 mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                  <strong>Selected:</strong> {material.magneticClosureTestingRequirements.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+                              <input
+                                type="file"
+                                onChange={(e) => handleChange(materialIndex, 'magneticClosureTestingRequirementFile', e.target.files[0])}
+                                className="hidden"
+                                id={`upload-magnetic-testing-${materialIndex}`}
+                                accept="image/*"
+                              />
+                              <label
+                                htmlFor={`upload-magnetic-testing-${materialIndex}`}
+                                className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <span className="truncate">{material.magneticClosureTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
