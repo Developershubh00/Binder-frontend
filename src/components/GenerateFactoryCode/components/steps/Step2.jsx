@@ -763,14 +763,23 @@ const Step2 = ({
                           <label className="text-sm font-semibold text-gray-700 mb-2">
                             SURPLUS
                           </label>
-                          <input
-                            type="text"
-                            value={material.surplus || ''}
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'surplus', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="%AGE"
-                          />
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              value={material.surplus || ''}
+                              onChange={(e) => {
+                                // Store only numeric value (remove % and non-numeric chars except decimal point)
+                                const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                                handleRawMaterialChange(actualIndex, 'surplus', numericValue);
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
+                              placeholder="%AGE"
+                            />
+                            {material.surplus && (
+                              <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                            )}
+                          </div>
                         </div>
                         
                         <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
@@ -1064,14 +1073,23 @@ const Step2 = ({
                     <label className="text-sm font-semibold text-gray-700 mb-2">
                       SURPLUS %AGE
                     </label>
-                    <input
-                      type="text"
-                      value={material.fabricSurplus || ''}
-                      onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricSurplus', e.target.value)}
-                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                      style={{ padding: '10px 14px', height: '44px' }}
-                      placeholder="%AGE"
-                    />
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        value={material.fabricSurplus || ''}
+                        onChange={(e) => {
+                          // Store only numeric value (remove % and non-numeric chars except decimal point)
+                          const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                          handleRawMaterialChange(actualIndex, 'fabricSurplus', numericValue);
+                        }}
+                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
+                        placeholder="%AGE"
+                      />
+                      {material.fabricSurplus && (
+                        <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                      )}
+                    </div>
                   </div>
                   
                   {/* Approval */}
@@ -1557,27 +1575,51 @@ const Step2 = ({
                       {/* SURPLUS % */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.foamSurplus || ''}
-                          onChange={(e) => handleRawMaterialChange(actualIndex, 'foamSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%age"
-                        />
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            value={material.foamSurplus || ''}
+                            onChange={(e) => {
+                              // Store only numeric value (remove % and non-numeric chars except decimal point)
+                              const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                              handleRawMaterialChange(actualIndex, 'foamSurplus', numericValue);
+                            }}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
+                            placeholder="%age"
+                          />
+                          {material.foamSurplus && (
+                            <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                          )}
+                        </div>
                       </div>
 
                       {/* WASTAGE % */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.foamWastage || ''}
-                          onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamWastage', selectedValue)}
-                          options={['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                          <SearchableDropdown
+                            value={material.foamWastage || ''}
+                            onChange={(selectedValue) => {
+                              // If it's a dropdown option, store as-is. If it's numeric (free typing), store numeric only
+                              const predefinedOptions = ['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'];
+                              if (predefinedOptions.includes(selectedValue)) {
+                                handleRawMaterialChange(actualIndex, 'foamWastage', selectedValue);
+                              } else {
+                                // Free typing - store numeric only
+                                const numericValue = selectedValue.replace(/[^0-9.]/g, '');
+                                handleRawMaterialChange(actualIndex, 'foamWastage', numericValue);
+                              }
+                            }}
+                            options={['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases']}
+                            placeholder="Select or type"
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
+                          />
+                          {material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) && (
+                            <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
+                          )}
+                        </div>
                       </div>
 
                       {/* APPROVAL */}
@@ -1894,27 +1936,36 @@ const Step2 = ({
                           <label className="text-sm font-semibold text-gray-700 mb-2">
                             WASTAGE % <span className="text-red-600">*</span>
                           </label>
-                          <input
-                            type="text"
-                            value={workOrder.wastage || ''}
-                            onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
-                                ? 'border-red-600' 
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '10px 14px', width: '100px', height: '44px' }}
-                            onFocus={(e) => {
-                              if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
-                            placeholder="e.g., 2"
-                            required
-                          />
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100px' }}>
+                            <input
+                              type="text"
+                              value={workOrder.wastage || ''}
+                              onChange={(e) => {
+                                // Store only numeric value (remove % and non-numeric chars except decimal point)
+                                const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                                handleWorkOrderChange(actualIndex, woIndex, 'wastage', numericValue);
+                              }}
+                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                                errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
+                                  ? 'border-red-600' 
+                                  : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                              }`}
+                              style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                              onFocus={(e) => {
+                                if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
+                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                }
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.boxShadow = '';
+                              }}
+                              placeholder="e.g., 2"
+                              required
+                            />
+                            {workOrder.wastage && (
+                              <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                            )}
+                          </div>
                           {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                             <span className="text-red-600 text-xs mt-1 font-medium">
                               {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
@@ -2199,36 +2250,35 @@ const Step2 = ({
                           {/* WASTAGE % */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                            <input
-                              type="text"
-                              value={workOrder.wastage || ''}
-                              onChange={(e) => {
-                                let value = e.target.value.replace(/%/g, '');
-                                if (value && !isNaN(value)) {
-                                  value = value + '%';
-                                }
-                                handleWorkOrderChange(actualIndex, woIndex, 'wastage', value);
-                              }}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                                errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
-                                  ? 'border-red-600' 
-                                  : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                              }`}
-                              style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                              placeholder="%AGE"
-                              onFocus={(e) => {
-                                if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                }
-                              }}
-                              onBlur={(e) => {
-                                e.target.style.boxShadow = '';
-                                const currentValue = workOrder.wastage || '';
-                                if (currentValue && !currentValue.includes('%') && !isNaN(currentValue)) {
-                                  handleWorkOrderChange(actualIndex, woIndex, 'wastage', currentValue + '%');
-                                }
-                              }}
-                            />
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '140px' }}>
+                              <input
+                                type="text"
+                                value={workOrder.wastage || ''}
+                                onChange={(e) => {
+                                  // Store only numeric value (remove % and non-numeric chars except decimal point)
+                                  const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                                  handleWorkOrderChange(actualIndex, woIndex, 'wastage', numericValue);
+                                }}
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                                  errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] 
+                                    ? 'border-red-600' 
+                                    : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                                }`}
+                                style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                                placeholder="%AGE"
+                                onFocus={(e) => {
+                                  if (!errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]) {
+                                    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                  }
+                                }}
+                                onBlur={(e) => {
+                                  e.target.style.boxShadow = '';
+                                }}
+                              />
+                              {workOrder.wastage && (
+                                <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                              )}
+                            </div>
                             {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`] && (
                               <span className="text-red-600 text-xs mt-1 font-medium">
                                 {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
@@ -3075,63 +3125,62 @@ const Step2 = ({
                             </div>
                           </div>
 
-                          {/* SURPLUS % - Auto-add % */}
+                          {/* SURPLUS % */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                            <input
-                              type="text"
-                              value={workOrder.fringeSurplus || ''}
-                              onChange={(e) => {
-                                let value = e.target.value.replace(/%/g, ''); // Remove existing %
-                                if (value && !isNaN(value)) {
-                                  value = value + '%';
-                                }
-                                handleWorkOrderChange(actualIndex, woIndex, 'fringeSurplus', value);
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                              placeholder="%age"
-                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                              onBlur={(e) => {
-                                e.target.style.boxShadow = '';
-                                // Ensure % is added on blur if numeric value entered
-                                const currentValue = workOrder.fringeSurplus || '';
-                                if (currentValue && !currentValue.includes('%') && !isNaN(currentValue)) {
-                                  handleWorkOrderChange(actualIndex, woIndex, 'fringeSurplus', currentValue + '%');
-                                }
-                              }}
-                            />
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '140px' }}>
+                              <input
+                                type="text"
+                                value={workOrder.fringeSurplus || ''}
+                                onChange={(e) => {
+                                  // Store only numeric value (remove % and non-numeric chars except decimal point)
+                                  const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                                  handleWorkOrderChange(actualIndex, woIndex, 'fringeSurplus', numericValue);
+                                }}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                                placeholder="%age"
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => {
+                                  e.target.style.boxShadow = '';
+                                }}
+                              />
+                              {workOrder.fringeSurplus && (
+                                <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                              )}
+                            </div>
                           </div>
 
-                          {/* WASTAGE % - Auto-add % with dropdown options */}
+                          {/* WASTAGE % - With dropdown options */}
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                            <SearchableDropdown
-                              value={workOrder.fringeWastage || ''}
-                              onChange={(selectedValue) => {
-                                let value = selectedValue || '';
-                                // If it's a numeric value (and not one of the predefined options), add %
-                                const predefinedOptions = ['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'];
-                                if (value && !predefinedOptions.includes(value) && !isNaN(value.replace(/%/g, ''))) {
-                                  value = value.replace(/%/g, '') + '%';
-                                }
-                                handleWorkOrderChange(actualIndex, woIndex, 'fringeWastage', value);
-                              }}
-                              options={['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim']}
-                              placeholder="Select or type %age"
-                              strictMode={false}
-                              style={{ width: '180px' }}
-                              onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                              onBlur={(e) => {
-                                e.target.style.boxShadow = '';
-                                // Auto-add % if numeric value entered (not a predefined option)
-                                const currentValue = workOrder.fringeWastage || '';
-                                const predefinedOptions = ['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'];
-                                if (currentValue && !predefinedOptions.includes(currentValue) && !currentValue.includes('%') && !isNaN(currentValue)) {
-                                  handleWorkOrderChange(actualIndex, woIndex, 'fringeWastage', currentValue + '%');
-                                }
-                              }}
-                            />
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '180px' }}>
+                              <SearchableDropdown
+                                value={workOrder.fringeWastage || ''}
+                                onChange={(selectedValue) => {
+                                  // If it's a dropdown option, store as-is. If it's numeric (free typing), store numeric only
+                                  const predefinedOptions = ['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'];
+                                  if (predefinedOptions.includes(selectedValue)) {
+                                    handleWorkOrderChange(actualIndex, woIndex, 'fringeWastage', selectedValue);
+                                  } else {
+                                    // Free typing - store numeric only
+                                    const numericValue = selectedValue.replace(/[^0-9.]/g, '');
+                                    handleWorkOrderChange(actualIndex, woIndex, 'fringeWastage', numericValue);
+                                  }
+                                }}
+                                options={['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim']}
+                                placeholder="Select or type %age"
+                                strictMode={false}
+                                style={{ width: '100%', paddingRight: '32px' }}
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => {
+                                  e.target.style.boxShadow = '';
+                                }}
+                              />
+                              {workOrder.fringeWastage && !['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'].includes(workOrder.fringeWastage) && (
+                                <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
+                              )}
+                            </div>
                           </div>
 
                           {/* APPROVAL */}
