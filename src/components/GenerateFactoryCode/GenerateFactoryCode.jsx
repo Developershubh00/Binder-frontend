@@ -1114,7 +1114,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           // Clear Trim & Accessory fields (all trim/accessory specific fields will be cleared)
           trimAccessory: '',
           // Clear Fiber fields
-          fiberTableType: '', fiberFiberType: '', fiberSubtype: '', fiberForm: '', fiberDenier: '', fiberSiliconized: '', fiberConjugateCrimp: '', fiberColour: '', fiberBirdType: '', fiberDownPercentage: '', fiberDownProofRequired: '', fiberWoolType: '', fiberMicron: '', fiberTestingRequirements: [], fiberQty: '', fiberGsm: '', fiberLength: '', fiberWidth: '', fiberQtyType: '', fiberQtyValue: '', fiberSurplus: '', fiberWastage: '', fiberApproval: '', fiberRemarks: '', showFiberAdvancedSpec: false, fiberFiberLength: '', fiberStructure: '', fiberThermalBonded: '', fiberAntiMicrobial: '', fiberFireRetardant: '', fiberCertification: '', fiberLoftFillPower: '', fiberFillPower: '', fiberProcessing: '', fiberOxygenNumber: '', fiberTurbidity: '', fiberOdor: '', fiberTraceability: '', fiberClusterSize: '', fiberLanolinContent: '', fiberTemperatureRegulating: '', fiberMoistureWicking: '', fiberMulesingFree: '', fiberOrganicCertified: '',fiberKapokSource: '', fiberKapokProperties: '', fiberBambooType: '', fiberBambooProperties: '', fiberSilkFlossType: '', fiberSilkFlossGrade: '', fiberRecycledSource: '', fiberRecycledCertification: '', fiberTencelType: '', fiberBlending: '', fiberEcoCertification: '', fiberBiodegradable: '',
+          fiberTableType: '', fiberFiberType: '', fiberSubtype: '', fiberForm: '', fiberDenier: '', fiberSiliconized: '', fiberConjugateCrimp: '', fiberColour: '', fiberBirdType: '', fiberDownPercentage: '', fiberDownProofRequired: '', fiberWoolType: '', fiberMicron: '', fiberTestingRequirements: [], fiberQty: '', fiberGsm: '', fiberLength: '', fiberWidth: '', fiberQtyType: '', fiberQtyValue: '', fiberSurplus: '', fiberWastage: '', fiberApproval: '', fiberRemarks: '', showFiberAdvancedSpec: false, fiberFiberLength: '', fiberStructure: '', fiberThermalBonded: '', fiberAntiMicrobial: '', fiberFireRetardant: '', fiberCertification: '', fiberLoftFillPower: '', fiberFillPower: '', fiberProcessing: '', fiberOxygenNumber: '', fiberTurbidity: '', fiberOdor: '', fiberTraceability: '', fiberClusterSize: '', fiberLanolinContent: '', fiberTemperatureRegulating: '', fiberMoistureWicking: '', fiberMulesingFree: '', fiberOrganicCertified: '',fiberKapokSource: '', fiberKapokProperties: '', fiberBambooType: '', fiberBambooProperties: '', fiberSilkFlossType: '', fiberSilkFlossGrade: '', fiberRecycledSource: '', fiberRecycledCertification: '', fiberTencelType: '', fiberBlending: '', fiberEcoCertification: '', fiberBiodegradable: '',fiberMicrofiberFiberLength: '', fiberMicrofiberStructure: '', fiberMicrofiberClusterType: '', fiberMicrofiberClusterSize: '', fiberMicrofiberAntiMicrobial: '', fiberMicrofiberHypoallergenic: '', fiberMicrofiberLoftFillPower: '', fiberMicrofiberHandFeel: '', fiberMicrofiberCertification: '',
           // All trim/accessory specific fields should be cleared here - this matches the clearing logic in handleConsumptionMaterialChange
           // For now, we'll initialize them as empty, and they'll be properly initialized when trimAccessory is selected
         };
@@ -1639,6 +1639,17 @@ const GenerateFactoryCode = ({ onBack }) => {
           fiberBlending: '',
           fiberEcoCertification: '',
           fiberBiodegradable: '',
+
+          // Microfiber-Fill Advanced Spec fields
+          fiberMicrofiberFiberLength: '',
+          fiberMicrofiberStructure: '',
+          fiberMicrofiberClusterType: '',
+          fiberMicrofiberClusterSize: '',
+          fiberMicrofiberAntiMicrobial: '',
+          fiberMicrofiberHypoallergenic: '',
+          fiberMicrofiberLoftFillPower: '',
+          fiberMicrofiberHandFeel: '',
+          fiberMicrofiberCertification: '',
         });
       }
 
