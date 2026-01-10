@@ -1114,7 +1114,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           // Clear Trim & Accessory fields (all trim/accessory specific fields will be cleared)
           trimAccessory: '',
           // Clear Fiber fields
-          fiberFiberType: '', fiberSubtype: '', fiberForm: '', fiberDenier: '', fiberSiliconized: '', fiberConjugateCrimp: '', fiberColour: '', fiberTestingRequirements: [], fiberQty: '', fiberGsm: '', fiberLength: '', fiberWidth: '', fiberQtyType: '', fiberQtyValue: '', fiberSurplus: '', fiberWastage: '', fiberApproval: '', fiberRemarks: '', showFiberAdvancedSpec: false, fiberFiberLength: '', fiberStructure: '', fiberThermalBonded: '', fiberAntiMicrobial: '', fiberFireRetardant: '', fiberCertification: '', fiberLoftFillPower: '',
+          fiberTableType: '', fiberFiberType: '', fiberSubtype: '', fiberForm: '', fiberDenier: '', fiberSiliconized: '', fiberConjugateCrimp: '', fiberColour: '', fiberBirdType: '', fiberDownPercentage: '', fiberDownProofRequired: '', fiberTestingRequirements: [], fiberQty: '', fiberGsm: '', fiberLength: '', fiberWidth: '', fiberQtyType: '', fiberQtyValue: '', fiberSurplus: '', fiberWastage: '', fiberApproval: '', fiberRemarks: '', showFiberAdvancedSpec: false, fiberFiberLength: '', fiberStructure: '', fiberThermalBonded: '', fiberAntiMicrobial: '', fiberFireRetardant: '', fiberCertification: '', fiberLoftFillPower: '', fiberFillPower: '', fiberProcessing: '', fiberOxygenNumber: '', fiberTurbidity: '', fiberOdor: '', fiberTraceability: '', fiberClusterSize: '',
           // All trim/accessory specific fields should be cleared here - this matches the clearing logic in handleConsumptionMaterialChange
           // For now, we'll initialize them as empty, and they'll be properly initialized when trimAccessory is selected
         };
@@ -1576,8 +1576,12 @@ const GenerateFactoryCode = ({ onBack }) => {
         // For now, we'll initialize them as empty, and handleRawMaterialChange will manage them
       } else if (materialType === 'Fiber') {
         Object.assign(baseMaterial, {
+          fiberTableType: '',
           fiberFiberType: '',
           fiberSubtype: '',
+          fiberBirdType: '',
+          fiberDownPercentage: '',
+          fiberDownProofRequired: '',
           fiberForm: '',
           fiberDenier: '',
           fiberSiliconized: '',
@@ -1595,6 +1599,7 @@ const GenerateFactoryCode = ({ onBack }) => {
           fiberApproval: '',
           fiberRemarks: '',
           showFiberAdvancedSpec: false,
+          // Polyester-Fills Advanced Spec
           fiberFiberLength: '',
           fiberStructure: '',
           fiberThermalBonded: '',
@@ -1602,6 +1607,14 @@ const GenerateFactoryCode = ({ onBack }) => {
           fiberFireRetardant: '',
           fiberCertification: '',
           fiberLoftFillPower: '',
+          // Down-Feather Advanced Spec
+          fiberFillPower: '',
+          fiberProcessing: '',
+          fiberOxygenNumber: '',
+          fiberTurbidity: '',
+          fiberOdor: '',
+          fiberTraceability: '',
+          fiberClusterSize: '',
         });
       }
 
