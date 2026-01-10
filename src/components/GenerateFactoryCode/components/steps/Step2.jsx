@@ -1426,7 +1426,7 @@ const Step2 = ({
                             handleRawMaterialChange(actualIndex, 'foamDensity', '');
                           }
                         }}
-                        options={['pe-epe']}
+                        options={['EVA-form']}
                         placeholder="Select foam table"
                         className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                         style={{ padding: '10px 14px', height: '44px' }}
