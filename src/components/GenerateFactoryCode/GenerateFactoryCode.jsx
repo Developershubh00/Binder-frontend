@@ -1118,8 +1118,9 @@ const GenerateFactoryCode = ({ onBack }) => {
           fiberCottonGrade: '', fiberCottonStapleLength: '', fiberCottonProcessing: '', fiberCottonBonding: '', fiberCottonNeedlePunched: '', fiberCottonFireRetardant: '', fiberCottonDustTrashContent: '', fiberCottonOrganicCertified: '',
           // Clear Foam fields
           // foamTableType: '', foamType: '', foamSubtype: '', foamVaContent: '', foamColour: '', foamThickness: '', foamShape: '', foamShapeRefImage: null, foamSheetPcs: '', foamGsm: '', foamLengthCm: '', foamWidthCm: '', foamKgsCns: '', foamYardageCns: '', foamTestingRequirements: '', foamTestingRequirementsFile: null, foamSurplus: '', foamWastage: '', foamApproval: '', foamRemarks: '', showFoamAdvancedSpec: false, foamShoreHardness: '', foamCellStructure: '', foamCompressionSet: '', foamTensileStrength: '', foamElongation: '', foamWaterResistance: '', foamUvResistance: '', foamFireRetardant: '', foamSurfaceTexture: '', foamAntiSlip: '', foamInterlocking: '', foamCertification: '', foamDensity: '',
-          
-          foamTableType: '', foamType: '', foamSubtype: '', foamVaContent: '', foamColour: '', foamThickness: '', foamShape: '', foamShapeRefImage: null, foamSheetPcs: '', foamGsm: '', foamLengthCm: '', foamWidthCm: '', foamKgsCns: '', foamYardageCns: '', foamTestingRequirements: '', foamTestingRequirementsFile: null, foamSurplus: '', foamWastage: '', foamApproval: '', foamRemarks: '', showFoamAdvancedSpec: false, foamShoreHardness: '', foamCellStructure: '', foamCompressionSet: '', foamTensileStrength: '', foamElongation: '', foamWaterResistance: '', foamUvResistance: '', foamFireRetardant: '', foamSurfaceTexture: '', foamAntiSlip: '', foamInterlocking: '', foamCertification: '', foamDensity: '', foamHrType: '', foamHrSubtype: '', foamHrGrade: '', foamHrColour: '', foamHrThickness: '', foamHrShape: '', foamHrShapeRefImage: null, foamHrSheetPcs: '', foamHrGsm: '', foamHrLengthCm: '', foamHrWidthCm: '', foamHrKgsCns: '', foamHrYardageCns: '', foamHrTestingRequirements: [], foamHrSurplus: '', foamHrWastage: '', foamHrApproval: '', foamHrRemarks: '', showFoamHrAdvancedSpec: false, foamHrIld: '', foamHrSupportFactor: '', foamHrResilience: '', foamHrCompressionSet: '', foamHrTensileStrength: '', foamHrElongation: '', foamHrFatigueResistance: '', foamHrFireRetardant: '', foamHrCertification: '', foamHrDensity: '',
+                    // Clear Foam fields
+                    foamTableType: '', foamType: '', foamSubtype: '', foamVaContent: '', foamColour: '', foamThickness: '', foamShape: '', foamShapeRefImage: null, foamSheetPcs: '', foamGsm: '', foamLengthCm: '', foamWidthCm: '', foamKgsCns: '', foamYardageCns: '', foamTestingRequirements: '', foamTestingRequirementsFile: null, foamSurplus: '', foamWastage: '', foamApproval: '', foamRemarks: '', showFoamAdvancedSpec: false, foamShoreHardness: '', foamCellStructure: '', foamCompressionSet: '', foamTensileStrength: '', foamElongation: '', foamWaterResistance: '', foamUvResistance: '', foamFireRetardant: '', foamSurfaceTexture: '', foamAntiSlip: '', foamInterlocking: '', foamCertification: '', foamDensity: '', foamHrType: '', foamHrSubtype: '', foamHrGrade: '', foamHrColour: '', foamHrThickness: '', foamHrShape: '', foamHrShapeRefImage: null, foamHrSheetPcs: '', foamHrGsm: '', foamHrLengthCm: '', foamHrWidthCm: '', foamHrKgsCns: '', foamHrYardageCns: '', foamHrTestingRequirements: [], foamHrSurplus: '', foamHrWastage: '', foamHrApproval: '', foamHrRemarks: '', showFoamHrAdvancedSpec: false, foamHrIld: '', foamHrSupportFactor: '', foamHrResilience: '', foamHrCompressionSet: '', foamHrTensileStrength: '', foamHrElongation: '', foamHrFatigueResistance: '', foamHrFireRetardant: '', foamHrCertification: '', foamHrDensity: '', foamPeEpeType: '', foamPeEpeSubtype: '', foamPeEpeColour: '', foamPeEpeThickness: '', foamPeEpeShape: '', foamPeEpeShapeRefImage: null, foamPeEpeSheetPcs: '', foamPeEpeGsm: '', foamPeEpeLengthCm: '', foamPeEpeWidthCm: '', foamPeEpeKgsCns: '', foamPeEpeYardageCns: '', foamPeEpeTestingRequirements: [], foamPeEpeTestingRequirementsFile: null, foamPeEpeSurplus: '', foamPeEpeWastage: '', foamPeEpeApproval: '', foamPeEpeRemarks: '', showFoamPeEpeAdvancedSpec: false, foamPeEpeCellStructure: '', foamPeEpeLamination: '', foamPeEpeCrossLinked: '', foamPeEpeAntiStatic: '', foamPeEpeWaterResistance: '', foamPeEpeCushioning: '', foamPeEpeFireRetardant: '', foamPeEpeThermalInsulation: '', foamPeEpeCertification: '', foamPeEpeDensity: '',
+          // foamTableType: '', foamType: '', foamSubtype: '', foamVaContent: '', foamColour: '', foamThickness: '', foamShape: '', foamShapeRefImage: null, foamSheetPcs: '', foamGsm: '', foamLengthCm: '', foamWidthCm: '', foamKgsCns: '', foamYardageCns: '', foamTestingRequirements: '', foamTestingRequirementsFile: null, foamSurplus: '', foamWastage: '', foamApproval: '', foamRemarks: '', showFoamAdvancedSpec: false, foamShoreHardness: '', foamCellStructure: '', foamCompressionSet: '', foamTensileStrength: '', foamElongation: '', foamWaterResistance: '', foamUvResistance: '', foamFireRetardant: '', foamSurfaceTexture: '', foamAntiSlip: '', foamInterlocking: '', foamCertification: '', foamDensity: '', foamHrType: '', foamHrSubtype: '', foamHrGrade: '', foamHrColour: '', foamHrThickness: '', foamHrShape: '', foamHrShapeRefImage: null, foamHrSheetPcs: '', foamHrGsm: '', foamHrLengthCm: '', foamHrWidthCm: '', foamHrKgsCns: '', foamHrYardageCns: '', foamHrTestingRequirements: [], foamHrSurplus: '', foamHrWastage: '', foamHrApproval: '', foamHrRemarks: '', showFoamHrAdvancedSpec: false, foamHrIld: '', foamHrSupportFactor: '', foamHrResilience: '', foamHrCompressionSet: '', foamHrTensileStrength: '', foamHrElongation: '', foamHrFatigueResistance: '', foamHrFireRetardant: '', foamHrCertification: '', foamHrDensity: '',
           // All trim/accessory specific fields should be cleared here - this matches the clearing logic in handleConsumptionMaterialChange
           // For now, we'll initialize them as empty, and they'll be properly initialized when trimAccessory is selected
         };
@@ -1745,6 +1746,36 @@ const GenerateFactoryCode = ({ onBack }) => {
           foamHrFireRetardant: '',
           foamHrCertification: '',
           foamHrDensity: '',
+          // pe-epe fields
+          foamPeEpeType: '',
+          foamPeEpeSubtype: '',
+          foamPeEpeColour: '',
+          foamPeEpeThickness: '',
+          foamPeEpeShape: '',
+          foamPeEpeShapeRefImage: null,
+          foamPeEpeSheetPcs: '',
+          foamPeEpeGsm: '',
+          foamPeEpeLengthCm: '',
+          foamPeEpeWidthCm: '',
+          foamPeEpeKgsCns: '',
+          foamPeEpeYardageCns: '',
+          foamPeEpeTestingRequirements: [],
+          foamPeEpeTestingRequirementsFile: null,
+          foamPeEpeSurplus: '',
+          foamPeEpeWastage: '',
+          foamPeEpeApproval: '',
+          foamPeEpeRemarks: '',
+          showFoamPeEpeAdvancedSpec: false,
+          foamPeEpeCellStructure: '',
+          foamPeEpeLamination: '',
+          foamPeEpeCrossLinked: '',
+          foamPeEpeAntiStatic: '',
+          foamPeEpeWaterResistance: '',
+          foamPeEpeCushioning: '',
+          foamPeEpeFireRetardant: '',
+          foamPeEpeThermalInsulation: '',
+          foamPeEpeCertification: '',
+          foamPeEpeDensity: '',
         });
       }
 
