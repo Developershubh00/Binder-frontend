@@ -6690,10 +6690,12 @@ const Step2 = ({
                               id={`fiber-testing-wrapper-${actualIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
-                              <SearchableDropdown
+                                                            <SearchableDropdown
                                 value=""
+                                strictMode={false}
                                 onChange={(selectedValue) => {
-                                  if (selectedValue) {
+                                  const options = ['Fiber Fineness', 'Loft Recovery', 'Compression Resilience', 'Cleanliness'];
+                                  if (selectedValue && options.includes(selectedValue)) {
                                     const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
                                     if (!current.includes(selectedValue)) {
                                       const updated = [...current, selectedValue];
@@ -6725,9 +6727,32 @@ const Step2 = ({
                                     container.style.borderColor = '#667eea';
                                     container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                   }
+                                  const handleKeyDown = (keyEvent) => {
+                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                                      keyEvent.preventDefault();
+                                      keyEvent.stopPropagation();
+                                      const newValue = input.value.trim();
+                                      const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                                      const options = ['Fiber Fineness', 'Loft Recovery', 'Compression Resilience', 'Cleanliness'];
+                                      if (!current.includes(newValue)) {
+                                        if (!options.includes(newValue)) {
+                                          const updated = [...current, newValue];
+                                          handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                                        }
+                                        input.value = '';
+                                        input.blur();
+                                      }
+                                    }
+                                  };
+                                  input.addEventListener('keydown', handleKeyDown);
+                                  input._enterHandler = handleKeyDown;
                                 }}
                                 onBlur={(e) => {
                                   const input = e.target;
+                                  if (input._enterHandler) {
+                                    input.removeEventListener('keydown', input._enterHandler);
+                                    input._enterHandler = null;
+                                  }
                                   input.style.border = 'none';
                                   input.style.borderWidth = '0';
                                   input.style.outline = 'none';
@@ -6736,6 +6761,18 @@ const Step2 = ({
                                   if (container) {
                                     container.style.borderColor = '#e5e7eb';
                                     container.style.boxShadow = 'none';
+                                  }
+                                  if (input.value && input.value.trim()) {
+                                    const typedValue = input.value.trim();
+                                    const options = ['Fiber Fineness', 'Loft Recovery', 'Compression Resilience', 'Cleanliness'];
+                                    if (!options.includes(typedValue)) {
+                                      const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                                      if (!current.includes(typedValue)) {
+                                        const updated = [...current, typedValue];
+                                        handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                                      }
+                                    }
+                                    input.value = '';
                                   }
                                 }}
                               />
@@ -7194,10 +7231,12 @@ const Step2 = ({
                                 id={`fiber-testing-wrapper-down-${actualIndex}`}
                                 style={{ flex: 1, minWidth: '200px' }}
                               >
-                                <SearchableDropdown
+                                                                <SearchableDropdown
                                   value=""
+                                  strictMode={false}
                                   onChange={(selectedValue) => {
-                                    if (selectedValue) {
+                                    const options = ['Fill Power Test', 'Oxygen Number', 'Turbidity', 'Species ID', 'RDS Audit'];
+                                    if (selectedValue && options.includes(selectedValue)) {
                                       const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
                                       if (!current.includes(selectedValue)) {
                                         const updated = [...current, selectedValue];
@@ -7229,9 +7268,32 @@ const Step2 = ({
                                       container.style.borderColor = '#667eea';
                                       container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                     }
+                                    const handleKeyDown = (keyEvent) => {
+                                      if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                                        keyEvent.preventDefault();
+                                        keyEvent.stopPropagation();
+                                        const newValue = input.value.trim();
+                                        const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                                        const options = ['Fill Power Test', 'Oxygen Number', 'Turbidity', 'Species ID', 'RDS Audit'];
+                                        if (!current.includes(newValue)) {
+                                          if (!options.includes(newValue)) {
+                                            const updated = [...current, newValue];
+                                            handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                                          }
+                                          input.value = '';
+                                          input.blur();
+                                        }
+                                      }
+                                    };
+                                    input.addEventListener('keydown', handleKeyDown);
+                                    input._enterHandler = handleKeyDown;
                                   }}
                                   onBlur={(e) => {
                                     const input = e.target;
+                                    if (input._enterHandler) {
+                                      input.removeEventListener('keydown', input._enterHandler);
+                                      input._enterHandler = null;
+                                    }
                                     input.style.border = 'none';
                                     input.style.borderWidth = '0';
                                     input.style.outline = 'none';
@@ -7240,6 +7302,18 @@ const Step2 = ({
                                     if (container) {
                                       container.style.borderColor = '#e5e7eb';
                                       container.style.boxShadow = 'none';
+                                    }
+                                    if (input.value && input.value.trim()) {
+                                      const typedValue = input.value.trim();
+                                      const options = ['Fill Power Test', 'Oxygen Number', 'Turbidity', 'Species ID', 'RDS Audit'];
+                                      if (!options.includes(typedValue)) {
+                                        const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                                        if (!current.includes(typedValue)) {
+                                          const updated = [...current, typedValue];
+                                          handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                                        }
+                                      }
+                                      input.value = '';
                                     }
                                   }}
                                 />
@@ -7711,10 +7785,12 @@ const Step2 = ({
                                 id={`fiber-testing-wrapper-wool-${actualIndex}`}
                                 style={{ flex: 1, minWidth: '200px' }}
                               >
-                                <SearchableDropdown
+                                                                <SearchableDropdown
                                   value=""
+                                  strictMode={false}
                                   onChange={(selectedValue) => {
-                                    if (selectedValue) {
+                                    const options = ['Micron Test', 'Clean Wool Yield', 'Vegetable Matter Content', 'Moisture'];
+                                    if (selectedValue && options.includes(selectedValue)) {
                                       const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
                                       if (!current.includes(selectedValue)) {
                                         const updated = [...current, selectedValue];
@@ -7746,9 +7822,32 @@ const Step2 = ({
                                       container.style.borderColor = '#667eea';
                                       container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                                     }
+                                    const handleKeyDown = (keyEvent) => {
+                                      if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                                        keyEvent.preventDefault();
+                                        keyEvent.stopPropagation();
+                                        const newValue = input.value.trim();
+                                        const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                                        const options = ['Micron Test', 'Clean Wool Yield', 'Vegetable Matter Content', 'Moisture'];
+                                        if (!current.includes(newValue)) {
+                                          if (!options.includes(newValue)) {
+                                            const updated = [...current, newValue];
+                                            handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                                          }
+                                          input.value = '';
+                                          input.blur();
+                                        }
+                                      }
+                                    };
+                                    input.addEventListener('keydown', handleKeyDown);
+                                    input._enterHandler = handleKeyDown;
                                   }}
                                   onBlur={(e) => {
                                     const input = e.target;
+                                    if (input._enterHandler) {
+                                      input.removeEventListener('keydown', input._enterHandler);
+                                      input._enterHandler = null;
+                                    }
                                     input.style.border = 'none';
                                     input.style.borderWidth = '0';
                                     input.style.outline = 'none';
@@ -7757,6 +7856,18 @@ const Step2 = ({
                                     if (container) {
                                       container.style.borderColor = '#e5e7eb';
                                       container.style.boxShadow = 'none';
+                                    }
+                                    if (input.value && input.value.trim()) {
+                                      const typedValue = input.value.trim();
+                                      const options = ['Micron Test', 'Clean Wool Yield', 'Vegetable Matter Content', 'Moisture'];
+                                      if (!options.includes(typedValue)) {
+                                        const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                                        if (!current.includes(typedValue)) {
+                                          const updated = [...current, typedValue];
+                                          handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                                        }
+                                      }
+                                      input.value = '';
                                     }
                                   }}
                                 />
@@ -8302,10 +8413,12 @@ const Step2 = ({
             id={`fiber-testing-wrapper-specialty-${actualIndex}`}
             style={{ flex: 1, minWidth: '200px' }}
           >
-            <SearchableDropdown
+                        <SearchableDropdown
               value=""
+              strictMode={false}
               onChange={(selectedValue) => {
-                if (selectedValue) {
+                const options = ['Micron Test', 'Clean Wool Yield', 'Vegetable Matter Content', 'Moisture'];
+                if (selectedValue && options.includes(selectedValue)) {
                   const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
                   if (!current.includes(selectedValue)) {
                     const updated = [...current, selectedValue];
@@ -8337,9 +8450,32 @@ const Step2 = ({
                   container.style.borderColor = '#667eea';
                   container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                 }
+                const handleKeyDown = (keyEvent) => {
+                  if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                    keyEvent.preventDefault();
+                    keyEvent.stopPropagation();
+                    const newValue = input.value.trim();
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    const options = ['Micron Test', 'Clean Wool Yield', 'Vegetable Matter Content', 'Moisture'];
+                    if (!current.includes(newValue)) {
+                      if (!options.includes(newValue)) {
+                        const updated = [...current, newValue];
+                        handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                      }
+                      input.value = '';
+                      input.blur();
+                    }
+                  }
+                };
+                input.addEventListener('keydown', handleKeyDown);
+                input._enterHandler = handleKeyDown;
               }}
               onBlur={(e) => {
                 const input = e.target;
+                if (input._enterHandler) {
+                  input.removeEventListener('keydown', input._enterHandler);
+                  input._enterHandler = null;
+                }
                 input.style.border = 'none';
                 input.style.borderWidth = '0';
                 input.style.outline = 'none';
@@ -8348,6 +8484,18 @@ const Step2 = ({
                 if (container) {
                   container.style.borderColor = '#e5e7eb';
                   container.style.boxShadow = 'none';
+                }
+                if (input.value && input.value.trim()) {
+                  const typedValue = input.value.trim();
+                  const options = ['Micron Test', 'Clean Wool Yield', 'Vegetable Matter Content', 'Moisture'];
+                  if (!options.includes(typedValue)) {
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    if (!current.includes(typedValue)) {
+                      const updated = [...current, typedValue];
+                      handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                    }
+                  }
+                  input.value = '';
                 }
               }}
             />
@@ -8744,10 +8892,12 @@ const Step2 = ({
             id={`fiber-testing-wrapper-microfiber-${actualIndex}`}
             style={{ flex: 1, minWidth: '200px' }}
           >
-            <SearchableDropdown
+                        <SearchableDropdown
               value=""
+              strictMode={false}
               onChange={(selectedValue) => {
-                if (selectedValue) {
+                const options = ['Denier Verification', 'Loft Test', 'Resilience', 'Dust Mite Resistance'];
+                if (selectedValue && options.includes(selectedValue)) {
                   const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
                   if (!current.includes(selectedValue)) {
                     const updated = [...current, selectedValue];
@@ -8779,9 +8929,32 @@ const Step2 = ({
                   container.style.borderColor = '#667eea';
                   container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                 }
+                const handleKeyDown = (keyEvent) => {
+                  if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                    keyEvent.preventDefault();
+                    keyEvent.stopPropagation();
+                    const newValue = input.value.trim();
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    const options = ['Denier Verification', 'Loft Test', 'Resilience', 'Dust Mite Resistance'];
+                    if (!current.includes(newValue)) {
+                      if (!options.includes(newValue)) {
+                        const updated = [...current, newValue];
+                        handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                      }
+                      input.value = '';
+                      input.blur();
+                    }
+                  }
+                };
+                input.addEventListener('keydown', handleKeyDown);
+                input._enterHandler = handleKeyDown;
               }}
               onBlur={(e) => {
                 const input = e.target;
+                if (input._enterHandler) {
+                  input.removeEventListener('keydown', input._enterHandler);
+                  input._enterHandler = null;
+                }
                 input.style.border = 'none';
                 input.style.borderWidth = '0';
                 input.style.outline = 'none';
@@ -8790,6 +8963,18 @@ const Step2 = ({
                 if (container) {
                   container.style.borderColor = '#e5e7eb';
                   container.style.boxShadow = 'none';
+                }
+                if (input.value && input.value.trim()) {
+                  const typedValue = input.value.trim();
+                  const options = ['Denier Verification', 'Loft Test', 'Resilience', 'Dust Mite Resistance'];
+                  if (!options.includes(typedValue)) {
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    if (!current.includes(typedValue)) {
+                      const updated = [...current, typedValue];
+                      handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                    }
+                  }
+                  input.value = '';
                 }
               }}
             />
@@ -9269,10 +9454,12 @@ const Step2 = ({
             id={`fiber-testing-wrapper-downalt-${actualIndex}`}
             style={{ flex: 1, minWidth: '200px' }}
           >
-            <SearchableDropdown
+                        <SearchableDropdown
               value=""
+              strictMode={false}
               onChange={(selectedValue) => {
-                if (selectedValue) {
+                const options = ['Loft Recovery', 'Compression Resilience', 'Thermal Resistance (CLO value)'];
+                if (selectedValue && options.includes(selectedValue)) {
                   const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
                   if (!current.includes(selectedValue)) {
                     const updated = [...current, selectedValue];
@@ -9304,9 +9491,32 @@ const Step2 = ({
                   container.style.borderColor = '#667eea';
                   container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                 }
+                const handleKeyDown = (keyEvent) => {
+                  if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                    keyEvent.preventDefault();
+                    keyEvent.stopPropagation();
+                    const newValue = input.value.trim();
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    const options = ['Loft Recovery', 'Compression Resilience', 'Thermal Resistance (CLO value)'];
+                    if (!current.includes(newValue)) {
+                      if (!options.includes(newValue)) {
+                        const updated = [...current, newValue];
+                        handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                      }
+                      input.value = '';
+                      input.blur();
+                    }
+                  }
+                };
+                input.addEventListener('keydown', handleKeyDown);
+                input._enterHandler = handleKeyDown;
               }}
               onBlur={(e) => {
                 const input = e.target;
+                if (input._enterHandler) {
+                  input.removeEventListener('keydown', input._enterHandler);
+                  input._enterHandler = null;
+                }
                 input.style.border = 'none';
                 input.style.borderWidth = '0';
                 input.style.outline = 'none';
@@ -9315,6 +9525,18 @@ const Step2 = ({
                 if (container) {
                   container.style.borderColor = '#e5e7eb';
                   container.style.boxShadow = 'none';
+                }
+                if (input.value && input.value.trim()) {
+                  const typedValue = input.value.trim();
+                  const options = ['Loft Recovery', 'Compression Resilience', 'Thermal Resistance (CLO value)'];
+                  if (!options.includes(typedValue)) {
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    if (!current.includes(typedValue)) {
+                      const updated = [...current, typedValue];
+                      handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                    }
+                  }
+                  input.value = '';
                 }
               }}
             />
@@ -9797,10 +10019,12 @@ const Step2 = ({
             id={`fiber-testing-wrapper-cotton-${actualIndex}`}
             style={{ flex: 1, minWidth: '200px' }}
           >
-            <SearchableDropdown
+                        <SearchableDropdown
               value=""
+              strictMode={false}
               onChange={(selectedValue) => {
-                if (selectedValue) {
+                const options = ['Staple Length', 'Micronaire', 'Trash Content', 'Moisture Content'];
+                if (selectedValue && options.includes(selectedValue)) {
                   const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
                   if (!current.includes(selectedValue)) {
                     const updated = [...current, selectedValue];
@@ -9832,9 +10056,32 @@ const Step2 = ({
                   container.style.borderColor = '#667eea';
                   container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
                 }
+                const handleKeyDown = (keyEvent) => {
+                  if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                    keyEvent.preventDefault();
+                    keyEvent.stopPropagation();
+                    const newValue = input.value.trim();
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    const options = ['Staple Length', 'Micronaire', 'Trash Content', 'Moisture Content'];
+                    if (!current.includes(newValue)) {
+                      if (!options.includes(newValue)) {
+                        const updated = [...current, newValue];
+                        handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                      }
+                      input.value = '';
+                      input.blur();
+                    }
+                  }
+                };
+                input.addEventListener('keydown', handleKeyDown);
+                input._enterHandler = handleKeyDown;
               }}
               onBlur={(e) => {
                 const input = e.target;
+                if (input._enterHandler) {
+                  input.removeEventListener('keydown', input._enterHandler);
+                  input._enterHandler = null;
+                }
                 input.style.border = 'none';
                 input.style.borderWidth = '0';
                 input.style.outline = 'none';
@@ -9843,6 +10090,18 @@ const Step2 = ({
                 if (container) {
                   container.style.borderColor = '#e5e7eb';
                   container.style.boxShadow = 'none';
+                }
+                if (input.value && input.value.trim()) {
+                  const typedValue = input.value.trim();
+                  const options = ['Staple Length', 'Micronaire', 'Trash Content', 'Moisture Content'];
+                  if (!options.includes(typedValue)) {
+                    const current = Array.isArray(material.fiberTestingRequirements) ? material.fiberTestingRequirements : [];
+                    if (!current.includes(typedValue)) {
+                      const updated = [...current, typedValue];
+                      handleRawMaterialChange(actualIndex, 'fiberTestingRequirements', updated);
+                    }
+                  }
+                  input.value = '';
                 }
               }}
             />
