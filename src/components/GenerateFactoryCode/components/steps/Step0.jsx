@@ -49,31 +49,57 @@ const Step0 = ({
         <p className="text-base text-gray-500">Enter product specification details</p>
       </div>
       
-      {/* Buyer Code - Outside Border */}
+      {/* IPO Code (if from Internal Purchase Order) or Buyer Code */}
       <div style={{ marginBottom: '24px' }}>
         <div className="flex flex-col" style={{ maxWidth: '400px' }}>
-          <label className="text-sm font-semibold text-gray-700 mb-2">
-            BUYER CODE
-          </label>
-          <SearchableDropdown
-            value={formData.buyerCode || ''}
-            onChange={handleBuyerCodeChange}
-            options={buyerCodeOptions}
-            placeholder="Select or type buyer code"
-            strictMode={false}
-            className={errors.buyerCode ? 'border-red-600' : ''}
-            style={{ height: '48px' }}
-            onFocus={(e) => {
-              if (!errors.buyerCode) {
-                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-              }
-            }}
-            onBlur={(e) => {
-              e.target.style.boxShadow = '';
-            }}
-          />
-          {errors.buyerCode && (
-            <span className="text-red-600 text-xs font-medium mt-1">{errors.buyerCode}</span>
+          {formData.ipoCode ? (
+            <>
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                IPO CODE
+              </label>
+              <div
+                style={{
+                  padding: '12px 14px',
+                  height: '48px',
+                  background: '#f3f4f6',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  color: '#374151',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                {formData.ipoCode}
+              </div>
+            </>
+          ) : (
+            <>
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                BUYER CODE
+              </label>
+              <SearchableDropdown
+                value={formData.buyerCode || ''}
+                onChange={handleBuyerCodeChange}
+                options={buyerCodeOptions}
+                placeholder="Select or type buyer code"
+                strictMode={false}
+                className={errors.buyerCode ? 'border-red-600' : ''}
+                style={{ height: '48px' }}
+                onFocus={(e) => {
+                  if (!errors.buyerCode) {
+                    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                  }
+                }}
+                onBlur={(e) => {
+                  e.target.style.boxShadow = '';
+                }}
+              />
+              {errors.buyerCode && (
+                <span className="text-red-600 text-xs font-medium mt-1">{errors.buyerCode}</span>
+              )}
+            </>
           )}
         </div>
       </div>

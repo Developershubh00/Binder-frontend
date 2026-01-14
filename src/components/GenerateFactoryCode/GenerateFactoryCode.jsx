@@ -18,6 +18,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
     // Internal Purchase Order fields (if provided)
     orderType: initialFormData.orderType || '',
     programName: initialFormData.programName || '',
+    ipoCode: initialFormData.ipoCode || '',
+    poSrNo: initialFormData.poSrNo || null,
     // Step 0 - Multiple SKUs
     buyerCode: initialFormData.buyerCode || '',
     skus: [{

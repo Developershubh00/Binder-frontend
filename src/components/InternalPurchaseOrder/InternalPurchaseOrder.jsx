@@ -5,14 +5,18 @@ import SearchableDropdown from '../GenerateFactoryCode/components/SearchableDrop
 const InternalPurchaseOrder = ({ onBack }) => {
   const [showInitialScreen, setShowInitialScreen] = useState(true);
   const [initialData, setInitialData] = useState({
-    orderType: '',      // 'production' | 'sampling' | 'company'
+    orderType: '',      // 'Production' | 'Sampling' | 'Company'
     buyerCode: '',
-    programName: ''
+    type: '',          // 'STOCK' | 'SAM' (for Company only)
+    programName: '',
+    ipoCode: '',      // Generated IPO code
+    poSrNo: null      // Sequential number
   });
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
   const orderTypeOptions = ['Production', 'Sampling', 'Company'];
+  const companyTypeOptions = ['STOCK', 'SAM'];
 
   // Load buyer codes from localStorage
   useEffect(() => {
@@ -27,16 +31,31 @@ const InternalPurchaseOrder = ({ onBack }) => {
   }, []);
 
   const handleOrderTypeChange = (value) => {
-    setInitialData(prev => ({ ...prev, orderType: value }));
+    // Clear buyerCode/type when orderType changes
+    setInitialData(prev => ({ 
+      ...prev, 
+      orderType: value,
+      buyerCode: '',
+      type: ''
+    }));
     if (errors.orderType) {
       setErrors(prev => ({ ...prev, orderType: '' }));
     }
+    // Clear related errors
+    setErrors(prev => ({ ...prev, buyerCode: '', type: '' }));
   };
 
   const handleBuyerCodeChange = (value) => {
     setInitialData(prev => ({ ...prev, buyerCode: value }));
     if (errors.buyerCode) {
       setErrors(prev => ({ ...prev, buyerCode: '' }));
+    }
+  };
+
+  const handleTypeChange = (value) => {
+    setInitialData(prev => ({ ...prev, type: value }));
+    if (errors.type) {
+      setErrors(prev => ({ ...prev, type: '' }));
     }
   };
 
@@ -48,15 +67,54 @@ const InternalPurchaseOrder = ({ onBack }) => {
     }
   };
 
+  // Get next IPO sequential number
+  const getNextIPOSrNo = () => {
+    try {
+      const existingIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
+      return existingIPOs.length + 1;
+    } catch (error) {
+      console.error('Error getting next IPO SR#:', error);
+      return 1;
+    }
+  };
+
+  // Generate IPO code based on order type
+  const generateIPOCode = (orderType, buyerCodeOrType, programName, poSrNo) => {
+    const baseCode = 'CHD/';
+    let typeCode = '';
+    
+    if (orderType === 'Production') {
+      typeCode = 'PD/';
+      return `${baseCode}${typeCode}${buyerCodeOrType}/${programName}/${poSrNo}`;
+    } else if (orderType === 'Sampling') {
+      typeCode = 'SAM/';
+      return `${baseCode}${typeCode}${buyerCodeOrType}/${programName}/${poSrNo}`;
+    } else if (orderType === 'Company') {
+      typeCode = 'SELF/';
+      return `${baseCode}${typeCode}${buyerCodeOrType}/${programName}/${poSrNo}`;
+    }
+    return '';
+  };
+
   const validateInitialScreen = () => {
     const newErrors = {};
     
     if (!initialData.orderType?.trim()) {
       newErrors.orderType = 'Order Type is required';
     }
-    if (!initialData.buyerCode?.trim()) {
-      newErrors.buyerCode = 'Buyer Code is required';
+    
+    // For Company, validate type instead of buyerCode
+    if (initialData.orderType === 'Company') {
+      if (!initialData.type?.trim()) {
+        newErrors.type = 'Type is required';
+      }
+    } else {
+      // For Production/Sampling, validate buyerCode
+      if (!initialData.buyerCode?.trim()) {
+        newErrors.buyerCode = 'Buyer Code is required';
+      }
     }
+    
     if (!initialData.programName?.trim()) {
       newErrors.programName = 'Program Name is required';
     }
@@ -67,6 +125,48 @@ const InternalPurchaseOrder = ({ onBack }) => {
 
   const handleContinue = () => {
     if (validateInitialScreen()) {
+      // Get next sequential number
+      const poSrNo = getNextIPOSrNo();
+      
+      // Determine buyerCodeOrType based on orderType
+      const buyerCodeOrType = initialData.orderType === 'Company' 
+        ? initialData.type 
+        : initialData.buyerCode;
+      
+      // Generate IPO code
+      const ipoCode = generateIPOCode(
+        initialData.orderType,
+        buyerCodeOrType,
+        initialData.programName,
+        poSrNo
+      );
+      
+      // Update initialData with generated code
+      const updatedData = {
+        ...initialData,
+        ipoCode,
+        poSrNo
+      };
+      
+      // Store IPO record in localStorage
+      try {
+        const existingIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
+        const newIPO = {
+          ipoCode,
+          orderType: initialData.orderType,
+          buyerCode: initialData.buyerCode || null,
+          type: initialData.type || null,
+          programName: initialData.programName,
+          poSrNo,
+          createdAt: new Date().toISOString()
+        };
+        existingIPOs.push(newIPO);
+        localStorage.setItem('internalPurchaseOrders', JSON.stringify(existingIPOs));
+      } catch (error) {
+        console.error('Error saving IPO:', error);
+      }
+      
+      setInitialData(updatedData);
       setShowInitialScreen(false);
     }
   };
@@ -83,27 +183,17 @@ const InternalPurchaseOrder = ({ onBack }) => {
 
   // Initial Selection Screen
   return (
-    <div className="w-full min-h-screen" style={{ padding: '40px', background: '#fafafa' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-2 mb-4 transition-colors"
-          style={{ 
-            padding: '8px 16px',
-            borderRadius: '8px',
-            background: '#f5f5f5',
-            border: '1px solid #e0e0e0',
-            cursor: 'pointer',
-            color: '#666'
-          }}
-        >
+    <div className='fullscreen-content'>
+      <div className="" style={{ height: '100%', overflowY: 'scroll' }}>
+      <div className="content-header">
+        <button className="back-button" onClick={onBack}>
           ← Back to Departments
         </button>
-        <h1 className="text-sm font-bold mb-2" style={{ color: '#333', fontSize: '40px' }}>Internal Purchase Order</h1>
-        <p className="text-base text-gray-600" style={{ color: '#666' }}>Select order type and enter required information</p>
+        <h1 className="fullscreen-title">Internal Purchase Order</h1>
+        <p className="fullscreen-description">Select order type and enter required information</p>
       </div>
 
-      <div className="bg-white rounded-lg border" style={{ padding: '32px', borderColor: '#e0e0e0', maxWidth: '800px' }}>
+      <div style={{ maxWidth: '800px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Order Type */}
           <div className="flex flex-col">
@@ -136,37 +226,69 @@ const InternalPurchaseOrder = ({ onBack }) => {
             )}
           </div>
 
-          {/* Buyer Code */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-              BUYER CODE <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <SearchableDropdown
-              value={initialData.buyerCode}
-              onChange={handleBuyerCodeChange}
-              options={buyerCodeOptions}
-              placeholder="Select or type buyer code"
-              strictMode={false}
-              className={errors.buyerCode ? 'border-red-600' : ''}
-              style={{ 
-                padding: '10px 14px', 
-                height: '44px', 
-                width: '40%',
-                borderColor: errors.buyerCode ? '#ef4444' : '#d0d0d0'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#999';
-                e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.buyerCode ? '#ef4444' : '#d0d0d0';
-                e.target.style.boxShadow = '';
-              }}
-            />
-            {errors.buyerCode && (
-              <span className="text-red-600 text-xs font-medium mt-1">{errors.buyerCode}</span>
-            )}
-          </div>
+          {/* Buyer Code (for Production/Sampling) or Type (for Company) */}
+          {initialData.orderType === 'Company' ? (
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                TYPE <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <SearchableDropdown
+                value={initialData.type}
+                onChange={handleTypeChange}
+                options={companyTypeOptions}
+                placeholder="Select type (STOCK or SAM)"
+                className={errors.type ? 'border-red-600' : ''}
+                style={{ 
+                  padding: '10px 14px', 
+                  height: '44px', 
+                  width: '40%',
+                  borderColor: errors.type ? '#ef4444' : '#d0d0d0'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#999';
+                  e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.type ? '#ef4444' : '#d0d0d0';
+                  e.target.style.boxShadow = '';
+                }}
+              />
+              {errors.type && (
+                <span className="text-red-600 text-xs font-medium mt-1">{errors.type}</span>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                BUYER CODE <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <SearchableDropdown
+                value={initialData.buyerCode}
+                onChange={handleBuyerCodeChange}
+                options={buyerCodeOptions}
+                placeholder="Select or type buyer code"
+                strictMode={false}
+                className={errors.buyerCode ? 'border-red-600' : ''}
+                style={{ 
+                  padding: '10px 14px', 
+                  height: '44px', 
+                  width: '40%',
+                  borderColor: errors.buyerCode ? '#ef4444' : '#d0d0d0'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#999';
+                  e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.buyerCode ? '#ef4444' : '#d0d0d0';
+                  e.target.style.boxShadow = '';
+                }}
+              />
+              {errors.buyerCode && (
+                <span className="text-red-600 text-xs font-medium mt-1">{errors.buyerCode}</span>
+              )}
+            </div>
+          )}
 
           {/* Program Name */}
           <div className="flex flex-col">
@@ -219,6 +341,7 @@ const InternalPurchaseOrder = ({ onBack }) => {
               Continue →
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>
