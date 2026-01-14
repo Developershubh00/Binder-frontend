@@ -218,7 +218,7 @@ const CompanyEssentials = ({ onBack }) => {
             
             {/* Form Fields */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px' }}>
-              {/* First Row: DATE/DEPARTMENT and SR# */}
+              {/* First Row: DATE/DEPARTMENT and SR NO. */}
               <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                 {/* Date or Department Field */}
                 {needsDepartment ? (
@@ -277,10 +277,10 @@ const CompanyEssentials = ({ onBack }) => {
                   </div>
                 )}
 
-                {/* SR# Field */}
+                {/* SR NO. Field */}
                 <div className="flex flex-col" style={{ minWidth: '100px', maxWidth: '120px' }}>
                   <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                    SR#
+                    SR NO.
                   </label>
                   <input
                     type="number"
