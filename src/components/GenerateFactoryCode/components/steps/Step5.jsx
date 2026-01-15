@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
 import SearchableDropdown from '../SearchableDropdown';
 
 const Step5 = ({
@@ -271,7 +270,7 @@ const Step5 = ({
                 <SearchableDropdown
                   value={material.packagingMaterialType || ''}
                   onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', selectedValue)}
-                  options={['CARTON BOX', 'CORNER PROTECTORS', 'EDGE PROTECTORS', 'FOAM INSERT', 'PALLET STRAP', 'DIVIDER', 'TAPE', 'POLYBAG~POLYBAG-FLAP', 'POLYBAG~Bale', 'SILICA GEL DESICCANT', 'STRETCH~WRAP', 'VOID~FILL']}
+                  options={['CARTONS/CORRUGATED BOX', 'CARTON BOX', 'CORNER PROTECTORS', 'EDGE PROTECTORS', 'FOAM INSERT', 'PALLET STRAP', 'DIVIDER', 'PACKAGING ACCESSORIES', 'TAPE', 'POLYBAG', 'POLY BAG WITH FLAP', 'POLYBAG~POLYBAG-FLAP', 'POLYBAG~Bale', 'POLYSHEET', 'BALE WRAP', 'SILICA GEL DESICCANT', 'STRETCH~WRAP', 'VOID~FILL', 'OTHER']}
                   placeholder="Select or type Material Type"
                   style={{ width: '280px' }}
                 />
@@ -279,7 +278,41 @@ const Step5 = ({
 
               {material.packagingMaterialType && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-6">
-                  
+                  {/* Specific Fields for CARTONS/CORRUGATED BOX */}
+                  {material.packagingMaterialType === 'CARTONS/CORRUGATED BOX' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">NO. OF PLYS</label>
+                        <SearchableDropdown
+                          value={material.noOfPlys || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'noOfPlys', selectedValue)}
+                          options={['5 PLY', '7 PLY']}
+                          placeholder="Select or type No. of Plys"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE</label>
+                        <SearchableDropdown
+                          value={material.jointType || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'jointType', selectedValue)}
+                          options={['STAPLE', 'BINDED']}
+                          placeholder="Select or type Joint Type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BURSTING STRENGTH</label>
+                        <input
+                          type="text"
+                          value={material.burstingStrength || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'burstingStrength', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="175 LBS"
+                        />
+                      </div>
+                    </>
+                  )}
+
                   {/* Specific Fields for CARTON BOX - Completely new section */}
                   {material.packagingMaterialType === 'CARTON BOX' && (
                     <>
@@ -1875,7 +1908,82 @@ const Step5 = ({
                     </>
                   )}
 
-                
+                  {/* Specific Fields for POLY BAG WITH FLAP */}
+                  {material.packagingMaterialType === 'POLY BAG WITH FLAP' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE</label>
+                        <input
+                          type="text"
+                          value={material.guage || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guage', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="200"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
+                        <SearchableDropdown
+                          value={material.gummingQuality || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'gummingQuality', selectedValue)}
+                          options={['High', 'Standard']}
+                          placeholder="Select or type Gumming Quality"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PUNCH HOLES</label>
+                        <input
+                          type="text"
+                          value={material.punchHoles || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'punchHoles', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 2 holes"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Specific Fields for POLY SHEET / BALE WRAP */}
+                  {(material.packagingMaterialType === 'POLYSHEET' || material.packagingMaterialType === 'BALE WRAP') && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">GUAGE/GSM</label>
+                        <input
+                          type="text"
+                          value={material.guageGsm || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'guageGsm', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="200"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">ROLL WIDTH</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <input
+                            type="text"
+                            value={material.rollWidth || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'rollWidth', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            style={{ padding: '10px 14px', width: '80px' }}
+                            placeholder="60"
+                          />
+                          <select
+                            value={material.rollWidthUnit || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'rollWidthUnit', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                            style={{ padding: '0 10px', height: '100%' }}
+                          >
+                            <option value="INCHES">INCHES</option>
+                            <option value="CMS">CMS</option>
+                            <option value="MM">MM</option>
+                          </select>
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   {/* Specific Fields for TAPE */}
                   {material.packagingMaterialType === 'TAPE' && (
@@ -2176,9 +2284,65 @@ const Step5 = ({
                     </div>
                   )}
 
-                  
+                  {/* Dimensions Field for CARTONS/CORRUGATED BOX */}
+                  {material.packagingMaterialType === 'CARTONS/CORRUGATED BOX' && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS (LXWXH)</label>
+                        <input
+                          type="text"
+                          value={material.size.width || ''}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'width', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="L x W x H"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                        <select
+                          value={material.size.unit || ''}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'unit', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                        >
+                          <option value="CMS">CMS</option>
+                          <option value="INCHES">INCHES</option>
+                          <option value="MM">MM</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
 
-                
+                  {/* Dimensions Field for POLY BAG WITH FLAP */}
+                  {material.packagingMaterialType === 'POLY BAG WITH FLAP' && (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS (WXL + FLAP)</label>
+                        <input
+                          type="text"
+                          value={material.size.width || ''}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'width', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="W x L + FLAP"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                        <select
+                          value={material.size.unit || ''}
+                          onChange={(e) => handlePackagingMaterialSizeChange(materialIndex, 'unit', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                        >
+                          <option value="CMS">CMS</option>
+                          <option value="INCHES">INCHES</option>
+                          <option value="MM">MM</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Surplus & For Section - Special handling for CARTON BOX, CORNER PROTECTORS, EDGE PROTECTORS, FOAM INSERT, PALLET STRAP, POLYBAG~Bale, POLYBAG~POLYBAG-FLAP, SILICA GEL DESICCANT, STRETCH~WRAP, TAPE, VOID~FILL, and DIVIDER with absolute % signs */}
                   {(material.packagingMaterialType === 'CARTON BOX' || material.packagingMaterialType === 'CORNER PROTECTORS' || material.packagingMaterialType === 'EDGE PROTECTORS' || material.packagingMaterialType === 'FOAM INSERT' || material.packagingMaterialType === 'PALLET STRAP' || material.packagingMaterialType === 'POLYBAG~Bale' || material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' || material.packagingMaterialType === 'SILICA GEL DESICCANT' || material.packagingMaterialType === 'STRETCH~WRAP' || material.packagingMaterialType === 'TAPE' || material.packagingMaterialType === 'VOID~FILL' || material.packagingMaterialType === 'DIVIDER') ? (
@@ -2498,7 +2662,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showFoamInsertAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                        {material.showFoamInsertAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
                       </button>
                       {material.showFoamInsertAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2573,7 +2737,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showPalletStrapAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                        {material.showPalletStrapAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
                       </button>
                       {material.showPalletStrapAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2637,7 +2801,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showPolybagBaleAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                        {material.showPolybagBaleAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
                       </button>
                       {material.showPolybagBaleAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2766,7 +2930,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showPolybagPolybagFlapAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                        {material.showPolybagPolybagFlapAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
                       </button>
                       {material.showPolybagPolybagFlapAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2949,7 +3113,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showSilicaGelDesiccantAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                        {material.showSilicaGelDesiccantAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
                       </button>
                       {material.showSilicaGelDesiccantAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -3046,7 +3210,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showStretchWrapAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                        {material.showStretchWrapAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
                       </button>
                       {material.showStretchWrapAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -3134,7 +3298,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showTapeAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                        {material.showTapeAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
                       </button>
                       {material.showTapeAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -3417,9 +3581,8 @@ const Step5 = ({
         {/* Add Material Button at Bottom */}
         <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
           <p className="text-sm text-gray-600 mb-3">Would you like to add more materials?</p>
-          <Button
+          <button
             type="button"
-            variant="outline"
             onClick={() => {
               const currentLength = formData.packaging?.materials?.length || 0;
               addPackagingMaterial();
@@ -3437,9 +3600,23 @@ const Step5 = ({
               };
               attemptScroll();
             }}
+            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
+            style={{
+              backgroundColor: '#f3f4f6',
+              borderColor: '#d1d5db',
+              color: '#374151',
+              padding: '10px 16px',
+              height: '42px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e5e7eb';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }}
           >
             + Add Material
-          </Button>
+          </button>
         </div>
       </div>
     </div>
