@@ -3,6 +3,7 @@ import TEXTILE_FIBER_DATA from './data/textileFiberData';
 import { getFiberTypes, getYarnTypes, getSpinningMethod, getYarnDetails } from './utils/yarnHelpers';
 import { initializeRawMaterials, initializeConsumptionMaterials } from './utils/initializers';
 import { calculateTotalWastage, calculateGrossConsumption } from './utils/calculations';
+import { isShrinkageWidthApplicable, isShrinkageLengthApplicable, DYEING_TYPES } from './data/dyeingData';
 import Step0 from './components/steps/Step0';
 import Step1 from './components/steps/Step1';
 import Step2 from './components/steps/Step2';
@@ -10,7 +11,7 @@ import Step3 from './components/steps/Step3';
 import Step4 from './components/steps/Step4';
 import Step5 from './components/steps/Step5';
 
-const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
+const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const scrollContainerRef = useRef(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedSku, setSelectedSku] = useState('product_0'); // Format: 'product_0' or 'subproduct_0_1'
@@ -802,6 +803,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
       material.yarnType?.trim() ||
       material.fabricName?.trim() ||
       material.trimAccessory?.trim() ||
+      material.subMaterial?.trim() ||
+      material.stitchingThreadType?.trim() ||
+      material.stitchingThreadFibreContent?.trim() ||
+      material.stitchingThreadCountTicket?.trim() ||
+      material.stitchingThreadUseType?.trim() ||
+      material.stitchingThreadTex?.trim() ||
+      material.stitchingThreadPly?.trim() ||
+      material.stitchingThreadColour?.trim() ||
       hasWorkOrderSelection
     );
   };
@@ -1952,6 +1961,107 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
     // Save functionality for Step2
     console.log('Saving Step2 data');
     // You can add actual save logic here (API call, etc.)
+  };
+
+  // Generate IPC code for SKUs and subproducts
+  const handleSaveStep0 = () => {
+    try {
+      // Extract buyer code from ipoCode or use buyerCode directly
+      let buyerCode = formData.buyerCode;
+      
+      // If ipoCode exists, extract buyer code from it
+      // Format: CHD/PD/{buyerCode}/... or CHD/SAM/{buyerCode}/... or CHD/SELF/{type}/...
+      if (formData.ipoCode && !buyerCode) {
+        const parts = formData.ipoCode.split('/');
+        if (parts.length >= 3) {
+          // For Production/Sampling: CHD/PD/{buyerCode}/...
+          // For Company: CHD/SELF/{type}/...
+          buyerCode = parts[2];
+        }
+      }
+      
+      if (!buyerCode) {
+        alert('Buyer Code is required to generate IPC codes');
+        return;
+      }
+      
+      const poSrNo = formData.poSrNo || 1;
+      const updatedSkus = formData.skus.map((sku, skuIndex) => {
+        const ipcNumber = skuIndex + 1;
+        
+        // Generate IPC code - if subproducts exist, add SP{quantity}
+        let ipcCode;
+        if (sku.subproducts && sku.subproducts.length > 0) {
+          const subproductQuantity = sku.subproducts.length;
+          ipcCode = `CHD/${buyerCode}/PO-${poSrNo}/IPC-${ipcNumber}/SP${subproductQuantity}`;
+        } else {
+          ipcCode = `CHD/${buyerCode}/PO-${poSrNo}/IPC-${ipcNumber}`;
+        }
+        
+        // Update subproducts with the same IPC code as the main product
+        const updatedSubproducts = sku.subproducts?.map((subproduct) => {
+          return {
+            ...subproduct,
+            ipcCode: ipcCode // Same IPC code as main product
+          };
+        }) || [];
+        
+        return {
+          ...sku,
+          subproducts: updatedSubproducts,
+          ipcCode: ipcCode // Same IPC code for product and all subproducts
+        };
+      });
+      
+      // Update formData with IPC codes
+      setFormData(prev => ({
+        ...prev,
+        skus: updatedSkus
+      }));
+      
+      // Save to localStorage
+      try {
+        const ipcCodes = {
+          ipoCode: formData.ipoCode,
+          poSrNo: poSrNo,
+          buyerCode: buyerCode,
+          skus: updatedSkus.map(sku => ({
+            sku: sku.sku,
+            ipcCode: sku.ipcCode,
+            subproducts: sku.subproducts?.map(sp => ({
+              subproduct: sp.subproduct,
+              ipcCode: sp.ipcCode
+            })) || []
+          })),
+          createdAt: new Date().toISOString()
+        };
+        
+        const existingIPCs = JSON.parse(localStorage.getItem('ipcCodes') || '[]');
+        existingIPCs.push(ipcCodes);
+        localStorage.setItem('ipcCodes', JSON.stringify(existingIPCs));
+        
+        // Create alert message with all IPC codes
+        let alertMessage = 'IPC codes generated and saved successfully!\n\n';
+        updatedSkus.forEach((sku, idx) => {
+          alertMessage += `SKU ${idx + 1}: ${sku.ipcCode}\n`;
+          if (sku.subproducts && sku.subproducts.length > 0) {
+            sku.subproducts.forEach((sp, spIdx) => {
+              alertMessage += `  Subproduct ${spIdx + 1}: ${sp.ipcCode}\n`;
+            });
+          }
+        });
+        
+        alert(alertMessage);
+        console.log('Generated IPC codes:', ipcCodes);
+      } catch (error) {
+        console.error('Error saving IPC codes:', error);
+        alert('IPC codes generated but failed to save');
+      }
+      
+    } catch (error) {
+      console.error('Error generating IPC codes:', error);
+      alert('Error generating IPC codes');
+    }
   };
 
   const validateStep3 = () => {
@@ -3168,11 +3278,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
         
         // Validate conditional fields for DYEING
         if (workOrder.workOrder === 'DYEING') {
-          // Check if at least one of shrinkage width or length is selected
-          if (!workOrder.shrinkageWidth && !workOrder.shrinkageLength) {
-            newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkage`] = 'At least one of WIDTH or LENGTH must be selected for SHRINKAGE';
-          }
-          // If shrinkageWidth is selected, validate its fields
+          // SHRINKAGE IS NOW COMPLETELY OPTIONAL - We don't require shrinkage to be selected at all
+          // Only validate shrinkage fields if they are actually selected by the user
+          
+          // If shrinkageWidth checkbox is selected, validate its required fields
           if (workOrder.shrinkageWidth) {
             if (!workOrder.shrinkageWidthPercent?.trim()) {
               newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkageWidthPercent`] = 'Shrinkage Width Percentage is required';
@@ -3181,7 +3290,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
               newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioWidth`] = 'Ratio Width is required when WIDTH is selected';
             }
           }
-          // If shrinkageLength is selected, validate its fields
+          
+          // If shrinkageLength checkbox is selected, validate its required fields
           if (workOrder.shrinkageLength) {
             if (!workOrder.shrinkageLengthPercent?.trim()) {
               newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_shrinkageLengthPercent`] = 'Shrinkage Length Percentage is required';
@@ -3190,6 +3300,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
               newErrors[`rawMaterial_${materialIndex}_workOrder_${woIndex}_ratioLength`] = 'Ratio Length is required when LENGTH is selected';
             }
           }
+          
+          // No validation error if neither shrinkageWidth nor shrinkageLength is selected
+          // Shrinkage is completely optional for DYEING work orders
         }
         
         // Validate conditional fields for WEAVING
@@ -3216,6 +3329,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
           }
         }
       });
+      }
+    });
+    
+    // REMOVE SHRINKAGE ERRORS - Shrinkage is completely optional, remove any shrinkage-related errors
+    Object.keys(newErrors).forEach(errorKey => {
+      if (errorKey.includes('shrinkage') && !errorKey.includes('shrinkageWidthPercent') && !errorKey.includes('shrinkageLengthPercent') && !errorKey.includes('ratioWidth') && !errorKey.includes('ratioLength')) {
+        delete newErrors[errorKey];
+        console.log(`Removed shrinkage requirement error: ${errorKey}`);
       }
     });
     
@@ -3256,6 +3377,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
   }, [currentStep, formData.skus?.length]);
 
   const handleNext = () => {
+    console.log('handleNext called - currentStep:', currentStep);
     if (currentStep === 0) {
       if (!validateStep0()) {
         return;
@@ -3271,10 +3393,23 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
       // Don't auto-initialize raw materials - user will select component first
     } else if (currentStep === 2) {
       console.log('handleNext - Step 2 - Validating...');
+      console.log('handleNext - Step 2 - Current formData:', formData);
+      console.log('handleNext - Step 2 - Selected SKU:', selectedSku);
       const isValid = validateStep2();
       console.log('handleNext - Step 2 - Validation result:', isValid);
       if (!isValid) {
         console.log('handleNext - Step 2 - Validation failed, not proceeding');
+        console.log('handleNext - Step 2 - Current errors:', errors);
+        // Scroll to first error
+        setTimeout(() => {
+          const firstErrorKey = Object.keys(errors)[0];
+          if (firstErrorKey) {
+            const errorElement = document.querySelector(`[data-error-key="${firstErrorKey}"]`);
+            if (errorElement) {
+              errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        }, 100);
         return;
       }
       console.log('handleNext - Step 2 - Validation passed, proceeding to next step');
@@ -3302,6 +3437,40 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top after step change
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+
+  // Handle breadcrumb navigation
+  const handleBreadcrumbClick = (stepIndex) => {
+    console.log('Breadcrumb clicked:', stepIndex, { onNavigateToCodeCreation, onNavigateToIPO });
+    if (stepIndex === -1) {
+      // Departments clicked - go back to departments
+      onBack();
+    } else if (stepIndex === -2) {
+      // Code creation clicked - navigate to code creation menu
+      console.log('Calling onNavigateToCodeCreation');
+      if (onNavigateToCodeCreation) {
+        onNavigateToCodeCreation();
+      } else {
+        console.error('onNavigateToCodeCreation is not defined!');
+      }
+    } else if (stepIndex === -3) {
+      // IPO clicked - navigate to IPO screen
+      console.log('Calling onNavigateToIPO');
+      if (onNavigateToIPO) {
+        onNavigateToIPO();
+      } else {
+        console.error('onNavigateToIPO is not defined!');
+      }
+    } else if (stepIndex >= 0 && stepIndex <= currentStep) {
+      // Only allow navigation to steps that have been visited
+      setCurrentStep(stepIndex);
       // Scroll to top after step change
       setTimeout(() => {
         if (scrollContainerRef.current) {
@@ -3373,6 +3542,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
               removeSubproduct={removeSubproduct}
               handleSubproductChange={handleSubproductChange}
               handleSubproductImageChange={handleSubproductImageChange}
+              handleSave={handleSaveStep0}
             />
           );
         case 1:
@@ -3471,6 +3641,133 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
         >
           ← Back to Department
         </button>
+        
+        {/* Breadcrumb Navigation */}
+        <div 
+          className="flex items-center gap-2 mb-4"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '16px',
+            padding: '8px 12px',
+            backgroundColor: '#f9fafb',
+            borderRadius: '6px',
+            border: '1px solid #e5e7eb'
+          }}
+        >
+          {/* Departments */}
+          <span
+            onClick={() => handleBreadcrumbClick(-1)}
+            style={{
+              cursor: 'pointer',
+              color: '#667eea',
+              fontSize: '14px',
+              fontWeight: '500',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#eef2ff';
+              e.currentTarget.style.color = '#5568d3';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#667eea';
+            }}
+          >
+            Departments
+          </span>
+          
+          {/* Separator */}
+          <span style={{ color: '#9ca3af', fontSize: '14px', margin: '0 4px' }}>›</span>
+          
+          {/* Code creation */}
+          <span
+            onClick={() => handleBreadcrumbClick(-2)}
+            style={{
+              cursor: 'pointer',
+              color: '#667eea',
+              fontSize: '14px',
+              fontWeight: '500',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#eef2ff';
+              e.currentTarget.style.color = '#5568d3';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#667eea';
+            }}
+          >
+            Code creation
+          </span>
+          
+          {/* Separator */}
+          <span style={{ color: '#9ca3af', fontSize: '14px', margin: '0 4px' }}>›</span>
+          
+          {/* IPO */}
+          <span
+            onClick={() => handleBreadcrumbClick(-3)}
+            style={{
+              cursor: 'pointer',
+              color: '#667eea',
+              fontSize: '14px',
+              fontWeight: '500',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#eef2ff';
+              e.currentTarget.style.color = '#5568d3';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#667eea';
+            }}
+          >
+            IPO
+          </span>
+          
+          {/* Steps */}
+          {Array.from({ length: currentStep + 1 }, (_, i) => [
+            <span key={`separator-${i}`} style={{ color: '#9ca3af', fontSize: '14px', margin: '0 4px' }}>›</span>,
+            <span
+              key={`step-${i}`}
+              onClick={() => handleBreadcrumbClick(i)}
+              style={{
+                cursor: 'pointer',
+                color: i === currentStep ? '#374151' : '#667eea',
+                fontSize: '14px',
+                fontWeight: i === currentStep ? '600' : '500',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                transition: 'all 0.2s',
+                backgroundColor: i === currentStep ? '#e5e7eb' : 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                if (i !== currentStep) {
+                  e.currentTarget.style.backgroundColor = '#eef2ff';
+                  e.currentTarget.style.color = '#5568d3';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (i !== currentStep) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#667eea';
+                }
+              }}
+            >
+              Step{i} ({stepLabels[i]})
+            </span>
+          ])}
+        </div>
+        
         <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontSize: '32px', fontWeight: '700', color: '#1a1a1a', marginBottom: '8px' }}>Generate Factory Code</h1>
         <p className="text-base text-gray-600 mb-6" style={{ fontSize: '16px', color: '#6b7280', marginBottom: '24px' }}>Complete all steps to generate a factory code</p>
       </div>
@@ -3649,7 +3946,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
                         <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )}
-                        <span style={{ fontWeight: '600' }}>Product - SKU #{index + 1}</span>
+                        <span style={{ fontWeight: '600' }}>
+                          {skuItem.ipcCode || `SKU #${index + 1}`}
+                        </span>
                   </div>
                   <div style={{ 
                     fontSize: '12px', 
@@ -3750,7 +4049,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {} }) => {
                                     <path d="M6 8L7.5 9.5L10 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                   </svg>
                                 )}
-                                <span style={{ fontWeight: '600', fontSize: '12px' }}>Subproduct #{subproductIndex + 1}</span>
+                                <span style={{ fontWeight: '600', fontSize: '12px' }}>
+                                  {skuItem.ipcCode || `Subproduct #${subproductIndex + 1}`}
+                                </span>
                   </div>
                   <div style={{ 
                     fontSize: '11px', 

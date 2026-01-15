@@ -2,8 +2,16 @@ import { useState, useEffect } from 'react';
 import GenerateFactoryCode from '../GenerateFactoryCode/GenerateFactoryCode';
 import SearchableDropdown from '../GenerateFactoryCode/components/SearchableDropdown';
 
-const InternalPurchaseOrder = ({ onBack }) => {
+const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const [showInitialScreen, setShowInitialScreen] = useState(true);
+  
+  // Handle navigation to IPO - reset to initial screen
+  // When called from GenerateFactoryCode opened via InternalPurchaseOrder,
+  // we should always reset to the IPO initial screen
+  const handleNavigateToIPO = () => {
+    console.log('Resetting to IPO initial screen');
+    setShowInitialScreen(true);
+  };
   const [initialData, setInitialData] = useState({
     orderType: '',      // 'Production' | 'Sampling' | 'Company'
     buyerCode: '',
@@ -67,11 +75,17 @@ const InternalPurchaseOrder = ({ onBack }) => {
     }
   };
 
-  // Get next IPO sequential number
-  const getNextIPOSrNo = () => {
+  // Get next IPO sequential number - FIXED to increment per order type
+  const getNextIPOSrNo = (orderType) => {
     try {
       const existingIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
-      return existingIPOs.length + 1;
+      // Filter IPOs by order type and get the highest serial number
+      const sameTypeIPOs = existingIPOs.filter(ipo => ipo.orderType === orderType);
+      if (sameTypeIPOs.length === 0) {
+        return 1;
+      }
+      const maxSrNo = Math.max(...sameTypeIPOs.map(ipo => ipo.poSrNo || 0));
+      return maxSrNo + 1;
     } catch (error) {
       console.error('Error getting next IPO SR#:', error);
       return 1;
@@ -125,8 +139,8 @@ const InternalPurchaseOrder = ({ onBack }) => {
 
   const handleContinue = () => {
     if (validateInitialScreen()) {
-      // Get next sequential number
-      const poSrNo = getNextIPOSrNo();
+      // Get next sequential number for this specific order type
+      const poSrNo = getNextIPOSrNo(initialData.orderType);
       
       // Determine buyerCodeOrType based on orderType
       const buyerCodeOrType = initialData.orderType === 'Company' 
@@ -177,6 +191,8 @@ const InternalPurchaseOrder = ({ onBack }) => {
       <GenerateFactoryCode 
         onBack={onBack}
         initialFormData={initialData}
+        onNavigateToCodeCreation={onNavigateToCodeCreation}
+        onNavigateToIPO={handleNavigateToIPO}
       />
     );
   }

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import GenerateBuyerCode from './GenerateBuyerCode';
 import GenerateVendorCode from './GenerateVendorCode';
 import GeneratePOCode from './GeneratePOCode';
@@ -21,6 +21,20 @@ const DepartmentContent = () => {
   const [showInternalPurchaseOrder, setShowInternalPurchaseOrder] = useState(false);
   
   const subMenuRef = useRef(null);
+
+  // Automatically open Company Essentials form when menu item is selected (skip intermediate screen)
+  useEffect(() => {
+    if (selectedSubMenuItem === 'company essentials' && !showCompanyEssentials) {
+      setShowCompanyEssentials(true);
+    }
+  }, [selectedSubMenuItem, showCompanyEssentials]);
+
+  // Automatically open Internal Purchase Order form when menu item is selected (skip intermediate screen)
+  useEffect(() => {
+    if (selectedSubMenuItem === 'Internal Purchase Order' && !showInternalPurchaseOrder) {
+      setShowInternalPurchaseOrder(true);
+    }
+  }, [selectedSubMenuItem, showInternalPurchaseOrder]);
 
   const departmentItems = [
     { id: 'chd-code', label: 'CODE CREATION', hasSubMenu: true },
@@ -423,6 +437,66 @@ const DepartmentContent = () => {
     </div>
   );
 
+  // Content renderer for CHD CODE CREATION menu
+  const renderCodeCreationContent = () => (
+    <div className="fullscreen-content">
+      <div className="content-header">
+        <button className="back-button" onClick={handleBackToDepartments}>
+          ← Back to Departments
+        </button>
+        <h1 className="fullscreen-title">Code Creation</h1>
+        <p className="fullscreen-description">Generate codes for buyers, vendors, factories, and manage company essentials</p>
+      </div>
+      <div className="fullscreen-buttons">
+        <button 
+          className="fullscreen-action-button primary"
+          onClick={() => setSelectedSubMenuItem('buyer')}
+        >
+          <div className="button-content">
+            <span className="button-title">BUYER</span>
+            <span className="button-subtitle">Generate buyer codes</span>
+          </div>
+        </button>
+        <button 
+          className="fullscreen-action-button primary"
+          onClick={() => setSelectedSubMenuItem('vendor')}
+        >
+          <div className="button-content">
+            <span className="button-title">VENDOR</span>
+            <span className="button-subtitle">Generate vendor codes</span>
+          </div>
+        </button>
+        <button 
+          className="fullscreen-action-button primary"
+          onClick={() => setSelectedSubMenuItem('factory')}
+        >
+          <div className="button-content">
+            <span className="button-title">FACTORY</span>
+            <span className="button-subtitle">Generate factory codes</span>
+          </div>
+        </button>
+        <button 
+          className="fullscreen-action-button primary"
+          onClick={() => setSelectedSubMenuItem('company essentials')}
+        >
+          <div className="button-content">
+            <span className="button-title">COMPANY ESSENTIALS</span>
+            <span className="button-subtitle">Manage company essentials</span>
+          </div>
+        </button>
+        <button 
+          className="fullscreen-action-button primary"
+          onClick={() => setSelectedSubMenuItem('Internal Purchase Order')}
+        >
+          <div className="button-content">
+            <span className="button-title">INTERNAL PURCHASE ORDER</span>
+            <span className="button-subtitle">Create internal purchase orders</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+
   // Content renderers for CHD CODE CREATION
   const renderBuyerContent = () => (
     <div className="fullscreen-content">
@@ -646,6 +720,33 @@ const DepartmentContent = () => {
   );
 
   const renderDepartmentMainContent = () => {
+    // Handle Code Creation menu FIRST (before showGenerateFactoryCode check)
+    if (selectedSubMenuItem === 'code-creation-menu') {
+      return renderCodeCreationContent();
+    }
+    
+    // Handle Internal Purchase Order
+    if (showInternalPurchaseOrder) {
+      return (
+        <InternalPurchaseOrder 
+          onBack={() => {
+            setShowInternalPurchaseOrder(false);
+            setSelectedSubMenuItem(null);
+          }}
+          onNavigateToCodeCreation={() => {
+            setShowInternalPurchaseOrder(false);
+            setSelectedSubMenuItem('code-creation-menu');
+          }}
+          onNavigateToIPO={() => {
+            // This will be handled by InternalPurchaseOrder itself
+            // to reset to initial screen - the handleNavigateToIPO function
+            // in InternalPurchaseOrder will handle this
+            console.log('IPO navigation requested - handled by InternalPurchaseOrder');
+          }}
+        />
+      );
+    }
+    
     if (showGenerateBuyerCode) {
       return (
         <GenerateBuyerCode 
@@ -673,7 +774,20 @@ const DepartmentContent = () => {
     if (showGenerateFactoryCode) {
       return (
         <GenerateFactoryCode 
-          onBack={() => setShowGenerateFactoryCode(false)} 
+          onBack={() => setShowGenerateFactoryCode(false)}
+          onNavigateToCodeCreation={() => {
+            console.log('Navigating to Code Creation menu');
+            setShowGenerateFactoryCode(false);
+            setSelectedSubMenuItem('code-creation-menu');
+            console.log('State updated:', { showGenerateFactoryCode: false, selectedSubMenuItem: 'code-creation-menu' });
+          }}
+          onNavigateToIPO={() => {
+            console.log('Navigating to IPO from GenerateFactoryCode');
+            setShowGenerateFactoryCode(false);
+            // Navigate to IPO screen
+            setShowInternalPurchaseOrder(true);
+            setSelectedSubMenuItem('Internal Purchase Order');
+          }}
         />
       );
     }
@@ -689,15 +803,10 @@ const DepartmentContent = () => {
     if (showCompanyEssentials) {
       return (
         <CompanyEssentials 
-          onBack={() => setShowCompanyEssentials(false)} 
-        />
-      );
-    }
-
-    if (showInternalPurchaseOrder) {
-      return (
-        <InternalPurchaseOrder 
-          onBack={() => setShowInternalPurchaseOrder(false)} 
+          onBack={() => {
+            setShowCompanyEssentials(false);
+            setSelectedSubMenuItem(null);
+          }} 
         />
       );
     }
@@ -712,12 +821,10 @@ const DepartmentContent = () => {
     if (selectedSubMenuItem === 'factory') {
       return renderFactoryContent();
     }
-    if (selectedSubMenuItem === 'company essentials') {
-      return renderCompanyEssentialsContent();
-    }
-    if (selectedSubMenuItem === 'Internal Purchase Order') {
-      return renderInternalPurchaseOrderContent();
-    }
+    // Company Essentials is now handled by useEffect and showCompanyEssentials flag
+    // No need to show intermediate screen
+    // Internal Purchase Order is now handled by useEffect and showInternalPurchaseOrder flag
+    // No need to show intermediate screen
 
     // Handle specific content for CHD PO ISSUE
     if (selectedSubMenuItem === 'generate-po') {

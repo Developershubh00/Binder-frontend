@@ -270,7 +270,7 @@ const Step5 = ({
                 <SearchableDropdown
                   value={material.packagingMaterialType || ''}
                   onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', selectedValue)}
-                  options={['CARTONS/CORRUGATED BOX', 'PACKAGING ACCESSORIES', 'TAPE', 'POLYBAG', 'POLY BAG WITH FLAP', 'POLYSHEET', 'BALE WRAP', 'OTHER']}
+                  options={['CARTONS/CORRUGATED BOX', 'CARTON BOX', 'CORNER PROTECTORS', 'EDGE PROTECTORS', 'DIVIDER', 'PACKAGING ACCESSORIES', 'TAPE', 'POLYBAG', 'POLY BAG WITH FLAP', 'POLYSHEET', 'BALE WRAP', 'OTHER']}
                   placeholder="Select or type Material Type"
                   style={{ width: '280px' }}
                 />
@@ -308,6 +308,624 @@ const Step5 = ({
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="175 LBS"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Specific Fields for CARTON BOX - Completely new section */}
+                  {material.packagingMaterialType === 'CARTON BOX' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <SearchableDropdown
+                          value={material.cartonBoxType || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxType', selectedValue)}
+                          options={['RSC (Regular Slotted Container)', 'HSC (Half Slotted)', 'FOL (Full Overlap)', 'Die-Cut', 'Telescope', 'Master Carton', 'Inner Carton']}
+                          placeholder="Select or type Type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS</label>
+                        <SearchableDropdown
+                          value={material.cartonBoxNoOfPlys || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxNoOfPlys', selectedValue)}
+                          options={['3 Ply', '5 Ply', '7 Ply', '9 Ply']}
+                          placeholder="Select or type # of Plys"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BOARD GRADE</label>
+                        <SearchableDropdown
+                          value={material.cartonBoxBoardGrade || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxBoardGrade', selectedValue)}
+                          options={['Kraft (Brown)', 'White Top', 'Duplex', 'Test Liner', 'Virgin Kraft']}
+                          placeholder="Select or type Board Grade"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE</label>
+                        <SearchableDropdown
+                          value={material.cartonBoxJointType || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxJointType', selectedValue)}
+                          options={['Staple/Stitched', 'Glued/Binded', 'Taped']}
+                          placeholder="Select or type Joint Type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BURSTING STRENGTH</label>
+                        <input
+                          type="text"
+                          value={material.cartonBoxBurstingStrength || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxBurstingStrength', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="e.g., 175 lbs, 200 lbs, 275 lbs"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER REQUIRED</label>
+                        <SearchableDropdown
+                          value={material.cartonBoxStiffenerRequired || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxStiffenerRequired', selectedValue)}
+                          options={['YES', 'NO']}
+                          placeholder="Select YES or NO"
+                        />
+                      </div>
+                      {material.cartonBoxStiffenerRequired === 'YES' && (
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER DIMENSIONS (L x W x H)</label>
+                          <input
+                            type="text"
+                            value={material.cartonBoxStiffenerDimensions || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxStiffenerDimensions', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="L x W x H (CM)"
+                          />
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.cartonBoxQuantity || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Pieces"
+                        />
+                      </div>
+                      {/* DIMENSIONS for CARTON BOX */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS (L x W x H)</label>
+                          <input
+                            type="text"
+                            value={material.cartonBoxDimensions || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxDimensions', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="L x W x H"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                          <select
+                            value={material.cartonBoxDimensionsUnit || 'CMS'}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxDimensionsUnit', e.target.value)}
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                          >
+                            <option value="CMS">CMS</option>
+                            <option value="INCHES">INCHES</option>
+                            <option value="MM">MM</option>
+                          </select>
+                        </div>
+                      </div>
+                      {/* TESTING REQUIREMENTS - Multi-select with chips (SAME AS FIBER/FOAM) */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                        <div style={{ position: 'relative' }}>
+                          <div
+                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
+                            style={{ 
+                              padding: '8px 12px',
+                              minHeight: '44px',
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: '8px',
+                              alignItems: 'center',
+                              cursor: 'text'
+                            }}
+                          >
+                            {/* Selected chips */}
+                            {(Array.isArray(material.cartonBoxTestingRequirements) ? material.cartonBoxTestingRequirements : []).map((req, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
+                                style={{
+                                  backgroundColor: '#e0e7ff',
+                                  color: '#4338ca',
+                                  border: '1px solid #c7d2fe'
+                                }}
+                              >
+                                {req}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const current = Array.isArray(material.cartonBoxTestingRequirements) ? material.cartonBoxTestingRequirements : [];
+                                    const updated = current.filter((_, i) => i !== index);
+                                    handlePackagingMaterialChange(materialIndex, 'cartonBoxTestingRequirements', updated);
+                                  }}
+                                  style={{
+                                    marginLeft: '4px',
+                                    cursor: 'pointer',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#4338ca',
+                                    fontWeight: 'bold',
+                                    fontSize: '14px',
+                                    lineHeight: '1',
+                                    padding: 0,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '16px',
+                                    height: '16px'
+                                  }}
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                            {/* Dropdown for selecting new options */}
+                            <div 
+                              id={`carton-box-testing-wrapper-${materialIndex}`}
+                              style={{ flex: 1, minWidth: '200px' }}
+                            >
+                              <SearchableDropdown
+                                value=""
+                                strictMode={false}
+                                onChange={(selectedValue) => {
+                                  const options = ['Bursting Strength Test', 'ECT Test', 'Drop Test', 'Compression Test'];
+                                  if (selectedValue && options.includes(selectedValue)) {
+                                    const current = Array.isArray(material.cartonBoxTestingRequirements) ? material.cartonBoxTestingRequirements : [];
+                                    if (!current.includes(selectedValue)) {
+                                      const updated = [...current, selectedValue];
+                                      handlePackagingMaterialChange(materialIndex, 'cartonBoxTestingRequirements', updated);
+                                    }
+                                  }
+                                }}
+                                options={['Bursting Strength Test', 'ECT Test', 'Drop Test', 'Compression Test']}
+                                placeholder={(Array.isArray(material.cartonBoxTestingRequirements) && material.cartonBoxTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
+                                className="border-0 outline-none"
+                                style={{ 
+                                  padding: '4px 0', 
+                                  height: 'auto', 
+                                  minHeight: '32px',
+                                  backgroundColor: 'transparent', 
+                                  boxShadow: 'none',
+                                  border: 'none',
+                                  borderWidth: '0',
+                                  outline: 'none'
+                                }}
+                                onFocus={(e) => {
+                                  const input = e.target;
+                                  input.style.border = 'none';
+                                  input.style.borderWidth = '0';
+                                  input.style.outline = 'none';
+                                  input.style.boxShadow = 'none';
+                                  const container = input.closest('[class*="border-2"]');
+                                  if (container) {
+                                    container.style.borderColor = '#667eea';
+                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                  }
+                                  const handleKeyDown = (keyEvent) => {
+                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
+                                      keyEvent.preventDefault();
+                                      keyEvent.stopPropagation();
+                                      const newValue = input.value.trim();
+                                      const current = Array.isArray(material.cartonBoxTestingRequirements) ? material.cartonBoxTestingRequirements : [];
+                                      const options = ['Bursting Strength Test', 'ECT Test', 'Drop Test', 'Compression Test'];
+                                      if (!current.includes(newValue)) {
+                                        if (!options.includes(newValue)) {
+                                          const updated = [...current, newValue];
+                                          handlePackagingMaterialChange(materialIndex, 'cartonBoxTestingRequirements', updated);
+                                        }
+                                        input.value = '';
+                                        input.blur();
+                                      }
+                                    }
+                                  };
+                                  input.addEventListener('keydown', handleKeyDown);
+                                  input._enterHandler = handleKeyDown;
+                                }}
+                                onBlur={(e) => {
+                                  const input = e.target;
+                                  if (input._enterHandler) {
+                                    input.removeEventListener('keydown', input._enterHandler);
+                                    input._enterHandler = null;
+                                  }
+                                  input.style.border = 'none';
+                                  input.style.borderWidth = '0';
+                                  input.style.outline = 'none';
+                                  input.style.boxShadow = 'none';
+                                  const container = input.closest('[class*="border-2"]');
+                                  if (container) {
+                                    container.style.borderColor = '#e5e7eb';
+                                    container.style.boxShadow = 'none';
+                                  }
+                                  if (input.value && input.value.trim()) {
+                                    const typedValue = input.value.trim();
+                                    const options = ['Bursting Strength Test', 'ECT Test', 'Drop Test', 'Compression Test'];
+                                    if (!options.includes(typedValue)) {
+                                      const current = Array.isArray(material.cartonBoxTestingRequirements) ? material.cartonBoxTestingRequirements : [];
+                                      if (!current.includes(typedValue)) {
+                                        const updated = [...current, typedValue];
+                                        handlePackagingMaterialChange(materialIndex, 'cartonBoxTestingRequirements', updated);
+                                      }
+                                    }
+                                    input.value = '';
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Specific Fields for CORNER PROTECTORS */}
+                  {material.packagingMaterialType === 'CORNER PROTECTORS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <SearchableDropdown
+                          value={material.cornerProtectorType || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorType', selectedValue)}
+                          options={['L-Shape', 'U-Shape', 'Edge Guard', 'Wrap-Around']}
+                          placeholder="Select or type Type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <SearchableDropdown
+                          value={material.cornerProtectorMaterial || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorMaterial', selectedValue)}
+                          options={['Cardboard', 'Corrugated Board', 'Plastic (PP/PE)', 'Foam (EPE/EVA)', 'Wood']}
+                          placeholder="Select or type Material"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LEG LENGTH</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <input
+                            type="text"
+                            value={material.cornerProtectorLegLength || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorLegLength', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            style={{ padding: '10px 14px', width: '80px' }}
+                            placeholder="25"
+                          />
+                          <select
+                            value={material.cornerProtectorLegLengthUnit || 'MM'}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorLegLengthUnit', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                            style={{ padding: '0 10px', height: '100%' }}
+                          >
+                            <option value="MM">MM</option>
+                            <option value="CMS">CMS</option>
+                            <option value="INCHES">INCHES</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <input
+                            type="text"
+                            value={material.cornerProtectorThickness || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorThickness', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            style={{ padding: '10px 14px', width: '80px' }}
+                            placeholder="3"
+                          />
+                          <select
+                            value={material.cornerProtectorThicknessUnit || 'MM'}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorThicknessUnit', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                            style={{ padding: '0 10px', height: '100%' }}
+                          >
+                            <option value="MM">MM</option>
+                            <option value="CMS">CMS</option>
+                            <option value="INCHES">INCHES</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">HEIGHT/LENGTH</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <input
+                            type="text"
+                            value={material.cornerProtectorHeightLength || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorHeightLength', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            style={{ padding: '10px 14px', width: '80px' }}
+                            placeholder="50"
+                          />
+                          <select
+                            value={material.cornerProtectorHeightLengthUnit || 'MM'}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorHeightLengthUnit', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                            style={{ padding: '0 10px', height: '100%' }}
+                          >
+                            <option value="MM">MM</option>
+                            <option value="CMS">CMS</option>
+                            <option value="INCHES">INCHES</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LOAD CAPACITY</label>
+                        <SearchableDropdown
+                          value={material.cornerProtectorLoadCapacity || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorLoadCapacity', selectedValue)}
+                          options={['Light (<10kg)', 'Medium (10-25kg)', 'Heavy (>25kg)']}
+                          placeholder="Select or type Load Capacity"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOR</label>
+                        <SearchableDropdown
+                          value={material.cornerProtectorColor || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorColor', selectedValue)}
+                          options={['Brown (Kraft)', 'White', 'Black', 'Custom']}
+                          placeholder="Select or type Color"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.cornerProtectorQuantity || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Pcs"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Specific Fields for EDGE PROTECTORS */}
+                  {material.packagingMaterialType === 'EDGE PROTECTORS' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <SearchableDropdown
+                          value={material.edgeProtectorType || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorType', selectedValue)}
+                          options={['V-Board', 'L-Board', 'U-Channel', 'Flat Strip', 'Wrap-Around']}
+                          placeholder="Select or type Type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <SearchableDropdown
+                          value={material.edgeProtectorMaterial || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorMaterial', selectedValue)}
+                          options={['Solid Board', 'Corrugated', 'Laminated Board', 'Plastic', 'Metal (Aluminum)']}
+                          placeholder="Select or type Material"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">WING SIZE</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <SearchableDropdown
+                            value={material.edgeProtectorWingSize || ''}
+                            onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorWingSize', selectedValue)}
+                            options={['30x30mm', '35x35mm', '40x40mm', '50x50mm', '50x35mm (unequal)']}
+                            placeholder="Select or type"
+                            className="border-0 outline-none flex-1"
+                            style={{ padding: '0 14px', height: '100%' }}
+                          />
+                          <span className="text-sm text-gray-600 px-3 border-l border-gray-200" style={{ whiteSpace: 'nowrap' }}>CM</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <SearchableDropdown
+                            value={material.edgeProtectorThickness || ''}
+                            onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorThickness', selectedValue)}
+                            options={['2mm', '3mm', '4mm', '5mm', '6mm']}
+                            placeholder="Select or type"
+                            className="border-0 outline-none flex-1"
+                            style={{ padding: '0 14px', height: '100%' }}
+                          />
+                          <span className="text-sm text-gray-600 px-3 border-l border-gray-200" style={{ whiteSpace: 'nowrap' }}>CM</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <SearchableDropdown
+                            value={material.edgeProtectorLength || ''}
+                            onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorLength', selectedValue)}
+                            options={['600mm (24")', '900mm (36")', '1200mm (48")', '2400mm', 'Custom']}
+                            placeholder="Select or type"
+                            className="border-0 outline-none flex-1"
+                            style={{ padding: '0 14px', height: '100%' }}
+                          />
+                          <span className="text-sm text-gray-600 px-3 border-l border-gray-200" style={{ whiteSpace: 'nowrap' }}>CM</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">PLY/LAYERS</label>
+                        <SearchableDropdown
+                          value={material.edgeProtectorPlyLayers || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorPlyLayers', selectedValue)}
+                          options={['Single Ply', 'Multi-Ply (laminated)']}
+                          placeholder="Select or type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOR</label>
+                        <SearchableDropdown
+                          value={material.edgeProtectorColor || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorColor', selectedValue)}
+                          options={['Brown', 'White', 'Custom Print']}
+                          placeholder="Select or type Color"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.edgeProtectorQuantity || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="PCS"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Specific Fields for DIVIDER */}
+                  {material.packagingMaterialType === 'DIVIDER' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <SearchableDropdown
+                          value={material.dividerType || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'dividerType', selectedValue)}
+                          options={['Cell Divider (Grid)', 'Partition (Single)', 'Z-Fold', 'Layer Pad', 'Custom']}
+                          placeholder="Select or type Type"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL</label>
+                        <SearchableDropdown
+                          value={material.dividerMaterial || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'dividerMaterial', selectedValue)}
+                          options={['Corrugated Board (B/C/E Flute)', 'Solid Board', 'Chipboard', 'Plastic (PP)']}
+                          placeholder="Select or type Material"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">CELL CONFIGURATION</label>
+                        <SearchableDropdown
+                          value={material.dividerCellConfiguration || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'dividerCellConfiguration', selectedValue)}
+                          options={['6-cell (2x3)', '8-cell (2x4)', '12-cell (3x4)', '24-cell (4x6)', 'Custom']}
+                          placeholder="Select or type Cell Configuration"
+                        />
+                      </div>
+                      {/* CELL SIZE - with LENGTH and WIDTH */}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">CELL SIZE</label>
+                        <div className="flex items-end gap-4">
+                          <div className="flex flex-col flex-1">
+                            <label className="text-xs text-gray-600 mb-1">LENGTH</label>
+                            <input
+                              type="text"
+                              value={material.dividerCellSizeLength || ''}
+                              onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerCellSizeLength', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Length"
+                            />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
+                            <input
+                              type="text"
+                              value={material.dividerCellSizeWidth || ''}
+                              onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerCellSizeWidth', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Width"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">UNIT</label>
+                            <select
+                              value={material.dividerCellSizeUnit || 'CMS'}
+                              onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerCellSizeUnit', e.target.value)}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                            >
+                              <option value="CMS">CMS</option>
+                              <option value="MM">MM</option>
+                              <option value="INCHES">INCHES</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      {/* HEIGHT */}
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">HEIGHT</label>
+                        <div className="flex items-center gap-0 border-2 border-[#e5e7eb] rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all" style={{ height: '44px' }}>
+                          <input
+                            type="text"
+                            value={material.dividerHeight || ''}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerHeight', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            style={{ padding: '10px 14px', width: '80px' }}
+                            placeholder="50"
+                          />
+                          <select
+                            value={material.dividerHeightUnit || 'MM'}
+                            onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerHeightUnit', e.target.value)}
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                            style={{ padding: '0 10px', height: '100%' }}
+                          >
+                            <option value="MM">MM</option>
+                            <option value="CMS">CMS</option>
+                            <option value="INCHES">INCHES</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BOARD THICKNESS</label>
+                        <SearchableDropdown
+                          value={material.dividerBoardThickness || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'dividerBoardThickness', selectedValue)}
+                          options={['2mm', '3mm (E-Flute)', '4mm (B-Flute)', '5mm (C-Flute)']}
+                          placeholder="Select or type Board Thickness"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SLOT DEPTH</label>
+                        <SearchableDropdown
+                          value={material.dividerSlotDepth || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'dividerSlotDepth', selectedValue)}
+                          options={['50%', '60%', '70% of divider height']}
+                          placeholder="Select or type Slot Depth"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOR</label>
+                        <SearchableDropdown
+                          value={material.dividerColor || ''}
+                          onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'dividerColor', selectedValue)}
+                          options={['Brown (Kraft)', 'White', 'Printed']}
+                          placeholder="Select or type Color"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY</label>
+                        <input
+                          type="text"
+                          value={material.dividerQuantity || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerQuantity', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Pcs"
                         />
                       </div>
                     </>
@@ -524,42 +1142,151 @@ const Step5 = ({
                     </div>
                   )}
 
-                  {/* Surplus & For Section - For all types */}
-                  <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                    <div className="flex flex-col flex-1">
-                      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
-                      <input
-                        type="text"
-                        value={material.surplus || ''}
-                        onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplus', e.target.value)}
-                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                        style={{ padding: '10px 14px', height: '44px' }}
-                        placeholder="%AGE"
-                      />
+                  {/* Surplus & For Section - Special handling for CARTON BOX, CORNER PROTECTORS, EDGE PROTECTORS, and DIVIDER with absolute % signs */}
+                  {(material.packagingMaterialType === 'CARTON BOX' || material.packagingMaterialType === 'CORNER PROTECTORS' || material.packagingMaterialType === 'EDGE PROTECTORS' || material.packagingMaterialType === 'DIVIDER') ? (
+                    <>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              value={
+                                material.packagingMaterialType === 'CARTON BOX' ? (material.cartonBoxSurplus || '') :
+                                material.packagingMaterialType === 'CORNER PROTECTORS' ? (material.cornerProtectorSurplus || '') :
+                                material.packagingMaterialType === 'EDGE PROTECTORS' ? (material.edgeProtectorSurplus || '') :
+                                (material.dividerSurplus || '')
+                              }
+                              onChange={(e) => {
+                                const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                                if (material.packagingMaterialType === 'CARTON BOX') {
+                                  handlePackagingMaterialChange(materialIndex, 'cartonBoxSurplus', numericValue);
+                                } else if (material.packagingMaterialType === 'CORNER PROTECTORS') {
+                                  handlePackagingMaterialChange(materialIndex, 'cornerProtectorSurplus', numericValue);
+                                } else if (material.packagingMaterialType === 'EDGE PROTECTORS') {
+                                  handlePackagingMaterialChange(materialIndex, 'edgeProtectorSurplus', numericValue);
+                                } else {
+                                  handlePackagingMaterialChange(materialIndex, 'dividerSurplus', numericValue);
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                              placeholder=""
+                            />
+                            <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col flex-1">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              value={
+                                material.packagingMaterialType === 'CARTON BOX' ? (material.cartonBoxWastage || '') :
+                                material.packagingMaterialType === 'CORNER PROTECTORS' ? (material.cornerProtectorWastage || '') :
+                                material.packagingMaterialType === 'EDGE PROTECTORS' ? (material.edgeProtectorWastage || '') :
+                                (material.dividerWastage || '')
+                              }
+                              onChange={(e) => {
+                                const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                                if (material.packagingMaterialType === 'CARTON BOX') {
+                                  handlePackagingMaterialChange(materialIndex, 'cartonBoxWastage', numericValue);
+                                } else if (material.packagingMaterialType === 'CORNER PROTECTORS') {
+                                  handlePackagingMaterialChange(materialIndex, 'cornerProtectorWastage', numericValue);
+                                } else if (material.packagingMaterialType === 'EDGE PROTECTORS') {
+                                  handlePackagingMaterialChange(materialIndex, 'edgeProtectorWastage', numericValue);
+                                } else {
+                                  handlePackagingMaterialChange(materialIndex, 'dividerWastage', numericValue);
+                                }
+                              }}
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                              placeholder=""
+                            />
+                            <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
+                        <input
+                          type="text"
+                          value={material.surplus || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplus', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="%AGE"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
+                        <input
+                          type="text"
+                          value={material.surplusForSection || ''}
+                          onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
+                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                          placeholder="FOR"
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <label className="text-sm font-semibold text-gray-700 mb-2">FOR-SECTION</label>
-                      <input
-                        type="text"
-                        value={material.surplusForSection || ''}
-                        onChange={(e) => handlePackagingMaterialChange(materialIndex, 'surplusForSection', e.target.value)}
-                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                        style={{ padding: '10px 14px', height: '44px', width: '140px' }}
-                        placeholder="FOR"
-                      />
-                    </div>
-                  </div>
+                  )}
 
-                  {/* Approval Against - For all types */}
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL AGAINST</label>
-                    <SearchableDropdown
-                      value={material.approvalAgainst || ''}
-                      onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'approvalAgainst', selectedValue)}
-                      options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                      placeholder="Select or type Approval Against"
-                    />
-                  </div>
+                  {/* Approval Against - Special handling for CARTON BOX, CORNER PROTECTORS, EDGE PROTECTORS, and DIVIDER */}
+                  {material.packagingMaterialType === 'CARTON BOX' ? (
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                      <SearchableDropdown
+                        value={material.cartonBoxApproval || ''}
+                        onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxApproval', selectedValue)}
+                        options={['SELF', "BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                        placeholder="Select or type Approval"
+                      />
+                    </div>
+                  ) : material.packagingMaterialType === 'CORNER PROTECTORS' ? (
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                      <SearchableDropdown
+                        value={material.cornerProtectorApproval || ''}
+                        onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorApproval', selectedValue)}
+                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        placeholder="Select or type Approval"
+                      />
+                    </div>
+                  ) : material.packagingMaterialType === 'EDGE PROTECTORS' ? (
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                      <SearchableDropdown
+                        value={material.edgeProtectorApproval || ''}
+                        onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'edgeProtectorApproval', selectedValue)}
+                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        placeholder="Select or type Approval"
+                      />
+                    </div>
+                  ) : material.packagingMaterialType === 'DIVIDER' ? (
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                      <SearchableDropdown
+                        value={material.dividerApproval || ''}
+                        onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'dividerApproval', selectedValue)}
+                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        placeholder="Select or type Approval"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL AGAINST</label>
+                      <SearchableDropdown
+                        value={material.approvalAgainst || ''}
+                        onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'approvalAgainst', selectedValue)}
+                        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                        placeholder="Select or type Approval Against"
+                      />
+                    </div>
+                  )}
 
                   {/* Remarks - For all types */}
                   <div className="col-span-full flex flex-col">
@@ -573,6 +1300,168 @@ const Step5 = ({
                       placeholder="Additional notes..."
                     ></textarea>
                   </div>
+
+                  {/* CARTON BOX - Advance Spec Button and Fields */}
+                  {material.packagingMaterialType === 'CARTON BOX' && (
+                    <div className="col-span-full w-full" style={{ marginTop: '20px' }}>
+                      <button
+                        type="button"
+                        onClick={() => handlePackagingMaterialChange(materialIndex, 'showCartonBoxAdvancedSpec', !material.showCartonBoxAdvancedSpec)}
+                        style={{
+                          backgroundColor: material.showCartonBoxAdvancedSpec ? '#667eea' : '#ffffff',
+                          borderColor: material.showCartonBoxAdvancedSpec ? '#667eea' : '#e5e7eb',
+                          color: material.showCartonBoxAdvancedSpec ? '#ffffff' : '#374151',
+                          border: '2px solid',
+                          borderRadius: '8px',
+                          padding: '10px 20px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          width: '100%',
+                          transition: 'all 0.2s',
+                          boxShadow: material.showCartonBoxAdvancedSpec ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showCartonBoxAdvancedSpec) {
+                            e.target.style.backgroundColor = '#f9fafb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showCartonBoxAdvancedSpec) {
+                            e.target.style.backgroundColor = '#ffffff';
+                          }
+                        }}
+                      >
+                        {material.showCartonBoxAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                      </button>
+                      {material.showCartonBoxAdvancedSpec && (
+                        <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">ARTWORK SPEC</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="file"
+                                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxArtworkSpec', e.target.files[0])}
+                                  className="hidden"
+                                  id={`carton-box-artwork-${materialIndex}`}
+                                />
+                                <label
+                                  htmlFor={`carton-box-artwork-${materialIndex}`}
+                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                                  style={{ padding: '10px 14px', height: '44px', width: '110px' }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <span className="truncate">{material.cartonBoxArtworkSpec ? 'DONE' : 'UPLOAD'}</span>
+                                </label>
+                              </div>
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">PAPER GSM</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxPaperGsm || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxPaperGsm', selectedValue)}
+                                options={['150/120/180 GSM', '180/150/200 GSM', '200/150/250 GSM']}
+                                placeholder="Select or type Paper GSM"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">FLUTE TYPE</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxFluteType || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxFluteType', selectedValue)}
+                                options={['A Flute (5mm)', 'B Flute (3mm)', 'C Flute (4mm)', 'E Flute (1.5mm)', 'F Flute (0.8mm)', 'BC Double Wall', 'EB Double Wall']}
+                                placeholder="Select or type Flute Type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">ECT (Edge Crush Test)</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxEct || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxEct', selectedValue)}
+                                options={['32 ECT', '44 ECT', '48 ECT', '52 ECT']}
+                                placeholder="Select or type ECT"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxPrinting || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxPrinting', selectedValue)}
+                                options={['Plain/Unprinted', '1 Color', '2 Color', 'Full Color (Flexo/Litho Laminated)']}
+                                placeholder="Select or type Printing"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">PRINT CONTENT</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxPrintContent || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxPrintContent', selectedValue)}
+                                options={['Shipping Marks', 'Brand Logo', 'Handling Instructions', 'Barcode']}
+                                placeholder="Select or type Print Content"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">PRINT COLOUR</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxPrintColour || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxPrintColour', selectedValue)}
+                                options={['Black', 'Blue', 'Red', 'Pantone', 'Process (CMYK)']}
+                                placeholder="Select or type Print Colour"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">COATING/TREATMENT</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxCoatingTreatment || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxCoatingTreatment', selectedValue)}
+                                options={['None', 'Wax Coated (moisture)', 'PE Laminated', 'Water Resistant']}
+                                placeholder="Select or type Coating/Treatment"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">HAND HOLES</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxHandHoles || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxHandHoles', selectedValue)}
+                                options={['None', 'Punched Hand Holes', 'Die-Cut Hand Holes']}
+                                placeholder="Select or type Hand Holes"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
+                              <SearchableDropdown
+                                value={material.cartonBoxCertification || ''}
+                                onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxCertification', selectedValue)}
+                                options={['FSC Certified', 'ISO Certified', 'None']}
+                                placeholder="Select or type Certification"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -12,7 +12,8 @@ const Step0 = ({
   addSubproduct,
   removeSubproduct,
   handleSubproductChange,
-  handleSubproductImageChange
+  handleSubproductImageChange,
+  handleSave
 }) => {
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
 
@@ -36,9 +37,12 @@ const Step0 = ({
     handleSkuChange(skuIndex, 'product', value);
   };
 
-  const handleSave = () => {
-    // Save functionality - can be implemented later
-    console.log('Saving SKUs:', formData.skus);
+  const onSave = () => {
+    if (handleSave) {
+      handleSave();
+    } else {
+      console.log('Saving SKUs:', formData.skus);
+    }
   };
 
   return (
@@ -635,7 +639,7 @@ const Step0 = ({
       <div style={{ marginTop: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
         <button
           type="button"
-          onClick={handleSave}
+          onClick={onSave}
           style={{
             background: '#f3f4f6',
             border: '1px solid #d1d5db',
