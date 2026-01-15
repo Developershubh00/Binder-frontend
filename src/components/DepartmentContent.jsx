@@ -53,7 +53,6 @@ const DepartmentContent = () => {
     'chd-code': [
       { id: 'buyer', label: 'BUYER' },
       { id: 'vendor', label: 'VENDOR' },
-      { id: 'factory', label: 'FACTORY' },
       { id: 'company essentials', label: 'COMPANY ESSENTIALS' },
       { id: 'Internal Purchase Order', label: 'INTERNAL PURCHASE ORDER' },
     ],
@@ -445,7 +444,7 @@ const DepartmentContent = () => {
           ← Back to Departments
         </button>
         <h1 className="fullscreen-title">Code Creation</h1>
-        <p className="fullscreen-description">Generate codes for buyers, vendors, factories, and manage company essentials</p>
+        <p className="fullscreen-description">Generate codes for buyers, vendors, and manage company essentials</p>
       </div>
       <div className="fullscreen-buttons">
         <button 
@@ -464,15 +463,6 @@ const DepartmentContent = () => {
           <div className="button-content">
             <span className="button-title">VENDOR</span>
             <span className="button-subtitle">Generate vendor codes</span>
-          </div>
-        </button>
-        <button 
-          className="fullscreen-action-button primary"
-          onClick={() => setSelectedSubMenuItem('factory')}
-        >
-          <div className="button-content">
-            <span className="button-title">FACTORY</span>
-            <span className="button-subtitle">Generate factory codes</span>
           </div>
         </button>
         <button 
@@ -553,35 +543,6 @@ const DepartmentContent = () => {
           <div className="button-content">
             <span className="button-title">VENDOR MASTER SHEET</span>
             <span className="button-subtitle">View and manage vendor master data</span>
-          </div>
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderFactoryContent = () => (
-    <div className="fullscreen-content">
-      <div className="content-header">
-        <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
-        </button>
-        <h1 className="fullscreen-title">Factory Management</h1>
-        <p className="fullscreen-description">Generate factory codes and manage factory master sheets</p>
-      </div>
-      <div className="fullscreen-buttons">
-        <button 
-          className="fullscreen-action-button primary"
-          onClick={() => setShowGenerateFactoryCode(true)}
-        >
-          <div className="button-content">
-            <span className="button-title">GENERATE FACTORY CODE</span>
-            <span className="button-subtitle">Create new factory codes for manufacturing</span>
-          </div>
-        </button>
-        <button className="fullscreen-action-button secondary">
-          <div className="button-content">
-            <span className="button-title">FACTORY MASTER SHEET</span>
-            <span className="button-subtitle">View and manage factory master data</span>
           </div>
         </button>
       </div>
@@ -817,9 +778,6 @@ const DepartmentContent = () => {
     }
     if (selectedSubMenuItem === 'vendor') {
       return renderVendorContent();
-    }
-    if (selectedSubMenuItem === 'factory') {
-      return renderFactoryContent();
     }
     // Company Essentials is now handled by useEffect and showCompanyEssentials flag
     // No need to show intermediate screen
