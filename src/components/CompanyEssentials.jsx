@@ -12,7 +12,7 @@ const CompanyEssentials = ({ onBack }) => {
     'MACHINERY',
     'HOUSE KEEPING',
     'ELECTRICAL',
-    'HARDWARE',
+    'HARDWARE & CHEMICALS',
     'AUDIT & COMPLIANCES',
     'IT',
     'QC TOOLS',
@@ -23,6 +23,7 @@ const CompanyEssentials = ({ onBack }) => {
 
   const unitOptions = ['METER', 'KGS', 'PCS', 'LITRE'];
   const forOptions = ['COMPANY', 'GUEST', 'COMPANY/GUEST'];
+  const departmentOptions = ['BRAIDING', 'CARPET', 'CUTTING', 'DYEING', 'EMBROIDERY', 'KNITTING', 'PRINTING', 'QUILTING', 'SEWING', 'TUFTING', 'WEAVING'];
 
   function getInitialFormData() {
     return {
@@ -204,6 +205,9 @@ const CompanyEssentials = ({ onBack }) => {
   
   // Check if category needs ITEM instead of ITEM DESCRIPTION
   const needsItem = selectedCategory === 'PANTRY';
+  
+  // Check if category needs JOB WORK instead of ITEM DESCRIPTION
+  const needsJobWork = selectedCategory === 'REPAIR' || selectedCategory === 'MAINTENANCE';
 
   // Render a single form
   const renderForm = (form) => {
@@ -248,7 +252,7 @@ const CompanyEssentials = ({ onBack }) => {
 
         {/* Form Fields - Compact Layout */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Row 1: SR NO | ITEM DESC | QTY | UNIT */}
+          {/* Row 1: SR NO | DEPARTMENT | MACHINE TYPE | COMPONENT SPEC | QTY | UNIT (QTY/UNIT not for MACHINERY) */}
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             {/* SR NO. Field */}
             <div className="flex flex-col" style={{ minWidth: '80px', maxWidth: '100px' }}>
@@ -270,17 +274,47 @@ const CompanyEssentials = ({ onBack }) => {
               />
             </div>
 
+            {/* Department Field (for MACHINERY and QC TOOLS) */}
+            {needsDepartment && (
+              <div className="flex flex-col" style={{ minWidth: '150px', maxWidth: '200px' }}>
+                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                  DEPARTMENT
+                </label>
+                <SearchableDropdown
+                  value={form.data.department}
+                  onChange={(value) => handleChange(form.id, 'department', value)}
+                  options={departmentOptions}
+                  placeholder="Enter or select department"
+                  className="border rounded-lg text-sm transition-all bg-white"
+                  style={{ 
+                    padding: '8px 12px', 
+                    height: '40px', 
+                    width: '100%',
+                    borderColor: '#d0d0d0'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#999';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d0d0d0';
+                    e.target.style.boxShadow = '';
+                  }}
+                />
+              </div>
+            )}
+
             {/* Item Description or Item Field */}
             {!needsMachineFields && (
               <div className="flex flex-col" style={{ width: '25%', minWidth: '150px' }}>
                 <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  {needsItem ? 'ITEM' : 'ITEM DESCRIPTION'}
+                  {needsItem ? 'ITEM' : needsJobWork ? 'JOB WORK' : 'ITEM DESCRIPTION'}
                 </label>
                 <input
                   type="text"
                   value={needsItem ? form.data.item : form.data.itemDescription}
                   onChange={(e) => handleChange(form.id, needsItem ? 'item' : 'itemDescription', e.target.value)}
-                  placeholder={`Enter ${needsItem ? 'item' : 'item description'}`}
+                  placeholder={`Enter ${needsItem ? 'item' : needsJobWork ? 'job work' : 'item description'}`}
                   className="border rounded-lg text-sm transition-all bg-white"
                   style={{ 
                     padding: '8px 12px', 
@@ -303,7 +337,7 @@ const CompanyEssentials = ({ onBack }) => {
 
             {/* Machine Type Field (for MACHINERY and QC TOOLS) */}
             {needsMachineFields && (
-              <div className="flex flex-col" style={{ flex: '1', minWidth: '200px' }}>
+              <div className="flex flex-col" style={{ width: '25%', minWidth: '150px', maxWidth: '250px' }}>
                 <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
                   MACHINE TYPE
                 </label>
@@ -332,37 +366,70 @@ const CompanyEssentials = ({ onBack }) => {
               </div>
             )}
 
-            {/* QTY or AMOUNT Field */}
-            <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
-              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                {needsAmount ? 'AMOUNT' : 'QTY'}
-              </label>
-              <input
-                type="number"
-                value={needsAmount ? form.data.amount : form.data.qty}
-                onChange={(e) => handleChange(form.id, needsAmount ? 'amount' : 'qty', e.target.value)}
-                placeholder={needsAmount ? 'Enter amount' : 'Enter quantity'}
-                className="border rounded-lg text-sm transition-all bg-white"
-                style={{ 
-                  padding: '8px 12px', 
-                  height: '40px', 
-                  width: '100%',
-                  borderColor: '#d0d0d0',
-                  color: '#333'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#999';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#d0d0d0';
-                  e.target.style.boxShadow = '';
-                }}
-              />
-            </div>
+            {/* Component Spec Field (for MACHINERY and QC TOOLS) */}
+            {needsMachineFields && (
+              <div className="flex flex-col" style={{ width: '25%', minWidth: '150px', maxWidth: '250px' }}>
+                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                  COMPONENT SPEC
+                </label>
+                <input
+                  type="text"
+                  value={form.data.componentSpec}
+                  onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
+                  placeholder="Enter component specification"
+                  className="border rounded-lg text-sm transition-all bg-white"
+                  style={{ 
+                    padding: '8px 12px', 
+                    height: '40px', 
+                    width: '100%',
+                    borderColor: '#d0d0d0',
+                    color: '#333'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#999';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d0d0d0';
+                    e.target.style.boxShadow = '';
+                  }}
+                />
+              </div>
+            )}
 
-            {/* UNIT Field (not for TRAVEL EXPENSE) */}
-            {!needsAmount && (
+            {/* QTY or AMOUNT Field (not in row 1 for MACHINERY) */}
+            {selectedCategory !== 'MACHINERY' && (
+              <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
+                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                  {needsAmount ? 'AMOUNT' : 'QTY'}
+                </label>
+                <input
+                  type="number"
+                  value={needsAmount ? form.data.amount : form.data.qty}
+                  onChange={(e) => handleChange(form.id, needsAmount ? 'amount' : 'qty', e.target.value)}
+                  placeholder={needsAmount ? 'Enter amount' : 'Enter quantity'}
+                  className="border rounded-lg text-sm transition-all bg-white"
+                  style={{ 
+                    padding: '8px 12px', 
+                    height: '40px', 
+                    width: '100%',
+                    borderColor: '#d0d0d0',
+                    color: '#333'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#999';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d0d0d0';
+                    e.target.style.boxShadow = '';
+                  }}
+                />
+              </div>
+            )}
+
+            {/* UNIT Field (not for TRAVEL EXPENSE and not in row 1 for MACHINERY) */}
+            {!needsAmount && selectedCategory !== 'MACHINERY' && (
               <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
                 <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
                   UNIT
@@ -392,8 +459,69 @@ const CompanyEssentials = ({ onBack }) => {
             )}
           </div>
 
-          {/* Row 2: REMARKS | REF IMAGE */}
+          {/* Row 2: QTY | UNIT | REMARKS (for MACHINERY) or REMARKS | REF IMAGE (for others) */}
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            {/* QTY Field (for MACHINERY in row 2) */}
+            {selectedCategory === 'MACHINERY' && (
+              <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
+                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                  QTY
+                </label>
+                <input
+                  type="number"
+                  value={form.data.qty}
+                  onChange={(e) => handleChange(form.id, 'qty', e.target.value)}
+                  placeholder="Enter quantity"
+                  className="border rounded-lg text-sm transition-all bg-white"
+                  style={{ 
+                    padding: '8px 12px', 
+                    height: '40px', 
+                    width: '100%',
+                    borderColor: '#d0d0d0',
+                    color: '#333'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#999';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d0d0d0';
+                    e.target.style.boxShadow = '';
+                  }}
+                />
+              </div>
+            )}
+
+            {/* UNIT Field (for MACHINERY in row 2) */}
+            {selectedCategory === 'MACHINERY' && (
+              <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
+                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                  UNIT
+                </label>
+                <SearchableDropdown
+                  value={form.data.unit}
+                  onChange={(value) => handleChange(form.id, 'unit', value)}
+                  options={unitOptions}
+                  placeholder="Select unit"
+                  className="border rounded-lg text-sm transition-all bg-white"
+                  style={{ 
+                    padding: '8px 12px', 
+                    height: '40px', 
+                    width: '100%',
+                    borderColor: '#d0d0d0'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#999';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d0d0d0';
+                    e.target.style.boxShadow = '';
+                  }}
+                />
+              </div>
+            )}
+
             {/* REMARKS Field */}
             <div className="flex flex-col" style={{ width: '25%', minWidth: '150px' }}>
               <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
@@ -423,81 +551,7 @@ const CompanyEssentials = ({ onBack }) => {
               />
             </div>
 
-            {/* REFERENCE IMAGE Field (show for all except MACHINERY) */}
-            {selectedCategory !== 'MACHINERY' && (
-              <div className="flex flex-col" style={{ minWidth: '200px', maxWidth: '300px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  REF IMAGE
-                </label>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <input
-                    type="file"
-                    onChange={(e) => handleImageUpload(form.id, e.target.files[0])}
-                    className="hidden"
-                    id={`upload-image-${form.id}`}
-                    accept="image/*"
-                  />
-                  <label
-                    htmlFor={`upload-image-${form.id}`}
-                    className="border rounded-lg text-sm font-medium cursor-pointer transition-all bg-white hover:bg-gray-50"
-                    style={{ 
-                      padding: '8px 16px', 
-                      height: '40px', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      minWidth: '120px',
-                      borderColor: '#d0d0d0',
-                      color: '#555'
-                    }}
-                  >
-                    {form.data.referenceImage ? 'UPLOADED' : 'UPLOAD'}
-                  </label>
-                  {form.data.referenceImagePreview && (
-                    <div style={{ width: '50px', height: '50px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e0e0e0' }}>
-                      <img 
-                        src={form.data.referenceImagePreview} 
-                        alt="Preview" 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Component Spec Field (for MACHINERY and QC TOOLS) - in row 2 */}
-            {needsMachineFields && (
-              <div className="flex flex-col" style={{ flex: '1', minWidth: '200px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  COMPONENT SPEC
-                </label>
-                <input
-                  type="text"
-                  value={form.data.componentSpec}
-                  onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
-                  placeholder="Enter component specification"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0',
-                    color: '#333'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
-                />
-              </div>
-            )}
-
-            {/* FOR Field (for PANTRY and TRAVEL EXPENSE) - in row 2 */}
+            {/* FOR Field (for PANTRY and TRAVEL EXPENSE) - in row 2, before REF IMAGE */}
             {needsForField && (
               <div className="flex flex-col" style={{ minWidth: '150px', maxWidth: '200px' }}>
                 <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
@@ -552,8 +606,82 @@ const CompanyEssentials = ({ onBack }) => {
               </div>
             )}
 
-            {/* Department Field (for MACHINERY and QC TOOLS) - in row 2 */}
-            {needsDepartment && (
+            {/* REFERENCE IMAGE Field (show for all except MACHINERY) */}
+            {selectedCategory !== 'MACHINERY' && (
+              <div className="flex flex-col" style={{ minWidth: '200px', maxWidth: '300px' }}>
+                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                  REF IMAGE
+                </label>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <input
+                    type="file"
+                    onChange={(e) => handleImageUpload(form.id, e.target.files[0])}
+                    className="hidden"
+                    id={`upload-image-${form.id}`}
+                    accept="image/*"
+                  />
+                  <label
+                    htmlFor={`upload-image-${form.id}`}
+                    className="border rounded-lg text-sm font-medium cursor-pointer transition-all bg-white hover:bg-gray-50"
+                    style={{ 
+                      padding: '8px 16px', 
+                      height: '40px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      minWidth: '120px',
+                      borderColor: '#d0d0d0',
+                      color: '#555'
+                    }}
+                  >
+                    {form.data.referenceImage ? 'UPLOADED' : 'UPLOAD'}
+                  </label>
+                  {form.data.referenceImagePreview && (
+                    <div style={{ width: '50px', height: '50px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e0e0e0' }}>
+                      <img 
+                        src={form.data.referenceImagePreview} 
+                        alt="Preview" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Component Spec Field (for QC TOOLS only) - in row 2 */}
+            {needsMachineFields && selectedCategory !== 'MACHINERY' && (
+              <div className="flex flex-col" style={{ flex: '1', minWidth: '200px' }}>
+                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
+                  COMPONENT SPEC
+                </label>
+                <input
+                  type="text"
+                  value={form.data.componentSpec}
+                  onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
+                  placeholder="Enter component specification"
+                  className="border rounded-lg text-sm transition-all bg-white"
+                  style={{ 
+                    padding: '8px 12px', 
+                    height: '40px', 
+                    width: '100%',
+                    borderColor: '#d0d0d0',
+                    color: '#333'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#999';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d0d0d0';
+                    e.target.style.boxShadow = '';
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Department Field (for QC TOOLS only) - in row 2 */}
+            {needsDepartment && selectedCategory !== 'MACHINERY' && (
               <div className="flex flex-col" style={{ minWidth: '150px', maxWidth: '200px' }}>
                 <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
                   DEPARTMENT
@@ -561,7 +689,7 @@ const CompanyEssentials = ({ onBack }) => {
                 <SearchableDropdown
                   value={form.data.department}
                   onChange={(value) => handleChange(form.id, 'department', value)}
-                  options={[]}
+                  options={departmentOptions}
                   placeholder="Enter or select department"
                   className="border rounded-lg text-sm transition-all bg-white"
                   style={{ 
@@ -588,6 +716,17 @@ const CompanyEssentials = ({ onBack }) => {
   };
 
   return (
+    <>
+    <style>{`
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+    `}</style>
     <div className="w-full min-h-screen" style={{ padding: '24px', background: '#fafafa' }}>
       {/* Header */}
       <div className="mb-6">
@@ -726,6 +865,7 @@ const CompanyEssentials = ({ onBack }) => {
         </div>
       )}
     </div>
+    </>
   );
 };
 
