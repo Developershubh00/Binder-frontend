@@ -215,7 +215,7 @@ const CompanyEssentials = ({ onBack }) => {
       <div 
         key={form.id}
         className="bg-white rounded-lg border" 
-        style={{ padding: '20px', marginBottom: '16px', borderColor: '#e0e0e0', position: 'relative' }}
+        style={{ padding: '16px', marginBottom: '12px', borderColor: '#e0e0e0', position: 'relative' }}
       >
         {/* Remove Button - Top Right */}
         <button
@@ -251,9 +251,9 @@ const CompanyEssentials = ({ onBack }) => {
         </button>
 
         {/* Form Fields - Compact Layout */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Row 1: SR NO | DEPARTMENT | MACHINE TYPE | COMPONENT SPEC | QTY | UNIT (QTY/UNIT not for MACHINERY) */}
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {/* SR NO. Field */}
             <div className="flex flex-col" style={{ minWidth: '80px', maxWidth: '100px' }}>
               <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
@@ -460,7 +460,7 @@ const CompanyEssentials = ({ onBack }) => {
           </div>
 
           {/* Row 2: QTY | UNIT | REMARKS (for MACHINERY) or REMARKS | REF IMAGE (for others) */}
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {/* QTY Field (for MACHINERY in row 2) */}
             {selectedCategory === 'MACHINERY' && (
               <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
@@ -727,12 +727,12 @@ const CompanyEssentials = ({ onBack }) => {
         -moz-appearance: textfield;
       }
     `}</style>
-    <div className="w-full min-h-screen" style={{ padding: '24px', background: '#fafafa' }}>
+    <div className="w-full min-h-screen" style={{ padding: '16px', background: '#fafafa' }}>
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4" style={{ flexShrink: 0 }}>
         <button 
           onClick={onBack}
-          className="flex items-center gap-2 mb-4 transition-colors"
+          className="flex items-center gap-2 mb-3 transition-colors"
           style={{ 
             padding: '8px 16px',
             borderRadius: '8px',
@@ -744,11 +744,11 @@ const CompanyEssentials = ({ onBack }) => {
         >
           ← Back to Departments
         </button>
-        <h1 className="text-3xl font-semibold mb-4" style={{ color: '#333', paddingBottom: '10px' }}>Company Essentials</h1>
+        <h1 className="text-2xl font-semibold mb-2" style={{ color: '#333' }}>Company Essentials</h1>
       </div>
 
       {/* Category Selection */}
-      <div className="bg-white rounded-lg border" style={{ padding: '24px', marginBottom: '24px', borderColor: '#e0e0e0' }}>
+      <div className="bg-white rounded-lg border" style={{ padding: '16px', marginBottom: '16px', borderColor: '#e0e0e0', flexShrink: 0 }}>
         <label className="text-sm font-semibold mb-2" style={{ display: 'block', marginBottom: '8px', color: '#555' }}>
           SELECT CATEGORY
         </label>
@@ -778,14 +778,14 @@ const CompanyEssentials = ({ onBack }) => {
 
       {/* Forms Section */}
       {selectedCategory && (
-        <div className="bg-white rounded-lg border" style={{ padding: '24px', borderColor: '#e0e0e0' }}>
-          <h2 className="text-2xl font-semibold mb-6" style={{ color: '#333' }}>
+        <div className="bg-white rounded-lg border" style={{ padding: '16px', borderColor: '#e0e0e0' }}>
+          <h2 className="text-xl font-semibold mb-4" style={{ color: '#333' }}>
             {selectedCategory}
           </h2>
 
           {/* Common Date Field */}
           {!needsDepartment && (
-            <div className="flex flex-col mb-6" style={{ maxWidth: '220px' }}>
+            <div className="flex flex-col mb-4" style={{ maxWidth: '220px' }}>
               <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
                 DATE
               </label>
@@ -818,7 +818,7 @@ const CompanyEssentials = ({ onBack }) => {
             {forms.map(form => renderForm(form))}
 
             {/* Submit and Add More Buttons */}
-            <div className="flex justify-start gap-4 mt-6">
+            <div className="flex justify-start gap-4 mt-4" style={{ flexShrink: 0 }}>
               <button
                 type="button"
                 onClick={(e) => {
