@@ -873,8 +873,8 @@ const DepartmentContent = () => {
             } : {}}
           >
             <h3 className="dept-menu-title">
-              {getDepartmentName(deptId)} Options
-              {stickySubMenu === deptId && <span className="sticky-indicator">📌</span>}
+              {getDepartmentName(deptId)}
+              {/* {stickySubMenu === deptId && <span className="sticky-indicator">📌</span>} */}
             </h3>
             <div 
               className="dept-menu-list"
