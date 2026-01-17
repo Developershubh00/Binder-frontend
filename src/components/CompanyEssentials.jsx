@@ -5,6 +5,7 @@ const CompanyEssentials = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [commonDate, setCommonDate] = useState(new Date().toISOString().split('T')[0]);
   const [forms, setForms] = useState([{ id: 1, srNo: 1, data: getInitialFormData() }]);
+  const [showPopup, setShowPopup] = useState(false);
 
   const categories = [
     'STATIONARY',
@@ -176,7 +177,14 @@ const CompanyEssentials = ({ onBack }) => {
     existingData.push(dataToSave);
     localStorage.setItem('companyEssentials', JSON.stringify(existingData));
 
-    alert(`Form submitted successfully!\nCode: ${code}\n\nData saved.`);
+    // Show popup instead of alert
+    setShowPopup(true);
+  };
+
+  // Handle Add More from popup
+  const handleAddMoreFromPopup = () => {
+    setShowPopup(false);
+    handleAddMore();
   };
 
   // Prevent Enter key from submitting form when typing in input fields
@@ -862,6 +870,114 @@ const CompanyEssentials = ({ onBack }) => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Popup Modal */}
+      {showPopup && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+          onClick={() => setShowPopup(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              padding: '24px 20px',
+              minWidth: '400px',
+              maxWidth: '500px',
+              position: 'relative',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Icon - Top Right */}
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#666',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '6px',
+                transition: 'all 0.2s',
+                zIndex: 10
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f5f5f5';
+                e.currentTarget.style.color = '#333';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#666';
+              }}
+            >
+              ×
+            </button>
+
+            {/* Popup Content */}
+            <div>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '600', 
+                marginBottom: '8px', 
+                color: '#333',
+                textAlign: 'center'
+              }}>
+                Request Submitted
+              </h3>
+              
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: '12px', 
+                marginTop: '24px'
+              }}>
+                <button
+                  onClick={handleAddMoreFromPopup}
+                  style={{
+                    backgroundColor: '#667eea',
+                    border: 'none',
+                    color: '#ffffff',
+                    padding: '12px 32px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#5568d3';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#667eea';
+                  }}
+                >
+                  Add More
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
