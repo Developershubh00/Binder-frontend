@@ -151,7 +151,7 @@ const Step0 = ({
               {/* SKU / ITEM NO */}
               <div className="flex flex-col">
                 <label className="text-sm font-semibold text-gray-700 mb-2">
-                  SKU / ITEM NO. <span className="text-red-600">*</span>
+                  BUYER SKU <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
