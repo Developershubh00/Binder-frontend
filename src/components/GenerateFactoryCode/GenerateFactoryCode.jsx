@@ -3620,6 +3620,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   return (
+    <>
+    <style>{`
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+    `}</style>
     <div ref={scrollContainerRef} className="w-full h-full bg-white rounded-xl shadow-sm overflow-y-auto" style={{ padding: '40px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
       <div style={{ marginBottom: '40px' }}>
         <button 
@@ -4134,6 +4145,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         )}
       </div>
     </div>
+    </>
   );
 };
 
