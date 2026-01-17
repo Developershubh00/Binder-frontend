@@ -891,7 +891,7 @@ const DepartmentContent = () => {
             } : {}}
           >
             <h3 className="dept-menu-title">
-              {getDepartmentName(deptId)} Options
+              {getDepartmentName(deptId)}
             </h3>
             <div 
               className="dept-menu-list"
