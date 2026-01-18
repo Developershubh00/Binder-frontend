@@ -103,7 +103,7 @@ export const getAllApprovalOptions = () => {
     });
   });
   // Add standard approval options
-  const standardApprovals = ['buyer', 'proto', 'fit', 'size set', 'pp', 'top sample'];
+  const standardApprovals = ['BUYER', 'PROTO', 'FIT', 'SIZE SET', 'PP', 'TOP SAMPLE'];
   standardApprovals.forEach(approval => approvals.add(approval));
   return Array.from(approvals).sort();
 };
