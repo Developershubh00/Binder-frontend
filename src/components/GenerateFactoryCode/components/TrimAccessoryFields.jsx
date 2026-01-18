@@ -4259,7 +4259,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         />
                       </div>
 
-                      {/* ADVANCE DATA Button */}
+                      {/* ADVANCE SPEC Button */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex justify-start mt-4">
                         <button
                           type="button"
@@ -4281,11 +4281,11 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                             e.currentTarget.style.transform = 'translateX(0)';
                           }}
                         >
-                          {material.hookEyeAdvanceDataOpen ? 'HIDE ADVANCE DATA' : 'ADVANCE DATA'}
+                          {material.hookEyeAdvanceDataOpen ? 'HIDE ADVANCE SPEC' : 'ADVANCE SPEC'}
                         </button>
                       </div>
 
-                      {/* STRENGTH and APPLICATION - Only show when ADVANCE DATA is open */}
+                      {/* STRENGTH and APPLICATION - Only show when ADVANCE SPEC is open */}
                       {material.hookEyeAdvanceDataOpen && (
                         <>
                           {/* STRENGTH - From ADVANCE SPEC~UI */}
@@ -4823,7 +4823,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                             }
                           }}
                         >
-                          ADVANCE DATA
+                          ADVANCE SPEC
                         </button>
                       </div>
                       
@@ -6471,7 +6471,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                             }
                           }}
                         >
-                          ADVANCE DATA
+                          ADVANCE SPEC
                         </button>
                       </div>
                       

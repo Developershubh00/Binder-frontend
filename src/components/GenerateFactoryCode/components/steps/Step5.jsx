@@ -2497,7 +2497,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showFoamInsertAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showFoamInsertAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showFoamInsertAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2572,7 +2572,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showPalletStrapAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showPalletStrapAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showPalletStrapAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2636,7 +2636,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showPolybagBaleAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showPolybagBaleAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showPolybagBaleAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2765,7 +2765,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showPolybagPolybagFlapAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showPolybagPolybagFlapAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showPolybagPolybagFlapAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -2948,7 +2948,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showSilicaGelDesiccantAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showSilicaGelDesiccantAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showSilicaGelDesiccantAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -3045,7 +3045,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showStretchWrapAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showStretchWrapAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showStretchWrapAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
@@ -3133,7 +3133,7 @@ const Step5 = ({
                           }
                         }}
                       >
-                        {material.showTapeAdvancedData ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showTapeAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showTapeAdvancedData && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>

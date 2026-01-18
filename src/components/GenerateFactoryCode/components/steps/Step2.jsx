@@ -1022,7 +1022,7 @@ const Step2 = ({
                           }
                         }}
                       >
-                        {material.showStitchingThreadAdvancedSpec ? '▼ ADVANCE DATA' : '▶ ADVANCE DATA'}
+                        {material.showStitchingThreadAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
                       </button>
                       {material.showStitchingThreadAdvancedSpec && (
                         <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
