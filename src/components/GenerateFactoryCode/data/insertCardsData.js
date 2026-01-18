@@ -34,7 +34,7 @@ export const INSERT_CARDS_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 export const INSERT_CARDS_APPROVAL_OPTIONS = [
   'BUYER\'S',
   'INITIAL',
-  'IPP',
+  'PP',
   'Structural + Print Proof',
   'OTHERS (TEXT)'
 ];

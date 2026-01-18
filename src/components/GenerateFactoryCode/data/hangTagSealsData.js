@@ -38,7 +38,7 @@ export const HANG_TAG_SEALS_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 export const HANG_TAG_SEALS_APPROVAL_OPTIONS = [
   'BUYER\'S',
   'INITIAL',
-  'IPP',
+  'PP',
   'Functionality Check',
   'OTHERS (TEXT)'
 ];

@@ -36,7 +36,7 @@ export const HEAT_TRANSFER_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 export const HEAT_TRANSFER_APPROVAL_OPTIONS = [
   'BUYER\'S',
   'INITIAL',
-  'IPP',
+  'PP',
   'Application Test Approval',
   'OTHERS (TEXT)'
 ];

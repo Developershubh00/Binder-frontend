@@ -35,7 +35,7 @@ export const CARE_COMPOSITION_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 export const CARE_COMPOSITION_APPROVAL_OPTIONS = [
   'BUYER\'S',
   'INITIAL',
-  'IPP',
+  'PP',
   'Text Compliance Check',
   'OTHERS (TEXT)'
 ];

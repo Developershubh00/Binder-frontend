@@ -42,7 +42,7 @@ export const BELLY_BAND_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 export const BELLY_BAND_APPROVAL_OPTIONS = [
   'BUYER\'S',
   'INITIAL',
-  'IPP',
+  'PP',
   'Structural Die-Line + Print Proof',
   'OTHERS (TEXT)'
 ];

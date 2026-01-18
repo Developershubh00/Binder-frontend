@@ -1360,7 +1360,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                                                 <SearchableDropdown
                           value={material.approval || ''}
                           onChange={(selectedValue) => handleChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          options={["BUYER'S", 'INITIAL', 'PP']}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}

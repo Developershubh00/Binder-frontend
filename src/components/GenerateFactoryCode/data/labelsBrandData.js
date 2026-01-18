@@ -59,7 +59,7 @@ export const LABELS_BRAND_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 export const LABELS_BRAND_APPROVAL_OPTIONS = [
   'BUYER\'S',
   'INITIAL',
-  'IPP',
+  'PP',
   'Woven Sample Approval',
   'OTHERS (TEXT)'
 ];

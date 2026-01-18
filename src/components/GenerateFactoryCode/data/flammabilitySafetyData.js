@@ -30,7 +30,7 @@ export const FLAMMABILITY_SAFETY_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 export const FLAMMABILITY_SAFETY_APPROVAL_OPTIONS = [
   'BUYER\'S',
   'INITIAL',
-  'IPP',
+  'PP',
   'Legal/Compliance Approval',
   'OTHERS (TEXT)'
 ];

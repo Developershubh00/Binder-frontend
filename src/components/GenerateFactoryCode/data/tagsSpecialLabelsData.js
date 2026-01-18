@@ -55,7 +55,7 @@ export const TAGS_SPECIAL_LABELS_SIZE_UNITS = [
 export const TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS = [
   "BUYER'S",
   'INITIAL',
-  'IPP',
+  'PP',
   'Design Proof Approval',
   'OTHERS (TEXT)'
 ];
