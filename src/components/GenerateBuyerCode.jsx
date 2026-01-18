@@ -492,7 +492,7 @@ const GenerateBuyerCode = ({ onBack }) => {
       newErrors.contactPerson = 'Contact Person is required';
     }
     if (!trimmedData.retailer) {
-      newErrors.retailer = 'Retailer is required';
+      newErrors.retailer = 'End Customer is required';
     }
     
     setErrors(newErrors);
@@ -503,7 +503,7 @@ const GenerateBuyerCode = ({ onBack }) => {
     const normalizedBuyerName = formData.buyerName.trim().toLowerCase();
     const normalizedRetailer = formData.retailer.trim().toLowerCase();
 
-    // Check if exact buyer + retailer combination exists
+    // Check if exact buyer + end customer combination exists
     const existingEntry = existingCodes.find(item => {
       const itemBuyerName = (item.buyerName || '').trim().toLowerCase();
       const itemRetailer = (item.retailer || '').trim().toLowerCase();
@@ -525,7 +525,7 @@ const GenerateBuyerCode = ({ onBack }) => {
       // Normalize buyer name for comparison
       const normalizedBuyerName = buyerName.trim().toLowerCase();
       
-      // Find all codes for this buyer (regardless of retailer)
+      // Find all codes for this buyer (regardless of end customer)
       const buyerCodes = existingCodes.filter(item => {
         const itemBuyerName = (item.buyerName || '').trim().toLowerCase();
         return itemBuyerName === normalizedBuyerName;
@@ -551,7 +551,7 @@ const GenerateBuyerCode = ({ onBack }) => {
           }
         });
         
-        // Increment the letter for new retailer
+        // Increment the letter for new end customer
         const nextLetter = String.fromCharCode(highestLetter.charCodeAt(0) + 1);
         
         return `${baseNumber}${nextLetter}`;
@@ -597,16 +597,16 @@ const GenerateBuyerCode = ({ onBack }) => {
       // Get existing codes from localStorage
       const existingCodes = JSON.parse(localStorage.getItem('buyerCodes') || '[]');
       
-      // Check if this exact buyer + retailer combination already exists
+      // Check if this exact buyer + end customer combination already exists
       const existingEntry = checkIfCombinationExists(existingCodes);
       
       if (existingEntry) {
         setIsGenerating(false);
         setErrors({
-          buyerName: `This buyer-retailer combination already exists`,
+          buyerName: `This buyer-end customer combination already exists`,
           retailer: `Existing code: ${existingEntry.code}`
         });
-        alert(`⚠️ This buyer-retailer combination already exists!\n\nExisting Code: ${existingEntry.code}\nBuyer: ${existingEntry.buyerName}\nRetailer: ${existingEntry.retailer}\n\nPlease use a different retailer or buyer name.`);
+        alert(`⚠️ This buyer-end customer combination already exists!\n\nExisting Code: ${existingEntry.code}\nBuyer: ${existingEntry.buyerName}\nEnd Customer: ${existingEntry.retailer}\n\nPlease use a different end customer or buyer name.`);
         return;
       }
       
@@ -760,7 +760,7 @@ const GenerateBuyerCode = ({ onBack }) => {
 
           <div className="form-group">
             <label htmlFor="retailer" className="form-label">
-              Retailer <span className="required">*</span>
+              End Customer <span className="required">*</span>
             </label>
             <input
               type="text"
@@ -769,7 +769,7 @@ const GenerateBuyerCode = ({ onBack }) => {
               value={formData.retailer}
               onChange={handleInputChange}
               className={`form-input ${errors.retailer ? 'error' : ''}`}
-              placeholder="Enter retailer name"
+              placeholder="Enter end customer name"
               required
             />
             {errors.retailer && <span className="error-message">{errors.retailer}</span>}
