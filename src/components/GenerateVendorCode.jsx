@@ -212,14 +212,38 @@ const GenerateVendorCode = ({ onBack }) => {
   if (generatedCode) {
     return (
       <div className="generate-vendor-container">
-        <div className="generated-code-display">
+        <div className="generated-code-display" style={{ position: 'relative' }}>
+          {/* Close button in top right */}
+          <button 
+            className="close-button" 
+            onClick={onBack}
+            style={{
+              position: 'absolute',
+              top: '0',
+              right: '0',
+              background: 'transparent',
+              border: 'none',
+              fontSize: '32px',
+              cursor: 'pointer',
+              color: '#6b7280',
+              padding: '8px',
+              lineHeight: '1',
+              transition: 'color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#374151'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
+            title="Close"
+          >
+            ×
+          </button>
+
           <div className="success-animation">
             <div className="success-icon">✓</div>
             <h2 className="success-title">Vendor Code Generated Successfully!</h2>
           </div>
           
           <div className="code-display-card">
-            <h3 className="code-label">Your Vendor Code:</h3>
+            <h3 className="code-label">{formData.vendorName} vendor code </h3>
             <div className="code-display">
               <span className="code-text">{generatedCode}</span>
               <button 
@@ -235,9 +259,6 @@ const GenerateVendorCode = ({ onBack }) => {
           <div className="action-buttons">
             <button className="generate-another-btn" onClick={resetForm}>
               Generate Another Code
-            </button>
-            <button className="back-btn" onClick={onBack}>
-              Back to Department
             </button>
           </div>
         </div>
