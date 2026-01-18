@@ -819,6 +819,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       material.stitchingThreadTex?.trim() ||
       material.stitchingThreadPly?.trim() ||
       material.stitchingThreadColour?.trim() ||
+      material.stitchingThreadRef?.trim() ||
       hasWorkOrderSelection
     );
   };
