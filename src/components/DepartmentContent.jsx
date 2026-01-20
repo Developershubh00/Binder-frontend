@@ -7,7 +7,7 @@ import VendorMasterSheet from './VendorMasterSheet';
 import CompanyEssentials from './CompanyEssentials';
 import InternalPurchaseOrder from './InternalPurchaseOrder/InternalPurchaseOrder';
 
-const DepartmentContent = () => {
+const DepartmentContent = ({ resetKey }) => {
   const [hoveredDeptItem, setHoveredDeptItem] = useState(null);
   const [selectedSubMenuItem, setSelectedSubMenuItem] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
@@ -35,6 +35,13 @@ const DepartmentContent = () => {
       setShowInternalPurchaseOrder(true);
     }
   }, [selectedSubMenuItem, showInternalPurchaseOrder]);
+
+  // Reset department view when resetKey changes (e.g., sidebar Departments clicked)
+  useEffect(() => {
+    if (resetKey !== undefined) {
+      handleBackToDepartments();
+    }
+  }, [resetKey]);
 
   const departmentItems = [
     { id: 'chd-code', label: 'CODE CREATION', hasSubMenu: true },
