@@ -12,6 +12,7 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState('home');
+  const [departmentResetKey, setDepartmentResetKey] = useState(0);
 
   const handleLogout = () => {
     logout();
@@ -67,6 +68,10 @@ const Dashboard = () => {
               onClick={() => {
                 if (item.id === 'community') {
                   navigate('/community');
+                } else if (item.id === 'department') {
+                  setActivePage('department');
+                  // Bump reset key so DepartmentContent resets even if already active
+                  setDepartmentResetKey((key) => key + 1);
                 } else {
                   setActivePage(item.id);
                 }
@@ -106,7 +111,11 @@ const Dashboard = () => {
           </div>
         </header>
         <div className="content-wrapper">
-          {renderContent()}
+          {activePage === 'department' ? (
+            <DepartmentContent resetKey={departmentResetKey} />
+          ) : (
+            renderContent()
+          )}
         </div>
       </main>
     </div>
