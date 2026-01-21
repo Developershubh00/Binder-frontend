@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { PercentInput } from '@/components/ui/percent-input';
+import { cn } from '@/lib/utils';
 
 const Step1 = ({
   formData,
@@ -9,23 +14,25 @@ const Step1 = ({
   handleComponentCuttingSizeChange,
   handleComponentSewSizeChange
 }) => {
+  const selectBaseClass =
+    "border-input h-11 w-full min-w-0 rounded-md border bg-white text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
     <div className="w-full">
       {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-1 CUT & SEW SPEC</h2>
-        <p className="text-base text-gray-500">Enter cutting and sewing specifications for components</p>
+      <div style={{ marginBottom: '24px' }}>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-1">PART-1 CUT &amp; SEW SPEC</h2>
+        <p className="text-sm text-muted-foreground">Enter cutting and sewing specifications for components</p>
       </div>
 
       {/* Components Section - Work with first product's components */}
       {formData.products && formData.products.length > 0 && formData.products[0] && (
         <div
-          className="bg-gray-50 rounded-xl border border-gray-200"
-          style={{ padding: '32px', marginBottom: '24px' }}
+          className="rounded-2xl border border-border bg-muted"
+          style={{ padding: '24px 20px', marginBottom: '24px' }}
         >
-          <div style={{ marginBottom: '24px' }}>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Components</h3>
+          <div style={{ marginBottom: '16px' }}>
+            <h3 className="text-lg font-semibold text-foreground/90">Components</h3>
           </div>
 
           {/* Components List */}
@@ -33,286 +40,152 @@ const Step1 = ({
               <div
                 key={componentIndex}
                 id={`component-0-${componentIndex}`}
-                className="bg-white rounded-lg border border-gray-200"
-                style={{ padding: '20px', marginBottom: '16px' }}
+                className="bg-card rounded-xl border border-border"
+                style={{ padding: '20px 18px', marginBottom: '16px' }}
               >
                 <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
-                  <h4 className="text-sm font-semibold text-gray-700">COMPONENT {component.srNo}</h4>
+                  <h4 className="text-sm font-semibold text-foreground/80">COMPONENT {component.srNo}</h4>
                   {formData.products[0].components.length > 1 && (
-                    <button
+                    <Button
                       type="button"
                       onClick={() => removeComponent(0, componentIndex)}
-                      style={{
-                        background: '#f3f4f6',
-                        border: '1px solid #d1d5db',
-                        color: '#374151',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#e5e7eb';
-                        e.currentTarget.style.transform = 'translateX(-2px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3f4f6';
-                        e.currentTarget.style.transform = 'translateX(0)';
-                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
                     >
                       Remove
-                    </button>
+                    </Button>
                   )}
                 </div>
 
                 {/* Component Details */}
-                <div className="flex flex-wrap items-start gap-4" style={{ marginBottom: '28px' }}>
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">
-                      NAME <span className="text-red-600">*</span>
-                    </label>
-                    <input
+                <div className="flex flex-wrap items-start gap-4" style={{ marginBottom: '20px' }}>
+                  <Field
+                    label="NAME"
+                    required
+                    error={errors[`product_0_component_${componentIndex}_productComforter`]}
+                    width="sm"
+                  >
+                    <Input
                       type="text"
                       value={component.productComforter}
                       onChange={(e) => handleComponentChange(0, componentIndex, 'productComforter', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                        errors[`product_0_component_${componentIndex}_productComforter`]
-                          ? 'border-red-600'
-                          : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                      }`}
-                      style={{ padding: '10px 14px', width: '180px', height: '44px' }}
-                      onFocus={(e) => {
-                        if (!errors[`product_0_component_${componentIndex}_productComforter`]) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
                       placeholder="e.g., Top Panel"
+                      aria-invalid={errors[`product_0_component_${componentIndex}_productComforter`] ? true : undefined}
                       required
                     />
-                    {errors[`product_0_component_${componentIndex}_productComforter`] && (
-                      <span className="text-red-600 text-xs mt-1 font-medium">
-                        {errors[`product_0_component_${componentIndex}_productComforter`]}
-                      </span>
-                    )}
-                  </div>
+                  </Field>
 
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">
-                      UNIT <span className="text-red-600">*</span>
-                    </label>
+                  <Field
+                    label="UNIT"
+                    required
+                    error={errors[`product_0_component_${componentIndex}_unit`]}
+                    width="sm"
+                  >
                     <select
                       value={component.unit}
                       onChange={(e) => handleComponentChange(0, componentIndex, 'unit', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                        errors[`product_0_component_${componentIndex}_unit`]
-                          ? 'border-red-600'
-                          : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                      }`}
-                      style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                      onFocus={(e) => {
-                        if (!errors[`product_0_component_${componentIndex}_unit`]) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
+                      className={cn(
+                        selectBaseClass,
+                        errors[`product_0_component_${componentIndex}_unit`] && "aria-invalid border-destructive"
+                      )}
+                      style={{ paddingLeft: '1.25rem', paddingRight: '0.75rem' }}
+                      aria-invalid={errors[`product_0_component_${componentIndex}_unit`] ? true : undefined}
                       required
                     >
                       <option value="">Select</option>
                       <option value="CM">CM</option>
                       <option value="KGS">KGS</option>
                     </select>
-                    {errors[`product_0_component_${componentIndex}_unit`] && (
-                      <span className="text-red-600 text-xs mt-1 font-medium">
-                        {errors[`product_0_component_${componentIndex}_unit`]}
-                      </span>
-                    )}
-                  </div>
+                  </Field>
 
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">
-                      GSM <span className="text-red-600">*</span>
-                    </label>
-                    <input
+                  <Field
+                    label="GSM"
+                    required
+                    error={errors[`product_0_component_${componentIndex}_gsm`]}
+                    width="sm"
+                  >
+                    <Input
                       type="number"
                       value={component.gsm || ''}
                       onChange={(e) => handleComponentChange(0, componentIndex, 'gsm', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                        errors[`product_0_component_${componentIndex}_gsm`]
-                          ? 'border-red-600'
-                          : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                      }`}
-                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                      onFocus={(e) => {
-                        if (!errors[`product_0_component_${componentIndex}_gsm`]) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
                       placeholder="e.g., 200"
+                      aria-invalid={errors[`product_0_component_${componentIndex}_gsm`] ? true : undefined}
                       required
                     />
-                    {errors[`product_0_component_${componentIndex}_gsm`] && (
-                      <span className="text-red-600 text-xs mt-1 font-medium">
-                        {errors[`product_0_component_${componentIndex}_gsm`]}
-                      </span>
-                    )}
-                  </div>
+                  </Field>
 
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">
-                      WASTAGE % <span className="text-red-600">*</span>
-                    </label>
-                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '120px' }}>
-                      <input
-                        type="text"
-                        value={component.wastage || ''}
-                        onChange={(e) => {
-                          // Store only numeric value (remove % and non-numeric chars except decimal point)
-                          const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-                          handleComponentChange(0, componentIndex, 'wastage', numericValue);
-                        }}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                          errors[`product_0_component_${componentIndex}_wastage`]
-                            ? 'border-red-600'
-                            : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                        }`}
-                        style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
-                        onFocus={(e) => {
-                          if (!errors[`product_0_component_${componentIndex}_wastage`]) {
-                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                          }
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.boxShadow = '';
-                        }}
-                        placeholder="e.g., 5"
-                        required
-                      />
-                      {component.wastage && (
-                        <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-                      )}
-                    </div>
-                    {errors[`product_0_component_${componentIndex}_wastage`] && (
-                      <span className="text-red-600 text-xs mt-1 font-medium">
-                        {errors[`product_0_component_${componentIndex}_wastage`]}
-                      </span>
-                    )}
-                  </div>
-
+                  <Field
+                    label="WASTAGE %"
+                    required
+                    error={errors[`product_0_component_${componentIndex}_wastage`]}
+                    width="sm"
+                  >
+                    <PercentInput
+                      value={component.wastage || ''}
+                      onChange={(e) => handleComponentChange(0, componentIndex, 'wastage', e.target.value)}
+                      placeholder="e.g., 5"
+                      error={errors[`product_0_component_${componentIndex}_wastage`]}
+                      required
+                    />
+                  </Field>
                 </div>
 
                 {/* Cutting Size */}
-                <div style={{ marginBottom: '28px' }}>
-                  <h4 className="text-sm font-semibold text-gray-800" style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: '20px' }}>
+                  <h4 className="text-sm font-semibold text-foreground/80" style={{ marginBottom: '12px' }}>
                     CUTTING SIZE
                   </h4>
                   <div className="flex flex-wrap items-start gap-4">
                     {component.unit === 'KGS' ? (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">
-                          CONSUMPTION <span className="text-red-600">*</span>
-                        </label>
-                        <input
+                      <Field
+                        label="CONSUMPTION"
+                        required
+                        error={errors[`product_0_component_${componentIndex}_cuttingConsumption`]}
+                        width="sm"
+                      >
+                        <Input
                           type="number"
                           value={component.cuttingSize.consumption || ''}
                           onChange={(e) => handleComponentCuttingSizeChange(0, componentIndex, 'consumption', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                            errors[`product_0_component_${componentIndex}_cuttingConsumption`]
-                              ? 'border-red-600'
-                              : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                          }`}
-                          style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                          onFocus={(e) => {
-                            if (!errors[`product_0_component_${componentIndex}_cuttingConsumption`]) {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }
-                          }}
-                          onBlur={(e) => {
-                            e.target.style.boxShadow = '';
-                          }}
                           placeholder="e.g., 2.5"
+                          aria-invalid={errors[`product_0_component_${componentIndex}_cuttingConsumption`] ? true : undefined}
                           required
                         />
-                        {errors[`product_0_component_${componentIndex}_cuttingConsumption`] && (
-                          <span className="text-red-600 text-xs mt-1 font-medium">
-                            {errors[`product_0_component_${componentIndex}_cuttingConsumption`]}
-                          </span>
-                        )}
-                      </div>
+                      </Field>
                     ) : (
                       <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            LENGTH <span className="text-red-600">*</span>
-                          </label>
-                          <input
+                        <Field
+                          label="LENGTH"
+                          required
+                          error={errors[`product_0_component_${componentIndex}_cuttingLength`]}
+                          width="sm"
+                        >
+                          <Input
                             type="number"
                             value={component.cuttingSize.length}
                             onChange={(e) => handleComponentCuttingSizeChange(0, componentIndex, 'length', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`product_0_component_${componentIndex}_cuttingLength`]
-                                ? 'border-red-600'
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                            onFocus={(e) => {
-                              if (!errors[`product_0_component_${componentIndex}_cuttingLength`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                             placeholder="e.g., 24"
+                            aria-invalid={errors[`product_0_component_${componentIndex}_cuttingLength`] ? true : undefined}
                             required
                           />
-                          {errors[`product_0_component_${componentIndex}_cuttingLength`] && (
-                            <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`product_0_component_${componentIndex}_cuttingLength`]}
-                            </span>
-                          )}
-                        </div>
+                        </Field>
 
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            WIDTH <span className="text-red-600">*</span>
-                          </label>
-                          <input
+                        <Field
+                          label="WIDTH"
+                          required
+                          error={errors[`product_0_component_${componentIndex}_cuttingWidth`]}
+                          width="sm"
+                        >
+                          <Input
                             type="number"
                             value={component.cuttingSize.width}
                             onChange={(e) => handleComponentCuttingSizeChange(0, componentIndex, 'width', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`product_0_component_${componentIndex}_cuttingWidth`]
-                                ? 'border-red-600'
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                            onFocus={(e) => {
-                              if (!errors[`product_0_component_${componentIndex}_cuttingWidth`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                             placeholder="e.g., 18"
+                            aria-invalid={errors[`product_0_component_${componentIndex}_cuttingWidth`] ? true : undefined}
                             required
                           />
-                          {errors[`product_0_component_${componentIndex}_cuttingWidth`] && (
-                            <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`product_0_component_${componentIndex}_cuttingWidth`]}
-                            </span>
-                          )}
-                        </div>
+                        </Field>
                       </>
                     )}
                   </div>
@@ -320,107 +193,59 @@ const Step1 = ({
 
                 {/* Sew Size */}
                 <div style={{ marginTop: '8px' }}>
-                  <h4 className="text-sm font-semibold text-gray-800" style={{ marginBottom: '16px' }}>
+                  <h4 className="text-sm font-semibold text-foreground/80" style={{ marginBottom: '12px' }}>
                     SEW SIZE
                   </h4>
                   <div className="flex flex-wrap items-start gap-4">
                     {component.unit === 'KGS' ? (
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">
-                          CONSUMPTION <span className="text-red-600">*</span>
-                        </label>
-                        <input
+                      <Field
+                        label="CONSUMPTION"
+                        required
+                        error={errors[`product_0_component_${componentIndex}_sewConsumption`]}
+                        width="sm"
+                      >
+                        <Input
                           type="number"
                           value={component.sewSize.consumption || ''}
                           onChange={(e) => handleComponentSewSizeChange(0, componentIndex, 'consumption', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                            errors[`product_0_component_${componentIndex}_sewConsumption`]
-                              ? 'border-red-600'
-                              : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                          }`}
-                          style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                          onFocus={(e) => {
-                            if (!errors[`product_0_component_${componentIndex}_sewConsumption`]) {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }
-                          }}
-                          onBlur={(e) => {
-                            e.target.style.boxShadow = '';
-                          }}
                           placeholder="e.g., 2.3"
+                          aria-invalid={errors[`product_0_component_${componentIndex}_sewConsumption`] ? true : undefined}
                           required
                         />
-                        {errors[`product_0_component_${componentIndex}_sewConsumption`] && (
-                          <span className="text-red-600 text-xs mt-1 font-medium">
-                            {errors[`product_0_component_${componentIndex}_sewConsumption`]}
-                          </span>
-                        )}
-                      </div>
+                      </Field>
                     ) : (
                       <>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            LENGTH <span className="text-red-600">*</span>
-                          </label>
-                          <input
+                        <Field
+                          label="LENGTH"
+                          required
+                          error={errors[`product_0_component_${componentIndex}_sewLength`]}
+                          width="sm"
+                        >
+                          <Input
                             type="number"
                             value={component.sewSize.length}
                             onChange={(e) => handleComponentSewSizeChange(0, componentIndex, 'length', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`product_0_component_${componentIndex}_sewLength`]
-                                ? 'border-red-600'
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                            onFocus={(e) => {
-                              if (!errors[`product_0_component_${componentIndex}_sewLength`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                             placeholder="e.g., 22"
+                            aria-invalid={errors[`product_0_component_${componentIndex}_sewLength`] ? true : undefined}
                             required
                           />
-                          {errors[`product_0_component_${componentIndex}_sewLength`] && (
-                            <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`product_0_component_${componentIndex}_sewLength`]}
-                            </span>
-                          )}
-                        </div>
+                        </Field>
 
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            WIDTH <span className="text-red-600">*</span>
-                          </label>
-                          <input
+                        <Field
+                          label="WIDTH"
+                          required
+                          error={errors[`product_0_component_${componentIndex}_sewWidth`]}
+                          width="sm"
+                        >
+                          <Input
                             type="number"
                             value={component.sewSize.width}
                             onChange={(e) => handleComponentSewSizeChange(0, componentIndex, 'width', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
-                              errors[`product_0_component_${componentIndex}_sewWidth`]
-                                ? 'border-red-600'
-                                : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
-                            }`}
-                            style={{ padding: '10px 14px', width: '140px', height: '44px' }}
-                            onFocus={(e) => {
-                              if (!errors[`product_0_component_${componentIndex}_sewWidth`]) {
-                                e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                              }
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                             placeholder="e.g., 16"
+                            aria-invalid={errors[`product_0_component_${componentIndex}_sewWidth`] ? true : undefined}
                             required
                           />
-                          {errors[`product_0_component_${componentIndex}_sewWidth`] && (
-                            <span className="text-red-600 text-xs mt-1 font-medium">
-                              {errors[`product_0_component_${componentIndex}_sewWidth`]}
-                            </span>
-                          )}
-                        </div>
+                        </Field>
                       </>
                     )}
                   </div>
@@ -429,8 +254,8 @@ const Step1 = ({
             ))}
 
           {/* Add Component Button */}
-          <div style={{ marginTop: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <button
+          <div style={{ marginTop: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <Button
               type="button"
               onClick={() => {
                 const currentLength = formData.products[0]?.components?.length || 0;
@@ -443,28 +268,10 @@ const Step1 = ({
                   }
                 }, 100);
               }}
-              style={{
-                background: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                color: '#374151',
-                padding: '10px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#e5e7eb';
-                e.currentTarget.style.transform = 'translateX(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-                e.currentTarget.style.transform = 'translateX(0)';
-              }}
+              variant="outline"
             >
               Add Component
-            </button>
+            </Button>
           </div>
         </div>
       )}

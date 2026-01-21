@@ -6781,46 +6781,7 @@ const Step4 = ({
           </div>
         )}
         
-        {/* Add Material Button at Bottom */}
-        <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
-          <p className="text-sm text-gray-600 mb-3">Would you like to add more materials?</p>
-          <button
-            type="button"
-            onClick={() => {
-              const currentLength = formData.artworkMaterials?.length || 0;
-              addArtworkMaterial();
-              const newIndex = currentLength;
-              const attemptScroll = (attempts = 0) => {
-                if (attempts > 30) return;
-                const element = document.getElementById(`artwork-material-${newIndex}`);
-                if (element) {
-                  setTimeout(() => {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }, 150);
-                } else {
-                  setTimeout(() => attemptScroll(attempts + 1), 50);
-                }
-              };
-              attemptScroll();
-            }}
-            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
-            style={{
-              backgroundColor: '#f3f4f6',
-              borderColor: '#d1d5db',
-              color: '#374151',
-              padding: '10px 16px',
-              height: '42px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e5e7eb';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-            }}
-          >
-            + Add Material
-          </button>
-        </div>
+        {/* Add Material Button at Bottom: moved to footer navigation */}
       </div>
     </div>
   );

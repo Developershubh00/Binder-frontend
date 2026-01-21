@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 const SearchableDropdown = ({
   value,
@@ -136,7 +137,10 @@ const SearchableDropdown = ({
   const displayValue = isOpen ? searchTerm : (value || '');
 
   return (
-    <div ref={containerRef} className="relative" style={{ width: '100%' }}>
+    <div
+      ref={containerRef}
+      className="relative w-full"
+    >
       <input
         ref={inputRef}
         type="text"
@@ -146,12 +150,25 @@ const SearchableDropdown = ({
         onBlur={handleBlur}
         disabled={disabled}
         placeholder={placeholder}
-        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''} ${className}`}
-        style={{ padding: '10px 14px', height: '44px', width: '100%', ...style }}
+        className={cn(
+          // Base shadcn-style input
+          'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground',
+          'border-input h-11 w-full min-w-0 rounded-md border bg-white text-sm shadow-xs transition-[color,box-shadow]',
+          'outline-none disabled:cursor-not-allowed disabled:opacity-50',
+          'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+          disabled && 'opacity-60',
+          className
+        )}
+        style={{
+          paddingLeft: '1.25rem',
+          paddingRight: '0.75rem',
+          ...style,
+        }}
+        aria-invalid={false}
       />
       {isOpen && !disabled && filteredOptions.length > 0 && (
         <div
-          className="absolute z-50 mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-popover text-popover-foreground shadow-md"
           style={{ top: '100%', left: 0, width: dropdownWidth || '100%' }}
         >
           {filteredOptions.map((option, index) => (
@@ -161,8 +178,11 @@ const SearchableDropdown = ({
                 e.preventDefault(); // Prevent blur
                 handleSelect(option);
               }}
-              className="px-4 py-2 cursor-pointer hover:bg-indigo-50 text-sm text-gray-900"
-              style={{ borderBottom: index < filteredOptions.length - 1 ? '1px solid #e5e7eb' : 'none' }}
+              className={cn(
+                'cursor-pointer px-3 py-2 text-sm',
+                'border-b border-border last:border-b-0',
+                'hover:bg-accent hover:text-accent-foreground'
+              )}
             >
               {option}
             </div>
