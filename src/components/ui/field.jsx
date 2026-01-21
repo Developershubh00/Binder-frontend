@@ -9,13 +9,12 @@ function Field({
   children,
   className,
   width,
-  style,
 }) {
   const widthClass =
     width === "sm" ? "w-field-sm" : width === "lg" ? "w-field-lg" : width === "md" ? "w-field-md" : "";
 
   return (
-    <div className={cn("flex flex-col space-y-2", widthClass, className)} style={{ marginBottom: '12px', ...style }}>
+    <div className={cn("flex flex-col space-y-2", widthClass, className)} style={{ marginBottom: '12px' }}>
       {label && (
         <label className="text-sm font-semibold text-foreground/80">
           {label} {required && <span className="text-destructive">*</span>}

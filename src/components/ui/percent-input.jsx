@@ -37,11 +37,13 @@ function PercentInput({
         aria-invalid={error ? true : undefined}
         {...props}
       />
-      <span 
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none select-none text-sm"
-      >
-        %
-      </span>
+      {value && (
+        <span 
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none select-none text-sm"
+        >
+          %
+        </span>
+      )}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import Step2 from './components/steps/Step2';
 import Step3 from './components/steps/Step3';
 import Step4 from './components/steps/Step4';
 import Step5 from './components/steps/Step5';
+import { Button } from '@/components/ui/button';
 
 const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const scrollContainerRef = useRef(null);
@@ -3543,6 +3544,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               handleSubproductChange={handleSubproductChange}
               handleSubproductImageChange={handleSubproductImageChange}
               handleSave={handleSaveStep0}
+              handleNext={handleNext}
             />
           );
         case 1:
@@ -4090,58 +4092,86 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       )}
 
       {/* Step Content */}
-      <div className="mb-8" style={{ maxWidth: '1000px' }}>
+      <div className="mb-8 mx-auto" style={{ maxWidth: '1000px' }}>
         {renderStepContent()}
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-center gap-4" style={{ marginTop: '32px', gap: '16px' }}>
-        {currentStep > 0 && (
-          <button 
-            type="button" 
-            className="flex items-center gap-2 border rounded-lg text-sm font-semibold transition-all hover:bg-gray-200 hover:-translate-x-0.5"
-            style={{
-              padding: '12px 24px',
-              background: '#f3f4f6',
-              color: '#374151',
-              borderColor: '#d1d5db',
-              borderWidth: '1px'
-            }}
-            onClick={handlePrevious}
-          >
-            ← Previous
-          </button>
-        )}
-        {currentStep < totalSteps ? (
-          <button 
-            type="button" 
-            className="flex items-center gap-2 text-white rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5"
-            style={{
-              padding: '12px 24px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: '0 6px 16px rgba(102, 126, 234, 0.3)'
-            }}
-            onClick={handleNext}
-          >
-            Next →
-          </button>
+      <div className="mx-auto" style={{ maxWidth: '1000px' }}>
+        {currentStep === totalSteps ? (
+          <div className="flex justify-center items-center" style={{ marginTop: '32px' }}>
+            <Button
+              type="button"
+              onClick={() => {
+                // Handle final submission
+                alert('Factory code generation will be implemented here');
+              }}
+            >
+              Generate Factory Code
+            </Button>
+          </div>
+        ) : currentStep === 3 ? (
+          // Artwork / Labelling step: Add on left, Prev/Next on right (like Step0 layout)
+          <div className="flex items-center justify-between" style={{ marginTop: '32px' }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                const currentLength = formData.artworkMaterials?.length || 0;
+                addArtworkMaterial();
+                const newIndex = currentLength;
+                const attemptScroll = (attempts = 0) => {
+                  if (attempts > 30) return;
+                  const element = document.getElementById(`artwork-material-${newIndex}`);
+                  if (element) {
+                    setTimeout(() => {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 150);
+                  } else {
+                    setTimeout(() => attemptScroll(attempts + 1), 50);
+                  }
+                };
+                attemptScroll();
+              }}
+            >
+              + Add Material
+            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrevious}
+              >
+                ← Previous
+              </Button>
+              <Button
+                type="button"
+                onClick={handleNext}
+              >
+                Next →
+              </Button>
+            </div>
+          </div>
         ) : (
-          <button 
-            type="button" 
-            className="flex items-center gap-3 text-white rounded-lg text-base font-semibold transition-all justify-center hover:-translate-y-0.5"
-            style={{
-              padding: '16px 32px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              minWidth: '200px',
-              boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
-            }}
-            onClick={() => {
-              // Handle final submission
-              alert('Factory code generation will be implemented here');
-            }}
-          >
-            🎯 Generate Factory Code
-          </button>
+          <div className="flex justify-end items-center gap-3" style={{ marginTop: '32px' }}>
+            {currentStep > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrevious}
+              >
+                ← Previous
+              </Button>
+            )}
+            {currentStep > 0 && currentStep < totalSteps && (
+              <Button
+                type="button"
+                onClick={handleNext}
+              >
+                Next →
+              </Button>
+            )}
+          </div>
         )}
       </div>
 

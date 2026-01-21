@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
 import SearchableDropdown from '../SearchableDropdown';
 
 const Step5 = ({
@@ -3416,8 +3417,9 @@ const Step5 = ({
         {/* Add Material Button at Bottom */}
         <div className="mt-6 pt-6 border-t border-gray-200" style={{ marginTop: '24px', paddingTop: '24px' }}>
           <p className="text-sm text-gray-600 mb-3">Would you like to add more materials?</p>
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => {
               const currentLength = formData.packaging?.materials?.length || 0;
               addPackagingMaterial();
@@ -3435,23 +3437,9 @@ const Step5 = ({
               };
               attemptScroll();
             }}
-            className="border rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
-            style={{
-              backgroundColor: '#f3f4f6',
-              borderColor: '#d1d5db',
-              color: '#374151',
-              padding: '10px 16px',
-              height: '42px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e5e7eb';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-            }}
           >
             + Add Material
-          </button>
+          </Button>
         </div>
       </div>
     </div>
