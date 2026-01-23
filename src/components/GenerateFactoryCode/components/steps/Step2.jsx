@@ -1081,14 +1081,11 @@ const Step2 = ({
 
               {/* Fiber Type Hierarchy Dropdowns - only show when subMaterial is NOT "Stitching Thread" */}
               {material.materialType === "Yarn" && material.subMaterial !== "Stitching Thread" && (<>
-              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
-                <h3 className="text-sm font-bold text-gray-800 mb-4">FIBER SPECIFICATIONS</h3>
-                <div className="flex flex-wrap items-start gap-6">
+              <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                <h3 className="text-sm font-semibold text-foreground/90 mb-4">FIBER SPECIFICATIONS</h3>
+                <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
                   {/* Fiber Type Dropdown */}
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">
-                      FIBER TYPE
-                    </label>
+                  <Field label="FIBER TYPE" width="sm">
                     <SearchableDropdown
                       value={material.fiberType || ''}
                       onChange={(selectedFiberType) => {
@@ -1102,20 +1099,11 @@ const Step2 = ({
                       }}
                       options={getFiberTypes()}
                       placeholder="Select or type Fiber Type"
-                      onFocus={(e) => {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
                     />
-                  </div>
+                  </Field>
                   
                   {/* Yarn Type Dropdown */}
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">
-                      YARN TYPE
-                    </label>
+                  <Field label="YARN TYPE" width="sm">
                     <SearchableDropdown
                       value={material.yarnType || ''}
                       onChange={(selectedYarnType) => {
@@ -1134,16 +1122,8 @@ const Step2 = ({
                       options={material.fiberType ? getYarnTypes(material.fiberType) : []}
                       placeholder={material.fiberType ? 'Select or type Yarn Type' : 'Select Fiber Type First'}
                       disabled={!material.fiberType}
-                      onFocus={(e) => {
-                        if (material.fiberType) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
                     />
-                  </div>
+                  </Field>
                 </div>
                 
                 {/* Display Yarn Details when both Fiber Type and Yarn Type are selected */}
@@ -1152,15 +1132,12 @@ const Step2 = ({
                   if (!details) return null;
                   
                   return (
-                    <div style={{ marginTop: '24px', padding: '24px', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-                      <h4 className="text-sm font-semibold text-gray-800 mb-6">YARN SPECIFICATIONS</h4>
+                    <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
+                      <h4 className="text-sm font-semibold text-foreground/90 mb-6">YARN SPECIFICATIONS</h4>
                       
                       {/* Input Fields Row */}
-                      <div className="flex flex-wrap items-start gap-6">
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            COMPOSITION <span className="text-red-600">*</span>
-                          </label>
+                      <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
+                        <Field label="COMPOSITION" required width="sm">
                           <SearchableDropdown
                             value={material.yarnComposition || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnComposition', value)}
@@ -1169,19 +1146,10 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Composition" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
-                            onFocus={(e) => {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                           />
-                        </div>
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            COUNT RANGE <span className="text-red-600">*</span>
-                          </label>
+                        <Field label="COUNT RANGE" required width="sm">
                           <SearchableDropdown
                             value={material.yarnCountRange || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnCountRange', value)}
@@ -1190,19 +1158,10 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Count Range" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
-                            onFocus={(e) => {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                           />
-                        </div>
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            DOUBLING OPTIONS <span className="text-red-600">*</span>
-                          </label>
+                        <Field label="DOUBLING OPTIONS" required width="sm">
                           <SearchableDropdown
                             value={material.yarnDoublingOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnDoublingOptions', value)}
@@ -1211,19 +1170,10 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Doubling Options" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
-                            onFocus={(e) => {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                           />
-                        </div>
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            PLY OPTIONS <span className="text-red-600">*</span>
-                          </label>
+                        <Field label="PLY OPTIONS" required width="sm">
                           <SearchableDropdown
                             value={material.yarnPlyOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnPlyOptions', value)}
@@ -1232,32 +1182,20 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Ply Options" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
-                            onFocus={(e) => {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                           />
-                        </div>
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            COUNT SYSTEM
-                          </label>
-                          <input
+                        <Field label="COUNT SYSTEM" width="sm">
+                          <Input
                             type="text"
                             value={details.countSystem || ''}
                             readOnly
-                            className="border-2 rounded-lg text-sm bg-gray-100 text-gray-600 cursor-not-allowed"
-                            style={{ padding: '10px 14px', height: '44px', borderColor: '#e5e7eb' }}
+                            disabled
+                            className="bg-muted cursor-not-allowed"
                           />
-                        </div>
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            WINDING OPTIONS
-                          </label>
+                        <Field label="WINDING OPTIONS" width="sm">
                           <SearchableDropdown
                             value={material.windingOptions || details.windingOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'windingOptions', value)}
@@ -1266,112 +1204,62 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Winding Options" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
-                            onFocus={(e) => {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                           />
-                        </div>
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            SURPLUS
-                          </label>
-                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                            <input
-                              type="text"
+                        <Field label="SURPLUS %" width="sm">
+                          <PercentInput
                               value={material.surplus || ''}
-                              onChange={(e) => {
-                                // Store only numeric value (remove % and non-numeric chars except decimal point)
-                                const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-                                handleRawMaterialChange(actualIndex, 'surplus', numericValue);
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
-                              placeholder="%AGE"
-                            />
-                            {material.surplus && (
-                              <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-                            )}
-                          </div>
-                        </div>
+                            onChange={(e) => handleRawMaterialChange(actualIndex, 'surplus', e.target.value)}
+                            placeholder="e.g., 5"
+                          />
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            APPROVAL
-                          </label>
+                        <Field label="WASTAGE %" width="sm">
+                          <PercentInput
+                            value={material.wastage || ''}
+                            onChange={(e) => handleRawMaterialChange(actualIndex, 'wastage', e.target.value)}
+                            placeholder="e.g., 3"
+                          />
+                        </Field>
+                        
+                        <Field label="APPROVAL" width="sm">
                           <SearchableDropdown
                             value={material.approval || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'approval', value)}
                             options={['BUYER\'S', 'PROTO', 'FIT', 'SIZE SET', 'PP', 'TOP SAMPLE']}
                             placeholder="Select or type Approval"
-                            onFocus={(e) => {
-                              e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.boxShadow = '';
-                            }}
                           />
-                        </div>
+                        </Field>
                         
-                        <div className="flex flex-col" style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            REMARKS
-                          </label>
-                          <input
+                        <Field label="REMARKS" width="sm">
+                          <Input
                             type="text"
                             value={material.remarks || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'remarks', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Enter remarks"
                           />
-                        </div>
+                        </Field>
                       </div>
                       
-                      {/* Show/Hide Advance Filter Button */}
-                      <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-                        <button
+                      {/* Show/Hide Advance Spec Button */}
+                      <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
+                        <Button
                           type="button"
+                          variant={material.showAdvancedFilter ? "default" : "outline"}
+                          size="sm"
                           onClick={() => handleRawMaterialChange(actualIndex, 'showAdvancedFilter', !material.showAdvancedFilter)}
-                          className="border-2 rounded-lg text-sm font-medium transition-all"
-                          style={{
-                            padding: '10px 20px',
-                            height: '44px',
-                            backgroundColor: material.showAdvancedFilter ? '#667eea' : '#ffffff',
-                            borderColor: material.showAdvancedFilter ? '#667eea' : '#e5e7eb',
-                            color: material.showAdvancedFilter ? '#ffffff' : '#374151'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!material.showAdvancedFilter) {
-                              e.currentTarget.style.backgroundColor = '#f9fafb';
-                              e.currentTarget.style.borderColor = '#d1d5db';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!material.showAdvancedFilter) {
-                              e.currentTarget.style.backgroundColor = '#ffffff';
-                              e.currentTarget.style.borderColor = '#e5e7eb';
-                            }
-                          }}
                         >
-                          Advance Filter
-                        </button>
+                          Advance Spec
+                        </Button>
                       </div>
                       
                       {/* Advanced Filter UI Table */}
                       {material.showAdvancedFilter && (
-                        <div style={{ marginTop: '24px', padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-                          {/* <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE FILTERED~UI</h4> */}
-                          
-                          <div className="grid grid-cols-2 gap-6">
+                        <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                             {/* Spinning Type - Searchable dropdown */}
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">
-                                SPINNING TYPE
-                              </label>
+                            <Field label="SPINNING TYPE" width="sm">
                               <SearchableDropdown
                                 value={material.spinningType || material.spinningMethod || ''}
                                 onChange={(value) => {
@@ -1383,94 +1271,48 @@ const Step2 = ({
                                   : []}
                                 placeholder={material.fiberType && material.yarnType ? "Select or type Spinning Type" : "Select Yarn Type First"}
                                 disabled={!material.fiberType || !material.yarnType}
-                                onFocus={(e) => {
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                  e.target.style.boxShadow = '';
-                                }}
                               />
-                            </div>
+                            </Field>
                             
                             {/* Testing Requirements */}
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">
-                                TESTING REQUIREMENTS
-                              </label>
-                              <input
+                            <Field label="TESTING REQ." width="sm">
+                              <Input
                                 type="text"
                                 value={material.testingRequirements || ''}
                                 onChange={(e) => handleRawMaterialChange(actualIndex, 'testingRequirements', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                                onFocus={(e) => {
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                  e.target.style.boxShadow = '';
-                                }}
                                 placeholder="Enter testing requirements"
                               />
-                            </div>
+                            </Field>
                             
                             {/* Fiber Category - Searchable dropdown */}
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">
-                                FIBER CATEGORY
-                              </label>
+                            <Field label="FIBER CATEGORY" width="sm">
                               <SearchableDropdown
                                 value={material.fiberCategory || ''}
                                 onChange={(value) => handleRawMaterialChange(actualIndex, 'fiberCategory', value)}
                                 options={FIBER_CATEGORIES}
                                 placeholder="Select or type Fiber Category"
-                                onFocus={(e) => {
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                  e.target.style.boxShadow = '';
-                                }}
                               />
-                            </div>
+                            </Field>
                             
                             {/* Origin - Searchable dropdown */}
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">
-                                ORIGIN
-                              </label>
+                            <Field label="ORIGIN" width="sm">
                               <SearchableDropdown
                                 value={material.origin || ''}
                                 onChange={(value) => handleRawMaterialChange(actualIndex, 'origin', value)}
                                 options={ORIGINS}
                                 placeholder="Select or type Origin"
-                                onFocus={(e) => {
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                  e.target.style.boxShadow = '';
-                                }}
                               />
-                            </div>
+                            </Field>
                             
                             {/* Certifications (Text Input) */}
-                            <div className="flex flex-col col-span-2">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">
-                                CERTIFICATIONS
-                              </label>
-                              <input
+                            <Field label="CERTIFICATIONS" width="lg" className="col-span-1 md:col-span-2 lg:col-span-2">
+                              <Input
                                 type="text"
                                 value={material.certifications || ''}
                                 onChange={(e) => handleRawMaterialChange(actualIndex, 'certifications', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter certificate label"
-                                onFocus={(e) => {
-                                  e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                  e.target.style.boxShadow = '';
-                                }}
                               />
-                            </div>
+                            </Field>
                           </div>
                         </div>
                       )}
@@ -1485,7 +1327,7 @@ const Step2 = ({
             {material.materialType == "Fabric" && (<>
             <div style={{ marginTop: '2rem' }}>
               <div style={{ marginBottom: '1rem' }}>
-                <h3 className="text-sm font-bold text-foreground">FABRIC SPECIFICATIONS</h3>
+                <h3 className="text-sm font-semibold text-foreground/90">FABRIC SPECIFICATIONS</h3>
               </div>
               
               <div className="bg-card rounded-lg border border-border" style={{ padding: '1.25rem' }}>
@@ -1553,7 +1395,7 @@ const Step2 = ({
                   {/* Surplus */}
                   <Field label="SURPLUS %" width="sm">
                     <PercentInput
-                      value={material.fabricSurplus || ''}
+                        value={material.fabricSurplus || ''}
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricSurplus', e.target.value)}
                       placeholder="e.g., 5"
                     />
@@ -1592,7 +1434,7 @@ const Step2 = ({
                   </Field>
                 </div>
                 
-                {/* Show/Hide Advance Filter Button */}
+                {/* Show/Hide Advance Spec Button */}
                 <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
                   <Button
                     type="button"
@@ -1600,7 +1442,7 @@ const Step2 = ({
                     size="sm"
                     onClick={() => handleRawMaterialChange(actualIndex, 'showFabricAdvancedFilter', !material.showFabricAdvancedFilter)}
                   >
-                    Advance Filter
+                    Advance Spec
                   </Button>
                 </div>
                 
