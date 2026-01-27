@@ -443,12 +443,13 @@
 // export default GenerateBuyerCode;
 
 import { useState } from 'react';
-import './GenerateBuyerCode.css';
+import { Input } from '@/components/ui/input';
+import { Field } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
 
 const GenerateBuyerCode = ({ onBack }) => {
   const [formData, setFormData] = useState({
     buyerName: '',
-    buyerAddress: '',
     contactPerson: '',
     retailer: ''
   });
@@ -477,16 +478,12 @@ const GenerateBuyerCode = ({ onBack }) => {
     // Trim whitespace and check if fields are empty
     const trimmedData = {
       buyerName: formData.buyerName?.trim() || '',
-      buyerAddress: formData.buyerAddress?.trim() || '',
       contactPerson: formData.contactPerson?.trim() || '',
       retailer: formData.retailer?.trim() || ''
     };
 
     if (!trimmedData.buyerName) {
       newErrors.buyerName = 'Buyer Name is required';
-    }
-    if (!trimmedData.buyerAddress) {
-      newErrors.buyerAddress = 'Buyer Address is required';
     }
     if (!trimmedData.contactPerson) {
       newErrors.contactPerson = 'Contact Person is required';
@@ -621,7 +618,6 @@ const GenerateBuyerCode = ({ onBack }) => {
       const newBuyerData = {
         code: newCode,
         buyerName: formData.buyerName.trim(),
-        buyerAddress: formData.buyerAddress.trim(),
         contactPerson: formData.contactPerson.trim(),
         retailer: formData.retailer.trim(),
         createdAt: new Date().toISOString()
@@ -673,7 +669,6 @@ const GenerateBuyerCode = ({ onBack }) => {
   const resetForm = () => {
     setFormData({
       buyerName: '',
-      buyerAddress: '',
       contactPerson: '',
       retailer: ''
     });
@@ -685,43 +680,94 @@ const GenerateBuyerCode = ({ onBack }) => {
   // Success screen - only show generated code
   if (generatedCode) {
     return (
-      <div className="generate-buyer-container">
-        <div className="generated-code-display">
-          <div className="success-animation">
-            <div className="success-icon">✓</div>
-            <h2 className="success-title">Buyer Code Generated Successfully!</h2>
+      <div className="fullscreen-content" style={{ overflowY: 'auto' }}>
+        <div className="content-header">
+          <Button 
+            variant="outline"
+            onClick={onBack} 
+            type="button"
+            className="mb-6 bg-white"
+          >
+            ← Back to Department
+          </Button>
+          <h1 className="fullscreen-title">Buyer Code Generated Successfully!</h1>
+        </div>
+
+        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ marginBottom: '40px' }}>
+            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-5 animate-bounce">
+              ✓
+            </div>
           </div>
           
-          <div className="code-display-card">
-            <h3 className="code-label">Your Buyer Code:</h3>
-            <div className="code-display">
-              <span className="code-text">{generatedCode}</span>
-              <button 
-                className="copy-button" 
+          <div style={{ 
+            marginTop: '16px', 
+            marginBottom: '24px',
+            padding: '12px',
+            backgroundColor: '#f9fafb',
+            borderRadius: '8px',
+            textAlign: 'center'
+          }}>
+            <div style={{ 
+              fontWeight: '600', 
+              color: '#333', 
+              fontSize: '16px',
+              wordBreak: 'break-word',
+              marginBottom: '16px'
+            }}>
+              Your Buyer Code:
+            </div>
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              padding: '20px',
+              backgroundColor: 'white',
+              border: '3px solid #667eea',
+              borderRadius: '12px'
+            }}>
+              <span style={{ 
+                fontSize: '36px',
+                fontWeight: '900',
+                color: '#667eea',
+                fontFamily: 'Courier New, monospace',
+                letterSpacing: '3px'
+              }}>
+                {generatedCode}
+              </span>
+              <Button 
+                variant="default"
+                size="icon"
                 onClick={copyToClipboard}
                 title="Copy to clipboard"
                 type="button"
               >
                 📋
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div className="action-buttons">
-            <button 
-              className="generate-another-btn" 
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: '12px', 
+            marginTop: '24px'
+          }}>
+            <Button 
+              variant="default"
               onClick={resetForm}
               type="button"
             >
               Generate Another Code
-            </button>
-            <button 
-              className="back-btn" 
+            </Button>
+            <Button 
+              variant="outline"
               onClick={onBack}
               type="button"
             >
               Back to Department
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -730,105 +776,96 @@ const GenerateBuyerCode = ({ onBack }) => {
 
   // Form screen
   return (
-    <div className="generate-buyer-container">
-      <div className="form-header">
-        <button className="back-button" onClick={onBack} type="button">
+    <div className="fullscreen-content" style={{ overflowY: 'auto' }}>
+      <div className="content-header">
+        <Button 
+          variant="outline"
+          onClick={onBack} 
+          type="button"
+          className="mb-6 bg-white"
+        >
           ← Back to Department
-        </button>
-        <h1 className="form-title">Generate Buyer Code</h1>
-        <p className="form-description">Fill in the buyer details to generate a unique buyer code</p>
+        </Button>
+        <h1 className="fullscreen-title">Generate Buyer Code</h1>
+        <p className="fullscreen-description">Fill in the buyer details to generate a unique buyer code</p>
       </div>
 
-      <form className="buyer-form" onSubmit={handleSubmit} noValidate>
-        <div className="form-grid">
-          <div className="form-group">
-            <label htmlFor="buyerName" className="form-label">
-              Buyer Name <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="buyerName"
-              name="buyerName"
-              value={formData.buyerName}
-              onChange={handleInputChange}
-              className={`form-input ${errors.buyerName ? 'error' : ''}`}
-              placeholder="Enter buyer name"
-              required
-            />
-            {errors.buyerName && <span className="error-message">{errors.buyerName}</span>}
+      <div style={{ maxWidth: '800px' }}>
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="flex flex-wrap" style={{ gap: '16px 24px' }}>
+            <Field 
+              label="BUYER NAME" 
+              required 
+              error={errors.buyerName}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="buyerName"
+                name="buyerName"
+                value={formData.buyerName}
+                onChange={handleInputChange}
+                placeholder="Enter buyer name"
+                required
+                aria-invalid={!!errors.buyerName}
+              />
+            </Field>
+
+            <Field 
+              label="END CUSTOMER" 
+              required 
+              error={errors.retailer}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="retailer"
+                name="retailer"
+                value={formData.retailer}
+                onChange={handleInputChange}
+                placeholder="Enter end customer name"
+                required
+                aria-invalid={!!errors.retailer}
+              />
+            </Field>
+
+            <Field 
+              label="CONTACT PERSON" 
+              required 
+              error={errors.contactPerson}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="contactPerson"
+                name="contactPerson"
+                value={formData.contactPerson}
+                onChange={handleInputChange}
+                placeholder="Enter contact person name"
+                required
+                aria-invalid={!!errors.contactPerson}
+              />
+            </Field>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="retailer" className="form-label">
-              End Customer <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="retailer"
-              name="retailer"
-              value={formData.retailer}
-              onChange={handleInputChange}
-              className={`form-input ${errors.retailer ? 'error' : ''}`}
-              placeholder="Enter end customer name"
-              required
-            />
-            {errors.retailer && <span className="error-message">{errors.retailer}</span>}
+          <div className="flex justify-start" style={{ marginTop: '20px' }}>
+            <Button 
+              type="submit" 
+              disabled={isGenerating}
+              size="default"
+            >
+              {isGenerating ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2"></span>
+                  Generating Code...
+                </>
+              ) : (
+                'Generate Buyer Code'
+              )}
+            </Button>
           </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="buyerAddress" className="form-label">
-              Buyer Address <span className="required">*</span>
-            </label>
-            <textarea
-              id="buyerAddress"
-              name="buyerAddress"
-              value={formData.buyerAddress}
-              onChange={handleInputChange}
-              className={`form-textarea ${errors.buyerAddress ? 'error' : ''}`}
-              placeholder="Enter complete buyer address"
-              rows={3}
-              required
-            />
-            {errors.buyerAddress && <span className="error-message">{errors.buyerAddress}</span>}
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="contactPerson" className="form-label">
-              Contact Person <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="contactPerson"
-              name="contactPerson"
-              value={formData.contactPerson}
-              onChange={handleInputChange}
-              className={`form-input ${errors.contactPerson ? 'error' : ''}`}
-              placeholder="Enter contact person name"
-              required
-            />
-            {errors.contactPerson && <span className="error-message">{errors.contactPerson}</span>}
-          </div>
-        </div>
-
-        <div className="form-actions">
-          <button 
-            type="submit" 
-            className="generate-btn"
-            disabled={isGenerating}
-          >
-            {isGenerating ? (
-              <>
-                <span className="spinner"></span>
-                Generating Code...
-              </>
-            ) : (
-              <>
-                🎯 Generate Buyer Code
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

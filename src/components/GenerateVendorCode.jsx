@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import SearchableDropdown from './SearchableDropdown';
-import './GenerateVendorCode.css';
+import { Input } from '@/components/ui/input';
+import { Field } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 // Premium Multi-Select Component
 const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholder, error }) => {
@@ -68,25 +71,27 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
 
   return (
     <div 
-      className={`premium-multi-select ${error ? 'error' : ''}`} 
+      className={cn("premium-multi-select", error && "error")} 
       ref={dropdownRef}
       style={{ position: 'relative' }}
     >
       <div 
-        className="multi-select-container"
+        className={cn(
+          "multi-select-container border-input h-11 w-full min-w-0 rounded-md border bg-white shadow-xs transition-[color,box-shadow] outline-none",
+          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+          error && "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border-destructive"
+        )}
         style={{
-          minHeight: '48px',
-          border: `2px solid ${error ? '#dc2626' : '#e5e7eb'}`,
-          borderRadius: '10px',
-          padding: '8px 12px',
-          backgroundColor: '#ffffff',
           display: 'flex',
           flexWrap: 'wrap',
           gap: '8px',
           alignItems: 'center',
+          paddingLeft: '1.25rem',
+          paddingRight: '0.75rem',
+          paddingTop: '8px',
+          paddingBottom: '8px',
           cursor: 'text',
-          transition: 'all 0.2s ease',
-          boxShadow: isOpen ? '0 4px 12px rgba(0, 0, 0, 0.08)' : '0 1px 3px rgba(0, 0, 0, 0.05)'
+          boxShadow: isOpen ? 'var(--shadow-md)' : 'var(--shadow-xs)'
         }}
         onClick={() => !isOpen && setIsOpen(true)}
       >
@@ -95,19 +100,8 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
           selectedValues.map((value, index) => (
             <span
               key={index}
-              className="premium-chip"
+              className="premium-chip inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-muted text-foreground border border-border rounded-full text-xs font-medium"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: '1px solid #d1d5db',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: '500',
                 animation: 'fadeInScale 0.2s ease'
               }}
             >
@@ -115,165 +109,66 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
               <button
                 type="button"
                 onClick={(e) => handleRemoveChip(value, e)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '18px',
-                  height: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  fontSize: '16px',
-                  lineHeight: '1',
-                  padding: 0,
-                  transition: 'color 0.2s',
-                  fontWeight: 'normal'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#374151';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#6b7280';
-                }}
+                className="bg-transparent border-none rounded-full w-4.5 h-4.5 flex items-center justify-center cursor-pointer text-muted-foreground text-base leading-none p-0 transition-colors hover:text-foreground"
               >
                 ×
               </button>
             </span>
           ))
         ) : (
-          <span style={{ color: '#9ca3af', fontSize: '14px' }}>{placeholder}</span>
+          <span className="text-muted-foreground text-sm">{placeholder}</span>
         )}
 
         {/* Add Button */}
         <button
           type="button"
           onClick={handleAddClick}
-          className="add-button"
-          style={{
-            marginLeft: 'auto',
-            background: '#ffffff',
-            border: '1px solid #d1d5db',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: '#6b7280',
-            fontSize: '20px',
-            fontWeight: '300',
-            lineHeight: '32px',
-            padding: 0,
-            margin: 0,
-            flexShrink: 0,
-            transition: 'all 0.2s',
-            textAlign: 'center',
-            verticalAlign: 'middle'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#9ca3af';
-            e.currentTarget.style.color = '#374151';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = '#d1d5db';
-            e.currentTarget.style.color = '#6b7280';
-          }}
+          className="ml-auto bg-white border border-input rounded-full w-8 h-8 flex items-center justify-center cursor-pointer text-muted-foreground text-xl font-light leading-none p-0 flex-shrink-0 transition-all hover:border-muted-foreground/50 hover:text-foreground"
           title="Add category"
         >
-          <span style={{
-            display: 'inline-block',
-            lineHeight: '1',
-            margin: 0,
-            padding: 0,
-            paddingBottom: '2px'
-          }}>+</span>
+          <span className="inline-block leading-none pb-0.5">+</span>
         </button>
       </div>
 
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="premium-dropdown-menu"
+          className="premium-dropdown-menu absolute top-full left-0 right-0 mt-2 bg-white border-2 border-border rounded-xl shadow-xl z-[1000] overflow-hidden"
           style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            marginTop: '8px',
-            backgroundColor: '#ffffff',
-            border: '2px solid #e5e7eb',
-            borderRadius: '12px',
-            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.12)',
-            zIndex: 1000,
-            overflow: 'hidden',
             animation: 'slideDown 0.2s ease'
           }}
         >
           {/* Search Input */}
-          <div style={{ padding: '12px', borderBottom: '1px solid #f3f4f6' }}>
-            <input
+          <div className="p-3 border-b border-border">
+            <Input
               ref={inputRef}
               type="text"
               value={searchTerm}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
               placeholder="Search categories..."
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '14px',
-                outline: 'none',
-                transition: 'all 0.2s'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#9ca3af';
-                e.target.style.boxShadow = '0 0 0 3px rgba(0, 0, 0, 0.05)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e5e7eb';
-                e.target.style.boxShadow = 'none';
-              }}
+              className="h-9 text-sm"
             />
           </div>
 
           {/* Options List */}
-          <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
+          <div className="max-h-60 overflow-y-auto">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => (
                 <div
                   key={index}
                   onClick={() => handleOptionSelect(option)}
-                  style={{
-                    padding: '12px 16px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    borderBottom: index < filteredOptions.length - 1 ? '1px solid #f3f4f6' : 'none',
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f8fafc';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
+                  className={cn(
+                    "px-4 py-3 cursor-pointer transition-colors flex items-center text-sm font-medium text-foreground",
+                    index < filteredOptions.length - 1 && "border-b border-border",
+                    "hover:bg-accent"
+                  )}
                 >
-                  <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>{option}</span>
+                  {option}
                 </div>
               ))
             ) : (
-              <div style={{
-                padding: '24px',
-                textAlign: 'center',
-                color: '#9ca3af',
-                fontSize: '14px'
-              }}>
+              <div className="p-6 text-center text-muted-foreground text-sm">
                 {searchTerm ? 'No matching options' : 'All options selected'}
               </div>
             )}
@@ -523,55 +418,94 @@ const GenerateVendorCode = ({ onBack }) => {
 
   if (generatedCode) {
     return (
-      <div className="generate-vendor-container">
-        <div className="generated-code-display" style={{ position: 'relative' }}>
-          {/* Close button in top right */}
-          <button 
-            className="close-button" 
-            onClick={onBack}
-            style={{
-              position: 'absolute',
-              top: '0',
-              right: '0',
-              background: 'transparent',
-              border: 'none',
-              fontSize: '32px',
-              cursor: 'pointer',
-              color: '#6b7280',
-              padding: '8px',
-              lineHeight: '1',
-              transition: 'color 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#374151'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
-            title="Close"
+      <div className="fullscreen-content" style={{ overflowY: 'auto' }}>
+        <div className="content-header">
+          <Button 
+            variant="outline"
+            onClick={onBack} 
+            type="button"
+            className="mb-6 bg-white"
           >
-            ×
-          </button>
+            ← Back to Department
+          </Button>
+          <h1 className="fullscreen-title">Vendor Code Generated Successfully!</h1>
+        </div>
 
-          <div className="success-animation">
-            <div className="success-icon">✓</div>
-            <h2 className="success-title">Vendor Code Generated Successfully!</h2>
+        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ marginBottom: '40px' }}>
+            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-5 animate-bounce">
+              ✓
+            </div>
           </div>
           
-          <div className="code-display-card">
-            <h3 className="code-label">{formData.vendorName} vendor code </h3>
-            <div className="code-display">
-              <span className="code-text">{generatedCode}</span>
-              <button 
-                className="copy-button" 
+          <div style={{ 
+            marginTop: '16px', 
+            marginBottom: '24px',
+            padding: '12px',
+            backgroundColor: '#f9fafb',
+            borderRadius: '8px',
+            textAlign: 'center'
+          }}>
+            <div style={{ 
+              fontWeight: '600', 
+              color: '#333', 
+              fontSize: '16px',
+              wordBreak: 'break-word',
+              marginBottom: '16px'
+            }}>
+              {formData.vendorName} vendor code
+            </div>
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              padding: '20px',
+              backgroundColor: 'white',
+              border: '3px solid #667eea',
+              borderRadius: '12px'
+            }}>
+              <span style={{ 
+                fontSize: '36px',
+                fontWeight: '900',
+                color: '#667eea',
+                fontFamily: 'Courier New, monospace',
+                letterSpacing: '3px'
+              }}>
+                {generatedCode}
+              </span>
+              <Button 
+                variant="default"
+                size="icon"
                 onClick={copyToClipboard}
                 title="Copy to clipboard"
+                type="button"
               >
                 📋
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div className="action-buttons">
-            <button className="generate-another-btn" onClick={resetForm}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: '12px', 
+            marginTop: '24px'
+          }}>
+            <Button 
+              variant="default"
+              onClick={resetForm}
+              type="button"
+            >
               Generate Another Code
-            </button>
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={onBack}
+              type="button"
+            >
+              Back to Department
+            </Button>
           </div>
         </div>
       </div>
@@ -579,249 +513,301 @@ const GenerateVendorCode = ({ onBack }) => {
   }
 
   return (
-    <div className="generate-vendor-container">
-      <div className="form-header">
-        <button className="back-button" onClick={onBack}>
+    <div className="fullscreen-content" style={{ overflowY: 'auto' }}>
+      <div className="content-header">
+        <Button 
+          variant="outline"
+          onClick={onBack} 
+          type="button"
+          className="mb-6 bg-white"
+        >
           ← Back to Department
-        </button>
-        <h1 className="form-title">Generate Vendor Code</h1>
-        <p className="form-description">Fill in the vendor details to generate a unique vendor code</p>
+        </Button>
+        <h1 className="fullscreen-title">Generate Vendor Code</h1>
+        <p className="fullscreen-description">Fill in the vendor details to generate a unique vendor code</p>
       </div>
 
-      <form className="vendor-form" onSubmit={handleSubmit}>
-        <div className="form-grid">
-          {/* Basic Details */}
-          <div className="form-group">
-            <label htmlFor="vendorName" className="form-label">
-              Vendor Name <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="vendorName"
-              name="vendorName"
-              value={formData.vendorName}
-              onChange={handleInputChange}
-              className={`form-input ${errors.vendorName ? 'error' : ''}`}
-              placeholder="Enter vendor name"
-            />
-            {errors.vendorName && <span className="error-message">{errors.vendorName}</span>}
-          </div>
+      <div style={{ maxWidth: '800px', width: '100%' }}>
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="flex flex-wrap items-start" style={{ gap: '16px 24px', width: '100%' }}>
+            {/* Basic Details */}
+            <Field 
+              label="VENDOR NAME" 
+              required 
+              error={errors.vendorName}
+              width="lg"
+              className="flex-shrink-0"
+            >
+              <Input
+                type="text"
+                id="vendorName"
+                name="vendorName"
+                value={formData.vendorName}
+                onChange={handleInputChange}
+                placeholder="Enter vendor name"
+                required
+                aria-invalid={!!errors.vendorName}
+              />
+            </Field>
 
-          <div className="form-group">
-            <label htmlFor="gst" className="form-label">
-              GST Number <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="gst"
-              name="gst"
-              value={formData.gst}
-              onChange={handleInputChange}
-              className={`form-input ${errors.gst ? 'error' : ''}`}
-              placeholder="22AAAAA0000A1Z5"
-              maxLength={15}
-            />
-            {errors.gst && <span className="error-message">{errors.gst}</span>}
-          </div>
+            <Field 
+              label="GST NUMBER" 
+              required 
+              error={errors.gst}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="gst"
+                name="gst"
+                value={formData.gst}
+                onChange={handleInputChange}
+                placeholder="22AAAAA0000A1Z5"
+                maxLength={15}
+                required
+                aria-invalid={!!errors.gst}
+              />
+            </Field>
 
-          <div className="form-group full-width">
-            <label htmlFor="address" className="form-label">
-              Address <span className="required">*</span>
-            </label>
-            <textarea
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-              className={`form-textarea ${errors.address ? 'error' : ''}`}
-              placeholder="Enter complete vendor address"
-              rows={3}
-            />
-            {errors.address && <span className="error-message">{errors.address}</span>}
-          </div>
+            <Field 
+              label="ADDRESS" 
+              required 
+              error={errors.address}
+              width="lg"
+              className="md:col-span-2"
+            >
+              <textarea
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                placeholder="Enter complete vendor address"
+                rows={3}
+                required
+                aria-invalid={!!errors.address}
+                className={cn(
+                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-white py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y",
+                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                  errors.address && "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border-destructive"
+                )}
+                style={{
+                  paddingLeft: '1.25rem',
+                  paddingRight: '0.75rem',
+                  paddingTop: '0.75rem',
+                  paddingBottom: '0.75rem',
+                }}
+              ></textarea>
+            </Field>
 
-          {/* Banking Details */}
-          <div className="form-group">
-            <label htmlFor="bankName" className="form-label">
-              Bank Name <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="bankName"
-              name="bankName"
-              value={formData.bankName}
-              onChange={handleInputChange}
-              className={`form-input ${errors.bankName ? 'error' : ''}`}
-              placeholder="Enter bank name"
-            />
-            {errors.bankName && <span className="error-message">{errors.bankName}</span>}
-          </div>
+            {/* Banking Details */}
+            <Field 
+              label="BANK NAME" 
+              required 
+              error={errors.bankName}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="bankName"
+                name="bankName"
+                value={formData.bankName}
+                onChange={handleInputChange}
+                placeholder="Enter bank name"
+                required
+                aria-invalid={!!errors.bankName}
+              />
+            </Field>
 
-          <div className="form-group">
-            <label htmlFor="accNo" className="form-label">
-              Account Number <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="accNo"
-              name="accNo"
-              value={formData.accNo}
-              onChange={handleInputChange}
-              className={`form-input ${errors.accNo ? 'error' : ''}`}
-              placeholder="Enter account number"
-            />
-            {errors.accNo && <span className="error-message">{errors.accNo}</span>}
-          </div>
+            <Field 
+              label="ACCOUNT NUMBER" 
+              required 
+              error={errors.accNo}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="accNo"
+                name="accNo"
+                value={formData.accNo}
+                onChange={handleInputChange}
+                placeholder="Enter account number"
+                required
+                aria-invalid={!!errors.accNo}
+              />
+            </Field>
 
-          <div className="form-group">
-            <label htmlFor="ifscCode" className="form-label">
-              IFSC Code <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="ifscCode"
-              name="ifscCode"
-              value={formData.ifscCode}
-              onChange={handleInputChange}
-              className={`form-input ${errors.ifscCode ? 'error' : ''}`}
-              placeholder="SBIN0000123"
-              maxLength={11}
-            />
-            {errors.ifscCode && <span className="error-message">{errors.ifscCode}</span>}
-          </div>
+            <Field 
+              label="IFSC CODE" 
+              required 
+              error={errors.ifscCode}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="ifscCode"
+                name="ifscCode"
+                value={formData.ifscCode}
+                onChange={handleInputChange}
+                placeholder="SBIN0000123"
+                maxLength={11}
+                required
+                aria-invalid={!!errors.ifscCode}
+              />
+            </Field>
 
-          {/* Job Work Categories - Premium Multi-Select */}
-          <div className="form-group">
-            <label className="form-label">
-              Job Work Category <span className="required">*</span>
-            </label>
-            <PremiumMultiSelect
-              options={jobWorkCategories.filter(opt => opt !== 'categories')}
-              selectedValues={formData.jobWorkCategory}
-              onChange={(values) => handleDropdownChange('jobWorkCategory', values)}
-              placeholder="Select categories"
+            {/* Job Work Categories - Premium Multi-Select */}
+            <Field 
+              label="JOB WORK CATEGORY" 
+              required 
               error={errors.jobWorkCategory}
-            />
-            {errors.jobWorkCategory && <span className="error-message">{errors.jobWorkCategory}</span>}
-          </div>
+              width="lg"
+            >
+              <PremiumMultiSelect
+                options={jobWorkCategories.filter(opt => opt !== 'categories')}
+                selectedValues={formData.jobWorkCategory}
+                onChange={(values) => handleDropdownChange('jobWorkCategory', values)}
+                placeholder="Select categories"
+                error={errors.jobWorkCategory}
+              />
+            </Field>
 
-          <div className="form-group">
-            <label className="form-label">
-              Job Work Sub-Category <span className="required">*</span>
-            </label>
-            <PremiumMultiSelect
-              options={jobWorkSubCategories.filter(opt => opt !== 'subcategory')}
-              selectedValues={formData.jobWorkSubCategory}
-              onChange={(values) => handleDropdownChange('jobWorkSubCategory', values)}
-              placeholder="Select sub-categories"
+            <Field 
+              label="JOB WORK SUB-CATEGORY" 
+              required 
               error={errors.jobWorkSubCategory}
-            />
-            {errors.jobWorkSubCategory && <span className="error-message">{errors.jobWorkSubCategory}</span>}
+              width="lg"
+            >
+              <PremiumMultiSelect
+                options={jobWorkSubCategories.filter(opt => opt !== 'subcategory')}
+                selectedValues={formData.jobWorkSubCategory}
+                onChange={(values) => handleDropdownChange('jobWorkSubCategory', values)}
+                placeholder="Select sub-categories"
+                error={errors.jobWorkSubCategory}
+              />
+            </Field>
+
+            {/* Contact Details */}
+            <Field 
+              label="CONTACT PERSON" 
+              required 
+              error={errors.contactPerson}
+              width="lg"
+            >
+              <Input
+                type="text"
+                id="contactPerson"
+                name="contactPerson"
+                value={formData.contactPerson}
+                onChange={handleInputChange}
+                placeholder="Enter contact person name"
+                required
+                aria-invalid={!!errors.contactPerson}
+              />
+            </Field>
+
+            <Field 
+              label="EMAIL" 
+              required 
+              error={errors.email}
+              width="lg"
+            >
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter email address"
+                required
+                aria-invalid={!!errors.email}
+              />
+            </Field>
+
+            <Field 
+              label="WHATSAPP NUMBER" 
+              required 
+              error={errors.whatsappNo}
+              width="lg"
+            >
+              <Input
+                type="tel"
+                id="whatsappNo"
+                name="whatsappNo"
+                value={formData.whatsappNo}
+                onChange={handleInputChange}
+                placeholder="9876543210"
+                maxLength={10}
+                required
+                aria-invalid={!!errors.whatsappNo}
+              />
+            </Field>
+
+            <Field 
+              label="ALTERNATIVE WHATSAPP NUMBER"
+              error={errors.altWhatsappNo}
+              width="lg"
+            >
+              <Input
+                type="tel"
+                id="altWhatsappNo"
+                name="altWhatsappNo"
+                value={formData.altWhatsappNo}
+                onChange={handleInputChange}
+                placeholder="9876543210 (Optional)"
+                maxLength={10}
+                aria-invalid={!!errors.altWhatsappNo}
+              />
+            </Field>
+
+            <Field 
+              label="PAYMENT TERMS" 
+              required 
+              error={errors.paymentTerms}
+              width="lg"
+              className="md:col-span-2"
+            >
+              <textarea
+                id="paymentTerms"
+                name="paymentTerms"
+                value={formData.paymentTerms}
+                onChange={handleInputChange}
+                placeholder="Enter payment terms and conditions"
+                rows={3}
+                required
+                aria-invalid={!!errors.paymentTerms}
+                className={cn(
+                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-white py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y",
+                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                  errors.paymentTerms && "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border-destructive"
+                )}
+                style={{
+                  paddingLeft: '1.25rem',
+                  paddingRight: '0.75rem',
+                  paddingTop: '0.75rem',
+                  paddingBottom: '0.75rem',
+                }}
+              ></textarea>
+            </Field>
           </div>
 
-          {/* Contact Details */}
-          <div className="form-group">
-            <label htmlFor="contactPerson" className="form-label">
-              Contact Person <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="contactPerson"
-              name="contactPerson"
-              value={formData.contactPerson}
-              onChange={handleInputChange}
-              className={`form-input ${errors.contactPerson ? 'error' : ''}`}
-              placeholder="Enter contact person name"
-            />
-            {errors.contactPerson && <span className="error-message">{errors.contactPerson}</span>}
+          <div className="flex justify-start mt-4">
+            <Button 
+              type="submit" 
+              disabled={isGenerating}
+              size="default"
+            >
+              {isGenerating ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2"></span>
+                  Generating Code...
+                </>
+              ) : (
+                'Generate Vendor Code'
+              )}
+            </Button>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">
-              Email <span className="required">*</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className={`form-input ${errors.email ? 'error' : ''}`}
-              placeholder="Enter email address"
-            />
-            {errors.email && <span className="error-message">{errors.email}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="whatsappNo" className="form-label">
-              WhatsApp Number <span className="required">*</span>
-            </label>
-            <input
-              type="tel"
-              id="whatsappNo"
-              name="whatsappNo"
-              value={formData.whatsappNo}
-              onChange={handleInputChange}
-              className={`form-input ${errors.whatsappNo ? 'error' : ''}`}
-              placeholder="9876543210"
-              maxLength={10}
-            />
-            {errors.whatsappNo && <span className="error-message">{errors.whatsappNo}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="altWhatsappNo" className="form-label">
-              Alternative WhatsApp Number
-            </label>
-            <input
-              type="tel"
-              id="altWhatsappNo"
-              name="altWhatsappNo"
-              value={formData.altWhatsappNo}
-              onChange={handleInputChange}
-              className={`form-input ${errors.altWhatsappNo ? 'error' : ''}`}
-              placeholder="9876543210 (Optional)"
-              maxLength={10}
-            />
-            {errors.altWhatsappNo && <span className="error-message">{errors.altWhatsappNo}</span>}
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="paymentTerms" className="form-label">
-              Payment Terms <span className="required">*</span>
-            </label>
-            <textarea
-              id="paymentTerms"
-              name="paymentTerms"
-              value={formData.paymentTerms}
-              onChange={handleInputChange}
-              className={`form-textarea ${errors.paymentTerms ? 'error' : ''}`}
-              placeholder="Enter payment terms and conditions"
-              rows={3}
-            />
-            {errors.paymentTerms && <span className="error-message">{errors.paymentTerms}</span>}
-          </div>
-        </div>
-
-        <div className="form-actions">
-          <button 
-            type="submit" 
-            className="generate-btn"
-            disabled={isGenerating}
-          >
-            {isGenerating ? (
-              <>
-                <span className="spinner"></span>
-                Generating Code...
-              </>
-            ) : (
-              <>
-                 Generate Vendor Code
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

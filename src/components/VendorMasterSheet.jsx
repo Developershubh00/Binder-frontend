@@ -1,91 +1,79 @@
 import { useState, useEffect } from 'react';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import { FaSearch } from 'react-icons/fa';
-import './VendorMasterSheet.css';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { getVendorCodes } from '../../integration';
 
 const VendorMasterSheet = ({ onBack }) => {
   const [vendors, setVendors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [selectedVendor, setSelectedVendor] = useState(null);
-
-  // Mock data for demonstration
-  const mockVendors = [
-    {
-      code: '101',
-      vendorName: 'ABC Textiles Pvt Ltd',
-      address: '123, Industrial Area, Phase-1, Chandigarh, 160002',
-      gst: '03AABCA1234A1Z5',
-      bankName: 'State Bank of India',
-      accNo: '12345678901',
-      ifscCode: 'SBIN0001234',
-      jobWorkCategory: 'Fabric',
-      jobWorkSubCategory: 'Cotton Yarn',
-      contactPerson: 'Rajesh Kumar',
-      whatsappNo: '9876543210',
-      altWhatsappNo: '9876543211',
-      email: 'rajesh@abctextiles.com',
-      paymentTerms: '30 days credit after delivery',
-      createdAt: '2024-01-15T10:30:00.000Z'
-    },
-    {
-      code: '102',
-      vendorName: 'Global Yarn Industries',
-      address: '456, Export Promotion Industrial Park, Ludhiana, Punjab, 141003',
-      gst: '03BBCDE5678B2Y4',
-      bankName: 'HDFC Bank',
-      accNo: '23456789012',
-      ifscCode: 'HDFC0002345',
-      jobWorkCategory: 'Greige Yarn',
-      jobWorkSubCategory: 'Fine Count UV 24Ne to 60Ne',
-      contactPerson: 'Priya Sharma',
-      whatsappNo: '8765432109',
-      altWhatsappNo: '',
-      email: 'priya@globalyarn.com',
-      paymentTerms: '45 days credit after delivery and quality check',
-      createdAt: '2024-01-20T14:45:00.000Z'
-    },
-    {
-      code: '103',
-      vendorName: 'Premium Fabric Solutions',
-      address: '789, Textile Hub, Sector-15, Noida, Uttar Pradesh, 201301',
-      gst: '09CDEFG9012C3X6',
-      bankName: 'ICICI Bank',
-      accNo: '34567890123',
-      ifscCode: 'ICIC0003456',
-      jobWorkCategory: 'DYE',
-      jobWorkSubCategory: 'Polyester Yarn',
-      contactPerson: 'Amit Singh',
-      whatsappNo: '7654321098',
-      altWhatsappNo: '7654321099',
-      email: 'amit@premiumfabric.com',
-      paymentTerms: '60 days credit with 2% early payment discount',
-      createdAt: '2024-01-25T09:15:00.000Z'
-    }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Always show mock data first
-    setVendors(mockVendors);
-    
-    // Load vendors from localStorage and merge with mock data
-    const storedVendors = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
-    
-    if (storedVendors.length > 0) {
-      // Filter out any duplicates and merge with mock data
-      const allVendors = [...mockVendors];
-      storedVendors.forEach(stored => {
-        if (!allVendors.find(mock => mock.code === stored.code)) {
-          allVendors.push(stored);
+    const fetchVendors = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Try to fetch from API first
+        try {
+          const data = await getVendorCodes();
+          let vendorList = [];
+          
+          if (data && Array.isArray(data)) {
+            vendorList = data;
+          } else if (data && data.results && Array.isArray(data.results)) {
+            vendorList = data.results;
+          } else {
+            // Fallback to localStorage if API doesn't return expected format
+            vendorList = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
+          }
+          
+          // Normalize vendor data to handle both API and localStorage formats
+          const normalizedVendors = vendorList.map(vendor => ({
+            code: vendor.code || vendor.id || '',
+            vendorName: vendor.vendor_name || vendor.vendorName || '',
+            address: vendor.address || '',
+            gst: vendor.gst || '',
+            bankName: vendor.bank_name || vendor.bankName || '',
+            accNo: vendor.account_number || vendor.accNo || '',
+            ifscCode: vendor.ifsc_code || vendor.ifscCode || '',
+            jobWorkCategory: Array.isArray(vendor.job_work_category) 
+              ? vendor.job_work_category.join(', ') 
+              : (vendor.job_work_category || vendor.jobWorkCategory || ''),
+            jobWorkSubCategory: Array.isArray(vendor.job_work_sub_category)
+              ? vendor.job_work_sub_category.join(', ')
+              : (vendor.job_work_sub_category || vendor.jobWorkSubCategory || ''),
+            contactPerson: vendor.contact_person || vendor.contactPerson || '',
+            whatsappNo: vendor.whatsapp_number || vendor.whatsappNo || '',
+            altWhatsappNo: vendor.alt_whatsapp_number || vendor.altWhatsappNo || '',
+            email: vendor.email || '',
+            paymentTerms: vendor.payment_terms || vendor.paymentTerms || '',
+            createdAt: vendor.created_at || vendor.createdAt || new Date().toISOString()
+          }));
+          
+          setVendors(normalizedVendors);
+        } catch (apiError) {
+          console.warn('API fetch failed, using localStorage:', apiError);
+          // Fallback to localStorage if API fails
+          const storedVendors = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
+          setVendors(storedVendors);
         }
-      });
-      setVendors(allVendors);
-      // Update localStorage with merged data
-      localStorage.setItem('vendorCodes', JSON.stringify(allVendors));
-    } else {
-      // If no stored vendors, save mock data to localStorage
-      localStorage.setItem('vendorCodes', JSON.stringify(mockVendors));
-    }
+      } catch (err) {
+        console.error('Error fetching vendors:', err);
+        setError('Failed to load vendors');
+        // Fallback to localStorage
+        const storedVendors = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
+        setVendors(storedVendors);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVendors();
   }, []);
 
   // Filter vendors based on search term
@@ -249,149 +237,405 @@ const VendorMasterSheet = ({ onBack }) => {
   );
 
   return (
-    <div className="vendor-master-container">
-      <div className="vendor-master-header">
-        <button className="back-button" onClick={onBack}>
+    <div className="fullscreen-content" style={{ overflowY: 'auto' }}>
+      <div className="content-header">
+        <Button 
+          variant="outline"
+          onClick={onBack} 
+          type="button"
+          className="mb-6 bg-white"
+        >
           ← Back to Vendor Management
-        </button>
-        <h1 className="page-title">Vendor Master Sheet</h1>
-        <p className="page-description">
+        </Button>
+        <h1 className="fullscreen-title">Vendor Master Sheet</h1>
+        <p className="fullscreen-description">
           View and manage all registered vendors in the system
         </p>
       </div>
 
-      <div className="vendor-controls">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search by vendor name, code, contact person, email, GST, address, or payment terms..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <FaSearch className="search-icon" />
+      <div style={{ maxWidth: '100%', width: '100%', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ flex: 1, maxWidth: '500px' }}>
+            <Input
+              type="text"
+              placeholder="Search by vendor name, code, contact person, email, GST, address, or payment terms..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Total Vendors: <strong className="text-foreground">{filteredVendors.length}</strong>
+          </div>
         </div>
-        <div className="vendor-count">
-          Total Vendors: <strong>{filteredVendors.length}</strong>
-        </div>
-      </div>
 
-      <div className="table-container">
-        <table className="vendor-table">
-          <thead>
-            <tr>
-              <th onClick={() => handleSort('code')} className="sortable">
-                Code {getSortIcon('code')}
-              </th>
-              <th onClick={() => handleSort('vendorName')} className="sortable">
-                Vendor Name {getSortIcon('vendorName')}
-              </th>
-              <th>Address</th>
-              <th>GST Number</th>
-              <th onClick={() => handleSort('contactPerson')} className="sortable">
-                Contact Person {getSortIcon('contactPerson')}
-              </th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th onClick={() => handleSort('jobWorkCategory')} className="sortable">
-                Category {getSortIcon('jobWorkCategory')}
-              </th>
-              <th>Sub-Category</th>
-              <th>Bank</th>
-              <th onClick={() => handleSort('paymentTerms')} className="sortable">
-                Payment Terms {getSortIcon('paymentTerms')}
-              </th>
-              <th onClick={() => handleSort('createdAt')} className="sortable">
-                Created {getSortIcon('createdAt')}
-              </th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedVendors.length > 0 ? (
-              sortedVendors.map((vendor) => (
-                <tr key={vendor.code} className="vendor-row">
-                  <td className="vendor-code">
-                    <span className="code-badge">{vendor.code}</span>
-                  </td>
-                  <td className="vendor-name">
-                    <strong>{vendor.vendorName}</strong>
-                  </td>
-                  <td className="address-cell">
-                    <div className="address-text">{vendor.address}</div>
-                  </td>
-                  <td className="gst-number">
-                    <code>{vendor.gst}</code>
-                  </td>
-                  <td className="contact-person">
-                    <strong>{vendor.contactPerson}</strong>
-                  </td>
-                  <td className="phone-number">
-                    <div>{vendor.whatsappNo}</div>
-                    {vendor.altWhatsappNo && (
-                      <div className="alt-phone">{vendor.altWhatsappNo}</div>
-                    )}
-                  </td>
-                  <td className="email">{vendor.email}</td>
-                  <td className="category">
-                    <span className="category-badge">{vendor.jobWorkCategory}</span>
-                  </td>
-                  <td className="sub-category">{vendor.jobWorkSubCategory}</td>
-                  <td className="bank-info">
-                    <div className="bank-name">{vendor.bankName}</div>
-                    <div className="account-info">
-                      <small>A/C: {vendor.accNo}</small>
-                    </div>
-                    <div className="ifsc-info">
-                      <small>IFSC: {vendor.ifscCode}</small>
-                    </div>
-                  </td>
-                  <td className="payment-terms">
-                    <div className="payment-text">{vendor.paymentTerms}</div>
-                  </td>
-                  <td className="created-date">{formatDate(vendor.createdAt)}</td>
-                  <td className="actions-cell">
-                    <div className="action-buttons">
-                      <button 
-                        className="action-btn view-btn"
-                        title="View Details"
-                        onClick={() => handleViewDetails(vendor)}
-                      >
-                        <FiEye />
-                      </button>
-                      <button 
-                        className="action-btn edit-btn"
-                        title="Edit Vendor"
-                        onClick={() => alert('Edit functionality to be implemented')}
-                      >
-                        <FiEdit2 />
-                      </button>
-                      <button 
-                        className="action-btn delete-btn"
-                        title="Delete Vendor"
-                        onClick={() => handleDeleteVendor(vendor.code)}
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  </td>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '48px', color: 'var(--muted-foreground)' }}>
+            Loading vendors...
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', padding: '48px', color: 'var(--destructive)' }}>
+            {error}
+          </div>
+        ) : sortedVendors.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px', color: 'var(--muted-foreground)' }}>
+            No vendors found{searchTerm ? ' matching your search' : ''}.
+          </div>
+        ) : (
+          <div style={{ 
+            border: '1px solid var(--border)', 
+            borderRadius: 'var(--radius-lg)',
+            overflowX: 'auto',
+            overflowY: 'visible',
+            backgroundColor: 'var(--card)'
+          }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1400px' }}>
+              <thead>
+                <tr style={{ 
+                  backgroundColor: 'var(--muted)',
+                  borderBottom: '2px solid var(--border)'
+                }}>
+                  <th 
+                    onClick={() => handleSort('code')} 
+                    style={{ 
+                      padding: '16px 20px',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: 'var(--foreground)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      width: '80px'
+                    }}
+                  >
+                    Code {getSortIcon('code')}
+                  </th>
+                  <th 
+                    onClick={() => handleSort('vendorName')} 
+                    style={{ 
+                      padding: '16px 20px',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: 'var(--foreground)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      width: '180px'
+                    }}
+                  >
+                    Vendor Name {getSortIcon('vendorName')}
+                  </th>
+                  <th style={{ 
+                    padding: '16px 20px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: 'var(--foreground)',
+                    whiteSpace: 'nowrap',
+                    width: '250px'
+                  }}>
+                    Address
+                  </th>
+                  <th style={{ 
+                    padding: '16px 20px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: 'var(--foreground)',
+                    whiteSpace: 'nowrap',
+                    width: '140px'
+                  }}>
+                    GST Number
+                  </th>
+                  <th 
+                    onClick={() => handleSort('contactPerson')} 
+                    style={{ 
+                      padding: '16px 20px',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: 'var(--foreground)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      width: '120px'
+                    }}
+                  >
+                    Contact Person {getSortIcon('contactPerson')}
+                  </th>
+                  <th style={{ 
+                    padding: '16px 20px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: 'var(--foreground)',
+                    whiteSpace: 'nowrap',
+                    width: '120px'
+                  }}>
+                    Phone
+                  </th>
+                  <th style={{ 
+                    padding: '16px 20px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: 'var(--foreground)',
+                    whiteSpace: 'nowrap',
+                    width: '180px'
+                  }}>
+                    Email
+                  </th>
+                  <th 
+                    onClick={() => handleSort('jobWorkCategory')} 
+                    style={{ 
+                      padding: '16px 20px',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: 'var(--foreground)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      width: '100px'
+                    }}
+                  >
+                    Category {getSortIcon('jobWorkCategory')}
+                  </th>
+                  <th style={{ 
+                    padding: '16px 20px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: 'var(--foreground)',
+                    whiteSpace: 'nowrap',
+                    width: '120px'
+                  }}>
+                    Sub-Category
+                  </th>
+                  <th style={{ 
+                    padding: '16px 20px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: 'var(--foreground)',
+                    whiteSpace: 'nowrap',
+                    width: '150px'
+                  }}>
+                    Bank
+                  </th>
+                  <th 
+                    onClick={() => handleSort('paymentTerms')} 
+                    style={{ 
+                      padding: '16px 20px',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: 'var(--foreground)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      width: '200px'
+                    }}
+                  >
+                    Payment Terms {getSortIcon('paymentTerms')}
+                  </th>
+                  <th 
+                    onClick={() => handleSort('createdAt')} 
+                    style={{ 
+                      padding: '16px 20px',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: 'var(--foreground)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      whiteSpace: 'nowrap',
+                      width: '100px'
+                    }}
+                  >
+                    Created {getSortIcon('createdAt')}
+                  </th>
+                  <th style={{ 
+                    padding: '16px 20px',
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: 'var(--foreground)',
+                    whiteSpace: 'nowrap',
+                    width: '130px'
+                  }}>
+                    Actions
+                  </th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="13" className="no-data">
-                  No vendors found matching your search criteria.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {sortedVendors.map((vendor, index) => (
+                  <tr 
+                    key={vendor.code || index}
+                    style={{
+                      borderBottom: index < sortedVendors.length - 1 ? '1px solid var(--border)' : 'none',
+                      transition: 'background-color 0.15s',
+                      cursor: 'default'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--muted)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '6px 12px',
+                        backgroundColor: 'var(--primary)',
+                        color: 'var(--primary-foreground)',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        fontFamily: 'var(--font-mono)',
+                        letterSpacing: '0.5px'
+                      }}>
+                        {vendor.code || 'N/A'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <strong style={{ fontSize: '14px', fontWeight: '600', color: 'var(--foreground)' }}>
+                        {vendor.vendorName || 'N/A'}
+                      </strong>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--foreground)', lineHeight: '1.4', maxWidth: '250px' }}>
+                        {vendor.address || 'N/A'}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <code style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--foreground)', 
+                        fontFamily: 'var(--font-mono)',
+                        backgroundColor: 'var(--muted)',
+                        padding: '4px 8px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border)'
+                      }}>
+                        {vendor.gst || 'N/A'}
+                      </code>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <strong style={{ fontSize: '13px', fontWeight: '600', color: 'var(--foreground)' }}>
+                        {vendor.contactPerson || 'N/A'}
+                      </strong>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--foreground)' }}>
+                        {vendor.whatsappNo || 'N/A'}
+                      </div>
+                      {vendor.altWhatsappNo && (
+                        <div style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '3px' }}>
+                          {vendor.altWhatsappNo}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
+                        {vendor.email || 'N/A'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '4px 8px',
+                        backgroundColor: 'var(--muted)',
+                        color: 'var(--foreground)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
+                        {vendor.jobWorkCategory || 'N/A'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
+                        {vendor.jobWorkSubCategory || 'N/A'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--foreground)' }}>
+                        {vendor.bankName || 'N/A'}
+                      </div>
+                      {vendor.accNo && (
+                        <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '2px' }}>
+                          A/C: {vendor.accNo}
+                        </div>
+                      )}
+                      {vendor.ifscCode && (
+                        <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '2px' }}>
+                          IFSC: {vendor.ifscCode}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--foreground)', lineHeight: '1.4', maxWidth: '200px' }}>
+                        {vendor.paymentTerms || 'N/A'}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
+                        {formatDate(vendor.createdAt)}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleViewDetails(vendor)}
+                          title="View Details"
+                          className="h-8 w-8"
+                        >
+                          <FiEye style={{ fontSize: '16px' }} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => alert('Edit functionality to be implemented')}
+                          title="Edit Vendor"
+                          className="h-8 w-8"
+                        >
+                          <FiEdit2 style={{ fontSize: '16px' }} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteVendor(vendor.code)}
+                          title="Delete Vendor"
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                        >
+                          <FiTrash2 style={{ fontSize: '16px' }} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      <div className="table-footer">
-        <div className="summary-info">
-          <span>Showing {filteredVendors.length} of {vendors.length} vendors</span>
-        </div>
+        {!loading && !error && sortedVendors.length > 0 && (
+          <div style={{ 
+            marginTop: '24px', 
+            padding: '12px 16px',
+            backgroundColor: 'var(--muted)',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '14px',
+            color: 'var(--muted-foreground)'
+          }}>
+            Showing {filteredVendors.length} of {vendors.length} vendors
+          </div>
+        )}
       </div>
 
       {selectedVendor && (
