@@ -3954,87 +3954,70 @@ const Step2 = ({
 
 {/* memory-foam Table */}
 {material.foamTableType === 'memory-foam' && (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    {/* FOAM TYPE */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">FOAM TYPE</label>
-      <SearchableDropdown
-        value={material.foamMemoryType || ''}
-        onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryType', selectedValue)}
-        options={['Memory Foam', 'Visco-Elastic Foam']}
-        placeholder="Select or type"
-        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-        style={{ padding: '10px 14px', height: '44px' }}
-      />
-    </div>
+  <>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
+      {/* FOAM TYPE */}
+      <Field label="FOAM TYPE" width="sm">
+        <SearchableDropdown
+          value={material.foamMemoryType || ''}
+          onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryType', selectedValue)}
+          options={['Memory Foam', 'Visco-Elastic Foam']}
+          placeholder="Select or type"
+        />
+      </Field>
 
-    {/* SUBTYPE */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">SUBTYPE</label>
-      <SearchableDropdown
-        value={material.foamMemorySubtype || ''}
-        onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemorySubtype', selectedValue)}
-        options={['Virgin', 'Blended', 'Plant-Based (Bio-Foam)']}
-        placeholder="Select or type"
-        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-        style={{ padding: '10px 14px', height: '44px' }}
-      />
-    </div>
+      {/* SUBTYPE */}
+      <Field label="SUBTYPE" width="sm">
+        <SearchableDropdown
+          value={material.foamMemorySubtype || ''}
+          onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemorySubtype', selectedValue)}
+          options={['Virgin', 'Blended', 'Plant-Based (Bio-Foam)']}
+          placeholder="Select or type"
+        />
+      </Field>
 
-    {/* GRADE */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">GRADE</label>
-      <SearchableDropdown
-        value={material.foamMemoryGrade || ''}
-        onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryGrade', selectedValue)}
-        options={['Standard Memory', 'High Density Memory', 'Premium Memory']}
-        placeholder="Select or type"
-        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-        style={{ padding: '10px 14px', height: '44px' }}
-      />
-    </div>
+      {/* GRADE */}
+      <Field label="GRADE" width="sm">
+        <SearchableDropdown
+          value={material.foamMemoryGrade || ''}
+          onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryGrade', selectedValue)}
+          options={['Standard Memory', 'High Density Memory', 'Premium Memory']}
+          placeholder="Select or type"
+        />
+      </Field>
 
-    {/* COLOUR */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-      <SearchableDropdown
-        value={material.foamMemoryColour || ''}
-        onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryColour', selectedValue)}
-        options={['White', 'Grey', 'Blue', 'Green (plant-based)', 'Charcoal']}
-        placeholder="Select or type"
-        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-        style={{ padding: '10px 14px', height: '44px' }}
-      />
-    </div>
+      {/* COLOUR */}
+      <Field label="COLOUR" width="sm">
+        <SearchableDropdown
+          value={material.foamMemoryColour || ''}
+          onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryColour', selectedValue)}
+          options={['White', 'Grey', 'Blue', 'Green (plant-based)', 'Charcoal']}
+          placeholder="Select or type"
+        />
+      </Field>
 
-    {/* THICKNESS */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
-      <input
-        type="text"
-        value={material.foamMemoryThickness || ''}
-        onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryThickness', e.target.value)}
-        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-        style={{ padding: '10px 14px', height: '44px' }}
-        placeholder={["in MM","2", "3", "4", "5", "6"]}
-      />
-    </div>
+      {/* THICKNESS */}
+      <Field label="THICKNESS" width="sm">
+        <Input
+          type="text"
+          value={material.foamMemoryThickness || ''}
+          onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryThickness', e.target.value)}
+          placeholder="in MM (e.g., 2, 3, 4, 5, 6)"
+        />
+      </Field>
 
-    {/* SHAPE with UPLOAD REF IMAGE */}
-    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-      <div className="flex flex-col flex-1">
-        <label className="text-sm font-semibold text-gray-700 mb-2">SHAPE</label>
-        <input
+      {/* SHAPE */}
+      <Field label="SHAPE" width="sm">
+        <Input
           type="text"
           value={material.foamMemoryShape || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryShape', e.target.value)}
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-          style={{ padding: '10px 14px', height: '44px' }}
           placeholder="TEXT"
         />
-      </div>
-      <div className="flex flex-col">
-        <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
+      </Field>
+
+      {/* UPLOAD REF IMAGE */}
+      <Field label="UPLOAD REF IMAGE" width="sm">
         <input
           type="file"
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryShapeRefImage', e.target.files[0])}
@@ -4042,534 +4025,319 @@ const Step2 = ({
           id={`upload-memory-foam-shape-${actualIndex}`}
           accept="image/*"
         />
-        <label
-          htmlFor={`upload-memory-foam-shape-${actualIndex}`}
-          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-11 w-full"
+          onClick={() => document.getElementById(`upload-memory-foam-shape-${actualIndex}`)?.click()}
         >
           {material.foamMemoryShapeRefImage ? 'UPLOADED' : 'UPLOAD REF IMAGE'}
-        </label>
-      </div>
-    </div>
+        </Button>
+      </Field>
 
-    {/* SIZE SPEC */}
-    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
-      <label className="text-sm font-bold text-gray-800 mb-4 block">SIZE SPEC</label>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-2">SHEET/PCS</label>
-          <input
-            type="text"
-            value={material.foamMemorySheetPcs || ''}
-            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemorySheetPcs', e.target.value)}
-            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-            style={{ padding: '10px 14px', height: '44px' }}
-            placeholder="Enter value"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-2">GSM</label>
-          <input
-            type="text"
-            value={material.foamMemoryGsm || ''}
-            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryGsm', e.target.value)}
-            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-            style={{ padding: '10px 14px', height: '44px' }}
-            placeholder="Enter value"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH (CM)</label>
-          <input
-            type="text"
-            value={material.foamMemoryLengthCm || ''}
-            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryLengthCm', e.target.value)}
-            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-            style={{ padding: '10px 14px', height: '44px' }}
-            placeholder="Enter value"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH (CM)</label>
-          <input
-            type="text"
-            value={material.foamMemoryWidthCm || ''}
-            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryWidthCm', e.target.value)}
-            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-            style={{ padding: '10px 14px', height: '44px' }}
-            placeholder="Enter value"
-          />
-        </div>
-      </div>
-    </div>
-
-    {/* QTY - KGS and YARDAGE */}
-    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4" style={{ marginTop: '20px' }}>
-      <label className="text-sm font-bold text-gray-800 mb-4 block">QTY</label>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-2">YARDAGE (CNS)</label>
-          <input
-            type="text"
-            value={material.foamMemoryYardageCns || ''}
-            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryYardageCns', e.target.value)}
-            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-            style={{ padding: '10px 14px', height: '44px' }}
-            placeholder="Enter value"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-2">KGS (CNS)</label>
-          <input
-            type="text"
-            value={material.foamMemoryKgsCns || ''}
-            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryKgsCns', e.target.value)}
-            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-            style={{ padding: '10px 14px', height: '44px' }}
-            placeholder="Enter value"
-          />
-        </div>
-      </div>
-    </div>
-
-    {/* TESTING REQUIREMENTS - Multi-select with chips (SAME AS LATEX-FOAM) */}
-    <div className="flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-      <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-      <div style={{ position: 'relative' }}>
-        <div
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-          style={{ 
-            padding: '8px 12px',
-            minHeight: '44px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-            alignItems: 'center',
-            cursor: 'text'
-          }}
-        >
-          {/* Selected chips */}
-          {(Array.isArray(material.foamMemoryTestingRequirements) ? material.foamMemoryTestingRequirements : []).map((req, index) => (
-            <span
-              key={index}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-              style={{
-                backgroundColor: '#e0e7ff',
-                color: '#4338ca',
-                border: '1px solid #c7d2fe'
-              }}
-            >
-              {req}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const current = Array.isArray(material.foamMemoryTestingRequirements) ? material.foamMemoryTestingRequirements : [];
-                  const updated = current.filter((_, i) => i !== index);
-                  handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirements', updated);
-                }}
-                style={{
-                  marginLeft: '4px',
-                  cursor: 'pointer',
-                  background: 'none',
-                  border: 'none',
-                  color: '#4338ca',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  lineHeight: '1',
-                  padding: 0,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '16px',
-                  height: '16px'
-                }}
-              >
-                ×
-              </button>
-            </span>
-          ))}
-          {/* Dropdown for selecting new options */}
-          <div 
-            id={`memory-foam-testing-wrapper-${actualIndex}`}
-            style={{ flex: 1, minWidth: '200px' }}
-          >
-            <SearchableDropdown
-              value=""
-              strictMode={false}
-              onChange={(selectedValue) => {
-                // Only add if it's an exact match from options (meaning it was selected from dropdown)
-                const options = ['Density', 'ILD', 'Response Time', 'Compression Set', 'VOC Emissions', 'Flammability'];
-                if (selectedValue && options.includes(selectedValue)) {
-                  // It's a selection from dropdown, add it
-                  const current = Array.isArray(material.foamMemoryTestingRequirements) ? material.foamMemoryTestingRequirements : [];
-                  if (!current.includes(selectedValue)) {
-                    const updated = [...current, selectedValue];
-                    handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirements', updated);
-                  }
-                }
-                // If it's not in options, it's typing - ignore it (will be added on Enter/blur)
-              }}
-              options={['Density', 'ILD', 'Response Time', 'Compression Set', 'VOC Emissions', 'Flammability']}
-              placeholder={(Array.isArray(material.foamMemoryTestingRequirements) && material.foamMemoryTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-              className="border-0 outline-none"
-              style={{ 
-                padding: '4px 0', 
-                height: 'auto', 
-                minHeight: '32px',
-                backgroundColor: 'transparent', 
-                boxShadow: 'none',
-                border: 'none',
-                borderWidth: '0',
-                outline: 'none'
-              }}
-              onFocus={(e) => {
-                const input = e.target;
-                input.style.border = 'none';
-                input.style.borderWidth = '0';
-                input.style.outline = 'none';
-                input.style.boxShadow = 'none';
-                const container = input.closest('[class*="border-2"]');
-                if (container) {
-                  container.style.borderColor = '#667eea';
-                  container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                }
-                // Add keydown listener to the input when it gets focus
-                const handleKeyDown = (keyEvent) => {
-                  if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                    keyEvent.preventDefault();
-                    keyEvent.stopPropagation();
-                    const newValue = input.value.trim();
-                    const current = Array.isArray(material.foamMemoryTestingRequirements) ? material.foamMemoryTestingRequirements : [];
-                    const options = ['Density', 'ILD', 'Response Time', 'Compression Set', 'VOC Emissions', 'Flammability'];
-                    // Add if it's not already in the list
-                    if (!current.includes(newValue)) {
-                      // If it's custom text (not in options), add it
-                      if (!options.includes(newValue)) {
-                        const updated = [...current, newValue];
-                        handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirements', updated);
-                      }
-                      // Clear the input
-                      input.value = '';
-                      input.blur();
-                    }
-                  }
-                };
-                input.addEventListener('keydown', handleKeyDown);
-                // Store the handler so we can remove it later
-                input._enterHandler = handleKeyDown;
-              }}
-              onBlur={(e) => {
-                const input = e.target;
-                // Remove the keydown listener
-                if (input._enterHandler) {
-                  input.removeEventListener('keydown', input._enterHandler);
-                  input._enterHandler = null;
-                }
-                input.style.border = 'none';
-                input.style.borderWidth = '0';
-                input.style.outline = 'none';
-                input.style.boxShadow = 'none';
-                const container = input.closest('[class*="border-2"]');
-                if (container) {
-                  container.style.borderColor = '#e5e7eb';
-                  container.style.boxShadow = 'none';
-                }
-                // On blur, if there's a typed value that's not in options, add it as custom text
-                if (input.value && input.value.trim()) {
-                  const typedValue = input.value.trim();
-                  const options = ['Density', 'ILD', 'Response Time', 'Compression Set', 'VOC Emissions', 'Flammability'];
-                  // Only add if it's custom text (not in options)
-                  if (!options.includes(typedValue)) {
-                    const current = Array.isArray(material.foamMemoryTestingRequirements) ? material.foamMemoryTestingRequirements : [];
-                    if (!current.includes(typedValue)) {
-                      const updated = [...current, typedValue];
-                      handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirements', updated);
-                    }
-                  }
-                  // Clear the input
-                  input.value = '';
-                }
-              }}
+      {/* SIZE SPEC */}
+      <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
+        <h4 className="text-sm font-semibold text-foreground/90 mb-4">SIZE SPEC</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
+          <Field label="SHEET/PCS" width="sm">
+            <Input
+              type="text"
+              value={material.foamMemorySheetPcs || ''}
+              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemorySheetPcs', e.target.value)}
+              placeholder="Enter value"
             />
-          </div>
+          </Field>
+          <Field label="GSM" width="sm">
+            <Input
+              type="text"
+              value={material.foamMemoryGsm || ''}
+              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryGsm', e.target.value)}
+              placeholder="Enter value"
+            />
+          </Field>
+          <Field label="LENGTH (CM)" width="sm">
+            <Input
+              type="text"
+              value={material.foamMemoryLengthCm || ''}
+              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryLengthCm', e.target.value)}
+              placeholder="Enter value"
+            />
+          </Field>
+          <Field label="WIDTH (CM)" width="sm">
+            <Input
+              type="text"
+              value={material.foamMemoryWidthCm || ''}
+              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryWidthCm', e.target.value)}
+              placeholder="Enter value"
+            />
+          </Field>
         </div>
       </div>
-      {/* UPLOAD button for testing requirements */}
-      <div className="flex flex-col" style={{ marginTop: '12px' }}>
-        <input
-          type="file"
-          onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirementsFile', e.target.files[0])}
-          className="hidden"
-          id={`upload-memory-foam-testing-${actualIndex}`}
-          accept="image/*"
-        />
-        <label
-          htmlFor={`upload-memory-foam-testing-${actualIndex}`}
-          className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-          style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
+
+      {/* QTY - KGS and YARDAGE */}
+      <div style={{ marginTop: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
+        <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
+          <Field label="KGS (CNS)" width="sm">
+            <Input
+              type="text"
+              value={material.foamMemoryKgsCns || ''}
+              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryKgsCns', e.target.value)}
+              placeholder="Enter value"
+            />
+          </Field>
+          <Field label="YARDAGE (CNS)" width="sm">
+            <Input
+              type="text"
+              value={material.foamMemoryYardageCns || ''}
+              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryYardageCns', e.target.value)}
+              placeholder="Enter value"
+            />
+          </Field>
+        </div>
+      </div>
+
+      {/* TESTING / SURPLUS / WASTAGE / APPROVAL / REMARKS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 col-span-1 md:col-span-2 lg:col-span-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
+        {/* TESTING REQ. */}
+        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+          <div className="flex items-center" style={{ gap: '0.75rem' }}>
+            <div className="flex-1">
+              <TestingRequirementsInput
+                value={material.foamMemoryTestingRequirements || []}
+                onChange={(values) => handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirements', values)}
+                options={['Density', 'ILD', 'Response Time', 'Compression Set', 'VOC Emissions', 'Flammability']}
+                placeholder="Type to search or select testing requirements..."
+              />
+            </div>
+            <input
+              type="file"
+              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirementsFile', e.target.files[0])}
+              className="hidden"
+              id={`upload-memory-testing-${actualIndex}`}
+              accept="image/*"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-11"
+              onClick={() => document.getElementById(`upload-memory-testing-${actualIndex}`)?.click()}
+            >
+              {material.foamMemoryTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
+            </Button>
+          </div>
+        </Field>
+
+        {/* SURPLUS % */}
+        <Field label="SURPLUS %" width="sm">
+          <PercentInput
+            value={material.foamMemorySurplus || ''}
+            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemorySurplus', e.target.value)}
+            placeholder="e.g., 3-5"
+          />
+        </Field>
+
+        {/* WASTAGE % */}
+        <Field label="WASTAGE %" width="sm">
+          <div className="relative">
+            <SearchableDropdown
+              value={material.foamMemoryWastage || ''}
+              onChange={(selectedValue) => {
+                const predefinedOptions = ['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion'];
+                if (predefinedOptions.includes(selectedValue)) {
+                  handleRawMaterialChange(actualIndex, 'foamMemoryWastage', selectedValue);
+                } else {
+                  const numericValue = selectedValue.replace(/[^0-9.]/g, '');
+                  handleRawMaterialChange(actualIndex, 'foamMemoryWastage', numericValue);
+                }
+              }}
+              options={['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion']}
+              placeholder="Select or type %"
+              className={
+                material.foamMemoryWastage && !['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion'].includes(material.foamMemoryWastage)
+                  ? 'pr-10'
+                  : ''
+              }
+            />
+            {material.foamMemoryWastage &&
+              !['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion'].includes(material.foamMemoryWastage) && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: '0.875rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--muted-foreground)',
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                    zIndex: 10,
+                  }}
+                >
+                  %
+                </span>
+              )}
+          </div>
+        </Field>
+
+        {/* APPROVAL */}
+        <Field label="APPROVAL" width="sm">
+          <SearchableDropdown
+            value={material.foamMemoryApproval || ''}
+            onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryApproval', selectedValue)}
+            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+            placeholder="Select or type"
+          />
+        </Field>
+
+        {/* REMARKS */}
+        <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+          <Input
+            type="text"
+            value={material.foamMemoryRemarks || ''}
+            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryRemarks', e.target.value)}
+            placeholder="50D+ for quality, Gel-infused for cooling, Low VOC for sensitive users"
+          />
+        </Field>
+      </div>
+
+      {/* Advance Spec Button */}
+      <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
+        <Button
+          type="button"
+          variant={material.showFoamMemoryAdvancedSpec ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => handleRawMaterialChange(actualIndex, 'showFoamMemoryAdvancedSpec', !material.showFoamMemoryAdvancedSpec)}
         >
-          {material.foamMemoryTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
-        </label>
+          Advance Spec
+        </Button>
       </div>
-    </div>
 
-    {/* SURPLUS % */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <input
-          type="text"
-          value={material.foamMemorySurplus || ''}
-          onChange={(e) => {
-            const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-            handleRawMaterialChange(actualIndex, 'foamMemorySurplus', numericValue);
-          }}
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-          style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
-          placeholder="%age (e.g., 3-5%)"
-        />
-        {material.foamMemorySurplus && (
-          <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-        )}
-      </div>
-    </div>
-
-    {/* WASTAGE % */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <SearchableDropdown
-          value={material.foamMemoryWastage || ''}
-          onChange={(selectedValue) => {
-            const predefinedOptions = ['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion'];
-            if (predefinedOptions.includes(selectedValue)) {
-              handleRawMaterialChange(actualIndex, 'foamMemoryWastage', selectedValue);
-            } else {
-              const numericValue = selectedValue.replace(/[^0-9.]/g, '');
-              handleRawMaterialChange(actualIndex, 'foamMemoryWastage', numericValue);
-            }
-          }}
-          options={['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion']}
-          placeholder="Select or type"
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-          style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
-        />
-        {material.foamMemoryWastage && !['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion'].includes(material.foamMemoryWastage) && (
-          <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
-        )}
-      </div>
-    </div>
-
-    {/* APPROVAL */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-      <SearchableDropdown
-        value={material.foamMemoryApproval || ''}
-        onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryApproval', selectedValue)}
-        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-        placeholder="Select or type"
-        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-        style={{ padding: '10px 14px', height: '44px' }}
-      />
-    </div>
-
-    {/* REMARKS */}
-    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-      <textarea
-        value={material.foamMemoryRemarks || ''}
-        onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryRemarks', e.target.value)}
-        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-        style={{ padding: '10px 14px', minHeight: '44px' }}
-        rows="1"
-        placeholder="50D+ for quality, Gel-infused for cooling, Low VOC for sensitive users"
-      />
-    </div>
-
-    {/* MEMORY FOAM - Advance Spec Button and Fields */}
-    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-      <button
-        type="button"
-        onClick={() => handleRawMaterialChange(actualIndex, 'showFoamMemoryAdvancedSpec', !material.showFoamMemoryAdvancedSpec)}
-        style={{
-          backgroundColor: material.showFoamMemoryAdvancedSpec ? '#667eea' : '#ffffff',
-          borderColor: material.showFoamMemoryAdvancedSpec ? '#667eea' : '#e5e7eb',
-          color: material.showFoamMemoryAdvancedSpec ? '#ffffff' : '#374151',
-          border: '2px solid',
-          borderRadius: '8px',
-          padding: '10px 20px',
-          fontSize: '14px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          width: '100%',
-          transition: 'all 0.2s',
-          boxShadow: material.showFoamMemoryAdvancedSpec ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
-        }}
-        onMouseEnter={(e) => {
-          if (!material.showFoamMemoryAdvancedSpec) {
-            e.target.style.backgroundColor = '#f9fafb';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!material.showFoamMemoryAdvancedSpec) {
-            e.target.style.backgroundColor = '#ffffff';
-          }
-        }}
-      >
-        {material.showFoamMemoryAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
-      </button>
+      {/* Advanced Filter UI Table */}
       {material.showFoamMemoryAdvancedSpec && (
-        <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">ILD / IFD (Firmness)</label>
+        <div
+          style={{
+            marginTop: '1.5rem',
+            padding: '1.5rem',
+            backgroundColor: 'var(--muted)',
+            borderRadius: '0.75rem',
+            border: '1px solid var(--border)',
+          }}
+          className="col-span-1 md:col-span-2 lg:col-span-5"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
+            <Field label="ILD / IFD (FIRMNESS)" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryIld || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryIld', selectedValue)}
                 options={['ILD rating (e.g., 8 Ultra-Soft, 10-12 Soft, 14 Medium, 18+ Firm)']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">RESPONSE TIME</label>
+            </Field>
+            <Field label="RESPONSE TIME" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryResponseTime || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryResponseTime', selectedValue)}
                 options={['Recovery Time (Slow: 5-10 sec, Medium: 3-5 sec, Fast: 1-3 sec)']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">TEMPERATURE SENSITIVITY</label>
+            </Field>
+            <Field label="TEMPERATURE SENSITIVITY" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryTemperatureSensitivity || ''}
-                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryTemperatureSensitivity', selectedValue)}
+                onChange={(selectedValue) =>
+                  handleRawMaterialChange(actualIndex, 'foamMemoryTemperatureSensitivity', selectedValue)
+                }
                 options={['Standard (temp sensitive)', 'Low Temp Sensitive', 'Adaptive']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">ACTIVATION TEMPERATURE</label>
+            </Field>
+            <Field label="ACTIVATION TEMPERATURE" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryActivationTemperature || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryActivationTemperature', selectedValue)}
                 options={['Temperature at which foam softens (e.g., 20-25°C, 25-30°C)']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">COMPRESSION SET</label>
+            </Field>
+            <Field label="COMPRESSION SET" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryCompressionSet || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryCompressionSet', selectedValue)}
                 options={['Compression Set % (<5% for quality memory foam)']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">RESILIENCE</label>
+            </Field>
+            <Field label="RESILIENCE" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryResilience || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryResilience', selectedValue)}
                 options={['Low Resilience (10-30%) - characteristic of memory foam']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">BREATHABILITY</label>
+            </Field>
+            <Field label="BREATHABILITY" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryBreathability || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryBreathability', selectedValue)}
                 options={['Standard', 'Open Cell (breathable)', 'Ventilated (holes)']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">INFUSION</label>
+            </Field>
+            <Field label="INFUSION" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryInfusion || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryInfusion', selectedValue)}
                 options={['None', 'Gel-Infused', 'Copper-Infused', 'Charcoal-Infused', 'Green Tea', 'Lavender']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">COOLING TECHNOLOGY</label>
+            </Field>
+            <Field label="COOLING TECHNOLOGY" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryCoolingTechnology || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryCoolingTechnology', selectedValue)}
                 options={['Standard', 'Phase Change Material (PCM)', 'Gel Beads', 'Graphite']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">FIRE RETARDANT</label>
+            </Field>
+            <Field label="FIRE RETARDANT" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryFireRetardant || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryFireRetardant', selectedValue)}
                 options={['FR Treated (CFR 1633, TB 117-2013, BS 5852)']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">VOC EMISSIONS</label>
+            </Field>
+            <Field label="VOC EMISSIONS" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryVocEmissions || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryVocEmissions', selectedValue)}
                 options={['Low VOC', 'Ultra-Low VOC', 'CertiPUR-US Certified']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">DENSITY</label>
+            </Field>
+            <Field label="DENSITY" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryDensity || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryDensity', selectedValue)}
                 options={['40 kg/m³', '50 kg/m³', '60 kg/m³', '70 kg/m³', '80 kg/m³', '90 kg/m³']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
+            </Field>
+            <Field label="CERTIFICATION" width="sm">
               <SearchableDropdown
                 value={material.foamMemoryCertification || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryCertification', selectedValue)}
                 options={['CertiPUR-US', 'OEKO-TEX', 'Greenguard Gold', 'REACH']}
                 placeholder="Select or type"
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', height: '44px' }}
               />
-            </div>
+            </Field>
           </div>
         </div>
       )}
     </div>
-  </div>
+  </>
 )}
                   
 
