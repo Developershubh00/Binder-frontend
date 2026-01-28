@@ -1,5 +1,10 @@
 import { useState } from 'react';
 import SearchableDropdown from './GenerateFactoryCode/components/SearchableDropdown';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FormCard, FormRow, FullscreenContent } from '@/components/ui/form-layout';
 
 const CompanyEssentials = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -141,10 +146,7 @@ const CompanyEssentials = ({ onBack }) => {
   };
 
   // Handle form submit for a specific form
-  const handleSubmit = (e, formId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const submitForm = (formId) => {
     const form = forms.find(f => f.id === formId);
     if (!form) return;
 
@@ -179,6 +181,12 @@ const CompanyEssentials = ({ onBack }) => {
 
     // Show popup instead of alert
     setShowPopup(true);
+  };
+
+  const handleSubmitAll = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    forms.forEach((form) => submitForm(form.id));
   };
 
   // Handle Add More from popup
@@ -220,407 +228,175 @@ const CompanyEssentials = ({ onBack }) => {
   // Render a single form
   const renderForm = (form) => {
     return (
-      <div 
+      <FormCard
         key={form.id}
-        className="bg-white rounded-lg border" 
-        style={{ padding: '16px', marginBottom: '12px', borderColor: '#e0e0e0', position: 'relative' }}
+        className="rounded-xl border-border bg-card"
+        style={{ padding: '20px 18px', marginBottom: '12px' }}
       >
-        {/* Remove Button - Top Right */}
-        <button
-          type="button"
-          onClick={() => handleRemove(form.id)}
-          disabled={forms.length === 1}
-          className="cursor-pointer text-sm font-medium transition-all"
-          style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            backgroundColor: '#ffffff',
-            color: forms.length === 1 ? '#cccccc' : '#ff0000',
-            border: '1px solid #e0e0e0',
-            borderRadius: '6px',
-            padding: '6px 12px',
-            cursor: forms.length === 1 ? 'not-allowed' : 'pointer',
-            opacity: forms.length === 1 ? 0.5 : 1,
-            zIndex: 10,
-            visibility: 'visible',
-            display: 'block'
-          }}
-          onMouseEnter={(e) => {
-            if (forms.length > 1) {
-              e.currentTarget.style.backgroundColor = '#fff5f5';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#ffffff';
-          }}
-        >
-          Remove
-        </button>
+        {/* Top row (keeps button topmost, never overlaps fields) */}
+        <div className="flex justify-end mb-3">
+          <Button
+            type="button"
+            onClick={() => handleRemove(form.id)}
+            disabled={forms.length === 1}
+            variant="outline"
+            size="sm"
+            className="border-border text-destructive hover:bg-destructive/10 disabled:opacity-50"
+          >
+            Remove
+          </Button>
+        </div>
 
         {/* Form Fields - Compact Layout */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="flex flex-col gap-3">
           {/* Row 1: SR NO | DEPARTMENT | MACHINE TYPE | COMPONENT SPEC | QTY | UNIT (QTY/UNIT not for MACHINERY) */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {/* SR NO. Field */}
-            <div className="flex flex-col" style={{ minWidth: '80px', maxWidth: '100px' }}>
-              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                SR NO.
-              </label>
-              <input
+          <FormRow>
+            <Field label="SR NO." width="sm">
+              <Input
                 type="number"
                 value={form.srNo}
                 readOnly
-                className="border rounded-lg text-sm transition-all bg-gray-100"
-                style={{ 
-                  padding: '8px 12px', 
-                  height: '40px', 
-                  width: '100%',
-                  borderColor: '#d0d0d0',
-                  color: '#333'
-                }}
+                className="bg-muted text-foreground/80"
               />
-            </div>
+            </Field>
 
             {/* Department Field (for MACHINERY and QC TOOLS) */}
             {needsDepartment && (
-              <div className="flex flex-col" style={{ minWidth: '150px', maxWidth: '200px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  DEPARTMENT
-                </label>
+              <Field label="DEPARTMENT" width="sm">
                 <SearchableDropdown
                   value={form.data.department}
                   onChange={(value) => handleChange(form.id, 'department', value)}
                   options={departmentOptions}
                   placeholder="Enter or select department"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* Item Description or Item Field */}
             {!needsMachineFields && (
-              <div className="flex flex-col" style={{ width: '25%', minWidth: '150px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  {needsItem ? 'ITEM' : needsJobWork ? 'JOB WORK' : 'ITEM DESCRIPTION'}
-                </label>
-                <input
+              <Field
+                label={needsItem ? 'ITEM' : needsJobWork ? 'JOB WORK' : 'ITEM DESCRIPTION'}
+                width="md"
+              >
+                <Input
                   type="text"
                   value={needsItem ? form.data.item : form.data.itemDescription}
                   onChange={(e) => handleChange(form.id, needsItem ? 'item' : 'itemDescription', e.target.value)}
                   placeholder={`Enter ${needsItem ? 'item' : needsJobWork ? 'job work' : 'item description'}`}
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0',
-                    color: '#333'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* Machine Type Field (for MACHINERY and QC TOOLS) */}
             {needsMachineFields && (
-              <div className="flex flex-col" style={{ width: '25%', minWidth: '150px', maxWidth: '250px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  MACHINE TYPE
-                </label>
-                <input
+              <Field label="MACHINE TYPE" width="md">
+                <Input
                   type="text"
                   value={form.data.machineType}
                   onChange={(e) => handleChange(form.id, 'machineType', e.target.value)}
                   placeholder="Enter machine type"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0',
-                    color: '#333'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* Component Spec Field (for MACHINERY and QC TOOLS) */}
             {needsMachineFields && (
-              <div className="flex flex-col" style={{ width: '25%', minWidth: '150px', maxWidth: '250px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  COMPONENT SPEC
-                </label>
-                <input
+              <Field label="COMPONENT SPEC" width="md">
+                <Input
                   type="text"
                   value={form.data.componentSpec}
                   onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
                   placeholder="Enter component specification"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0',
-                    color: '#333'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* QTY or AMOUNT Field (not in row 1 for MACHINERY) */}
             {selectedCategory !== 'MACHINERY' && (
-              <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  {needsAmount ? 'AMOUNT' : 'QTY'}
-                </label>
-                <input
+              <Field label={needsAmount ? 'AMOUNT' : 'QTY'} width="sm">
+                <Input
                   type="number"
                   value={needsAmount ? form.data.amount : form.data.qty}
                   onChange={(e) => handleChange(form.id, needsAmount ? 'amount' : 'qty', e.target.value)}
                   placeholder={needsAmount ? 'Enter amount' : 'Enter quantity'}
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0',
-                    color: '#333'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* UNIT Field (not for TRAVEL EXPENSE and not in row 1 for MACHINERY) */}
             {!needsAmount && selectedCategory !== 'MACHINERY' && (
-              <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  UNIT
-                </label>
+              <Field label="UNIT" width="sm">
                 <SearchableDropdown
                   value={form.data.unit}
                   onChange={(value) => handleChange(form.id, 'unit', value)}
                   options={unitOptions}
                   placeholder="Select unit"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
-          </div>
+          </FormRow>
 
           {/* Row 2: QTY | UNIT | REMARKS (for MACHINERY) or REMARKS | REF IMAGE (for others) */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <FormRow>
             {/* QTY Field (for MACHINERY in row 2) */}
             {selectedCategory === 'MACHINERY' && (
-              <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  QTY
-                </label>
-                <input
+              <Field label="QTY" width="sm">
+                <Input
                   type="number"
                   value={form.data.qty}
                   onChange={(e) => handleChange(form.id, 'qty', e.target.value)}
                   placeholder="Enter quantity"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0',
-                    color: '#333'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* UNIT Field (for MACHINERY in row 2) */}
             {selectedCategory === 'MACHINERY' && (
-              <div className="flex flex-col" style={{ minWidth: '120px', maxWidth: '150px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  UNIT
-                </label>
+              <Field label="UNIT" width="sm">
                 <SearchableDropdown
                   value={form.data.unit}
                   onChange={(value) => handleChange(form.id, 'unit', value)}
                   options={unitOptions}
                   placeholder="Select unit"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* REMARKS Field */}
-            <div className="flex flex-col" style={{ width: '25%', minWidth: '150px' }}>
-              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                REMARKS
-              </label>
-              <input
+            <Field label="REMARKS" width="md">
+              <Input
                 type="text"
                 value={form.data.remarks}
                 onChange={(e) => handleChange(form.id, 'remarks', e.target.value)}
                 placeholder="Enter remarks"
-                className="border rounded-lg text-sm transition-all bg-white"
-                style={{ 
-                  padding: '8px 12px', 
-                  height: '40px', 
-                  width: '100%',
-                  borderColor: '#d0d0d0',
-                  color: '#333'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#999';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#d0d0d0';
-                  e.target.style.boxShadow = '';
-                }}
               />
-            </div>
+            </Field>
 
             {/* FOR Field (for PANTRY and TRAVEL EXPENSE) - in row 2, before REF IMAGE */}
             {needsForField && (
-              <div className="flex flex-col" style={{ minWidth: '150px', maxWidth: '200px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  FOR
-                </label>
+              <Field label="FOR" width="md">
                 {selectedCategory === 'PANTRY' ? (
                   <SearchableDropdown
                     value={form.data.forField}
                     onChange={(value) => handleChange(form.id, 'forField', value)}
                     options={forOptions}
                     placeholder="Select option"
-                    className="border rounded-lg text-sm transition-all bg-white"
-                    style={{ 
-                      padding: '8px 12px', 
-                      height: '40px', 
-                      width: '100%',
-                      borderColor: '#d0d0d0'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#999';
-                      e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = '#d0d0d0';
-                      e.target.style.boxShadow = '';
-                    }}
                   />
                 ) : (
-                  <input
+                  <Input
                     type="text"
                     value={form.data.forField}
                     onChange={(e) => handleChange(form.id, 'forField', e.target.value)}
                     placeholder="Enter value"
-                    className="border rounded-lg text-sm transition-all bg-white"
-                    style={{ 
-                      padding: '8px 12px', 
-                      height: '40px', 
-                      width: '100%',
-                      borderColor: '#d0d0d0',
-                      color: '#333'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#999';
-                      e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = '#d0d0d0';
-                      e.target.style.boxShadow = '';
-                    }}
                   />
                 )}
-              </div>
+              </Field>
             )}
 
             {/* REFERENCE IMAGE Field (show for all except MACHINERY) */}
             {selectedCategory !== 'MACHINERY' && (
-              <div className="flex flex-col" style={{ minWidth: '200px', maxWidth: '300px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  REF IMAGE
-                </label>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <Field label="REF IMAGE" width="md">
+                <div className="flex items-center gap-3">
                   <input
                     type="file"
                     onChange={(e) => handleImageUpload(form.id, e.target.files[0])}
@@ -630,96 +406,49 @@ const CompanyEssentials = ({ onBack }) => {
                   />
                   <label
                     htmlFor={`upload-image-${form.id}`}
-                    className="border rounded-lg text-sm font-medium cursor-pointer transition-all bg-white hover:bg-gray-50"
-                    style={{ 
-                      padding: '8px 16px', 
-                      height: '40px', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      minWidth: '120px',
-                      borderColor: '#d0d0d0',
-                      color: '#555'
-                    }}
+                    className="inline-flex h-11 min-w-[120px] cursor-pointer items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground/80 shadow-xs transition-colors hover:bg-accent"
                   >
                     {form.data.referenceImage ? 'UPLOADED' : 'UPLOAD'}
                   </label>
                   {form.data.referenceImagePreview && (
-                    <div style={{ width: '50px', height: '50px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e0e0e0' }}>
+                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md border border-border bg-muted">
                       <img 
                         src={form.data.referenceImagePreview} 
                         alt="Preview" 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        className="h-full w-full object-cover"
                       />
                     </div>
                   )}
                 </div>
-              </div>
+              </Field>
             )}
 
             {/* Component Spec Field (for QC TOOLS only) - in row 2 */}
             {needsMachineFields && selectedCategory !== 'MACHINERY' && (
-              <div className="flex flex-col" style={{ flex: '1', minWidth: '200px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  COMPONENT SPEC
-                </label>
-                <input
+              <Field label="COMPONENT SPEC" width="lg">
+                <Input
                   type="text"
                   value={form.data.componentSpec}
                   onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
                   placeholder="Enter component specification"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0',
-                    color: '#333'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
 
             {/* Department Field (for QC TOOLS only) - in row 2 */}
             {needsDepartment && selectedCategory !== 'MACHINERY' && (
-              <div className="flex flex-col" style={{ minWidth: '150px', maxWidth: '200px' }}>
-                <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                  DEPARTMENT
-                </label>
+              <Field label="DEPARTMENT" width="sm">
                 <SearchableDropdown
                   value={form.data.department}
                   onChange={(value) => handleChange(form.id, 'department', value)}
                   options={departmentOptions}
                   placeholder="Enter or select department"
-                  className="border rounded-lg text-sm transition-all bg-white"
-                  style={{ 
-                    padding: '8px 12px', 
-                    height: '40px', 
-                    width: '100%',
-                    borderColor: '#d0d0d0'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#999';
-                    e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d0d0d0';
-                    e.target.style.boxShadow = '';
-                  }}
                 />
-              </div>
+              </Field>
             )}
-          </div>
+          </FormRow>
         </div>
-      </div>
+      </FormCard>
     );
   };
 
@@ -735,252 +464,81 @@ const CompanyEssentials = ({ onBack }) => {
         -moz-appearance: textfield;
       }
     `}</style>
-    <div className="w-full min-h-screen" style={{ padding: '16px', background: '#fafafa' }}>
+    <FullscreenContent style={{ overflowY: 'auto' }}>
       {/* Header */}
-      <div className="mb-4" style={{ flexShrink: 0 }}>
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-2 mb-3 transition-colors"
-          style={{ 
-            padding: '8px 16px',
-            borderRadius: '8px',
-            background: '#f5f5f5',
-            border: '1px solid #e0e0e0',
-            cursor: 'pointer',
-            color: '#666'
-          }}
-        >
+      <div className="content-header">
+        <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
           ← Back to Departments
-        </button>
-        <h1 className="text-2xl font-semibold mb-2" style={{ color: '#333' }}>Company Essentials</h1>
+        </Button>
+        <h1 className="fullscreen-title">Company Essentials</h1>
       </div>
 
       {/* Category Selection */}
-      <div className="bg-white rounded-lg border" style={{ padding: '16px', marginBottom: '16px', borderColor: '#e0e0e0', flexShrink: 0 }}>
-        <label className="text-sm font-semibold mb-2" style={{ display: 'block', marginBottom: '8px', color: '#555' }}>
-          SELECT CATEGORY
-        </label>
+      <FormCard
+        className="rounded-2xl border-border bg-muted"
+        style={{ padding: '24px 20px', marginBottom: '16px' }}
+      >
+        <Field label="SELECT CATEGORY" width="md">
         <SearchableDropdown
           value={selectedCategory}
           onChange={handleCategoryChange}
           options={categories}
           placeholder="Select or search category"
-          className="border rounded-lg text-sm transition-all bg-white text-gray-900"
-          style={{ 
-            padding: '10px 14px', 
-            height: '44px', 
-            width: '100%', 
-            maxWidth: '22%',
-            borderColor: '#d0d0d0'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#999';
-            e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#d0d0d0';
-            e.target.style.boxShadow = '';
-          }}
         />
-      </div>
+        </Field>
+      </FormCard>
 
       {/* Forms Section */}
       {selectedCategory && (
-        <div className="bg-white rounded-lg border" style={{ padding: '16px', borderColor: '#e0e0e0' }}>
-          <h2 className="text-xl font-semibold mb-4" style={{ color: '#333' }}>
-            {selectedCategory}
-          </h2>
+        <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
+          <h2 className="text-xl font-semibold mb-4">{selectedCategory}</h2>
 
           {/* Common Date Field */}
           {!needsDepartment && (
-            <div className="flex flex-col mb-4" style={{ maxWidth: '220px' }}>
-              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                DATE
-              </label>
-              <input
+            <Field label="DATE" width="md" className="mb-4">
+              <Input
                 type="date"
                 value={commonDate}
                 onChange={(e) => setCommonDate(e.target.value)}
-                className="border rounded-lg text-sm transition-all bg-white"
-                style={{ 
-                  padding: '10px 14px', 
-                  height: '44px', 
-                  width: '100%',
-                  borderColor: '#d0d0d0',
-                  color: '#333'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#999';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#d0d0d0';
-                  e.target.style.boxShadow = '';
-                }}
               />
-            </div>
+            </Field>
           )}
 
           {/* Render all subforms */}
-          <form onSubmit={(e) => { e.preventDefault(); }} onKeyDown={handleKeyDown}>
+          <form onSubmit={handleSubmitAll} onKeyDown={handleKeyDown}>
             {forms.map(form => renderForm(form))}
 
             {/* Submit and Add More Buttons */}
-            <div className="flex justify-start gap-4 mt-4" style={{ flexShrink: 0 }}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  forms.forEach(form => handleSubmit(e, form.id));
-                }}
-                className="border rounded-md cursor-pointer text-sm font-medium transition-all"
-                style={{
-                  backgroundColor: '#f3f4f6',
-                  borderColor: '#d1d5db',
-                  color: '#374151',
-                  padding: '10px 16px'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#e5e7eb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6';
-                }}
-              >
+            <div className="flex justify-start gap-4 mt-4">
+              <Button type="submit" variant="default">
                 SUBMIT
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleAddMore}
-                className="border rounded-md cursor-pointer text-sm font-medium transition-all"
-                style={{
-                  backgroundColor: '#667eea',
-                  borderColor: '#667eea',
-                  color: '#ffffff',
-                  padding: '10px 20px',
-                  fontWeight: '600'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#5568d3';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#667eea';
-                }}
+                variant="default"
               >
                 Add More
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
+        </FormCard>
       )}
 
       {/* Popup Modal */}
-      {showPopup && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}
-          onClick={() => setShowPopup(false)}
-        >
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px 20px',
-              minWidth: '400px',
-              maxWidth: '500px',
-              position: 'relative',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Icon - Top Right */}
-            <button
-              onClick={() => setShowPopup(false)}
-              style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: '#666',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '6px',
-                transition: 'all 0.2s',
-                zIndex: 10
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f5f5f5';
-                e.currentTarget.style.color = '#333';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#666';
-              }}
-            >
-              ×
-            </button>
-
-            {/* Popup Content */}
-            <div>
-              <h3 style={{ 
-                fontSize: '20px', 
-                fontWeight: '600', 
-                marginBottom: '8px', 
-                color: '#333',
-                textAlign: 'center'
-              }}>
-                Request Submitted
-              </h3>
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                gap: '12px', 
-                marginTop: '24px'
-              }}>
-                <button
-                  onClick={handleAddMoreFromPopup}
-                  style={{
-                    backgroundColor: '#667eea',
-                    border: 'none',
-                    color: '#ffffff',
-                    padding: '12px 32px',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#5568d3';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#667eea';
-                  }}
-                >
-                  Add More
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      <Dialog open={showPopup} onOpenChange={setShowPopup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request Submitted</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={handleAddMoreFromPopup} type="button">
+              Add More
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </FullscreenContent>
     </>
   );
 };
