@@ -481,7 +481,7 @@ const GenerateVendorCode = ({ onBack }) => {
                 </FormCard>
               </div>
 
-              <div className="flex justify-center gap-3 mt-6">
+              <div className="flex justify-center gap-3" style={{ marginTop: '40px' }}>
                 <Button variant="default" onClick={resetForm} type="button">
                   Generate Another Code
                 </Button>
