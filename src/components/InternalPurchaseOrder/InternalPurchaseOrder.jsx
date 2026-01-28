@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import GenerateFactoryCode from '../GenerateFactoryCode/GenerateFactoryCode';
 import SearchableDropdown from '../GenerateFactoryCode/components/SearchableDropdown';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 
 const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const [showInitialScreen, setShowInitialScreen] = useState(true);
@@ -208,296 +213,127 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
 
   // Initial Selection Screen
   return (
-    <div className='fullscreen-content'>
-      <div className="" style={{ height: '100%', overflowY: 'scroll' }}>
+    <FullscreenContent style={{ overflowY: 'auto' }}>
       <div className="content-header">
-        <button className="back-button" onClick={onBack}>
+        <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
           ← Back to Departments
-        </button>
+        </Button>
         <h1 className="fullscreen-title">Internal Purchase Order</h1>
         <p className="fullscreen-description">Select order type and enter required information</p>
       </div>
 
-      <div style={{ maxWidth: '800px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {/* Order Type */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-              ORDER FOR <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <SearchableDropdown
-              value={initialData.orderType}
-              onChange={handleOrderTypeChange}
-              options={orderTypeOptions}
-              placeholder="Select order type"
-              className={errors.orderType ? 'border-red-600' : ''}
-              style={{ 
-                padding: '10px 14px', 
-                height: '44px', 
-                width: '40%',
-                borderColor: errors.orderType ? '#ef4444' : '#d0d0d0'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#999';
-                e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.orderType ? '#ef4444' : '#d0d0d0';
-                e.target.style.boxShadow = '';
-              }}
-            />
-            {errors.orderType && (
-              <span className="text-red-600 text-xs font-medium mt-1">{errors.orderType}</span>
-            )}
-          </div>
-
-          {/* Buyer Code (for Production/Sampling) or Type (for Company) */}
-          {initialData.orderType === 'Company' ? (
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                TYPE <span style={{ color: '#ef4444' }}>*</span>
-              </label>
+      <div className="w-full max-w-6xl mx-auto">
+        <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
+          <div className="flex flex-wrap items-start" style={{ gap: '16px 12px', marginBottom: '32px' }}>
+            {/* Order Type */}
+            <Field 
+              label="ORDER FOR" 
+              required 
+              error={errors.orderType}
+              width="md"
+              style={{ marginBottom: 0 }}
+            >
               <SearchableDropdown
-                value={initialData.type}
-                onChange={handleTypeChange}
-                options={companyTypeOptions}
-                placeholder="Select type (STOCK or SAM)"
-                className={errors.type ? 'border-red-600' : ''}
-                style={{ 
-                  padding: '10px 14px', 
-                  height: '44px', 
-                  width: '40%',
-                  borderColor: errors.type ? '#ef4444' : '#d0d0d0'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#999';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = errors.type ? '#ef4444' : '#d0d0d0';
-                  e.target.style.boxShadow = '';
-                }}
+                value={initialData.orderType}
+                onChange={handleOrderTypeChange}
+                options={orderTypeOptions}
+                placeholder="Select order type"
+                className={errors.orderType ? 'border-destructive' : ''}
               />
-              {errors.type && (
-                <span className="text-red-600 text-xs font-medium mt-1">{errors.type}</span>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-                BUYER CODE <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              <SearchableDropdown
-                value={initialData.buyerCode}
-                onChange={handleBuyerCodeChange}
-                options={buyerCodeOptions}
-                placeholder="Select or type buyer code"
-                strictMode={false}
-                className={errors.buyerCode ? 'border-red-600' : ''}
-                style={{ 
-                  padding: '10px 14px', 
-                  height: '44px', 
-                  width: '40%',
-                  borderColor: errors.buyerCode ? '#ef4444' : '#d0d0d0'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#999';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = errors.buyerCode ? '#ef4444' : '#d0d0d0';
-                  e.target.style.boxShadow = '';
-                }}
-              />
-              {errors.buyerCode && (
-                <span className="text-red-600 text-xs font-medium mt-1">{errors.buyerCode}</span>
-              )}
-            </div>
-          )}
+            </Field>
 
-          {/* Program Name */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-2" style={{ color: '#555' }}>
-              PROGRAM NAME <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={initialData.programName}
-              onChange={handleProgramNameChange}
-              placeholder="Enter program name"
-              className={errors.programName ? 'border-red-600' : ''}
-              style={{ 
-                padding: '10px 14px', 
-                height: '44px', 
-                width: '40%',
-                border: `1px solid ${errors.programName ? '#ef4444' : '#d0d0d0'}`,
-                borderRadius: '8px',
-                fontSize: '14px',
-                color: '#333',
-                background: '#fff'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#999';
-                e.target.style.boxShadow = '0 0 0 2px rgba(150, 150, 150, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.programName ? '#ef4444' : '#d0d0d0';
-                e.target.style.boxShadow = '';
-              }}
-            />
-            {errors.programName && (
-              <span className="text-red-600 text-xs font-medium mt-1">{errors.programName}</span>
+            {/* Buyer Code (for Production/Sampling) or Type (for Company) */}
+            {initialData.orderType === 'Company' ? (
+              <Field 
+                label="TYPE" 
+                required 
+                error={errors.type}
+                width="md"
+                style={{ marginBottom: 0 }}
+              >
+                <SearchableDropdown
+                  value={initialData.type}
+                  onChange={handleTypeChange}
+                  options={companyTypeOptions}
+                  placeholder="Select type (STOCK or SAM)"
+                  className={errors.type ? 'border-destructive' : ''}
+                />
+              </Field>
+            ) : (
+              <Field 
+                label="BUYER CODE" 
+                required 
+                error={errors.buyerCode}
+                width="md"
+                style={{ marginBottom: 0 }}
+              >
+                <SearchableDropdown
+                  value={initialData.buyerCode}
+                  onChange={handleBuyerCodeChange}
+                  options={buyerCodeOptions}
+                  placeholder="Select or type buyer code"
+                  strictMode={false}
+                  className={errors.buyerCode ? 'border-destructive' : ''}
+                />
+              </Field>
             )}
+
+            {/* Program Name */}
+            <Field 
+              label="PROGRAM NAME" 
+              required 
+              error={errors.programName}
+              width="md"
+              style={{ marginBottom: 0 }}
+            >
+              <Input
+                type="text"
+                value={initialData.programName}
+                onChange={handleProgramNameChange}
+                placeholder="Enter program name"
+                aria-invalid={!!errors.programName}
+              />
+            </Field>
           </div>
 
           {/* Continue Button */}
-          <div className="flex justify-start mt-4">
-            <button
-              type="button"
-              onClick={handleContinue}
-              className="flex items-center gap-2 text-white rounded-lg text-sm font-semibold transition-all hover:-translate-y-0.5"
-              style={{
-                padding: '12px 24px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 6px 16px rgba(102, 126, 234, 0.3)',
-                cursor: 'pointer'
-              }}
-            >
+          <div className="flex justify-start">
+            <Button type="button" onClick={handleContinue} variant="default">
               Continue →
-            </button>
+            </Button>
           </div>
-        </div>
-        </div>
+        </FormCard>
       </div>
 
       {/* IPO Popup Modal */}
-      {showIPOPopup && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}
-          onClick={() => setShowIPOPopup(false)}
-        >
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px 20px',
-              minWidth: '400px',
-              maxWidth: '500px',
-              position: 'relative',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Icon - Top Right */}
-            <button
-              onClick={() => setShowIPOPopup(false)}
-              style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: '#666',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '6px',
-                transition: 'all 0.2s',
-                zIndex: 10
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f5f5f5';
-                e.currentTarget.style.color = '#333';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#666';
-              }}
-            >
-              ×
-            </button>
-
-            {/* Popup Content */}
-            <div>
-              <h3 style={{ 
-                fontSize: '20px', 
-                fontWeight: '600', 
-                marginBottom: '8px', 
-                color: '#333',
-                textAlign: 'center'
-              }}>
-                IPO
-              </h3>
-              
-              {/* Display IPO Code */}
-              <div style={{ 
-                marginTop: '16px', 
-                marginBottom: '24px',
-                padding: '12px',
-                backgroundColor: '#f9fafb',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                <div style={{ 
-                  fontWeight: '600', 
-                  color: '#333', 
-                  fontSize: '16px',
-                  wordBreak: 'break-word'
+      <Dialog open={showIPOPopup} onOpenChange={setShowIPOPopup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>IPO</DialogTitle>
+          </DialogHeader>
+          <div className="w-full">
+            <FormCard className="rounded-xl border-border bg-card" style={{ padding: '20px 18px', marginBottom: '16px' }}>
+              <div className="text-center">
+                <div className="text-sm font-semibold text-foreground/80 mb-3">
+                  Generated IPO Code
+                </div>
+                <div className="text-primary font-black text-2xl break-words" style={{
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                  letterSpacing: '2px',
                 }}>
                   {generatedIPOCode}
                 </div>
               </div>
-              
-              {/* Next Button */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                gap: '12px', 
-                marginTop: '24px'
-              }}>
-                <button
-                  onClick={handleNextFromPopup}
-                  style={{
-                    backgroundColor: '#667eea',
-                    border: 'none',
-                    color: '#ffffff',
-                    padding: '12px 32px',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#5568d3';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#667eea';
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            </FormCard>
           </div>
-        </div>
-      )}
-    </div>
+          <DialogFooter>
+            <Button onClick={handleNextFromPopup} type="button" variant="default">
+              Next
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </FullscreenContent>
   );
 };
 
