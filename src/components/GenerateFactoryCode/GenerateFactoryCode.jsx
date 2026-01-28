@@ -11,6 +11,7 @@ import Step3 from './components/steps/Step3';
 import Step4 from './components/steps/Step4';
 import Step5 from './components/steps/Step5';
 import { Button } from '@/components/ui/button';
+import { FormCard } from '@/components/ui/form-layout';
 
 const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const scrollContainerRef = useRef(null);
@@ -4091,230 +4092,146 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         </div>
       )}
 
-      {/* Step Content */}
-      <div className="mb-8 mx-auto" style={{ maxWidth: '1000px' }}>
-        {renderStepContent()}
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="mx-auto" style={{ maxWidth: '1000px' }}>
-        {currentStep === totalSteps ? (
-          <div className="flex justify-center items-center" style={{ marginTop: '32px' }}>
-            <Button
-              type="button"
-              onClick={() => {
-                // Handle final submission
-                alert('Factory code generation will be implemented here');
-              }}
-            >
-              Generate Factory Code
-            </Button>
-          </div>
-        ) : currentStep === 3 ? (
-          // Artwork / Labelling step: Add on left, Prev/Next on right (like Step0 layout)
-          <div className="flex items-center justify-between" style={{ marginTop: '32px' }}>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                const currentLength = formData.artworkMaterials?.length || 0;
-                addArtworkMaterial();
-                const newIndex = currentLength;
-                const attemptScroll = (attempts = 0) => {
-                  if (attempts > 30) return;
-                  const element = document.getElementById(`artwork-material-${newIndex}`);
-                  if (element) {
-                    setTimeout(() => {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 150);
-                  } else {
-                    setTimeout(() => attemptScroll(attempts + 1), 50);
-                  }
-                };
-                attemptScroll();
-              }}
-            >
-              + Add Material
-            </Button>
-            <div className="flex items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handlePrevious}
-              >
-                ← Previous
-              </Button>
-              <Button
-                type="button"
-                onClick={handleNext}
-              >
-                Next →
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-end items-center gap-3" style={{ marginTop: '32px' }}>
-            {currentStep > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handlePrevious}
-              >
-                ← Previous
-              </Button>
-            )}
-            {currentStep > 0 && currentStep < totalSteps && (
-              <Button
-                type="button"
-                onClick={handleNext}
-              >
-                Next →
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* IPC Popup Modal */}
-      {showIPCPopup && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}
-          onClick={() => setShowIPCPopup(false)}
-        >
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px 20px',
-              minWidth: '400px',
-              maxWidth: '500px',
-              position: 'relative',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Icon - Top Right */}
-            <button
-              onClick={() => setShowIPCPopup(false)}
-              style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: '#666',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '6px',
-                transition: 'all 0.2s',
-                zIndex: 10
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f5f5f5';
-                e.currentTarget.style.color = '#333';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#666';
-              }}
-            >
-              ×
-            </button>
-
-            {/* Popup Content */}
-            <div>
-              <h3 style={{ 
-                fontSize: '20px', 
-                fontWeight: '600', 
-                marginBottom: '8px', 
-                color: '#333',
-                textAlign: 'center'
-              }}>
-                IPC
-              </h3>
-              
-              {/* Display IPC Codes */}
-              <div style={{ 
-                marginTop: '16px', 
-                marginBottom: '24px',
-                maxHeight: '300px',
-                overflowY: 'auto',
-                padding: '12px',
-                backgroundColor: '#f9fafb',
-                borderRadius: '8px'
-              }}>
-                {generatedIPCCodes.map((sku, idx) => (
-                  <div key={idx} style={{ marginBottom: '12px' }}>
-                    <div style={{ 
-                      fontWeight: '600', 
-                      color: '#333', 
-                      marginBottom: '4px',
-                      fontSize: '14px'
-                    }}>
-                      SKU {idx + 1}: {sku.ipcCode}
-                    </div>
-                    {sku.subproducts && sku.subproducts.length > 0 && (
-                      <div style={{ marginLeft: '16px', fontSize: '13px', color: '#666' }}>
-                        {sku.subproducts.map((sp, spIdx) => (
-                          <div key={spIdx} style={{ marginTop: '4px' }}>
-                            Subproduct {spIdx + 1}: {sp.ipcCode}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+      {showIPCPopup ? (
+        // Buyer/Vendor-style success view (inline, not modal)
+        <div className="w-full max-w-3xl mx-auto" style={{ marginTop: '24px' }}>
+          <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mb-5">
+                ✓
               </div>
-              
-              {/* Add More SKU Button */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                gap: '12px', 
-                marginTop: '24px'
-              }}>
-                <button
-                  onClick={handleAddMoreSKUFromPopup}
-                  style={{
-                    backgroundColor: '#667eea',
-                    border: 'none',
-                    color: '#ffffff',
-                    padding: '12px 32px',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
+
+              <div className="w-full" style={{ marginTop: '8px' }}>
+                <div className="text-sm font-semibold text-foreground/80 mb-3">
+                  IPC Codes Generated
+                </div>
+
+                <FormCard className="rounded-xl border-border bg-card" style={{ padding: '20px 18px' }}>
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {generatedIPCCodes.map((sku, idx) => (
+                      <div key={idx} style={{ marginBottom: idx === generatedIPCCodes.length - 1 ? 0 : '12px' }}>
+                        <div className="text-sm font-semibold text-foreground">
+                          SKU {idx + 1}: <span className="text-primary font-semibold">{sku.ipcCode}</span>
+                        </div>
+                        {sku.subproducts && sku.subproducts.length > 0 && (
+                          <div className="text-sm text-muted-foreground" style={{ marginLeft: '16px', marginTop: '6px' }}>
+                            {sku.subproducts.map((sp, spIdx) => (
+                              <div key={spIdx} style={{ marginTop: spIdx === 0 ? 0 : '4px' }}>
+                                Subproduct {spIdx + 1}: <span className="text-foreground">{sp.ipcCode}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </FormCard>
+              </div>
+
+              <div className="flex justify-center gap-3" style={{ marginTop: '40px' }}>
+                <Button onClick={handleAddMoreSKUFromPopup} type="button" variant="default">
+                  Add More SKU
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowIPCPopup(false);
+                    handleNext();
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#5568d3';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#667eea';
+                  type="button"
+                  variant="outline"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </FormCard>
+        </div>
+      ) : (
+        <>
+          {/* Step Content */}
+          <div className="mb-8 mx-auto" style={{ maxWidth: '1000px' }}>
+            {renderStepContent()}
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="mx-auto" style={{ maxWidth: '1000px' }}>
+            {currentStep === totalSteps ? (
+              <div className="flex justify-center items-center" style={{ marginTop: '32px' }}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    // Handle final submission
+                    alert('Factory code generation will be implemented here');
                   }}
                 >
-                  Add More SKU
-                </button>
+                  Generate Factory Code
+                </Button>
               </div>
-            </div>
+            ) : currentStep === 3 ? (
+              // Artwork / Labelling step: Add on left, Prev/Next on right (like Step0 layout)
+              <div className="flex items-center justify-between" style={{ marginTop: '32px' }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const currentLength = formData.artworkMaterials?.length || 0;
+                    addArtworkMaterial();
+                    const newIndex = currentLength;
+                    const attemptScroll = (attempts = 0) => {
+                      if (attempts > 30) return;
+                      const element = document.getElementById(`artwork-material-${newIndex}`);
+                      if (element) {
+                        setTimeout(() => {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 150);
+                      } else {
+                        setTimeout(() => attemptScroll(attempts + 1), 50);
+                      }
+                    };
+                    attemptScroll();
+                  }}
+                >
+                  + Add Material
+                </Button>
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                  >
+                    ← Previous
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleNext}
+                  >
+                    Next →
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-end items-center gap-3" style={{ marginTop: '32px' }}>
+                {currentStep > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                  >
+                    ← Previous
+                  </Button>
+                )}
+                {currentStep > 0 && currentStep < totalSteps && (
+                  <Button
+                    type="button"
+                    onClick={handleNext}
+                  >
+                    Next →
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
-        </div>
+        </>
       )}
     </div>
     </>

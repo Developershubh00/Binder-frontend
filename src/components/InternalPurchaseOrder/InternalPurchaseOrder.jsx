@@ -4,7 +4,7 @@ import SearchableDropdown from '../GenerateFactoryCode/components/SearchableDrop
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+// Dialog removed: IPO success is shown inline like Buyer/Vendor
 import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 
 const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO }) => {
@@ -211,6 +211,59 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     );
   }
 
+  // Inline success screen (no modal) - matches Buyer/Vendor
+  if (showIPOPopup) {
+    return (
+      <FullscreenContent style={{ overflowY: 'auto' }}>
+        <div className="content-header">
+          <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
+            ← Back to Departments
+          </Button>
+          <h1 className="fullscreen-title">Internal Purchase Order</h1>
+        </div>
+
+        <div className="w-full max-w-3xl mx-auto">
+          <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mb-5">
+                ✓
+              </div>
+
+              <div className="w-full" style={{ marginTop: '8px' }}>
+                <div className="text-sm font-semibold text-foreground/80 mb-3">
+                  Generated IPO Code
+                </div>
+
+                <FormCard className="rounded-xl border-border bg-card" style={{ padding: '20px 18px' }}>
+                  <div className="flex items-center justify-center gap-3">
+                    <span
+                      className="text-primary font-black"
+                      style={{
+                        fontSize: '28px',
+                        fontFamily:
+                          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                        letterSpacing: '2px',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {generatedIPOCode}
+                    </span>
+                  </div>
+                </FormCard>
+              </div>
+
+              <div className="flex justify-center gap-3" style={{ marginTop: '40px' }}>
+                <Button onClick={handleNextFromPopup} type="button" variant="default">
+                  Next
+                </Button>
+              </div>
+            </div>
+          </FormCard>
+        </div>
+      </FullscreenContent>
+    );
+  }
+
   // Initial Selection Screen
   return (
     <FullscreenContent style={{ overflowY: 'auto' }}>
@@ -305,34 +358,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         </FormCard>
       </div>
 
-      {/* IPO Popup Modal */}
-      <Dialog open={showIPOPopup} onOpenChange={setShowIPOPopup}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>IPO</DialogTitle>
-          </DialogHeader>
-          <div className="w-full">
-            <FormCard className="rounded-xl border-border bg-card" style={{ padding: '20px 18px', marginBottom: '16px' }}>
-              <div className="text-center">
-                <div className="text-sm font-semibold text-foreground/80 mb-3">
-                  Generated IPO Code
-                </div>
-                <div className="text-primary font-black text-2xl break-words" style={{
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-                  letterSpacing: '2px',
-                }}>
-                  {generatedIPOCode}
-                </div>
-              </div>
-            </FormCard>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleNextFromPopup} type="button" variant="default">
-              Next
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* IPO success is shown inline (no modal) */}
     </FullscreenContent>
   );
 };
