@@ -446,6 +446,7 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
+import { FormCard } from '@/components/ui/form-layout';
 
 const GenerateBuyerCode = ({ onBack }) => {
   const [formData, setFormData] = useState({
@@ -693,82 +694,60 @@ const GenerateBuyerCode = ({ onBack }) => {
           <h1 className="fullscreen-title">Buyer Code Generated Successfully!</h1>
         </div>
 
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ marginBottom: '40px' }}>
-            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-5 animate-bounce">
-              ✓
-            </div>
-          </div>
-          
-          <div style={{ 
-            marginTop: '16px', 
-            marginBottom: '24px',
-            padding: '12px',
-            backgroundColor: '#f9fafb',
-            borderRadius: '8px',
-            textAlign: 'center'
-          }}>
-            <div style={{ 
-              fontWeight: '600', 
-              color: '#333', 
-              fontSize: '16px',
-              wordBreak: 'break-word',
-              marginBottom: '16px'
-            }}>
-              Your Buyer Code:
-            </div>
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              padding: '20px',
-              backgroundColor: 'white',
-              border: '3px solid #667eea',
-              borderRadius: '12px'
-            }}>
-              <span style={{ 
-                fontSize: '36px',
-                fontWeight: '900',
-                color: '#667eea',
-                fontFamily: 'Courier New, monospace',
-                letterSpacing: '3px'
-              }}>
-                {generatedCode}
-              </span>
-              <Button 
-                variant="default"
-                size="icon"
-                onClick={copyToClipboard}
-                title="Copy to clipboard"
-                type="button"
-              >
-                📋
-              </Button>
-            </div>
-          </div>
+        <div className="w-full max-w-3xl mx-auto">
+          <FormCard
+            className="rounded-2xl border-border bg-muted"
+            style={{ padding: '24px 20px' }}
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mb-5">
+                ✓
+              </div>
 
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '12px', 
-            marginTop: '24px'
-          }}>
-            <Button 
-              variant="default"
-              onClick={resetForm}
-              type="button"
-            >
-              Generate Another Code
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={onBack}
-              type="button"
-            >
-              Back to Department
-            </Button>
-          </div>
+              <div className="w-full" style={{ marginTop: '8px' }}>
+                <div className="text-sm font-semibold text-foreground/80 mb-3">
+                  Your Buyer Code
+                </div>
+
+                <FormCard
+                  className="rounded-xl border-border bg-card"
+                  style={{ padding: '20px 18px' }}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <span
+                      className="text-primary font-black"
+                      style={{
+                        fontSize: '36px',
+                        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace',
+                        letterSpacing: '3px',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {generatedCode}
+                    </span>
+                    <Button
+                      variant="default"
+                      size="icon"
+                      onClick={copyToClipboard}
+                      title="Copy to clipboard"
+                      type="button"
+                    >
+                      📋
+                    </Button>
+                  </div>
+                </FormCard>
+              </div>
+
+              <div className="flex justify-center gap-3 mt-6">
+                <Button variant="default" onClick={resetForm} type="button">
+                  Generate Another Code
+                </Button>
+                <Button variant="outline" onClick={onBack} type="button">
+                  Back to Department
+                </Button>
+              </div>
+            </div>
+          </FormCard>
         </div>
       </div>
     );
@@ -790,81 +769,82 @@ const GenerateBuyerCode = ({ onBack }) => {
         <p className="fullscreen-description">Fill in the buyer details to generate a unique buyer code</p>
       </div>
 
-      <div style={{ maxWidth: '800px' }}>
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="flex flex-wrap" style={{ gap: '16px 24px' }}>
-            <Field 
-              label="BUYER NAME" 
-              required 
-              error={errors.buyerName}
-              width="lg"
-            >
-              <Input
-                type="text"
-                id="buyerName"
-                name="buyerName"
-                value={formData.buyerName}
-                onChange={handleInputChange}
-                placeholder="Enter buyer name"
+      <div className="w-full max-w-6xl mx-auto">
+        <FormCard
+          className="rounded-2xl border-border bg-muted"
+          style={{ padding: '24px 20px' }}
+        >
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="flex flex-wrap" style={{ gap: '16px 12px', marginBottom: '16px' }}>
+              <Field
+                label="BUYER NAME"
                 required
-                aria-invalid={!!errors.buyerName}
-              />
-            </Field>
+                error={errors.buyerName}
+                width="md"
+              >
+                <Input
+                  type="text"
+                  id="buyerName"
+                  name="buyerName"
+                  value={formData.buyerName}
+                  onChange={handleInputChange}
+                  placeholder="Enter buyer name"
+                  required
+                  aria-invalid={!!errors.buyerName}
+                />
+              </Field>
 
-            <Field 
-              label="END CUSTOMER" 
-              required 
-              error={errors.retailer}
-              width="lg"
-            >
-              <Input
-                type="text"
-                id="retailer"
-                name="retailer"
-                value={formData.retailer}
-                onChange={handleInputChange}
-                placeholder="Enter end customer name"
+              <Field
+                label="END CUSTOMER"
                 required
-                aria-invalid={!!errors.retailer}
-              />
-            </Field>
+                error={errors.retailer}
+                width="md"
+              >
+                <Input
+                  type="text"
+                  id="retailer"
+                  name="retailer"
+                  value={formData.retailer}
+                  onChange={handleInputChange}
+                  placeholder="Enter end customer name"
+                  required
+                  aria-invalid={!!errors.retailer}
+                />
+              </Field>
 
-            <Field 
-              label="CONTACT PERSON" 
-              required 
-              error={errors.contactPerson}
-              width="lg"
-            >
-              <Input
-                type="text"
-                id="contactPerson"
-                name="contactPerson"
-                value={formData.contactPerson}
-                onChange={handleInputChange}
-                placeholder="Enter contact person name"
+              <Field
+                label="CONTACT PERSON"
                 required
-                aria-invalid={!!errors.contactPerson}
-              />
-            </Field>
-          </div>
+                error={errors.contactPerson}
+                width="md"
+              >
+                <Input
+                  type="text"
+                  id="contactPerson"
+                  name="contactPerson"
+                  value={formData.contactPerson}
+                  onChange={handleInputChange}
+                  placeholder="Enter contact person name"
+                  required
+                  aria-invalid={!!errors.contactPerson}
+                />
+              </Field>
+            </div>
 
-          <div className="flex justify-start" style={{ marginTop: '20px' }}>
-            <Button 
-              type="submit" 
-              disabled={isGenerating}
-              size="default"
-            >
-              {isGenerating ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2"></span>
-                  Generating Code...
-                </>
-              ) : (
-                'Generate Buyer Code'
-              )}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-start">
+              <Button type="submit" disabled={isGenerating} size="default">
+                {isGenerating ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2"></span>
+                    Generating Code...
+                  </>
+                ) : (
+                  'Generate Buyer Code'
+                )}
+              </Button>
+            </div>
+          </form>
+        </FormCard>
       </div>
     </div>
   );
