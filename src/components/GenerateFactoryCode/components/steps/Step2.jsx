@@ -1818,627 +1818,359 @@ const Step2 = ({
                       />
                     </Field>
 
-                    {/* pe-epe Table */}
+                    {/* EVA-form Table */}
                     {material.foamTableType === 'EVA-form' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
                       {/* FOAM TYPE */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">FOAM TYPE</label>
+                      <Field label="FOAM TYPE" width="sm">
                         <SearchableDropdown
                           value={material.foamType || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamType', selectedValue)}
                           options={['EVA Foam (Ethylene Vinyl Acetate)']}
                           placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
                         />
-                      </div>
+                      </Field>
 
                       {/* SUBTYPE */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SUBTYPE</label>
+                      <Field label="SUBTYPE" width="sm">
                         <SearchableDropdown
                           value={material.foamSubtype || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamSubtype', selectedValue)}
                           options={['Virgin EVA', 'Recycled EVA', 'Blended']}
                           placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
                         />
-                      </div>
+                      </Field>
 
                       {/* VA CONTENT */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">VA CONTENT</label>
+                      <Field label="VA CONTENT" width="sm">
                         <SearchableDropdown
                           value={material.foamVaContent || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamVaContent', selectedValue)}
                           options={['18%', '25%', '28%', '33%']}
                           placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
                         />
-                      </div>
+                      </Field>
 
                       {/* COLOUR */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
+                      <Field label="COLOUR" width="sm">
                         <SearchableDropdown
                           value={material.foamColour || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamColour', selectedValue)}
                           options={['Black', 'White', 'Grey', 'Red', 'Blue', 'Green', 'Custom']}
                           placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
                         />
-                      </div>
+                      </Field>
 
                       {/* THICKNESS */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
+                      <Field label="THICKNESS" width="sm">
                         <SearchableDropdown
                           value={material.foamThickness || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamThickness', selectedValue)}
                           options={['2mm', '3mm', '5mm', '10mm', '15mm', '20mm', '25mm']}
                           placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
                         />
-                      </div>
+                      </Field>
 
-                      {/* SHAPE with UPLOAD REF IMAGE */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SHAPE</label>
-                          <input
-                            type="text"
-                            value={material.foamShape || ''}
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamShape', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="TEXT"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamShapeRefImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-foam-shape-${actualIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-foam-shape-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.foamShapeRefImage ? 'UPLOADED' : 'UPLOAD REF IMAGE'}
-                          </label>
-                        </div>
-                      </div>
+                      {/* SHAPE */}
+                      <Field label="SHAPE" width="sm">
+                        <Input
+                          type="text"
+                          value={material.foamShape || ''}
+                          onChange={(e) => handleRawMaterialChange(actualIndex, 'foamShape', e.target.value)}
+                          placeholder="TEXT"
+                        />
+                      </Field>
+
+                      {/* UPLOAD REF IMAGE */}
+                      <Field label="UPLOAD REF IMAGE" width="sm">
+                        <input
+                          type="file"
+                          onChange={(e) => handleRawMaterialChange(actualIndex, 'foamShapeRefImage', e.target.files[0])}
+                          className="hidden"
+                          id={`upload-foam-shape-${actualIndex}`}
+                          accept="image/*"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-11 w-full"
+                          onClick={() => document.getElementById(`upload-foam-shape-${actualIndex}`)?.click()}
+                        >
+                          {material.foamShapeRefImage ? 'UPLOADED' : 'UPLOAD REF IMAGE'}
+                        </Button>
+                      </Field>
 
                       {/* SIZE SPEC */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
-                        <label className="text-sm font-bold text-gray-800 mb-4 block">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">SHEET/PCS</label>
-                            <input
+                      <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
+                        <h4 className="text-sm font-semibold text-foreground/90 mb-4">SIZE SPEC</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
+                          <Field label="SHEET/PCS" width="sm">
+                            <Input
                               type="text"
                               value={material.foamSheetPcs || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamSheetPcs', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter value"
                             />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">GSM</label>
-                            <input
+                          </Field>
+                          <Field label="GSM" width="sm">
+                            <Input
                               type="text"
                               value={material.foamGsm || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter value"
                             />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH (CM)</label>
-                            <input
+                          </Field>
+                          <Field label="LENGTH (CM)" width="sm">
+                            <Input
                               type="text"
                               value={material.foamLengthCm || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLengthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter value"
                             />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH (CM)</label>
-                            <input
+                          </Field>
+                          <Field label="WIDTH (CM)" width="sm">
+                            <Input
                               type="text"
                               value={material.foamWidthCm || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamWidthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter value"
                             />
-                          </div>
+                          </Field>
                         </div>
                       </div>
 
                       {/* QTY - KGS and YARDAGE */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4" style={{ marginTop: '20px' }}>
-                        <label className="text-sm font-bold text-gray-800 mb-4 block">QTY</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">KGS (CNS)</label>
-                            <input
+                      <div style={{ marginTop: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
+                        <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
+                          <Field label="KGS (CNS)" width="sm">
+                            <Input
                               type="text"
                               value={material.foamKgsCns || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamKgsCns', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter value"
                             />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">YARDAGE (CNS)</label>
-                            <input
+                          </Field>
+                          <Field label="YARDAGE (CNS)" width="sm">
+                            <Input
                               type="text"
                               value={material.foamYardageCns || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamYardageCns', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter value"
                             />
-                          </div>
+                          </Field>
                         </div>
                       </div>
 
-                      
-                        {/* TESTING REQUIREMENTS - Multi-select with chips (SAME AS MEMORY-FOAM) */}
-                        <div className="flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.foamTestingRequirements) ? material.foamTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.foamTestingRequirements) ? material.foamTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleRawMaterialChange(actualIndex, 'foamTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`eva-foam-testing-wrapper-${actualIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  // Only add if it's an exact match from options (meaning it was selected from dropdown)
-                                  const options = ['Density', 'Shore Hardness', 'Compression Set', 'Tensile Strength'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    // It's a selection from dropdown, add it
-                                    const current = Array.isArray(material.foamTestingRequirements) ? material.foamTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleRawMaterialChange(actualIndex, 'foamTestingRequirements', updated);
-                                    }
-                                  }
-                                  // If it's not in options, it's typing - ignore it (will be added on Enter/blur)
-                                }}
+                      {/* TESTING REQUIREMENTS */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 col-span-1 md:col-span-2 lg:col-span-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <div className="flex items-center" style={{ gap: '0.75rem' }}>
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={material.foamTestingRequirements || []}
+                                onChange={(values) => handleRawMaterialChange(actualIndex, 'foamTestingRequirements', values)}
                                 options={['Density', 'Shore Hardness', 'Compression Set', 'Tensile Strength']}
-                                placeholder={(Array.isArray(material.foamTestingRequirements) && material.foamTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  // Add keydown listener to the input when it gets focus
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.foamTestingRequirements) ? material.foamTestingRequirements : [];
-                                      const options = ['Density', 'Shore Hardness', 'Compression Set', 'Tensile Strength'];
-                                      // Add if it's not already in the list
-                                      if (!current.includes(newValue)) {
-                                        // If it's custom text (not in options), add it
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleRawMaterialChange(actualIndex, 'foamTestingRequirements', updated);
-                                        }
-                                        // Clear the input
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  // Store the handler so we can remove it later
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  // Remove the keydown listener
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  // On blur, if there's a typed value that's not in options, add it as custom text
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Density', 'Shore Hardness', 'Compression Set', 'Tensile Strength'];
-                                    // Only add if it's custom text (not in options)
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.foamTestingRequirements) ? material.foamTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleRawMaterialChange(actualIndex, 'foamTestingRequirements', updated);
-                                      }
-                                    }
-                                    // Clear the input
-                                    input.value = '';
-                                  }
-                                }}
+                                placeholder="Type to search or select testing requirements..."
                               />
                             </div>
+                            <input
+                              type="file"
+                              onChange={(e) => handleRawMaterialChange(actualIndex, 'foamTestingRequirementsFile', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-foam-testing-${actualIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-foam-testing-${actualIndex}`)?.click()}
+                            >
+                              {material.foamTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                        </div>
-                        {/* UPLOAD button for testing requirements */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                          <input
-                            type="file"
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamTestingRequirementsFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-foam-testing-${actualIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-foam-testing-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                          >
-                            {material.foamTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
-                        </div>
-                      </div>
+                        </Field>
 
-                      {/* SURPLUS % */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input
-                            type="text"
+                        {/* SURPLUS % */}
+                        <Field label="SURPLUS %" width="sm">
+                          <PercentInput
                             value={material.foamSurplus || ''}
-                            onChange={(e) => {
-                              // Store only numeric value (remove % and non-numeric chars except decimal point)
-                              const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-                              handleRawMaterialChange(actualIndex, 'foamSurplus', numericValue);
-                            }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
-                            placeholder="%age"
+                            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamSurplus', e.target.value)}
+                            placeholder="e.g., 3-5"
                           />
-                          {material.foamSurplus && (
-                            <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-                          )}
-                        </div>
-                      </div>
+                        </Field>
 
-                      {/* WASTAGE % */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <SearchableDropdown
-                            value={material.foamWastage || ''}
-                            onChange={(selectedValue) => {
-                              // If it's a dropdown option, store as-is. If it's numeric (free typing), store numeric only
-                              const predefinedOptions = ['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'];
-                              if (predefinedOptions.includes(selectedValue)) {
-                                handleRawMaterialChange(actualIndex, 'foamWastage', selectedValue);
-                              } else {
-                                // Free typing - store numeric only
-                                const numericValue = selectedValue.replace(/[^0-9.]/g, '');
-                                handleRawMaterialChange(actualIndex, 'foamWastage', numericValue);
-                              }
-                            }}
-                            options={['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases']}
-                            placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
-                          />
-                          {material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) && (
-                            <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* APPROVAL */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.foamApproval || ''}
-                          onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-
-                      {/* REMARKS */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.foamRemarks || ''}
-                          onChange={(e) => handleRawMaterialChange(actualIndex, 'foamRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Higher VA%=softer, Interlocking for gym flooring, Closed cell=waterproof"
-                        />
-                      </div>
-
-                      {/* FOAM - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleRawMaterialChange(actualIndex, 'showFoamAdvancedSpec', !material.showFoamAdvancedSpec)}
-                          style={{
-                            backgroundColor: material.showFoamAdvancedSpec ? '#667eea' : '#ffffff',
-                            borderColor: material.showFoamAdvancedSpec ? '#667eea' : '#e5e7eb',
-                            color: material.showFoamAdvancedSpec ? '#ffffff' : '#374151',
-                            border: '2px solid',
-                            borderRadius: '8px',
-                            padding: '10px 20px',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            width: '100%',
-                            transition: 'all 0.2s',
-                            boxShadow: material.showFoamAdvancedSpec ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!material.showFoamAdvancedSpec) {
-                              e.target.style.backgroundColor = '#f9fafb';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!material.showFoamAdvancedSpec) {
-                              e.target.style.backgroundColor = '#ffffff';
-                            }
-                          }}
-                        >
-                          {material.showFoamAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
-                        </button>
-                        {material.showFoamAdvancedSpec && (
-                          <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">SHORE HARDNESS</label>
-                                <SearchableDropdown
-                                  value={material.foamShoreHardness || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamShoreHardness', selectedValue)}
-                                  options={['25A Soft', '35A Medium', '45A Firm', '55A+ Hard']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">CELL STRUCTURE</label>
-                                <SearchableDropdown
-                                  value={material.foamCellStructure || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCellStructure', selectedValue)}
-                                  options={['Closed Cell']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">COMPRESSION SET</label>
-                                <SearchableDropdown
-                                  value={material.foamCompressionSet || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCompressionSet', selectedValue)}
-                                  options={['Compression Set %']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">TENSILE STRENGTH</label>
-                                <SearchableDropdown
-                                  value={material.foamTensileStrength || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamTensileStrength', selectedValue)}
-                                  options={['Tensile Strength (MPa)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">ELONGATION</label>
-                                <SearchableDropdown
-                                  value={material.foamElongation || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamElongation', selectedValue)}
-                                  options={['Elongation at Break (%)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">WATER RESISTANCE</label>
-                                <SearchableDropdown
-                                  value={material.foamWaterResistance || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamWaterResistance', selectedValue)}
-                                  options={['Excellent']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">UV RESISTANCE</label>
-                                <SearchableDropdown
-                                  value={material.foamUvResistance || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamUvResistance', selectedValue)}
-                                  options={['Standard', 'UV Stabilized']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">FIRE RETARDANT</label>
-                                <SearchableDropdown
-                                  value={material.foamFireRetardant || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamFireRetardant', selectedValue)}
-                                  options={['Standard', 'FR Treated']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">SURFACE TEXTURE</label>
-                                <SearchableDropdown
-                                  value={material.foamSurfaceTexture || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamSurfaceTexture', selectedValue)}
-                                  options={['Smooth', 'Textured (anti-slip)', 'Fabric Laminated', 'Leather-Look']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">ANTI-SLIP</label>
-                                <SearchableDropdown
-                                  value={material.foamAntiSlip || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamAntiSlip', selectedValue)}
-                                  options={['Standard', 'Anti-Slip Surface Treatment']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">INTERLOCKING</label>
-                                <SearchableDropdown
-                                  value={material.foamInterlocking || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamInterlocking', selectedValue)}
-                                  options={['None', 'Interlocking Edges (puzzle pattern)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
-                                <SearchableDropdown
-                                  value={material.foamCertification || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCertification', selectedValue)}
-                                  options={['REACH Compliant', 'Phthalate-Free', 'OEKO-TEX']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">DENSITY</label>
-                                <SearchableDropdown
-                                  value={material.foamDensity || ''}
-                                  onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamDensity', selectedValue)}
-                                  options={['30 kg/m³', '45 kg/m³', '60 kg/m³', '90 kg/m³', '120 kg/m³']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                            </div>
+                        {/* WASTAGE % */}
+                        <Field label="WASTAGE %" width="sm">
+                          <div className="relative">
+                            <SearchableDropdown
+                              value={material.foamWastage || ''}
+                              onChange={(selectedValue) => {
+                                const predefinedOptions = ['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'];
+                                if (predefinedOptions.includes(selectedValue)) {
+                                  handleRawMaterialChange(actualIndex, 'foamWastage', selectedValue);
+                                } else {
+                                  const numericValue = selectedValue.replace(/[^0-9.]/g, '');
+                                  handleRawMaterialChange(actualIndex, 'foamWastage', numericValue);
+                                }
+                              }}
+                              options={['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases']}
+                              placeholder="Select or type %"
+                              className={material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) ? 'pr-10' : ''}
+                            />
+                            {material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) && (
+                              <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
+                            )}
                           </div>
-                        )}
+                        </Field>
+
+                        {/* APPROVAL */}
+                        <Field label="APPROVAL" width="sm">
+                          <SearchableDropdown
+                            value={material.foamApproval || ''}
+                            onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                          />
+                        </Field>
+
+                        {/* REMARKS */}
+                        <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.foamRemarks || ''}
+                            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamRemarks', e.target.value)}
+                            placeholder="Higher VA%=softer, Interlocking for gym flooring, Closed cell=waterproof"
+                          />
+                        </Field>
                       </div>
+
+                      {/* Show/Hide Advance Spec Button */}
+                      <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
+                        <Button
+                          type="button"
+                          variant={material.showFoamAdvancedSpec ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleRawMaterialChange(actualIndex, 'showFoamAdvancedSpec', !material.showFoamAdvancedSpec)}
+                        >
+                          Advance Spec
+                        </Button>
+                      </div>
+
+                      {/* Advanced Filter UI Table */}
+                      {material.showFoamAdvancedSpec && (
+                        <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
+                            <Field label="SHORE HARDNESS" width="sm">
+                              <SearchableDropdown
+                                value={material.foamShoreHardness || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamShoreHardness', selectedValue)}
+                                options={['25A Soft', '35A Medium', '45A Firm', '55A+ Hard']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="CELL STRUCTURE" width="sm">
+                              <SearchableDropdown
+                                value={material.foamCellStructure || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCellStructure', selectedValue)}
+                                options={['Closed Cell']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="COMPRESSION SET" width="sm">
+                              <SearchableDropdown
+                                value={material.foamCompressionSet || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCompressionSet', selectedValue)}
+                                options={['Compression Set %']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="TENSILE STRENGTH" width="sm">
+                              <SearchableDropdown
+                                value={material.foamTensileStrength || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamTensileStrength', selectedValue)}
+                                options={['Tensile Strength (MPa)']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="ELONGATION" width="sm">
+                              <SearchableDropdown
+                                value={material.foamElongation || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamElongation', selectedValue)}
+                                options={['Elongation at Break (%)']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="WATER RESISTANCE" width="sm">
+                              <SearchableDropdown
+                                value={material.foamWaterResistance || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamWaterResistance', selectedValue)}
+                                options={['Excellent']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="UV RESISTANCE" width="sm">
+                              <SearchableDropdown
+                                value={material.foamUvResistance || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamUvResistance', selectedValue)}
+                                options={['Standard', 'UV Stabilized']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="FIRE RETARDANT" width="sm">
+                              <SearchableDropdown
+                                value={material.foamFireRetardant || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamFireRetardant', selectedValue)}
+                                options={['Standard', 'FR Treated']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="SURFACE TEXTURE" width="sm">
+                              <SearchableDropdown
+                                value={material.foamSurfaceTexture || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamSurfaceTexture', selectedValue)}
+                                options={['Smooth', 'Textured (anti-slip)', 'Fabric Laminated', 'Leather-Look']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="ANTI-SLIP" width="sm">
+                              <SearchableDropdown
+                                value={material.foamAntiSlip || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamAntiSlip', selectedValue)}
+                                options={['Standard', 'Anti-Slip Surface Treatment']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="INTERLOCKING" width="sm">
+                              <SearchableDropdown
+                                value={material.foamInterlocking || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamInterlocking', selectedValue)}
+                                options={['None', 'Interlocking Edges (puzzle pattern)']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="CERTIFICATION" width="sm">
+                              <SearchableDropdown
+                                value={material.foamCertification || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCertification', selectedValue)}
+                                options={['REACH Compliant', 'Phthalate-Free', 'OEKO-TEX']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                            <Field label="DENSITY" width="sm">
+                              <SearchableDropdown
+                                value={material.foamDensity || ''}
+                                onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamDensity', selectedValue)}
+                                options={['30 kg/m³', '45 kg/m³', '60 kg/m³', '90 kg/m³', '120 kg/m³']}
+                                placeholder="Select or type"
+                              />
+                            </Field>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     )}
 
