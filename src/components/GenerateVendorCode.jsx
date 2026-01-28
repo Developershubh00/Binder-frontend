@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { FormCard } from '@/components/ui/form-layout';
 
 // Premium Multi-Select Component
 const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholder, error }) => {
@@ -83,8 +84,6 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
         )}
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
-          gap: '8px',
           alignItems: 'center',
           paddingLeft: '1.25rem',
           paddingRight: '0.75rem',
@@ -95,38 +94,47 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
         }}
         onClick={() => !isOpen && setIsOpen(true)}
       >
-        {/* Selected Chips */}
-        {selectedValues.length > 0 ? (
-          selectedValues.map((value, index) => (
-            <span
-              key={index}
-              className="premium-chip inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-muted text-foreground border border-border rounded-full text-xs font-medium"
-              style={{
-                animation: 'fadeInScale 0.2s ease'
-              }}
-            >
-              {value}
-              <button
-                type="button"
-                onClick={(e) => handleRemoveChip(value, e)}
-                className="bg-transparent border-none rounded-full w-4.5 h-4.5 flex items-center justify-center cursor-pointer text-muted-foreground text-base leading-none p-0 transition-colors hover:text-foreground"
+        <div
+          className="chip-scroll flex flex-nowrap items-center gap-2 flex-1 min-w-0 overflow-x-auto"
+          style={{
+            paddingRight: '8px',
+            scrollbarWidth: 'none', // Firefox
+            msOverflowStyle: 'none', // IE/Edge legacy
+          }}
+        >
+          {/* Selected Chips */}
+          {selectedValues.length > 0 ? (
+            selectedValues.map((value, index) => (
+              <span
+                key={index}
+                className="premium-chip inline-flex shrink-0 items-center justify-center gap-1.5 px-3 py-1.5 bg-muted text-foreground border border-border rounded-full text-xs font-medium"
+                style={{
+                  animation: 'fadeInScale 0.2s ease'
+                }}
               >
-                ×
-              </button>
-            </span>
-          ))
-        ) : (
-          <span className="text-muted-foreground text-sm">{placeholder}</span>
-        )}
+                {value}
+                <button
+                  type="button"
+                  onClick={(e) => handleRemoveChip(value, e)}
+                  className="bg-transparent border-none rounded-full w-4.5 h-4.5 flex items-center justify-center cursor-pointer text-muted-foreground text-base leading-none p-0 transition-colors hover:text-foreground"
+                >
+                  ×
+                </button>
+              </span>
+            ))
+          ) : (
+            <span className="text-muted-foreground text-sm truncate">{placeholder}</span>
+          )}
+        </div>
 
         {/* Add Button */}
         <button
           type="button"
           onClick={handleAddClick}
-          className="ml-auto bg-white border border-input rounded-full w-8 h-8 flex items-center justify-center cursor-pointer text-muted-foreground text-xl font-light leading-none p-0 flex-shrink-0 transition-all hover:border-muted-foreground/50 hover:text-foreground"
+          className="bg-white border border-input rounded-full w-8 h-8 flex items-center justify-center cursor-pointer text-muted-foreground text-xl font-light leading-none p-0 flex-shrink-0 transition-all hover:border-muted-foreground/50 hover:text-foreground"
           title="Add category"
         >
-          <span className="inline-block leading-none pb-0.5">+</span>
+          <span className="inline-block leading-none">+</span>
         </button>
       </div>
 
@@ -177,6 +185,9 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
       )}
 
       <style>{`
+        .chip-scroll::-webkit-scrollbar {
+          display: none;
+        }
         @keyframes fadeInScale {
           from {
             opacity: 0;
@@ -431,82 +442,55 @@ const GenerateVendorCode = ({ onBack }) => {
           <h1 className="fullscreen-title">Vendor Code Generated Successfully!</h1>
         </div>
 
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ marginBottom: '40px' }}>
-            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-5 animate-bounce">
-              ✓
-            </div>
-          </div>
-          
-          <div style={{ 
-            marginTop: '16px', 
-            marginBottom: '24px',
-            padding: '12px',
-            backgroundColor: '#f9fafb',
-            borderRadius: '8px',
-            textAlign: 'center'
-          }}>
-            <div style={{ 
-              fontWeight: '600', 
-              color: '#333', 
-              fontSize: '16px',
-              wordBreak: 'break-word',
-              marginBottom: '16px'
-            }}>
-              {formData.vendorName} vendor code
-            </div>
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              padding: '20px',
-              backgroundColor: 'white',
-              border: '3px solid #667eea',
-              borderRadius: '12px'
-            }}>
-              <span style={{ 
-                fontSize: '36px',
-                fontWeight: '900',
-                color: '#667eea',
-                fontFamily: 'Courier New, monospace',
-                letterSpacing: '3px'
-              }}>
-                {generatedCode}
-              </span>
-              <Button 
-                variant="default"
-                size="icon"
-                onClick={copyToClipboard}
-                title="Copy to clipboard"
-                type="button"
-              >
-                📋
-              </Button>
-            </div>
-          </div>
+        <div className="w-full max-w-3xl mx-auto">
+          <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mb-5">
+                ✓
+              </div>
 
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '12px', 
-            marginTop: '24px'
-          }}>
-            <Button 
-              variant="default"
-              onClick={resetForm}
-              type="button"
-            >
-              Generate Another Code
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={onBack}
-              type="button"
-            >
-              Back to Department
-            </Button>
-          </div>
+              <div className="w-full" style={{ marginTop: '8px' }}>
+                <div className="text-sm font-semibold text-foreground/80 mb-3">
+                  {formData.vendorName} vendor code
+                </div>
+
+                <FormCard className="rounded-xl border-border bg-card" style={{ padding: '20px 18px' }}>
+                  <div className="flex items-center justify-center gap-3">
+                    <span
+                      className="text-primary font-black"
+                      style={{
+                        fontSize: '36px',
+                        fontFamily:
+                          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace',
+                        letterSpacing: '3px',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {generatedCode}
+                    </span>
+                    <Button
+                      variant="default"
+                      size="icon"
+                      onClick={copyToClipboard}
+                      title="Copy to clipboard"
+                      type="button"
+                    >
+                      📋
+                    </Button>
+                  </div>
+                </FormCard>
+              </div>
+
+              <div className="flex justify-center gap-3 mt-6">
+                <Button variant="default" onClick={resetForm} type="button">
+                  Generate Another Code
+                </Button>
+                <Button variant="outline" onClick={onBack} type="button">
+                  Back to Department
+                </Button>
+              </div>
+            </div>
+          </FormCard>
         </div>
       </div>
     );
@@ -527,16 +511,21 @@ const GenerateVendorCode = ({ onBack }) => {
         <p className="fullscreen-description">Fill in the vendor details to generate a unique vendor code</p>
       </div>
 
-      <div style={{ maxWidth: '800px', width: '100%' }}>
+      <div className="w-full max-w-6xl mx-auto">
+        <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
         <form onSubmit={handleSubmit} noValidate>
-          <div className="flex flex-wrap items-start" style={{ gap: '16px 24px', width: '100%' }}>
-            {/* Basic Details */}
+          {/* Explicit rows with explicit spacing (match row1->row2 everywhere) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            {/* Row 1 */}
+            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
+              {/* Basic Details */}
             <Field 
               label="VENDOR NAME" 
               required 
               error={errors.vendorName}
-              width="lg"
+              width="md"
               className="flex-shrink-0"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="text"
@@ -554,7 +543,8 @@ const GenerateVendorCode = ({ onBack }) => {
               label="GST NUMBER" 
               required 
               error={errors.gst}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="text"
@@ -575,36 +565,30 @@ const GenerateVendorCode = ({ onBack }) => {
               error={errors.address}
               width="lg"
               className="md:col-span-2"
+              style={{ marginBottom: 0 }}
             >
-              <textarea
+              <Input
+                type="text"
                 id="address"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="Enter complete vendor address"
-                rows={3}
                 required
                 aria-invalid={!!errors.address}
-                className={cn(
-                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-white py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y",
-                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                  errors.address && "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border-destructive"
-                )}
-                style={{
-                  paddingLeft: '1.25rem',
-                  paddingRight: '0.75rem',
-                  paddingTop: '0.75rem',
-                  paddingBottom: '0.75rem',
-                }}
-              ></textarea>
+              />
             </Field>
+            </div>
 
+            {/* Row 2 */}
+            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
             {/* Banking Details */}
             <Field 
               label="BANK NAME" 
               required 
               error={errors.bankName}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="text"
@@ -622,7 +606,8 @@ const GenerateVendorCode = ({ onBack }) => {
               label="ACCOUNT NUMBER" 
               required 
               error={errors.accNo}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="text"
@@ -640,7 +625,8 @@ const GenerateVendorCode = ({ onBack }) => {
               label="IFSC CODE" 
               required 
               error={errors.ifscCode}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="text"
@@ -660,7 +646,8 @@ const GenerateVendorCode = ({ onBack }) => {
               label="JOB WORK CATEGORY" 
               required 
               error={errors.jobWorkCategory}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <PremiumMultiSelect
                 options={jobWorkCategories.filter(opt => opt !== 'categories')}
@@ -670,12 +657,16 @@ const GenerateVendorCode = ({ onBack }) => {
                 error={errors.jobWorkCategory}
               />
             </Field>
+            </div>
 
+            {/* Row 3 */}
+            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
             <Field 
               label="JOB WORK SUB-CATEGORY" 
               required 
               error={errors.jobWorkSubCategory}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <PremiumMultiSelect
                 options={jobWorkSubCategories.filter(opt => opt !== 'subcategory')}
@@ -691,7 +682,8 @@ const GenerateVendorCode = ({ onBack }) => {
               label="CONTACT PERSON" 
               required 
               error={errors.contactPerson}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="text"
@@ -709,7 +701,8 @@ const GenerateVendorCode = ({ onBack }) => {
               label="EMAIL" 
               required 
               error={errors.email}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="email"
@@ -727,7 +720,8 @@ const GenerateVendorCode = ({ onBack }) => {
               label="WHATSAPP NUMBER" 
               required 
               error={errors.whatsappNo}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="tel"
@@ -741,11 +735,15 @@ const GenerateVendorCode = ({ onBack }) => {
                 aria-invalid={!!errors.whatsappNo}
               />
             </Field>
+            </div>
 
+            {/* Row 4 */}
+            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
             <Field 
-              label="ALTERNATIVE WHATSAPP NUMBER"
+              label="ALTERNATIVE WHATSAPP NO."
               error={errors.altWhatsappNo}
-              width="lg"
+              width="md"
+              style={{ marginBottom: 0 }}
             >
               <Input
                 type="tel"
@@ -765,32 +763,23 @@ const GenerateVendorCode = ({ onBack }) => {
               error={errors.paymentTerms}
               width="lg"
               className="md:col-span-2"
+              style={{ marginBottom: 0 }}
             >
-              <textarea
+              <Input
+                type="text"
                 id="paymentTerms"
                 name="paymentTerms"
                 value={formData.paymentTerms}
                 onChange={handleInputChange}
                 placeholder="Enter payment terms and conditions"
-                rows={3}
                 required
                 aria-invalid={!!errors.paymentTerms}
-                className={cn(
-                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-white py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y",
-                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                  errors.paymentTerms && "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border-destructive"
-                )}
-                style={{
-                  paddingLeft: '1.25rem',
-                  paddingRight: '0.75rem',
-                  paddingTop: '0.75rem',
-                  paddingBottom: '0.75rem',
-                }}
-              ></textarea>
+              />
             </Field>
+            </div>
           </div>
 
-          <div className="flex justify-start mt-4">
+          <div className="flex justify-start" style={{ marginTop: '32px' }}>
             <Button 
               type="submit" 
               disabled={isGenerating}
@@ -807,6 +796,7 @@ const GenerateVendorCode = ({ onBack }) => {
             </Button>
           </div>
         </form>
+        </FormCard>
       </div>
     </div>
   );
