@@ -23,6 +23,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     open: false,
     componentErrors: [] // Array of { componentName, errorCount, errors: [{ fieldKey, message }] }
   });
+  const [step0Saved, setStep0Saved] = useState(false);
+  const [step2SavedComponents, setStep2SavedComponents] = useState(new Set()); // Track saved components in Step-2
+  const [showSaveMessage, setShowSaveMessage] = useState(false); // Show "save first" message
+  const [saveMessage, setSaveMessage] = useState(''); // Message to display
   const [formData, setFormData] = useState({
     // Internal Purchase Order fields (if provided)
     orderType: initialFormData.orderType || '',
@@ -1972,9 +1976,33 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     });
   };
 
-  const handleSaveStep2 = () => {
+  const handleSaveStep2 = (componentName) => {
     // Save functionality for Step2
-    console.log('Saving Step2 data');
+    console.log('Saving Step2 data for component:', componentName);
+    if (componentName) {
+      setStep2SavedComponents(prev => {
+        const updated = new Set([...prev, componentName]);
+        
+        // Check if all components are saved, then hide message
+        setTimeout(() => {
+          const stepData = getSelectedSkuStepData();
+          const componentsWithMaterials = new Set();
+          (stepData?.rawMaterials || []).forEach((material) => {
+            if (material.componentName) {
+              componentsWithMaterials.add(material.componentName);
+            }
+          });
+          const unsavedComponents = Array.from(componentsWithMaterials).filter(
+            comp => !updated.has(comp)
+          );
+          if (unsavedComponents.length === 0) {
+            setShowSaveMessage(false);
+          }
+        }, 0);
+        
+        return updated;
+      });
+    }
     // You can add actual save logic here (API call, etc.)
   };
 
@@ -2058,6 +2086,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         // Store generated IPC codes for popup display
         setGeneratedIPCCodes(updatedSkus);
         setShowIPCPopup(true);
+        setStep0Saved(true); // Mark Step-0 as saved
+        setShowSaveMessage(false); // Hide save message after saving
         console.log('Generated IPC codes:', ipcCodes);
       } catch (error) {
         console.error('Error saving IPC codes:', error);
@@ -3542,12 +3572,21 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
   }, [currentStep, formData.skus?.length]);
 
+
   const handleNext = () => {
     console.log('handleNext called - currentStep:', currentStep);
+    
+    // Check if Step-0 needs to be saved
     if (currentStep === 0) {
+      if (!step0Saved) {
+        setShowSaveMessage(true);
+        setSaveMessage('Save first');
+        return;
+      }
       if (!validateStep0()) {
         return;
       }
+      setShowSaveMessage(false); // Clear message if validation passes
       // When moving from step 0 to step 1, ensure we have a valid SKU selected
       if (formData.skus && formData.skus.length > 0) {
         setSelectedSku(0);
@@ -3558,6 +3597,39 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       }
       // Don't auto-initialize raw materials - user will select component first
     } else if (currentStep === 2) {
+      // Check if Step-2 has unsaved components
+      const stepData = getSelectedSkuStepData();
+      const allComponents = [];
+      (stepData?.products || []).forEach((product) => {
+        (product.components || []).forEach((component) => {
+          if (component?.productComforter) {
+            allComponents.push(component.productComforter);
+          }
+        });
+      });
+      
+      // Get components that have materials
+      const componentsWithMaterials = new Set();
+      (stepData?.rawMaterials || []).forEach((material) => {
+        if (material.componentName) {
+          componentsWithMaterials.add(material.componentName);
+        }
+      });
+      
+      // Check if all components with materials are saved
+      const unsavedComponents = Array.from(componentsWithMaterials).filter(
+        comp => !step2SavedComponents.has(comp)
+      );
+      
+      if (unsavedComponents.length > 0) {
+        setShowSaveMessage(true);
+        setSaveMessage('Save first');
+        return;
+      }
+      
+      // All components saved, clear message
+      setShowSaveMessage(false);
+      
       // Step 2 validation happens only on Save, not on Next
     } else if (currentStep === 3) {
       if (!validateStep4()) {
@@ -3690,6 +3762,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               handleSubproductImageChange={handleSubproductImageChange}
               handleSave={handleSaveStep0}
               handleNext={handleNext}
+              showSaveMessage={showSaveMessage && currentStep === 0}
+              isSaved={step0Saved}
             />
           );
         case 1:
@@ -3714,7 +3788,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               addWorkOrder={addWorkOrder}
               removeWorkOrder={removeWorkOrder}
               addRawMaterialWithType={addRawMaterialWithType}
-              handleSave={handleSaveStep2}
+              handleSave={(componentName) => handleSaveStep2(componentName)}
+              savedComponents={step2SavedComponents}
               removeRawMaterial={removeRawMaterial}
               validateField={validateField}
               validateStep2={validateStep2}
@@ -4261,6 +4336,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                   + Add Material
                 </Button>
                 <div className="flex items-center gap-3">
+                  {showSaveMessage && currentStep === 2 && (
+                    <span className="text-red-600 text-sm font-medium">Save first</span>
+                  )}
                   <Button
                     type="button"
                     variant="outline"
@@ -4278,6 +4356,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               </div>
             ) : (
               <div className="flex justify-end items-center gap-3" style={{ marginTop: '32px' }}>
+                {showSaveMessage && currentStep === 2 && (
+                  <span className="text-red-600 text-sm font-medium">Save first</span>
+                )}
                 {currentStep > 0 && (
                   <Button
                     type="button"

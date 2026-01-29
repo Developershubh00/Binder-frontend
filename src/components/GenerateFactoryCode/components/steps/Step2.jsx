@@ -244,7 +244,9 @@ const Step2 = ({
     // Validation passed - save the component
     setSaveStatus('success');
     setSavedComponents((prev) => new Set([...prev, selectedComponent]));
-    handleSave();
+    if (handleSave) {
+      handleSave(selectedComponent);
+    }
 
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });

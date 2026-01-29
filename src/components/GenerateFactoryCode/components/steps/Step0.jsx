@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PercentInput } from '@/components/ui/percent-input';
 import { Field } from '@/components/ui/field';
+import { cn } from '@/lib/utils';
 
 const Step0 = ({ 
   formData, 
@@ -19,8 +20,20 @@ const Step0 = ({
   handleSubproductImageChange,
   handleSave,
   handleNext,
+  showSaveMessage,
+  isSaved: parentIsSaved = false,
 }) => {
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
+  const [isSaved, setIsSaved] = useState(parentIsSaved); // Track if Step-0 is saved
+  
+  // Sync with parent's saved state
+  useEffect(() => {
+    setIsSaved(parentIsSaved);
+    if (parentIsSaved) {
+      setSaveStatus('success');
+    }
+  }, [parentIsSaved]);
 
   // Load buyer codes from localStorage
   useEffect(() => {
@@ -43,12 +56,47 @@ const Step0 = ({
   };
 
   const onSave = () => {
+    // Validate before saving
+    if (!formData.buyerCode && !formData.ipoCode) {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000); // Reset error after 3 seconds
+      return;
+    }
+    
+    if (formData.skus && formData.skus.length > 0) {
+      const hasEmptySkus = formData.skus.some(sku => !sku.sku || !sku.product);
+      if (hasEmptySkus) {
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus('idle'), 3000); // Reset error after 3 seconds
+        return;
+      }
+    }
+    
+    // Save successful
     if (handleSave) {
-      handleSave();
+      try {
+        handleSave();
+        setSaveStatus('success');
+        setIsSaved(true);
+      } catch (error) {
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus('idle'), 3000);
+      }
     } else {
       console.log('Saving SKUs:', formData.skus);
+      setSaveStatus('success');
+      setIsSaved(true);
     }
   };
+  
+  // Reset save status when form data changes (user modifies something)
+  useEffect(() => {
+    if (isSaved) {
+      // Reset to idle when data changes after save
+      setSaveStatus('idle');
+      setIsSaved(false);
+    }
+  }, [formData.skus, formData.buyerCode, formData.ipoCode]);
 
   return (
     <div className="w-full max-w-6xl mx-auto" style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -464,9 +512,20 @@ const Step0 = ({
             type="button"
             onClick={onSave}
             variant="outline"
-            className="text-green-600 hover:text-green-700"
+            className={cn(
+              'min-w-[90px]',
+              saveStatus === 'error'
+                ? 'text-red-600 border-red-500 hover:text-red-700'
+                : isSaved || saveStatus === 'success'
+                  ? 'text-green-600 hover:text-green-700'
+                  : ''
+            )}
           >
-            Save
+            {saveStatus === 'error'
+              ? 'Not Saved'
+              : isSaved || saveStatus === 'success'
+                ? 'Saved'
+                : 'Save'}
           </Button>
           <Button
             type="button"
@@ -477,12 +536,17 @@ const Step0 = ({
           </Button>
         </div>
         {handleNext && (
-          <Button
-            type="button"
-            onClick={handleNext}
-          >
-            Next →
-          </Button>
+          <div className="flex items-center gap-3">
+            {showSaveMessage && (
+              <span className="text-red-600 text-sm font-medium">Save first</span>
+            )}
+            <Button
+              type="button"
+              onClick={handleNext}
+            >
+              Next →
+            </Button>
+          </div>
         )}
       </div>
     </div>
