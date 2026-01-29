@@ -33,6 +33,60 @@ const Step5 = ({
     }
     prevMaterialsLengthRef.current = currentMaterialsLength;
   }, [formData.packaging?.materials?.length]);
+
+  // Get list of component names filtered by selected product from Step 1
+  const getComponentOptionsForSelectedProduct = () => {
+    const selectedProduct = formData.packaging?.productSelection;
+    if (!selectedProduct) {
+      // If no product selected, return all components
+      const names = [];
+      (formData.products || []).forEach((product) => {
+        (product.components || []).forEach((component) => {
+          if (component?.productComforter) {
+            names.push(component.productComforter);
+          }
+        });
+      });
+      return [...new Set(names)];
+    }
+    
+    // Filter components for the selected product
+    const names = [];
+    (formData.products || []).forEach((product) => {
+      // Match product by name
+      if (product.name === selectedProduct) {
+        (product.components || []).forEach((component) => {
+          if (component?.productComforter) {
+            names.push(component.productComforter);
+          }
+        });
+      }
+    });
+    return [...new Set(names)];
+  };
+
+  // Build list of all products and subproducts for header dropdown
+  const getAllProductOptions = () => {
+    const names = [];
+    (formData.skus || []).forEach((sku) => {
+      if (sku.product) {
+        names.push(sku.product);
+      }
+      (sku.subproducts || []).forEach((sub) => {
+        if (sub.product) {
+          names.push(sub.product);
+        }
+      });
+    });
+    // Also include products from Step 1 (for safety / backwards compatibility)
+    (formData.products || []).forEach((product) => {
+      if (product.name) {
+        names.push(product.name);
+      }
+    });
+    return [...new Set(names)];
+  };
+
   return (
 <div className="w-full">
       {/* Header with proper spacing */}
@@ -51,13 +105,14 @@ const Step5 = ({
           {/* PRODUCT */}
           <div className="flex flex-col" style={{ width: '250px' }}>
             <label className="text-sm font-semibold text-gray-700 mb-2">PRODUCT</label>
-            <input
-              type="text"
-              value={formData.packaging.productSelection}
-              onChange={(e) => handlePackagingChange('productSelection', e.target.value)}
+            <SearchableDropdown
+              value={formData.packaging.productSelection || ''}
+              onChange={(selectedValue) => handlePackagingChange('productSelection', selectedValue || '')}
+              options={getAllProductOptions()}
+              placeholder="Select or type product"
+              strictMode={false}
               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
               style={{ padding: '10px 14px', height: '44px' }}
-              placeholder="e.g., COMFORTER+PILLOW+BAG"
             />
           </div>
 
@@ -134,26 +189,29 @@ const Step5 = ({
             <div style={{ marginBottom: '24px' }}>
               <div className="flex flex-wrap items-start gap-4">
               <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">COMPONENTS</label>
-                <input
-                  type="text"
-                    value={material.components}
-                    onChange={(e) => handlePackagingMaterialChange(materialIndex, 'components', e.target.value)}
-                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                    style={{ padding: '10px 14px', width: '150px', height: '44px' }}
-                    placeholder="e.g., N/A"
-                  />
+                <label className="text-sm font-semibold text-gray-700 mb-2">COMPONENTS</label>
+                <SearchableDropdown
+                  value={material.components || ''}
+                  onChange={(selectedValue) =>
+                    handlePackagingMaterialChange(materialIndex, 'components', selectedValue || '')
+                  }
+                  options={getComponentOptionsForSelectedProduct()}
+                  placeholder="Select or type component"
+                  strictMode={false}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', width: '180px', height: '44px' }}
+                />
               </div>
 
               <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL DESCRIPTION</label>
+                <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL DESCRIPTION</label>
                 <input
                   type="text"
-                    value={material.product}
-                    onChange={(e) => handlePackagingMaterialChange(materialIndex, 'product', e.target.value)}
-                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                    style={{ padding: '10px 14px', width: '180px', height: '44px' }}
-                    placeholder="e.g., Corrugated Box"
+                  value={material.materialDescription || ''}
+                  onChange={(e) => handlePackagingMaterialChange(materialIndex, 'materialDescription', e.target.value)}
+                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  style={{ padding: '10px 14px', width: '180px', height: '44px' }}
+                  placeholder="e.g., Corrugated Box"
                 />
               </div>
 
