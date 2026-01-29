@@ -12,8 +12,51 @@ const Step1 = ({
   removeComponent,
   handleComponentChange,
   handleComponentCuttingSizeChange,
-  handleComponentSewSizeChange
+  handleComponentSewSizeChange,
+  validateStep1,
+  handleSave,
+  handleNext,
+  showSaveMessage = false,
+  isSaved: parentIsSaved = false,
 }) => {
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
+  const [isSaved, setIsSaved] = useState(parentIsSaved);
+  const prevComponentsLengthRef = useRef(null);
+
+  // Sync from parent when parent clears saved state
+  useEffect(() => {
+    setIsSaved(parentIsSaved);
+    if (parentIsSaved) {
+      setSaveStatus('success');
+    } else {
+      setSaveStatus('idle');
+    }
+  }, [parentIsSaved]);
+
+  // When user adds/removes a component, formData updates here first – reset to "Save" immediately
+  const components = formData?.products?.[0]?.components ?? [];
+  const componentsLength = components.length;
+  useEffect(() => {
+    if (prevComponentsLengthRef.current !== null && prevComponentsLengthRef.current !== componentsLength) {
+      setSaveStatus('idle');
+      setIsSaved(false);
+    }
+    prevComponentsLengthRef.current = componentsLength;
+  }, [componentsLength]);
+
+  const onSave = () => {
+    if (validateStep1 && !validateStep1()) {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+      return;
+    }
+    if (handleSave) {
+      handleSave();
+      setSaveStatus('success');
+      setIsSaved(true);
+    }
+  };
+
   const selectBaseClass =
     "border-input h-11 w-full min-w-0 rounded-md border bg-white text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -72,6 +115,7 @@ const Step1 = ({
                       onChange={(e) => handleComponentChange(0, componentIndex, 'productComforter', e.target.value)}
                       placeholder="e.g., Top Panel"
                       aria-invalid={errors[`product_0_component_${componentIndex}_productComforter`] ? true : undefined}
+                      className={errors[`product_0_component_${componentIndex}_productComforter`] ? 'border-destructive' : ''}
                       required
                     />
                   </Field>
@@ -111,6 +155,7 @@ const Step1 = ({
                       onChange={(e) => handleComponentChange(0, componentIndex, 'gsm', e.target.value)}
                       placeholder="e.g., 200"
                       aria-invalid={errors[`product_0_component_${componentIndex}_gsm`] ? true : undefined}
+                      className={errors[`product_0_component_${componentIndex}_gsm`] ? 'border-destructive' : ''}
                       required
                     />
                   </Field>
@@ -126,6 +171,7 @@ const Step1 = ({
                       onChange={(e) => handleComponentChange(0, componentIndex, 'wastage', e.target.value)}
                       placeholder="e.g., 5"
                       error={errors[`product_0_component_${componentIndex}_wastage`]}
+                      className={errors[`product_0_component_${componentIndex}_wastage`] ? 'border-destructive' : ''}
                       required
                     />
                   </Field>
@@ -150,6 +196,7 @@ const Step1 = ({
                           onChange={(e) => handleComponentCuttingSizeChange(0, componentIndex, 'consumption', e.target.value)}
                           placeholder="e.g., 2.5"
                           aria-invalid={errors[`product_0_component_${componentIndex}_cuttingConsumption`] ? true : undefined}
+                          className={errors[`product_0_component_${componentIndex}_cuttingConsumption`] ? 'border-destructive' : ''}
                           required
                         />
                       </Field>
@@ -167,6 +214,7 @@ const Step1 = ({
                             onChange={(e) => handleComponentCuttingSizeChange(0, componentIndex, 'length', e.target.value)}
                             placeholder="e.g., 24"
                             aria-invalid={errors[`product_0_component_${componentIndex}_cuttingLength`] ? true : undefined}
+                            className={errors[`product_0_component_${componentIndex}_cuttingLength`] ? 'border-destructive' : ''}
                             required
                           />
                         </Field>
@@ -183,6 +231,7 @@ const Step1 = ({
                             onChange={(e) => handleComponentCuttingSizeChange(0, componentIndex, 'width', e.target.value)}
                             placeholder="e.g., 18"
                             aria-invalid={errors[`product_0_component_${componentIndex}_cuttingWidth`] ? true : undefined}
+                            className={errors[`product_0_component_${componentIndex}_cuttingWidth`] ? 'border-destructive' : ''}
                             required
                           />
                         </Field>
@@ -210,6 +259,7 @@ const Step1 = ({
                           onChange={(e) => handleComponentSewSizeChange(0, componentIndex, 'consumption', e.target.value)}
                           placeholder="e.g., 2.3"
                           aria-invalid={errors[`product_0_component_${componentIndex}_sewConsumption`] ? true : undefined}
+                          className={errors[`product_0_component_${componentIndex}_sewConsumption`] ? 'border-destructive' : ''}
                           required
                         />
                       </Field>
@@ -227,6 +277,7 @@ const Step1 = ({
                             onChange={(e) => handleComponentSewSizeChange(0, componentIndex, 'length', e.target.value)}
                             placeholder="e.g., 22"
                             aria-invalid={errors[`product_0_component_${componentIndex}_sewLength`] ? true : undefined}
+                            className={errors[`product_0_component_${componentIndex}_sewLength`] ? 'border-destructive' : ''}
                             required
                           />
                         </Field>
@@ -243,6 +294,7 @@ const Step1 = ({
                             onChange={(e) => handleComponentSewSizeChange(0, componentIndex, 'width', e.target.value)}
                             placeholder="e.g., 16"
                             aria-invalid={errors[`product_0_component_${componentIndex}_sewWidth`] ? true : undefined}
+                            className={errors[`product_0_component_${componentIndex}_sewWidth`] ? 'border-destructive' : ''}
                             required
                           />
                         </Field>
@@ -253,8 +305,27 @@ const Step1 = ({
               </div>
             ))}
 
-          {/* Add Component Button */}
+          {/* Save + Add Component Buttons (same pattern as Step-0) */}
           <div style={{ marginTop: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <Button
+              type="button"
+              onClick={onSave}
+              variant="outline"
+              className={cn(
+                'min-w-[90px]',
+                saveStatus === 'error'
+                  ? 'text-red-600 border-red-500 hover:text-red-700'
+                  : isSaved || saveStatus === 'success'
+                    ? 'text-green-600 hover:text-green-700'
+                    : ''
+              )}
+            >
+              {saveStatus === 'error'
+                ? 'Not Saved'
+                : isSaved || saveStatus === 'success'
+                  ? 'Saved'
+                  : 'Save'}
+            </Button>
             <Button
               type="button"
               onClick={() => {

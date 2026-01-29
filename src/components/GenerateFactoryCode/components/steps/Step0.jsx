@@ -18,6 +18,7 @@ const Step0 = ({
   removeSubproduct,
   handleSubproductChange,
   handleSubproductImageChange,
+  validateStep0,
   handleSave,
   handleNext,
   showSaveMessage,
@@ -56,23 +57,12 @@ const Step0 = ({
   };
 
   const onSave = () => {
-    // Validate before saving
-    if (!formData.buyerCode && !formData.ipoCode) {
+    // Use same validation as Next (step0) - no IPC/save if data is not filled
+    if (validateStep0 && !validateStep0()) {
       setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000); // Reset error after 3 seconds
+      setTimeout(() => setSaveStatus('idle'), 3000);
       return;
     }
-    
-    if (formData.skus && formData.skus.length > 0) {
-      const hasEmptySkus = formData.skus.some(sku => !sku.sku || !sku.product);
-      if (hasEmptySkus) {
-        setSaveStatus('error');
-        setTimeout(() => setSaveStatus('idle'), 3000); // Reset error after 3 seconds
-        return;
-      }
-    }
-    
-    // Save successful
     if (handleSave) {
       try {
         handleSave();
@@ -83,7 +73,6 @@ const Step0 = ({
         setTimeout(() => setSaveStatus('idle'), 3000);
       }
     } else {
-      console.log('Saving SKUs:', formData.skus);
       setSaveStatus('success');
       setIsSaved(true);
     }

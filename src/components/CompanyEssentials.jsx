@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchableDropdown from './GenerateFactoryCode/components/SearchableDropdown';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormCard, FormRow, FullscreenContent } from '@/components/ui/form-layout';
+import { cn } from '@/lib/utils';
 
 const CompanyEssentials = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [commonDate, setCommonDate] = useState(new Date().toISOString().split('T')[0]);
   const [forms, setForms] = useState([{ id: 1, srNo: 1, data: getInitialFormData() }]);
   const [showPopup, setShowPopup] = useState(false);
+  const [errors, setErrors] = useState({}); // { [formId]: { [fieldName]: string } }
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
+  const [isSaved, setIsSaved] = useState(false);
 
   const categories = [
     'STATIONARY',
@@ -178,15 +182,21 @@ const CompanyEssentials = ({ onBack }) => {
     const existingData = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
     existingData.push(dataToSave);
     localStorage.setItem('companyEssentials', JSON.stringify(existingData));
-
-    // Show popup instead of alert
-    setShowPopup(true);
   };
 
   const handleSubmitAll = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!validateForms()) {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+      return;
+    }
+    setErrors({});
     forms.forEach((form) => submitForm(form.id));
+    setSaveStatus('success');
+    setIsSaved(true);
+    setShowPopup(true);
   };
 
   // Handle Add More from popup
@@ -225,8 +235,68 @@ const CompanyEssentials = ({ onBack }) => {
   // Check if category needs JOB WORK instead of ITEM DESCRIPTION
   const needsJobWork = selectedCategory === 'REPAIR' || selectedCategory === 'MAINTENANCE';
 
+  // Validate all forms; set errors and return false if any form is invalid (blank required fields)
+  const validateForms = () => {
+    const newErrors = {};
+    let valid = true;
+    forms.forEach((form) => {
+      const formErrors = {};
+      if (needsDepartment && !(form.data.department?.trim())) {
+        formErrors.department = 'Required';
+        valid = false;
+      }
+      if (needsMachineFields) {
+        if (!(form.data.machineType?.trim())) {
+          formErrors.machineType = 'Required';
+          valid = false;
+        }
+        if (!(form.data.componentSpec?.trim())) {
+          formErrors.componentSpec = 'Required';
+          valid = false;
+        }
+      } else {
+        const descField = needsItem ? form.data.item : form.data.itemDescription;
+        if (!(descField?.trim())) {
+          formErrors[needsItem ? 'item' : 'itemDescription'] = 'Required';
+          valid = false;
+        }
+      }
+      if (selectedCategory !== 'MACHINERY') {
+        if (needsAmount) {
+          if (form.data.amount === '' && form.data.amount !== 0) {
+            formErrors.amount = 'Required';
+            valid = false;
+          }
+        } else {
+          if (form.data.qty === '' && form.data.qty !== 0) {
+            formErrors.qty = 'Required';
+            valid = false;
+          }
+        }
+      }
+      if (!needsAmount && selectedCategory !== 'MACHINERY' && !(form.data.unit?.trim())) {
+        formErrors.unit = 'Required';
+        valid = false;
+      }
+      if (Object.keys(formErrors).length > 0) {
+        newErrors[form.id] = formErrors;
+      }
+    });
+    setErrors(newErrors);
+    return valid;
+  };
+
+  // Reset save state when user edits form
+  useEffect(() => {
+    if (isSaved || saveStatus === 'error') {
+      setSaveStatus('idle');
+      setIsSaved(false);
+    }
+  }, [forms, selectedCategory, commonDate]);
+
   // Render a single form
   const renderForm = (form) => {
+    const formErrors = errors[form.id] || {};
     return (
       <FormCard
         key={form.id}
@@ -262,12 +332,13 @@ const CompanyEssentials = ({ onBack }) => {
 
             {/* Department Field (for MACHINERY and QC TOOLS) */}
             {needsDepartment && (
-              <Field label="DEPARTMENT" width="sm">
+              <Field label="DEPARTMENT" width="sm" error={formErrors.department}>
                 <SearchableDropdown
                   value={form.data.department}
                   onChange={(value) => handleChange(form.id, 'department', value)}
                   options={departmentOptions}
                   placeholder="Enter or select department"
+                  className={formErrors.department ? 'border-destructive' : ''}
                 />
               </Field>
             )}
@@ -277,60 +348,66 @@ const CompanyEssentials = ({ onBack }) => {
               <Field
                 label={needsItem ? 'ITEM' : needsJobWork ? 'JOB WORK' : 'ITEM DESCRIPTION'}
                 width="md"
+                error={formErrors[needsItem ? 'item' : 'itemDescription']}
               >
                 <Input
                   type="text"
                   value={needsItem ? form.data.item : form.data.itemDescription}
                   onChange={(e) => handleChange(form.id, needsItem ? 'item' : 'itemDescription', e.target.value)}
                   placeholder={`Enter ${needsItem ? 'item' : needsJobWork ? 'job work' : 'item description'}`}
+                  className={formErrors[needsItem ? 'item' : 'itemDescription'] ? 'border-destructive' : ''}
                 />
               </Field>
             )}
 
             {/* Machine Type Field (for MACHINERY and QC TOOLS) */}
             {needsMachineFields && (
-              <Field label="MACHINE TYPE" width="md">
+              <Field label="MACHINE TYPE" width="md" error={formErrors.machineType}>
                 <Input
                   type="text"
                   value={form.data.machineType}
                   onChange={(e) => handleChange(form.id, 'machineType', e.target.value)}
                   placeholder="Enter machine type"
+                  className={formErrors.machineType ? 'border-destructive' : ''}
                 />
               </Field>
             )}
 
             {/* Component Spec Field (for MACHINERY and QC TOOLS) */}
             {needsMachineFields && (
-              <Field label="COMPONENT SPEC" width="md">
+              <Field label="COMPONENT SPEC" width="md" error={formErrors.componentSpec}>
                 <Input
                   type="text"
                   value={form.data.componentSpec}
                   onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
                   placeholder="Enter component specification"
+                  className={formErrors.componentSpec ? 'border-destructive' : ''}
                 />
               </Field>
             )}
 
             {/* QTY or AMOUNT Field (not in row 1 for MACHINERY) */}
             {selectedCategory !== 'MACHINERY' && (
-              <Field label={needsAmount ? 'AMOUNT' : 'QTY'} width="sm">
+              <Field label={needsAmount ? 'AMOUNT' : 'QTY'} width="sm" error={formErrors[needsAmount ? 'amount' : 'qty']}>
                 <Input
                   type="number"
                   value={needsAmount ? form.data.amount : form.data.qty}
                   onChange={(e) => handleChange(form.id, needsAmount ? 'amount' : 'qty', e.target.value)}
                   placeholder={needsAmount ? 'Enter amount' : 'Enter quantity'}
+                  className={formErrors[needsAmount ? 'amount' : 'qty'] ? 'border-destructive' : ''}
                 />
               </Field>
             )}
 
             {/* UNIT Field (not for TRAVEL EXPENSE and not in row 1 for MACHINERY) */}
             {!needsAmount && selectedCategory !== 'MACHINERY' && (
-              <Field label="UNIT" width="sm">
+              <Field label="UNIT" width="sm" error={formErrors.unit}>
                 <SearchableDropdown
                   value={form.data.unit}
                   onChange={(value) => handleChange(form.id, 'unit', value)}
                   options={unitOptions}
                   placeholder="Select unit"
+                  className={formErrors.unit ? 'border-destructive' : ''}
                 />
               </Field>
             )}
@@ -422,30 +499,6 @@ const CompanyEssentials = ({ onBack }) => {
                 </div>
               </Field>
             )}
-
-            {/* Component Spec Field (for QC TOOLS only) - in row 2 */}
-            {needsMachineFields && selectedCategory !== 'MACHINERY' && (
-              <Field label="COMPONENT SPEC" width="lg">
-                <Input
-                  type="text"
-                  value={form.data.componentSpec}
-                  onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
-                  placeholder="Enter component specification"
-                />
-              </Field>
-            )}
-
-            {/* Department Field (for QC TOOLS only) - in row 2 */}
-            {needsDepartment && selectedCategory !== 'MACHINERY' && (
-              <Field label="DEPARTMENT" width="sm">
-                <SearchableDropdown
-                  value={form.data.department}
-                  onChange={(value) => handleChange(form.id, 'department', value)}
-                  options={departmentOptions}
-                  placeholder="Enter or select department"
-                />
-              </Field>
-            )}
           </FormRow>
         </div>
       </FormCard>
@@ -510,8 +563,23 @@ const CompanyEssentials = ({ onBack }) => {
 
             {/* Submit and Add More Buttons */}
             <div className="flex justify-start gap-4 mt-4">
-              <Button type="submit" variant="default">
-                SUBMIT
+              <Button
+                type="submit"
+                variant="outline"
+                className={cn(
+                  'min-w-[90px]',
+                  saveStatus === 'error'
+                    ? 'text-red-600 border-red-500 hover:text-red-700'
+                    : isSaved || saveStatus === 'success'
+                      ? 'text-green-600 hover:text-green-700'
+                      : ''
+                )}
+              >
+                {saveStatus === 'error'
+                  ? 'Not Saved'
+                  : isSaved || saveStatus === 'success'
+                    ? 'Saved'
+                    : 'Submit'}
               </Button>
               <Button
                 type="button"
@@ -527,15 +595,25 @@ const CompanyEssentials = ({ onBack }) => {
 
       {/* Popup Modal */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Request Submitted</DialogTitle>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={handleAddMoreFromPopup} type="button">
-              Add More
-            </Button>
-          </DialogFooter>
+        <DialogContent
+          showCloseButton={true}
+          className="max-w-sm min-h-[240px] rounded-xl border-2 border-border shadow-xl bg-card pt-12 pb-8 px-8"
+        >
+          <div className="flex flex-col items-center justify-center text-center gap-5">
+            <DialogHeader className="p-0 flex flex-col items-center gap-2">
+              <DialogTitle className="text-xl font-semibold text-foreground">
+                Request Submitted
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-[260px]">
+              Your request has been saved successfully.
+            </p>
+            <DialogFooter className="p-0 mt-2 flex justify-center">
+              <Button onClick={handleAddMoreFromPopup} type="button" variant="default" className="min-w-[120px]">
+                Add More
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </FullscreenContent>

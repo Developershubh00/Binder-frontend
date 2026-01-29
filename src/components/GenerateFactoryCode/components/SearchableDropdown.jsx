@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const SearchableDropdown = ({
@@ -9,6 +10,7 @@ const SearchableDropdown = ({
   disabled = false,
   className = '',
   style = {},
+  error = false,
   onFocus,
   onBlur,
   strictMode = false // If true, only accepts values from options list
@@ -21,6 +23,7 @@ const SearchableDropdown = ({
   const inputRef = useRef(null);
   const blurTimeoutRef = useRef(null);
   const previousValidValueRef = useRef(value || '');
+  const skipValueSyncOnNextFocusRef = useRef(false);
 
   // Update filtered options when search term or options change
   useEffect(() => {
@@ -82,9 +85,16 @@ const SearchableDropdown = ({
   const handleFocus = (e) => {
     if (disabled) return;
     setIsOpen(true);
-    setSearchTerm(value || '');
-    // Show all options when focused
-    setFilteredOptions(options);
+    // If we just clicked the arrow to clear+reopen, keep searchTerm empty so ALL options show.
+    if (skipValueSyncOnNextFocusRef.current) {
+      skipValueSyncOnNextFocusRef.current = false;
+      setSearchTerm('');
+      setFilteredOptions(options);
+    } else {
+      setSearchTerm(value || '');
+      // Show all options when focused
+      setFilteredOptions(options);
+    }
     if (onFocus) onFocus(e);
   };
 
@@ -136,12 +146,16 @@ const SearchableDropdown = ({
   // Show search term when typing, otherwise show value
   const displayValue = isOpen ? searchTerm : (value || '');
 
-  const handleClear = (e) => {
+  // Clicking the arrow should clear current selection and reopen options
+  const handleArrowClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    skipValueSyncOnNextFocusRef.current = true;
     onChange('');
     setSearchTerm('');
     previousValidValueRef.current = '';
+    setFilteredOptions(options);
+    setIsOpen(true);
     inputRef.current?.focus();
   };
 
@@ -165,25 +179,25 @@ const SearchableDropdown = ({
           'border-input h-11 w-full min-w-0 rounded-md border bg-white text-sm shadow-xs transition-[color,box-shadow]',
           'outline-none disabled:cursor-not-allowed disabled:opacity-50',
           'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-          value && 'pr-9',
+          error && 'border-destructive focus-visible:ring-destructive/50',
           disabled && 'opacity-60',
           className
         )}
         style={{
           paddingLeft: '1.25rem',
-          paddingRight: value ? '2.25rem' : '0.75rem',
+          paddingRight: '2.25rem',
           ...style,
         }}
         aria-invalid={false}
       />
-      {value && !disabled && (
+      {!disabled && (
         <button
           type="button"
-          onClick={handleClear}
-          aria-label="Clear selection"
-          className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded border-0 bg-muted text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer text-sm"
+          onClick={handleArrowClick}
+          aria-label="Open options"
+          className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded border-0 bg-transparent text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
         >
-          ✕
+          <ChevronDown className={cn('h-4 w-4 transition-transform', isOpen && 'rotate-180')} />
         </button>
       )}
       {isOpen && !disabled && filteredOptions.length > 0 && (
