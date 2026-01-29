@@ -10,6 +10,7 @@ const SearchableDropdown = ({
   disabled = false,
   className = '',
   style = {},
+  error = false,
   onFocus,
   onBlur,
   strictMode = false // If true, only accepts values from options list
@@ -178,6 +179,7 @@ const SearchableDropdown = ({
           'border-input h-11 w-full min-w-0 rounded-md border bg-white text-sm shadow-xs transition-[color,box-shadow]',
           'outline-none disabled:cursor-not-allowed disabled:opacity-50',
           'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+          error && 'border-destructive focus-visible:ring-destructive/50',
           disabled && 'opacity-60',
           className
         )}
