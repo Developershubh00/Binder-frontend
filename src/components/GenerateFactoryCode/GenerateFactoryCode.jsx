@@ -2219,7 +2219,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           ...currentMaterial,
           trimAccessory: value,
           // Clear all conditional fields
-          zipNumber: '', zipType: '', brand: '', teeth: '', puller: '', pullerType: '', length: '',
+          zipNumber: '', zipType: '', brand: '', teeth: '', puller: '', pullerType: '', length: '', showZippersAdvancedSpec: false, zipSliderType: '', zipFinish: '', zipLengthTolerance: '',
           velcroPart: '', velcroType: '', velcroMaterial: '', velcroAttachment: '', velcroPlacement: '', velcroPlacementReferenceImage: null, velcroSizeSpec: '', velcroLengthCm: '', velcroWidthCm: '', velcroYardageCns: '', velcroKgsCns: '', velcroTestingRequirements: '', velcroTestingRequirementFile: null, velcroQty: '', velcroKgsPerPc: '', velcroYardagePerPc: '', velcroSurplus: '', velcroWastage: '', velcroApproval: '', velcroRemarks: '', velcroColour: '', velcroColorReference: null, velcroHookDensity: '', velcroLoopType: '', velcroCycleLife: '', velcroFlameRetardant: '', showVelcroAdvancedSpec: false,
           threadType: '', fibreContent: '', countTicketNo: '', ply: '', threadFinish: '', usage: '',
           buttonType: '', buttonMaterial: '', buttonSize: '', buttonLigne: '', buttonHoles: '', buttonFinishColour: '', buttonPlacement: '', buttonTestingRequirements: '', buttonDropdown: '', buttonMultiselect: '', buttonQty: '', buttonSurplus: '', buttonWastage: '', buttonApproval: '', buttonRemarks: '', buttonTestingRequirementFile: null, buttonColorReference: null, buttonReferenceImage: null, buttonAttachment: '', buttonFunction: '', buttonLogo: '', showButtonsAdvancedSpec: false,
@@ -2345,6 +2345,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           puller: '',
           pullerType: '',
           length: '',
+          showZippersAdvancedSpec: false,
+          zipSliderType: '',
+          zipFinish: '',
+          zipLengthTolerance: '',
           // VELCRO
           velcroPart: '',
           velcroType: '',
