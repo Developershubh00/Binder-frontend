@@ -34,33 +34,17 @@ const Step5 = ({
     prevMaterialsLengthRef.current = currentMaterialsLength;
   }, [formData.packaging?.materials?.length]);
 
-  // Get list of component names filtered by selected product from Step 1
+  // Get list of all component names from Step 1 (selected SKU's products/components)
+  // Step 1 only edits products[0].components and never sets product.name; product names
+  // come from Step 0 (sku.product). So we always show all components from this SKU's Step 1.
   const getComponentOptionsForSelectedProduct = () => {
-    const selectedProduct = formData.packaging?.productSelection;
-    if (!selectedProduct) {
-      // If no product selected, return all components
-      const names = [];
-      (formData.products || []).forEach((product) => {
-        (product.components || []).forEach((component) => {
-          if (component?.productComforter) {
-            names.push(component.productComforter);
-          }
-        });
-      });
-      return [...new Set(names)];
-    }
-    
-    // Filter components for the selected product
     const names = [];
     (formData.products || []).forEach((product) => {
-      // Match product by name
-      if (product.name === selectedProduct) {
-        (product.components || []).forEach((component) => {
-          if (component?.productComforter) {
-            names.push(component.productComforter);
-          }
-        });
-      }
+      (product.components || []).forEach((component) => {
+        if (component?.productComforter) {
+          names.push(component.productComforter);
+        }
+      });
     });
     return [...new Set(names)];
   };
