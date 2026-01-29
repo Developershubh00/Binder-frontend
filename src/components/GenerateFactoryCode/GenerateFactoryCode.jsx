@@ -1152,6 +1152,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleRawMaterialChange = (materialIndex, field, value) => {
+    const stepDataBefore = getSelectedSkuStepData();
+    const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       const material = updatedRawMaterials[materialIndex];
@@ -1200,6 +1202,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       
       return { ...stepData, rawMaterials: updatedRawMaterials };
     });
+    if (componentName) {
+      setStep2SavedComponents(prev => {
+        const next = new Set(prev);
+        next.delete(componentName);
+        return next;
+      });
+    }
     
     // Clear error
     const errorKey = `rawMaterial_${materialIndex}_${field}`;
@@ -1995,6 +2004,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         rawMaterials: [...(stepData.rawMaterials || []), baseMaterial]
       };
     });
+    // Adding a material invalidates saved state for that component
+    if (componentName) {
+      setStep2SavedComponents(prev => {
+        const next = new Set(prev);
+        next.delete(componentName);
+        return next;
+      });
+    }
   };
 
   const handleSaveStep2 = (componentName) => {
@@ -3254,6 +3271,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const removeRawMaterial = (materialIndex) => {
+    const stepDataBefore = getSelectedSkuStepData();
+    const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       updatedRawMaterials.splice(materialIndex, 1);
@@ -3263,6 +3282,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       });
       return { ...stepData, rawMaterials: updatedRawMaterials };
     });
+    if (componentName) {
+      setStep2SavedComponents(prev => {
+        const next = new Set(prev);
+        next.delete(componentName);
+        return next;
+      });
+    }
   };
 
   const removeWorkOrder = (materialIndex, workOrderIndex) => {

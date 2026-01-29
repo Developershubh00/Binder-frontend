@@ -157,13 +157,14 @@ const Step2 = ({
   removeRawMaterial,
   validateField,
   validateStep2,
-  validateComponentMaterials
+  validateComponentMaterials,
+  savedComponents: savedComponentsProp = new Set(), // From parent – add/edit/remove material clears this
 }) => {
   const prevWorkOrdersLengthRef = useRef({});
   const isInitialMountRef = useRef(true);
   const [selectedComponent, setSelectedComponent] = useState(''); // Component selected at top
   const [showMaterialTypeModal, setShowMaterialTypeModal] = useState(false);
-  const [savedComponents, setSavedComponents] = useState(new Set()); // Track which components are saved/done
+  const savedComponents = savedComponentsProp; // Use parent's state so "Add material" clears Saved
   const [lastAddedMaterialIndex, setLastAddedMaterialIndex] = useState(null);
   const [scrollToMaterialIndex, setScrollToMaterialIndex] = useState(null); // Index to scroll to after removal
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
@@ -241,9 +242,8 @@ const Step2 = ({
       return;
     }
 
-    // Validation passed - save the component
+    // Validation passed - save the component (parent updates savedComponents prop)
     setSaveStatus('success');
-    setSavedComponents((prev) => new Set([...prev, selectedComponent]));
     if (handleSave) {
       handleSave(selectedComponent);
     }
