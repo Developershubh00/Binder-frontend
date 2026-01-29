@@ -846,9 +846,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   const validateStep0 = () => {
     const newErrors = {};
-    
+
+    // Buyer Code or IPO Code required (for both Next and Save/IPC)
+    if (!formData.buyerCode?.trim() && !formData.ipoCode?.trim()) {
+      newErrors['buyerCode'] = 'Buyer Code or IPO Code is required';
+    }
+    if (!formData.skus?.length) {
+      newErrors['skus'] = 'At least one SKU is required';
+    }
+
     // Validate each SKU
-    formData.skus.forEach((sku, index) => {
+    (formData.skus || []).forEach((sku, index) => {
       if (!sku.sku?.trim()) {
         newErrors[`sku_${index}`] = 'SKU / Item No. is required';
       }
@@ -3760,6 +3768,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               removeSubproduct={removeSubproduct}
               handleSubproductChange={handleSubproductChange}
               handleSubproductImageChange={handleSubproductImageChange}
+              validateStep0={validateStep0}
               handleSave={handleSaveStep0}
               handleNext={handleNext}
               showSaveMessage={showSaveMessage && currentStep === 0}
