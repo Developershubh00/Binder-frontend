@@ -26,6 +26,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const [step0Saved, setStep0Saved] = useState(false);
   const [step1Saved, setStep1Saved] = useState(false);
   const [step2SavedComponents, setStep2SavedComponents] = useState(new Set()); // Track saved components in Step-2
+  const [step3Saved, setStep3Saved] = useState(false); // Step-3 = Artwork / Labelling
+  const [step3SaveStatus, setStep3SaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [showSaveMessage, setShowSaveMessage] = useState(false); // Show "save first" message
   const [saveMessage, setSaveMessage] = useState(''); // Message to display
   const [formData, setFormData] = useState({
@@ -2044,6 +2046,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     // You can add actual save logic here (API call, etc.)
   };
 
+  const handleSaveStep3 = () => {
+    if (!validateStep4()) {
+      setStep3SaveStatus('error');
+      setTimeout(() => setStep3SaveStatus('idle'), 3000);
+      return;
+    }
+    setStep3Saved(true);
+    setStep3SaveStatus('success');
+    setShowSaveMessage(false);
+  };
+
   // Generate IPC code for SKUs and subproducts
   const handleSaveStep0 = () => {
     try {
@@ -2824,6 +2837,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleArtworkMaterialChange = (materialIndex, field, value) => {
+    setStep3Saved(false);
+    setStep3SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
       if (!stepData.artworkMaterials || !stepData.artworkMaterials[materialIndex]) {
         return stepData;
@@ -2894,6 +2909,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const addArtworkMaterial = () => {
+    setStep3Saved(false);
+    setStep3SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
       const currentMaterials = stepData.artworkMaterials || [];
       const newSrNo = currentMaterials.length + 1;
@@ -2998,6 +3015,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const removeArtworkMaterial = (materialIndex) => {
+    setStep3Saved(false);
+    setStep3SaveStatus('idle');
     const stepData = getSelectedSkuStepData();
     if (stepData && stepData.artworkMaterials && stepData.artworkMaterials.length > 1) {
       updateSelectedSkuStepData((stepData) => ({
@@ -3692,9 +3711,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       
       // Step 2 validation happens only on Save, not on Next
     } else if (currentStep === 3) {
+      if (!step3Saved) {
+        setShowSaveMessage(true);
+        setSaveMessage('Save first');
+        return;
+      }
       if (!validateStep4()) {
         return;
       }
+      setShowSaveMessage(false);
     } else if (currentStep === 4) {
       if (!validateStep5()) {
         return;
@@ -4375,34 +4400,44 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 </Button>
               </div>
             ) : currentStep === 3 ? (
-              // Artwork / Labelling step: Add on left, Prev/Next on right (like Step0 layout)
+              // Artwork / Labelling step: Save + Add Material on left, Save first + Prev/Next on right (same template as Step1)
               <div className="flex items-center justify-between" style={{ marginTop: '32px' }}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    const stepData = getSelectedSkuStepData();
-                    const currentLength = stepData?.artworkMaterials?.length || 0;
-                    addArtworkMaterial();
-                    const newIndex = currentLength;
-                    const attemptScroll = (attempts = 0) => {
-                      if (attempts > 30) return;
-                      const element = document.getElementById(`artwork-material-${newIndex}`);
-                      if (element) {
-                        setTimeout(() => {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }, 150);
-                      } else {
-                        setTimeout(() => attemptScroll(attempts + 1), 50);
-                      }
-                    };
-                    attemptScroll();
-                  }}
-                >
-                  + Add Material
-                </Button>
                 <div className="flex items-center gap-3">
-                  {showSaveMessage && currentStep === 2 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleSaveStep3}
+                    className={`min-w-[90px] ${step3SaveStatus === 'error' ? 'text-red-600 border-red-500 hover:text-red-700' : step3Saved || step3SaveStatus === 'success' ? 'text-green-600 hover:text-green-700' : ''}`}
+                  >
+                    {step3SaveStatus === 'error' ? 'Not Saved' : step3Saved || step3SaveStatus === 'success' ? 'Saved' : 'Save'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const stepData = getSelectedSkuStepData();
+                      const currentLength = stepData?.artworkMaterials?.length || 0;
+                      addArtworkMaterial();
+                      const newIndex = currentLength;
+                      const attemptScroll = (attempts = 0) => {
+                        if (attempts > 30) return;
+                        const element = document.getElementById(`artwork-material-${newIndex}`);
+                        if (element) {
+                          setTimeout(() => {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }, 150);
+                        } else {
+                          setTimeout(() => attemptScroll(attempts + 1), 50);
+                        }
+                      };
+                      attemptScroll();
+                    }}
+                  >
+                    + Add Material
+                  </Button>
+                </div>
+                <div className="flex items-center gap-3">
+                  {showSaveMessage && (currentStep === 2 || currentStep === 3) && (
                     <span className="text-red-600 text-sm font-medium">Save first</span>
                   )}
                   <Button
