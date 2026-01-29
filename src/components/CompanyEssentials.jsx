@@ -422,30 +422,6 @@ const CompanyEssentials = ({ onBack }) => {
                 </div>
               </Field>
             )}
-
-            {/* Component Spec Field (for QC TOOLS only) - in row 2 */}
-            {needsMachineFields && selectedCategory !== 'MACHINERY' && (
-              <Field label="COMPONENT SPEC" width="lg">
-                <Input
-                  type="text"
-                  value={form.data.componentSpec}
-                  onChange={(e) => handleChange(form.id, 'componentSpec', e.target.value)}
-                  placeholder="Enter component specification"
-                />
-              </Field>
-            )}
-
-            {/* Department Field (for QC TOOLS only) - in row 2 */}
-            {needsDepartment && selectedCategory !== 'MACHINERY' && (
-              <Field label="DEPARTMENT" width="sm">
-                <SearchableDropdown
-                  value={form.data.department}
-                  onChange={(value) => handleChange(form.id, 'department', value)}
-                  options={departmentOptions}
-                  placeholder="Enter or select department"
-                />
-              </Field>
-            )}
           </FormRow>
         </div>
       </FormCard>
