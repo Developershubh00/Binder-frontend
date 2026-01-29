@@ -28,6 +28,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const [step2SavedComponents, setStep2SavedComponents] = useState(new Set()); // Track saved components in Step-2
   const [step3Saved, setStep3Saved] = useState(false); // Step-3 = Artwork / Labelling
   const [step3SaveStatus, setStep3SaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
+  const [step4Saved, setStep4Saved] = useState(false); // Last step = Packaging
+  const [step4SaveStatus, setStep4SaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [showSaveMessage, setShowSaveMessage] = useState(false); // Show "save first" message
   const [saveMessage, setSaveMessage] = useState(''); // Message to display
   const [formData, setFormData] = useState({
@@ -2057,6 +2059,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     setShowSaveMessage(false);
   };
 
+  const handleSaveStep4 = () => {
+    if (!validateStep5()) {
+      setStep4SaveStatus('error');
+      setTimeout(() => setStep4SaveStatus('idle'), 3000);
+      return;
+    }
+    setStep4Saved(true);
+    setStep4SaveStatus('success');
+    setShowSaveMessage(false);
+  };
+
   // Generate IPC code for SKUs and subproducts
   const handleSaveStep0 = () => {
     try {
@@ -3031,6 +3044,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   // Packaging Configuration Change Handler
   const handlePackagingChange = (field, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => ({
       ...stepData,
       packaging: {
@@ -3053,6 +3068,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   // Packaging Material Change Handler
   const handlePackagingMaterialChange = (materialIndex, field, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
       const updatedMaterials = [...stepData.packaging.materials];
       
@@ -3125,6 +3142,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   // Packaging Material Size Change Handler
   const handlePackagingMaterialSizeChange = (materialIndex, field, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
       const updatedMaterials = [...stepData.packaging.materials];
       updatedMaterials[materialIndex] = {
@@ -3155,6 +3174,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   // Packaging Work Order Change Handler
   const handlePackagingWorkOrderChange = (materialIndex, workOrderIndex, field, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
       const updatedMaterials = [...stepData.packaging.materials];
       updatedMaterials[materialIndex] = {
@@ -3209,6 +3230,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   // Add Packaging Material
   const addPackagingMaterial = () => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => ({
       ...stepData,
       packaging: {
@@ -3263,6 +3286,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   // Remove Packaging Material
   const removePackagingMaterial = (materialIndex) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
     const stepData = getSelectedSkuStepData();
     if (stepData && stepData.packaging.materials.length > 1) {
       updateSelectedSkuStepData((stepData) => {
@@ -4388,16 +4413,42 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           {/* Navigation Buttons */}
           <div className="mx-auto" style={{ maxWidth: '1000px' }}>
             {currentStep === totalSteps ? (
-              <div className="flex justify-center items-center" style={{ marginTop: '32px' }}>
+              // Last step (Packaging): Save + Save first + Prev + Generate Factory Code (same template as step 3)
+              <div className="flex items-center justify-between" style={{ marginTop: '32px' }}>
                 <Button
                   type="button"
-                  onClick={() => {
-                    // Handle final submission
-                    alert('Factory code generation will be implemented here');
-                  }}
+                  variant="outline"
+                  onClick={handleSaveStep4}
+                  className={`min-w-[90px] ${step4SaveStatus === 'error' ? 'text-red-600 border-red-500 hover:text-red-700' : step4Saved || step4SaveStatus === 'success' ? 'text-green-600 hover:text-green-700' : ''}`}
                 >
-                  Generate Factory Code
+                  {step4SaveStatus === 'error' ? 'Not Saved' : step4Saved || step4SaveStatus === 'success' ? 'Saved' : 'Save'}
                 </Button>
+                <div className="flex items-center gap-3">
+                  {showSaveMessage && currentStep === totalSteps && (
+                    <span className="text-red-600 text-sm font-medium">Save first</span>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                  >
+                    ← Previous
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      if (!step4Saved) {
+                        setShowSaveMessage(true);
+                        setSaveMessage('Save first');
+                        return;
+                      }
+                      // Handle final submission
+                      alert('Factory code generation will be implemented here');
+                    }}
+                  >
+                    Generate Factory Code
+                  </Button>
+                </div>
               </div>
             ) : currentStep === 3 ? (
               // Artwork / Labelling step: Save + Add Material on left, Save first + Prev/Next on right (same template as Step1)
