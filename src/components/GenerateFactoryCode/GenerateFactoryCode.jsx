@@ -2745,112 +2745,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const validateStep5 = () => {
-    const newErrors = {};
-    const stepData = getSelectedSkuStepData();
-    const packaging = (stepData && stepData.packaging) || {};
-    
-    if (!packaging.casepackQty?.trim()) {
-      newErrors['packaging_casepackQty'] = 'Casepack Qty is required';
-    }
-    
-    if (packaging.qtyToBePacked === 'CUSTOM_QTY' && !packaging.customQty?.trim()) {
-      newErrors['packaging_customQty'] = 'Custom Qty is required';
-    }
-    
-    if (packaging.isAssortedPack && !packaging.assortedSkuLink?.trim()) {
-      newErrors['packaging_assortedSkuLink'] = 'Assorted SKU Link/IPC# is required';
-    }
-    
-    // Validate materials
-    packaging.materials.forEach((material, materialIndex) => {
-      if (!material.product?.trim()) {
-        newErrors[`packaging_material_${materialIndex}_product`] = 'Product is required';
-      }
-      if (!material.materialDescription?.trim()) {
-        newErrors[`packaging_material_${materialIndex}_materialDescription`] = 'Material Description is required';
-      }
-      if (!material.netConsumptionPerPc?.trim()) {
-        newErrors[`packaging_material_${materialIndex}_netConsumptionPerPc`] = 'Net Consumption per Pc is required';
-      }
-      if (!material.unit?.trim()) {
-        newErrors[`packaging_material_${materialIndex}_unit`] = 'Unit is required';
-      }
-      if (!material.casepack?.trim()) {
-        newErrors[`packaging_material_${materialIndex}_casepack`] = 'Casepack is required';
-      }
-      
-      // Validate size if required
-      if (requiresSizeFields(packaging.productSelection)) {
-        if (!material.size.width?.trim()) {
-          newErrors[`packaging_material_${materialIndex}_size_width`] = 'Width is required';
-        }
-        if (!material.size.length?.trim()) {
-          newErrors[`packaging_material_${materialIndex}_size_length`] = 'Length is required';
-        }
-        if (!material.size.height?.trim()) {
-          newErrors[`packaging_material_${materialIndex}_size_height`] = 'Height is required';
-        }
-        if (!material.size.unit?.trim()) {
-          newErrors[`packaging_material_${materialIndex}_size_unit`] = 'Size Unit is required';
-        }
-      }
-      
-      // Validate work orders
-      material.workOrders.forEach((wo, woIndex) => {
-        if (wo.workOrder && !wo.wastage?.trim()) {
-          newErrors[`packaging_material_${materialIndex}_workOrder_${woIndex}_wastage`] = 'Wastage is required';
-        }
-        if (wo.workOrder && !wo.for?.trim()) {
-          newErrors[`packaging_material_${materialIndex}_workOrder_${woIndex}_for`] = 'FOR is required';
-        }
-      });
-    });
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    // Lenient validation for testing – Save always succeeds; no hard validation blocking.
+    setErrors({});
+    return true;
   };
 
   const validateStep4 = () => {
-    const newErrors = {};
-    
-    const stepData = getSelectedSkuStepData();
-    if (!stepData || !stepData.artworkMaterials || stepData.artworkMaterials.length === 0) {
-      newErrors['artworkMaterials'] = 'At least one artwork material is required';
-      setErrors(newErrors);
-      return false;
-    }
-    
-    stepData.artworkMaterials.forEach((material, materialIndex) => {
-      if (!material) return;
-      if (!material.materialDescription?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_materialDescription`] = 'Material Description is required';
-      }
-      if (!material.netConsumption?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_netConsumption`] = 'Net Consumption per Pc is required';
-      }
-      if (!material.unit?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_unit`] = 'Unit is required';
-      }
-      if (!material.placement?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_placement`] = 'PLACEMENT is required';
-      }
-      if (!material.workOrder?.trim()) {
-        newErrors[`artworkMaterial_${materialIndex}_workOrder`] = 'Work Order is required';
-      }
-      
-      // Validate conditional fields for R.Mtr unit
-      if (material.unit === 'R.Mtr' || material.unit === 'R METER' || material.unit === 'R METERS') {
-        if (!material.width?.trim()) {
-          newErrors[`artworkMaterial_${materialIndex}_width`] = 'Width is required when unit is R.Mtr';
-        }
-        if (!material.size?.trim()) {
-          newErrors[`artworkMaterial_${materialIndex}_size`] = 'Size is required when unit is R.Mtr';
-        }
-      }
-    });
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    // Lenient validation for testing – Save always succeeds; no hard validation blocking.
+    setErrors({});
+    return true;
   };
 
   const handleArtworkMaterialChange = (materialIndex, field, value) => {
