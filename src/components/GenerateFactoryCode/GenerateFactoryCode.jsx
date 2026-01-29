@@ -4092,7 +4092,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                   )}
                 </div>
 
-                    {/* Product Details */}
+                    {/* Product Details - Main product: exclude SP from display */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
                         {isProductSelected && (
@@ -4102,7 +4102,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                       </svg>
                     )}
                         <span style={{ fontWeight: '600' }}>
-                          {skuItem.ipcCode || `SKU #${index + 1}`}
+                          {skuItem.ipcCode ? skuItem.ipcCode.replace(/\/SP\d+$/i, '') : `SKU #${index + 1}`}
                         </span>
                   </div>
                   <div style={{ 
@@ -4195,7 +4195,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                               )}
                             </div>
 
-                            {/* Subproduct Details */}
+                            {/* Subproduct Details - Display SP1, SP2, SP3... (IPC unchanged) */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
                                 {isSubproductSelected && (
@@ -4205,7 +4205,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                                   </svg>
                                 )}
                                 <span style={{ fontWeight: '600', fontSize: '12px' }}>
-                                  {skuItem.ipcCode || `Subproduct #${subproductIndex + 1}`}
+                                  {skuItem.ipcCode ? `${skuItem.ipcCode.replace(/\/SP\d+$/i, '')}/SP${subproductIndex + 1}` : `/SP${subproductIndex + 1}`}
                                 </span>
                   </div>
                   <div style={{ 
