@@ -359,7 +359,7 @@ const Step4 = ({
                   <SearchableDropdown
                     value={material.unit || ''}
                     onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'unit', selectedValue)}
-                    options={['KGS', 'CM']}
+                    options={['CM', 'KGS']}
                     placeholder="Select or type Unit"
                     className={errors[`artworkMaterial_${materialIndex}_unit`] 
                       ? 'border-red-600' 
@@ -492,7 +492,7 @@ const Step4 = ({
                     <SearchableDropdown
                       value={material.sizeUnit || ''}
                       onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'sizeUnit', selectedValue)}
-                      options={['KGS', 'CM']}
+                      options={['CM', 'KGS']}
                       placeholder="Select or type Unit"
                       style={{ width: '130px' }}
                     />
@@ -662,7 +662,7 @@ const Step4 = ({
                                 <SearchableDropdown
                                   value={material.labelsBrandSizeUnit || 'MM'}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'labelsBrandSizeUnit', selectedValue)}
-                                  options={LABELS_BRAND_SIZE_UNITS}
+                                  options={['CM', 'KGS']}
                                   placeholder="Select or type Unit"
                                   style={{ width: '120px' }}
                                 />
@@ -930,7 +930,7 @@ const Step4 = ({
                                 <SearchableDropdown
                                   value={material.careCompositionSizeUnit || 'MM'}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'careCompositionSizeUnit', selectedValue)}
-                                  options={CARE_COMPOSITION_SIZE_UNITS}
+                                  options={['CM', 'KGS']}
                                   placeholder="Select or type Unit"
                                   style={{ width: '120px' }}
                                 />
@@ -1198,7 +1198,7 @@ const Step4 = ({
                                 <SearchableDropdown
                                   value={material.rfidSizeUnit || 'MM'}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'rfidSizeUnit', selectedValue)}
-                                  options={RFID_SIZE_UNITS}
+                                  options={['CM', 'KGS']}
                                   placeholder="Select or type Unit"
                                   style={{ width: '120px' }}
                                 />
@@ -1355,11 +1355,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.lawLabelType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'lawLabelType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelTypeText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelTypeText', '');
                               }
                             }}
                             options={LAW_LABEL_TYPES}
@@ -1384,11 +1382,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.lawLabelMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'lawLabelMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelMaterialText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelMaterialText', '');
                               }
                             }}
                             options={LAW_LABEL_MATERIALS}
@@ -1451,8 +1447,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.lawLabelSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'lawLabelSizeUnit', selectedValue)}
-                            options={LAW_LABEL_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'lawLabelSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -1497,11 +1493,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.lawLabelTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirementsText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelTestingRequirementsText', '');
                               }
                             }}
                             options={LAW_LABEL_TESTING_REQUIREMENTS}
@@ -1557,11 +1551,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.lawLabelApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'lawLabelApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'lawLabelApprovalText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'lawLabelApprovalText', '');
                               }
                             }}
                             options={LAW_LABEL_APPROVAL_OPTIONS}
@@ -1605,11 +1597,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.hangTagSealsType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsTypeText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsTypeText', '');
                               }
                             }}
                             options={HANG_TAG_SEALS_TYPES}
@@ -1634,11 +1624,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.hangTagSealsMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterialText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsMaterialText', '');
                               }
                             }}
                             options={HANG_TAG_SEALS_MATERIALS}
@@ -1706,8 +1694,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.hangTagSealsSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSizeUnit', selectedValue)}
-                            options={HANG_TAG_SEALS_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'hangTagSealsSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -1754,11 +1742,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.hangTagSealsTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirementsText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsTestingRequirementsText', '');
                               }
                             }}
                             options={HANG_TAG_SEALS_TESTING_REQUIREMENTS}
@@ -1814,11 +1800,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.hangTagSealsApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'hangTagSealsApprovalText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'hangTagSealsApprovalText', '');
                               }
                             }}
                             options={HANG_TAG_SEALS_APPROVAL_OPTIONS}
@@ -1862,11 +1846,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.heatTransferType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferTypeText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferTypeText', '');
                               }
                             }}
                             options={HEAT_TRANSFER_TYPES}
@@ -1891,11 +1873,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.heatTransferMaterialBase || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBase', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBaseText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferMaterialBaseText', '');
                               }
                             }}
                             options={HEAT_TRANSFER_MATERIAL_BASE_OPTIONS}
@@ -1937,8 +1917,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.heatTransferSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'heatTransferSizeUnit', selectedValue)}
-                            options={HEAT_TRANSFER_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'heatTransferSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -1983,11 +1963,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.heatTransferTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirementsText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferTestingRequirementsText', '');
                               }
                             }}
                             options={HEAT_TRANSFER_TESTING_REQUIREMENTS}
@@ -2043,11 +2021,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.heatTransferApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'heatTransferApprovalText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'heatTransferApprovalText', '');
                               }
                             }}
                             options={HEAT_TRANSFER_APPROVAL_OPTIONS}
@@ -2092,11 +2068,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.upcBarcodeType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'upcBarcodeType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeTypeText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeTypeText', '');
                               }
                             }}
                             options={UPC_BARCODE_TYPES}
@@ -2121,11 +2095,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.upcBarcodeMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
-                              handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterialText', '');
-                              }
+                                handleArtworkMaterialChange(materialIndex, 'upcBarcodeMaterialText', '');
                               }
                             }}
                             options={UPC_BARCODE_MATERIALS}
@@ -2178,8 +2150,8 @@ const Step4 = ({
                             />
                                                       <SearchableDropdown
                             value={material.upcBarcodeSizeUnit || ''}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeUnit', selectedValue)}
-                            options={UPC_BARCODE_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'upcBarcodeSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '100px' }}
@@ -2232,11 +2204,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.upcBarcodeTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'upcBarcodeTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={UPC_BARCODE_TESTING_REQUIREMENTS}
@@ -2292,11 +2262,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.upcBarcodeApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'upcBarcodeApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'upcBarcodeApprovalText', '');
-                              }
                               }
                             }}
                             options={UPC_BARCODE_APPROVAL_OPTIONS}
@@ -2340,11 +2308,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.priceTicketType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketTypeText', '');
-                              }
                               }
                             }}
                             options={PRICE_TICKET_TYPES}
@@ -2369,11 +2335,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.priceTicketMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketMaterialText', '');
-                              }
                               }
                             }}
                             options={PRICE_TICKET_MATERIALS}
@@ -2436,8 +2400,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.priceTicketSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'priceTicketSizeUnit', selectedValue)}
-                            options={PRICE_TICKET_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'priceTicketSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -2464,11 +2428,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.priceTicketTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={PRICE_TICKET_TESTING_REQUIREMENTS}
@@ -2524,11 +2486,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.priceTicketApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'priceTicketApprovalText', '');
-                              }
                               }
                             }}
                             options={PRICE_TICKET_APPROVAL_OPTIONS}
@@ -2573,11 +2533,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.antiCounterfeitType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitTypeText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_TYPES}
@@ -2602,11 +2560,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.antiCounterfeitMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitMaterialText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_MATERIALS}
@@ -2674,8 +2630,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.antiCounterfeitSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSizeUnit', selectedValue)}
-                            options={ANTI_COUNTERFEIT_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'antiCounterfeitSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -2694,11 +2650,9 @@ const Step4 = ({
                                                         <SearchableDropdown
                             value={material.securityFeature || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'securityFeature', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'securityFeatureText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_SECURITY_FEATURES}
@@ -2723,11 +2677,9 @@ const Step4 = ({
                                                         <SearchableDropdown
                             value={material.hologramType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hologramType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'hologramTypeText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_HOLOGRAM_TYPES}
@@ -2752,11 +2704,9 @@ const Step4 = ({
                                                         <SearchableDropdown
                             value={material.numbering || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'numbering', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'numberingText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_NUMBERING_OPTIONS}
@@ -2816,7 +2766,7 @@ const Step4 = ({
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS</label>
                                                         <SearchableDropdown
                             value={material.testingRequirements || ''}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'testingRequirements', selectedValue)}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'testingRequirements', selectedValue)}
                             options={ANTI_COUNTERFEIT_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
@@ -2862,11 +2812,9 @@ const Step4 = ({
                                                         <SearchableDropdown
                             value={material.antiCounterfeitApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApprovalText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_APPROVAL_OPTIONS}
@@ -2913,11 +2861,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.qcInspectionType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionTypeText', '');
-                              }
                               }
                             }}
                             options={QC_INSPECTION_TYPES}
@@ -2942,11 +2888,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.qcInspectionMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionMaterialText', '');
-                              }
                               }
                             }}
                             options={QC_INSPECTION_MATERIALS}
@@ -3009,8 +2953,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.qcInspectionSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSizeUnit', selectedValue)}
-                            options={QC_INSPECTION_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'qcInspectionSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -3024,11 +2968,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.qcInspectionContent || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionContent', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionContentText', '');
-                              }
                               }
                             }}
                             options={QC_INSPECTION_CONTENT}
@@ -3053,11 +2995,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.qcInspectionCodingSystem || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystem', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionCodingSystemText', '');
-                              }
                               }
                             }}
                             options={QC_INSPECTION_CODING_SYSTEM}
@@ -3082,11 +3022,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.qcInspectionGummingQuality || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQuality', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionGummingQualityText', '');
-                              }
                               }
                             }}
                             options={QC_INSPECTION_GUMMING_QUALITY}
@@ -3142,11 +3080,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.qcInspectionTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={QC_INSPECTION_TESTING_REQUIREMENTS}
@@ -3202,11 +3138,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.qcInspectionApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qcInspectionApprovalText', '');
-                              }
                               }
                             }}
                             options={QC_INSPECTION_APPROVAL_OPTIONS}
@@ -3251,11 +3185,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.bellyBandType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandTypeText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_TYPES}
@@ -3280,11 +3212,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.bellyBandMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandMaterialText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_MATERIALS}
@@ -3352,8 +3282,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.bellyBandSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'bellyBandSizeUnit', selectedValue)}
-                            options={BELLY_BAND_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'bellyBandSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -3369,11 +3299,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.bellyBandClosure || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandClosure', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandClosureText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_CLOSURE_OPTIONS}
@@ -3398,11 +3326,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.bellyBandTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_TESTING_REQUIREMENTS}
@@ -3491,11 +3417,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.bellyBandApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandApprovalText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_APPROVAL_OPTIONS}
@@ -3541,11 +3465,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.sizeLabelsType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsTypeText', '');
-                              }
                               }
                             }}
                             options={SIZE_LABELS_TYPES}
@@ -3570,11 +3492,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.sizeLabelsMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsMaterialText', '');
-                              }
                               }
                             }}
                             options={SIZE_LABELS_MATERIALS}
@@ -3637,8 +3557,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.sizeLabelsSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeUnit', selectedValue)}
-                            options={SIZE_LABELS_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -3652,11 +3572,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.sizeLabelsSizeSystem || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystem', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeSystemText', '');
-                              }
                               }
                             }}
                             options={SIZE_LABELS_SIZE_SYSTEM_OPTIONS}
@@ -3681,11 +3599,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.sizeLabelsSizeCode || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCode', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsSizeCodeText', '');
-                              }
                               }
                             }}
                             options={SIZE_LABELS_SIZE_CODE_OPTIONS}
@@ -3710,11 +3626,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.sizeLabelsFoldType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsFoldTypeText', '');
-                              }
                               }
                             }}
                             options={SIZE_LABELS_FOLD_TYPE_OPTIONS}
@@ -3770,11 +3684,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.sizeLabelsTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={SIZE_LABELS_TESTING_REQUIREMENTS}
@@ -3830,11 +3742,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.sizeLabelsApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'sizeLabelsApprovalText', '');
-                              }
                               }
                             }}
                             options={SIZE_LABELS_APPROVAL_OPTIONS}
@@ -3878,11 +3788,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.tagsSpecialLabelsType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTypeText', '');
-                              }
                               }
                             }}
                             options={TAGS_SPECIAL_LABELS_TYPES}
@@ -3907,11 +3815,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.tagsSpecialLabelsMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsMaterialText', '');
-                              }
                               }
                             }}
                             options={TAGS_SPECIAL_LABELS_MATERIALS}
@@ -3964,8 +3870,8 @@ const Step4 = ({
                             />
                                                       <SearchableDropdown
                             value={material.tagsSpecialLabelsSizeUnit || ''}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSizeUnit', selectedValue)}
-                            options={TAGS_SPECIAL_LABELS_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '100px' }}
@@ -3979,11 +3885,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.tagsSpecialLabelsAttachment || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachment', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsAttachmentText', '');
-                              }
                               }
                             }}
                             options={TAGS_SPECIAL_LABELS_ATTACHMENT_OPTIONS}
@@ -4008,11 +3912,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.tagsSpecialLabelsFinishing || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishing', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsFinishingText', '');
-                              }
                               }
                             }}
                             options={TAGS_SPECIAL_LABELS_FINISHING_OPTIONS}
@@ -4107,11 +4009,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.tagsSpecialLabelsTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={TAGS_SPECIAL_LABELS_TESTING_REQUIREMENTS}
@@ -4142,11 +4042,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.tagsSpecialLabelsApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'tagsSpecialLabelsApprovalText', '');
-                              }
                               }
                             }}
                             options={TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS}
@@ -4236,11 +4134,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.flammabilitySafetyType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTypeText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_TYPES}
@@ -4265,11 +4161,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.flammabilitySafetyMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyMaterialText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_MATERIALS}
@@ -4337,8 +4231,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.flammabilitySafetySizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySizeUnit', selectedValue)}
-                            options={FLAMMABILITY_SAFETY_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -4385,11 +4279,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.flammabilitySafetyTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS}
@@ -4445,11 +4337,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.flammabilitySafetyApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyApprovalText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_APPROVAL_OPTIONS}
@@ -4531,11 +4421,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.insertCardsType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsTypeText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_TYPES}
@@ -4560,11 +4448,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.insertCardsMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsMaterialText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_MATERIALS}
@@ -4619,8 +4505,8 @@ const Step4 = ({
                                 />
                                                           <SearchableDropdown
                             value={material.insertCardsSizeUnit || 'MM'}
-                            onChange={(selectedValue) => (e) => handleArtworkMaterialChange(materialIndex, 'insertCardsSizeUnit', selectedValue)}
-                            options={INSERT_CARDS_SIZE_UNITS}
+                            onChange={(selectedValue) => handleArtworkMaterialChange(materialIndex, 'insertCardsSizeUnit', selectedValue)}
+                            options={['CM', 'KGS']}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ width: '120px' }}
@@ -4665,11 +4551,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.insertCardsTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_TESTING_REQUIREMENTS}
@@ -4725,11 +4609,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.insertCardsApproval || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsApproval', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsApprovalText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_APPROVAL_OPTIONS}
@@ -4773,11 +4655,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.ribbonsType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'ribbonsType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'ribbonsTypeText', '');
-                              }
                               }
                             }}
                             options={RIBBONS_TYPES}
@@ -4802,11 +4682,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.ribbonsMaterial || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'ribbonsMaterial', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'ribbonsMaterialText', '');
-                              }
                               }
                             }}
                             options={RIBBONS_MATERIALS}
@@ -4878,11 +4756,9 @@ const Step4 = ({
                                                     <SearchableDropdown
                             value={material.ribbonsTestingRequirements || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirements', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'ribbonsTestingRequirementsText', '');
-                              }
                               }
                             }}
                             options={RIBBONS_TESTING_REQUIREMENTS}
@@ -5124,11 +5000,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.insertCardsFunction || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsFunction', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsFunctionText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_FUNCTION_OPTIONS}
@@ -5155,11 +5029,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.insertCardsContent || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsContent', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsContentText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_CONTENT_OPTIONS}
@@ -5186,11 +5058,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.insertCardsPrinting || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsPrinting', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsPrintingText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_PRINTING_OPTIONS}
@@ -5217,11 +5087,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.insertCardsFinish || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsFinish', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsFinishText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_FINISH_OPTIONS}
@@ -5248,11 +5116,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.insertCardsStiffness || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsStiffness', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsStiffnessText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_STIFFNESS_OPTIONS}
@@ -5279,11 +5145,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.insertCardsAcidFree || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFree', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsAcidFreeText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_ACID_FREE_OPTIONS}
@@ -5310,11 +5174,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.insertCardsBranding || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsBranding', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'insertCardsBrandingText', '');
-                              }
                               }
                             }}
                             options={INSERT_CARDS_BRANDING_OPTIONS}
@@ -5385,11 +5247,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.heatTransferInkType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferInkType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferInkTypeText', '');
-                              }
                               }
                             }}
                             options={HEAT_TRANSFER_INK_TYPE_OPTIONS}
@@ -5416,11 +5276,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.heatTransferFabricCompatibility || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibility', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferFabricCompatibilityText', '');
-                              }
                               }
                             }}
                             options={HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS}
@@ -5447,11 +5305,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.heatTransferApplicationSpec || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpec', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferApplicationSpecText', '');
-                              }
                               }
                             }}
                             options={HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS}
@@ -5478,11 +5334,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.heatTransferPeelType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferPeelType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferPeelTypeText', '');
-                              }
                               }
                             }}
                             options={HEAT_TRANSFER_PEEL_TYPE_OPTIONS}
@@ -5509,11 +5363,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.heatTransferFinishHandFeel || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeel', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferFinishHandFeelText', '');
-                              }
                               }
                             }}
                             options={HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS}
@@ -5540,11 +5392,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.heatTransferStretch || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferStretch', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'heatTransferStretchText', '');
-                              }
                               }
                             }}
                             options={HEAT_TRANSFER_STRETCH_OPTIONS}
@@ -5615,11 +5465,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.hangTagSealsFastening || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsFastening', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsFasteningText', '');
-                              }
                               }
                             }}
                             options={HANG_TAG_SEALS_FASTENING_OPTIONS}
@@ -5646,11 +5494,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.hangTagSealsPreStringing || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringing', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsPreStringingText', '');
-                              }
                               }
                             }}
                             options={HANG_TAG_SEALS_PRE_STRINGING_OPTIONS}
@@ -5677,11 +5523,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.hangTagSealsStringFinish || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinish', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsStringFinishText', '');
-                              }
                               }
                             }}
                             options={HANG_TAG_SEALS_STRING_FINISH_OPTIONS}
@@ -5708,11 +5552,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.hangTagSealsSealShape || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShape', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsSealShapeText', '');
-                              }
                               }
                             }}
                             options={HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS}
@@ -5739,11 +5581,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.hangTagSealsColour || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsColour', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsColourText', '');
-                              }
                               }
                             }}
                             options={HANG_TAG_SEALS_COLOUR_OPTIONS}
@@ -5770,11 +5610,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.hangTagSealsLogoBranding || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBranding', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'hangTagSealsLogoBrandingText', '');
-                              }
                               }
                             }}
                             options={HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS}
@@ -5845,11 +5683,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.verification || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'verification', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'verificationText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_VERIFICATION_OPTIONS}
@@ -5876,11 +5712,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.qrCodeContent || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'qrCodeContent', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'qrCodeContentText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS}
@@ -5907,11 +5741,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.antiCounterfeitApplication || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplication', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitApplicationText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_APPLICATION_OPTIONS}
@@ -5938,11 +5770,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.tamperEvidence || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'tamperEvidence', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'tamperEvidenceText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS}
@@ -5969,11 +5799,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.antiCounterfeitDatabase || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabase', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'antiCounterfeitDatabaseText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_DATABASE_OPTIONS}
@@ -6000,11 +5828,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.gummingQuality || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'gummingQuality', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'gummingQualityText', '');
-                              }
                               }
                             }}
                             options={ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS}
@@ -6075,11 +5901,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.careCompositionPrintType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionPrintType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionPrintTypeText', '');
-                              }
                               }
                             }}
                             options={CARE_COMPOSITION_PRINT_TYPE_OPTIONS}
@@ -6106,11 +5930,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.careCompositionInkType || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionInkType', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionInkTypeText', '');
-                              }
                               }
                             }}
                             options={CARE_COMPOSITION_INK_TYPE_OPTIONS}
@@ -6137,11 +5959,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.careCompositionManufacturerId || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerId', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionManufacturerIdText', '');
-                              }
                               }
                             }}
                             options={CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS}
@@ -6168,11 +5988,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.careCompositionPermanence || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionPermanence', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionPermanenceText', '');
-                              }
                               }
                             }}
                             options={CARE_COMPOSITION_PERMANENCE_OPTIONS}
@@ -6199,11 +6017,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.careCompositionLanguage || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionLanguage', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'careCompositionLanguageText', '');
-                              }
                               }
                             }}
                             options={CARE_COMPOSITION_LANGUAGE_OPTIONS}
@@ -6274,11 +6090,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.flammabilitySafetyRegulation || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulation', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyRegulationText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_REGULATION_OPTIONS}
@@ -6305,11 +6119,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.flammabilitySafetyFontSize || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSize', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyFontSizeText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS}
@@ -6336,11 +6148,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.flammabilitySafetyPermanence || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanence', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyPermanenceText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS}
@@ -6367,11 +6177,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.flammabilitySafetySymbol || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbol', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetySymbolText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_SYMBOL_OPTIONS}
@@ -6398,11 +6206,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.flammabilitySafetyInkDurability || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurability', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyInkDurabilityText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS}
@@ -6429,11 +6235,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.flammabilitySafetyCertificationId || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationId', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'flammabilitySafetyCertificationIdText', '');
-                              }
                               }
                             }}
                             options={FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS}
@@ -6504,11 +6308,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandProductFit || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandProductFit', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandProductFitText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_PRODUCT_FIT_OPTIONS}
@@ -6535,11 +6337,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandPrinting || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandPrinting', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandPrintingText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_PRINTING_OPTIONS}
@@ -6566,11 +6366,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandFoldLines || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLines', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandFoldLinesText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_FOLD_LINES_OPTIONS}
@@ -6597,11 +6395,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandDurability || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandDurability', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandDurabilityText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_DURABILITY_OPTIONS}
@@ -6628,11 +6424,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandContent || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandContent', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandContentText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_CONTENT_OPTIONS}
@@ -6659,11 +6453,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandColours || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandColours', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandColoursText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_COLOURS_OPTIONS}
@@ -6690,11 +6482,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandFinish || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandFinish', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandFinishText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_FINISH_OPTIONS}
@@ -6721,11 +6511,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandDieCut || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandDieCut', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandDieCutText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_DIE_CUT_OPTIONS}
@@ -6752,11 +6540,9 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.bellyBandGummingQuality || ''}
                             onChange={(selectedValue) => {
-                              (e) => {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQuality', selectedValue);
                               if (selectedValue === 'OTHERS (TEXT)') {
                               handleArtworkMaterialChange(materialIndex, 'bellyBandGummingQualityText', '');
-                              }
                               }
                             }}
                             options={BELLY_BAND_GUMMING_QUALITY_OPTIONS}
