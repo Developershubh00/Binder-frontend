@@ -366,6 +366,115 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   });
   const [errors, setErrors] = useState({});
 
+  const STORAGE_KEY = 'factoryCodeFormData';
+
+  const fileToBase64 = (file) => {
+    return new Promise((resolve) => {
+      if (!file || !(file instanceof File)) {
+        resolve(null);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => resolve({ data: reader.result, name: file.name, type: file.type });
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const base64ToFile = (base64Obj) => {
+    if (!base64Obj || !base64Obj.data) return null;
+    try {
+      const arr = base64Obj.data.split(',');
+      const mime = arr[0].match(/:(.*?);/)?.[1] || base64Obj.type;
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) u8arr[n] = bstr.charCodeAt(n);
+      return new File([u8arr], base64Obj.name, { type: mime });
+    } catch {
+      return null;
+    }
+  };
+
+  const saveToLocalStorage = async (data) => {
+    try {
+      const cloned = JSON.parse(JSON.stringify(data, (key, value) => {
+        if (value instanceof File) return null;
+        return value;
+      }));
+
+      for (let i = 0; i < (cloned.skus || []).length; i++) {
+        const sku = data.skus[i];
+        if (sku?.image instanceof File) {
+          cloned.skus[i].imageBase64 = await fileToBase64(sku.image);
+        }
+        for (let j = 0; j < (sku?.subproducts || []).length; j++) {
+          const sub = sku.subproducts[j];
+          if (sub?.image instanceof File) {
+            cloned.skus[i].subproducts[j].imageBase64 = await fileToBase64(sub.image);
+          }
+        }
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cloned));
+    } catch (e) {
+      console.warn('Failed to save to localStorage:', e);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return null;
+
+      const data = JSON.parse(saved);
+
+      (data.skus || []).forEach((sku) => {
+        if (sku.imageBase64) {
+          sku.image = base64ToFile(sku.imageBase64);
+          sku.imagePreview = sku.imageBase64.data;
+        }
+        (sku.subproducts || []).forEach((sub) => {
+          if (sub.imageBase64) {
+            sub.image = base64ToFile(sub.imageBase64);
+            sub.imagePreview = sub.imageBase64.data;
+          }
+        });
+      });
+
+      return data;
+    } catch (e) {
+      console.warn('Failed to load from localStorage:', e);
+      return null;
+    }
+  };
+
+  const clearLocalStorage = () => {
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
+  useEffect(() => {
+    const savedData = loadFromLocalStorage();
+    if (!savedData) return;
+
+    const hasInitialFromIPO = initialFormData?.ipoCode || (initialFormData?.programName && (initialFormData?.buyerCode || initialFormData?.type));
+
+    if (!hasInitialFromIPO) {
+      setFormData(prev => ({ ...prev, ...savedData }));
+      return;
+    }
+
+    const draftMatchesContext =
+      savedData.programName === initialFormData.programName &&
+      (initialFormData.orderType === 'Company'
+        ? savedData.type === initialFormData.type
+        : String(savedData.buyerCode || '') === String(initialFormData.buyerCode || ''));
+
+    if (draftMatchesContext) {
+      setFormData(prev => ({ ...prev, ...savedData }));
+    }
+  }, []);
+
   const totalSteps = 4;
 
   // Step labels for progress bar
@@ -2045,7 +2154,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         return updated;
       });
     }
-    // You can add actual save logic here (API call, etc.)
+    saveToLocalStorage(formData);
   };
 
   const handleSaveStep3 = () => {
@@ -2057,6 +2166,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     setStep3Saved(true);
     setStep3SaveStatus('success');
     setShowSaveMessage(false);
+    saveToLocalStorage(formData);
   };
 
   const handleSaveStep4 = () => {
@@ -2068,6 +2178,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     setStep4Saved(true);
     setStep4SaveStatus('success');
     setShowSaveMessage(false);
+    saveToLocalStorage(formData);
   };
 
   // Generate IPC code for SKUs and subproducts
@@ -2153,6 +2264,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         setStep0Saved(true); // Mark Step-0 as saved
         setShowSaveMessage(false); // Hide save message after saving
         console.log('Generated IPC codes:', ipcCodes);
+        saveToLocalStorage({ ...formData, skus: updatedSkus });
       } catch (error) {
         console.error('Error saving IPC codes:', error);
         alert('IPC codes generated but failed to save');
@@ -2168,6 +2280,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     if (!validateStep1()) return;
     setStep1Saved(true);
     setShowSaveMessage(false);
+    saveToLocalStorage(formData);
   };
 
   const validateStep3 = () => {
@@ -4350,6 +4463,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                         return;
                       }
                       // Handle final submission
+                      clearLocalStorage();
                       alert('Factory code generation will be implemented here');
                     }}
                   >
