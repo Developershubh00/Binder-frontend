@@ -220,10 +220,8 @@ const Step5 = ({
                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                     style={{ padding: '10px 14px', width: '100px', height: '44px' }}
                   >
-                    <option value="Pc">Pc</option>
-                    <option value="Set">Set</option>
-                    <option value="Roll">Roll</option>
-                    <option value="Kgs">Kgs</option>
+                    <option value="CM">CM</option>
+                    <option value="KGS">KGS</option>
                 </select>
               </div>
 
@@ -419,14 +417,13 @@ const Step5 = ({
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
                           <select
-                            value={material.cartonBoxDimensionsUnit || 'CMS'}
+                            value={material.cartonBoxDimensionsUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxDimensionsUnit', e.target.value)}
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px', width: '120px' }}
                           >
-                            <option value="CMS">CMS</option>
-                            <option value="INCHES">INCHES</option>
-                            <option value="MM">MM</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -618,14 +615,13 @@ const Step5 = ({
                             placeholder="25"
                           />
                           <select
-                            value={material.cornerProtectorLegLengthUnit || 'MM'}
+                            value={material.cornerProtectorLegLengthUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorLegLengthUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="MM">MM</option>
-                            <option value="CMS">CMS</option>
-                            <option value="INCHES">INCHES</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -641,14 +637,13 @@ const Step5 = ({
                             placeholder="3"
                           />
                           <select
-                            value={material.cornerProtectorThicknessUnit || 'MM'}
+                            value={material.cornerProtectorThicknessUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorThicknessUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="MM">MM</option>
-                            <option value="CMS">CMS</option>
-                            <option value="INCHES">INCHES</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -664,14 +659,13 @@ const Step5 = ({
                             placeholder="50"
                           />
                           <select
-                            value={material.cornerProtectorHeightLengthUnit || 'MM'}
+                            value={material.cornerProtectorHeightLengthUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cornerProtectorHeightLengthUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="MM">MM</option>
-                            <option value="CMS">CMS</option>
-                            <option value="INCHES">INCHES</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -848,8 +842,7 @@ const Step5 = ({
                               style={{ padding: '10px 14px', height: '44px', width: '120px' }}
                             >
                               <option value="CM">CM</option>
-                              <option value="MM">MM</option>
-                              <option value="INCHES">INCHES</option>
+                              <option value="KGS">KGS</option>
                             </select>
                           </div>
                         </div>
@@ -1012,14 +1005,13 @@ const Step5 = ({
                             placeholder="36"
                           />
                           <select
-                            value={material.polybagBaleRollWidthUnit || 'INCHES'}
+                            value={material.polybagBaleRollWidthUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'polybagBaleRollWidthUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="INCHES">INCHES</option>
-                            <option value="CMS">CMS</option>
-                            <option value="MM">MM</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -1196,13 +1188,13 @@ const Step5 = ({
                             placeholder="100"
                           />
                           <select
-                            value={material.polybagBaleQuantityUnit || 'Rolls'}
+                            value={material.polybagBaleQuantityUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'polybagBaleQuantityUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="Rolls">Rolls</option>
-                            <option value="Kg">Kg</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -1458,13 +1450,13 @@ const Step5 = ({
                             placeholder="100"
                           />
                           <select
-                            value={material.polybagPolybagFlapQuantityUnit || 'pcs'}
+                            value={material.polybagPolybagFlapQuantityUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'polybagPolybagFlapQuantityUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="pcs">pcs</option>
-                            <option value="kg">kg</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -1757,22 +1749,13 @@ const Step5 = ({
                             placeholder="100"
                           />
                           <select
-                            value={material.voidFillQuantityUnit || (material.voidFillType === 'Air Pillows' ? 'PCS' : 'KGS')}
+                            value={material.voidFillQuantityUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'voidFillQuantityUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            {material.voidFillType === 'Air Pillows' ? (
-                              <>
-                                <option value="PCS">PCS</option>
-                                <option value="KGS">KGS</option>
-                              </>
-                            ) : (
-                              <>
-                                <option value="KGS">KGS</option>
-                                <option value="PCS">PCS</option>
-                              </>
-                            )}
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -1838,14 +1821,13 @@ const Step5 = ({
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">UNIT</label>
                             <select
-                              value={material.dividerCellSizeUnit || 'CMS'}
+                              value={material.dividerCellSizeUnit || 'CM'}
                               onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerCellSizeUnit', e.target.value)}
                               className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                               style={{ padding: '10px 14px', height: '44px', width: '120px' }}
                             >
-                              <option value="CMS">CMS</option>
-                              <option value="MM">MM</option>
-                              <option value="INCHES">INCHES</option>
+                              <option value="CM">CM</option>
+                              <option value="KGS">KGS</option>
                             </select>
                           </div>
                         </div>
@@ -1863,14 +1845,13 @@ const Step5 = ({
                             placeholder="50"
                           />
                           <select
-                            value={material.dividerHeightUnit || 'MM'}
+                            value={material.dividerHeightUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'dividerHeightUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="MM">MM</option>
-                            <option value="CMS">CMS</option>
-                            <option value="INCHES">INCHES</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -1964,13 +1945,13 @@ const Step5 = ({
                             placeholder="2"
                           />
                           <select
-                            value={material.tapeWidthUnit || 'INCHES'}
+                            value={material.tapeWidthUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'tapeWidthUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="INCHES">inch</option>
-                            <option value="MM">mm</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -1986,13 +1967,13 @@ const Step5 = ({
                             placeholder="100"
                           />
                           <select
-                            value={material.tapeLengthUnit || 'm'}
+                            value={material.tapeLengthUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'tapeLengthUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="m">m</option>
-                            <option value="yards">yards</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
@@ -2178,13 +2159,13 @@ const Step5 = ({
                             placeholder="100"
                           />
                           <select
-                            value={material.tapeQuantityUnit || 'Rolls'}
+                            value={material.tapeQuantityUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'tapeQuantityUnit', e.target.value)}
                             className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
                             style={{ padding: '0 10px', height: '100%' }}
                           >
-                            <option value="Rolls">Rolls</option>
-                            <option value="Cases">Cases</option>
+                            <option value="CM">CM</option>
+                            <option value="KGS">KGS</option>
                           </select>
                         </div>
                       </div>
