@@ -1298,8 +1298,8 @@ const Step2 = ({
                               />
                             </Field>
                             
-                            {/* Certifications (Text Input) */}
-                            <Field label="CERTIFICATIONS" width="lg" className="col-span-1 md:col-span-2 lg:col-span-2">
+                            {/* Certification Requirement */}
+                            <Field label="CERTIFICATION REQUIREMENT" width="lg" className="col-span-1 md:col-span-2 lg:col-span-2">
                               <Input
                                 type="text"
                                 value={material.certifications || ''}
@@ -1510,8 +1510,8 @@ const Step2 = ({
                         />
                       </Field>
                       
-                      {/* Certifications (Text Input) - spans 2 columns on large screens */}
-                      <Field label="CERTIFICATIONS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-2">
+                      {/* Certification Requirement */}
+                      <Field label="CERTIFICATION REQUIREMENT" width="lg" className="col-span-1 md:col-span-2 lg:col-span-2">
                         <Input
                           type="text"
                           value={material.fabricCertifications || ''}
