@@ -102,7 +102,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">GSM</label>
@@ -186,7 +186,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
                         </Field>
-                        <Field label="SIZE" width="sm">
+                        <Field label="SIZE SPEC" width="sm">
                           <Input
                             type="text"
                             value={material.buttonSize || ''}
@@ -729,7 +729,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">GSM</label>
@@ -2309,7 +2309,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                       </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">GSM</label>
@@ -2743,7 +2743,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                       </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">GSM</label>
@@ -3132,7 +3132,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
 
                       {/* SIZE */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <SearchableDropdown
                           value={material.hookEyeSize || ''}
                           onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeSize', selectedValue)}
@@ -3674,7 +3674,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
 
                       {/* SIZE */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.shoulderPadSize || ''}
@@ -4283,7 +4283,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">GSM</label>
@@ -4552,7 +4552,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
                         </Field>
-                        <Field label="SIZE" width="sm">
+                        <Field label="SIZE SPEC" width="sm">
                           <SearchableDropdown
                             value={material.cableTieSize || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cableTieSize', selectedValue)}
@@ -5317,7 +5317,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         </div>
                       </div>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">GSM</label>
@@ -5933,7 +5933,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <SearchableDropdown
                           value={material.cordStopSize || ''}
                           onChange={(selectedValue) => handleChange(materialIndex, 'cordStopSize', selectedValue)}
@@ -6315,7 +6315,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.ringsLoopsSize || ''}
@@ -6691,7 +6691,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.pinBarbSize || ''}
@@ -7068,7 +7068,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange }) => {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.magneticClosureSize || ''}

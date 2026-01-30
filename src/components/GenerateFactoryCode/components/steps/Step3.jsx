@@ -583,7 +583,7 @@ const Step3 = ({
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
                         </Field>
-                        <Field label="SIZE" width="sm">
+                        <Field label="SIZE SPEC" width="sm">
                           <Input
                             type="text"
                             value={material.buttonSize || ''}
@@ -2222,7 +2222,7 @@ const Step3 = ({
 
                       {/* SIZE */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <SearchableDropdown
                           value={material.hookEyeSize || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeSize', selectedValue)}
@@ -2623,7 +2623,7 @@ const Step3 = ({
 
                       {/* SIZE */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.shoulderPadSize || ''}
@@ -3034,7 +3034,7 @@ const Step3 = ({
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
                         </Field>
-                        <Field label="SIZE" width="sm">
+                        <Field label="SIZE SPEC" width="sm">
                           <SearchableDropdown
                             value={material.cableTieSize || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieSize', selectedValue)}
@@ -3901,7 +3901,7 @@ const Step3 = ({
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <SearchableDropdown
                           value={material.cordStopSize || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopSize', selectedValue)}
@@ -4145,7 +4145,7 @@ const Step3 = ({
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.ringsLoopsSize || ''}
@@ -4385,7 +4385,7 @@ const Step3 = ({
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.pinBarbSize || ''}
@@ -4624,7 +4624,7 @@ const Step3 = ({
                         />
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
                         <input
                           type="text"
                           value={material.magneticClosureSize || ''}
