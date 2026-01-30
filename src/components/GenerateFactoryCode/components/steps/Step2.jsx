@@ -1218,6 +1218,15 @@ const Step2 = ({
                           />
                         </Field>
                         
+                        <Field label="TESTING REQUIREMENTS" width="lg">
+                          <Input
+                            type="text"
+                            value={material.testingRequirements || ''}
+                            onChange={(e) => handleRawMaterialChange(actualIndex, 'testingRequirements', e.target.value)}
+                            placeholder="Enter testing requirements"
+                          />
+                        </Field>
+                        
                         <Field label="APPROVAL" width="sm">
                           <SearchableDropdown
                             value={material.approval || ''}
@@ -1266,16 +1275,6 @@ const Step2 = ({
                                   : []}
                                 placeholder={material.fiberType && material.yarnType ? "Select or type Spinning Type" : "Select Yarn Type First"}
                                 disabled={!material.fiberType || !material.yarnType}
-                              />
-                            </Field>
-                            
-                            {/* Testing Requirements */}
-                            <Field label="TESTING REQ." width="sm">
-                              <Input
-                                type="text"
-                                value={material.testingRequirements || ''}
-                                onChange={(e) => handleRawMaterialChange(actualIndex, 'testingRequirements', e.target.value)}
-                                placeholder="Enter testing requirements"
                               />
                             </Field>
                             
@@ -1405,6 +1404,16 @@ const Step2 = ({
                     />
                   </Field>
                   
+                  {/* Testing Requirements */}
+                  <Field label="TESTING REQUIREMENTS" width="lg">
+                    <Input
+                      type="text"
+                      value={material.fabricTestingRequirements || ''}
+                      onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricTestingRequirements', e.target.value)}
+                      placeholder="Enter testing requirements"
+                    />
+                  </Field>
+                  
                   {/* Approval */}
                   <Field label="APPROVAL" width="sm">
                     <SearchableDropdown
@@ -1478,16 +1487,6 @@ const Step2 = ({
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricMachineType', value)}
                           options={['Powerloom', 'Handloom', 'Circular Knitting', 'Flatbed Knitting', 'Warp Knitting', 'Others']}
                           placeholder="Select or type Machine Type"
-                        />
-                      </Field>
-                      
-                      {/* Testing Requirements */}
-                      <Field label="TESTING REQ." width="sm">
-                        <Input
-                          type="text"
-                          value={material.fabricTestingRequirements || ''}
-                          onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricTestingRequirements', e.target.value)}
-                          placeholder="Enter testing requirements"
                         />
                       </Field>
                       
