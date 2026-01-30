@@ -4385,22 +4385,25 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
                 <FormCard className="rounded-xl border-border bg-card" style={{ padding: '20px 18px' }}>
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    {generatedIPCCodes.map((sku, idx) => (
-                      <div key={idx} style={{ marginBottom: idx === generatedIPCCodes.length - 1 ? 0 : '12px' }}>
-                        <div className="text-sm font-semibold text-foreground">
-                          SKU {idx + 1}: <span className="text-primary font-semibold">{sku.ipcCode}</span>
-                        </div>
-                        {sku.subproducts && sku.subproducts.length > 0 && (
-                          <div className="text-sm text-muted-foreground" style={{ marginLeft: '16px', marginTop: '6px' }}>
-                            {sku.subproducts.map((sp, spIdx) => (
-                              <div key={spIdx} style={{ marginTop: spIdx === 0 ? 0 : '4px' }}>
-                                Subproduct {spIdx + 1}: <span className="text-foreground">{sp.ipcCode}</span>
-                              </div>
-                            ))}
+                    {generatedIPCCodes.map((sku, idx) => {
+                      const baseIpc = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode;
+                      return (
+                        <div key={idx} style={{ marginBottom: idx === generatedIPCCodes.length - 1 ? 0 : '12px' }}>
+                          <div className="text-sm font-semibold text-foreground">
+                            SKU {idx + 1}: <span className="text-primary font-semibold">{baseIpc}</span>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                          {sku.subproducts && sku.subproducts.length > 0 && (
+                            <div className="text-sm text-muted-foreground" style={{ marginLeft: '16px', marginTop: '6px' }}>
+                              {sku.subproducts.map((sp, spIdx) => (
+                                <div key={spIdx} style={{ marginTop: spIdx === 0 ? 0 : '4px' }}>
+                                  Subproduct {spIdx + 1}: <span className="text-foreground">{baseIpc}/SP{spIdx + 1}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </FormCard>
               </div>
