@@ -88,59 +88,75 @@ const Step5 = ({
         <div className="flex flex-wrap items-start gap-4">
           {/* PRODUCT */}
           <div className="flex flex-col" style={{ width: '250px' }}>
-            <label className="text-sm font-semibold text-gray-700 mb-2">PRODUCT</label>
+            <label className={`text-sm font-semibold mb-2 ${errors?.packaging_productSelection ? 'text-red-600' : 'text-gray-700'}`}>PRODUCT <span className="text-red-500">*</span></label>
             <SearchableDropdown
               value={formData.packaging.productSelection || ''}
               onChange={(selectedValue) => handlePackagingChange('productSelection', selectedValue || '')}
               options={getAllProductOptions()}
               placeholder="Select or type product"
               strictMode={false}
-              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.packaging_productSelection ? 'border-red-600' : 'border-[#e5e7eb]'}`}
               style={{ padding: '10px 14px', height: '44px' }}
             />
+            {errors?.packaging_productSelection && <span className="text-red-600 text-xs mt-1">{errors.packaging_productSelection}</span>}
           </div>
 
           {/* TYPE */}
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+            <label className={`text-sm font-semibold mb-2 ${errors?.packaging_type ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
             <select
               value={formData.packaging.type}
               onChange={(e) => handlePackagingChange('type', e.target.value)}
-              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.packaging_type ? 'border-red-600' : 'border-[#e5e7eb]'}`}
               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
             >
               <option value="STANDARD">STANDARD</option>
               <option value="ASSORTED">ASSORTED (LINK IPC#)</option>
             </select>
+            {errors?.packaging_type && <span className="text-red-600 text-xs mt-1">{errors.packaging_type}</span>}
           </div>
 
           {/* CASEPACK QTY */}
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700 mb-2">CASEPACK QTY</label>
+            <label className="text-sm font-semibold text-gray-700 mb-2">
+              CASEPACK QTY <span className="text-red-600">*</span>
+            </label>
             <input
               type="number"
               value={formData.packaging.casepackQty}
               onChange={(e) => handlePackagingChange('casepackQty', e.target.value)}
-              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${
+                errors?.packaging_casepackQty ? 'border-red-600' : 'border-[#e5e7eb]'
+              }`}
+              style={{ padding: '10px 14px', width: '120px', height: '44px' }}
               placeholder="10"
-              />
-            </div>
+            />
+            {errors?.packaging_casepackQty && (
+              <span className="text-red-600 text-xs mt-1">{errors.packaging_casepackQty}</span>
+            )}
+          </div>
 
           {/* IPC Link for Assorted */}
-        {formData.packaging.type === 'ASSORTED' && (
-              <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">LINK IPC#</label>
-                <input
-                  type="text"
-                  value={formData.packaging.assortedSkuLink}
-                  onChange={(e) => handlePackagingChange('assortedSkuLink', e.target.value)}
-                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+          {formData.packaging.type === 'ASSORTED' && (
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                LINK IPC# <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.packaging.assortedSkuLink}
+                onChange={(e) => handlePackagingChange('assortedSkuLink', e.target.value)}
+                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${
+                  errors?.packaging_assortedSkuLink ? 'border-red-600' : 'border-[#e5e7eb]'
+                }`}
                 style={{ padding: '10px 14px', width: '150px', height: '44px' }}
                 placeholder="IPC-123"
               />
-          </div>
-        )}
+              {errors?.packaging_assortedSkuLink && (
+                <span className="text-red-600 text-xs mt-1">{errors.packaging_assortedSkuLink}</span>
+              )}
+            </div>
+          )}
       </div>
         </div>
 
@@ -173,7 +189,7 @@ const Step5 = ({
             <div style={{ marginBottom: '24px' }}>
               <div className="flex flex-wrap items-start gap-4">
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">COMPONENTS</label>
+                <label className={`text-sm font-semibold mb-2 ${errors?.[`packaging_material_${materialIndex}_components`] ? 'text-red-600' : 'text-gray-700'}`}>COMPONENTS *</label>
                 <SearchableDropdown
                   value={material.components || ''}
                   onChange={(selectedValue) =>
@@ -182,70 +198,76 @@ const Step5 = ({
                   options={getComponentOptionsForSelectedProduct()}
                   placeholder="Select or type component"
                   strictMode={false}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_components`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                   style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                 />
+                {errors?.[`packaging_material_${materialIndex}_components`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_components`]}</span>}
               </div>
 
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL DESCRIPTION</label>
+                <label className={`text-sm font-semibold mb-2 ${errors?.[`packaging_material_${materialIndex}_materialDescription`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL DESCRIPTION *</label>
                 <input
                   type="text"
                   value={material.materialDescription || ''}
                   onChange={(e) => handlePackagingMaterialChange(materialIndex, 'materialDescription', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_materialDescription`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                   style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                   placeholder="e.g., Corrugated Box"
                 />
+                {errors?.[`packaging_material_${materialIndex}_materialDescription`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_materialDescription`]}</span>}
               </div>
 
               <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">CONS. PER PC</label>
+                  <label className={`text-sm font-semibold mb-2 ${errors?.[`packaging_material_${materialIndex}_netConsumptionPerPc`] ? 'text-red-600' : 'text-gray-700'}`}>CONS. PER PC *</label>
                 <input
                   type="number"
                     step="0.01"
                   value={material.netConsumptionPerPc}
                   onChange={(e) => handlePackagingMaterialChange(materialIndex, 'netConsumptionPerPc', e.target.value)}
-                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_netConsumptionPerPc`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                     style={{ padding: '10px 14px', width: '110px', height: '44px' }}
                     placeholder="0.5"
                   />
+                {errors?.[`packaging_material_${materialIndex}_netConsumptionPerPc`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_netConsumptionPerPc`]}</span>}
             </div>
 
               <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                  <label className={`text-sm font-semibold mb-2 ${errors?.[`packaging_material_${materialIndex}_unit`] ? 'text-red-600' : 'text-gray-700'}`}>UNIT *</label>
                 <select
                   value={material.unit}
                   onChange={(e) => handlePackagingMaterialChange(materialIndex, 'unit', e.target.value)}
-                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_unit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                     style={{ padding: '10px 14px', width: '100px', height: '44px' }}
                   >
                     <option value="CM">CM</option>
                     <option value="KGS">KGS</option>
                 </select>
+                {errors?.[`packaging_material_${materialIndex}_unit`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_unit`]}</span>}
               </div>
 
               <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">WORK ORDER</label>
+                  <label className={`text-sm font-semibold mb-2 ${errors?.[`packaging_material_${materialIndex}_workOrder`] ? 'text-red-600' : 'text-gray-700'}`}>WORK ORDER *</label>
                 <input
                     type="text"
                     value={material.workOrders[0].workOrder}
                     onChange={(e) => handlePackagingWorkOrderChange(materialIndex, 0, 'workOrder', e.target.value)}
-                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_workOrder`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                     style={{ padding: '10px 14px', width: '150px', height: '44px' }}
                   />
+                {errors?.[`packaging_material_${materialIndex}_workOrder`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_workOrder`]}</span>}
               </div>
 
                 <div className="flex flex-col" style={{ flexGrow: 1, minWidth: '250px' }}>
-                <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
+                <label className={`text-sm font-semibold mb-2 ${errors?.[`packaging_material_${materialIndex}_placement`] ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
                 <input
                   type="text"
                   value={material.placement}
                   onChange={(e) => handlePackagingMaterialChange(materialIndex, 'placement', e.target.value)}
-                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_placement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                     style={{ padding: '10px 14px', height: '44px' }}
                     placeholder="1 ON THE CENTER OF THE LARGER SIDE..."
                 />
+                {errors?.[`packaging_material_${materialIndex}_placement`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_placement`]}</span>}
               </div>
             </div>
 
@@ -305,14 +327,20 @@ const Step5 = ({
             {/* CATEGORY SELECTOR & CONDITIONAL FIELDS */}
             <div className="w-full mt-6 pt-6 border-t border-gray-100">
               <div className="flex flex-col" style={{ width: '280px', marginBottom: '24px' }}>
-                <label className="text-sm font-bold text-gray-800 mb-2">PACKAGING MATERIAL TYPE</label>
+                <label className="text-sm font-bold text-gray-800 mb-2">
+                  PACKAGING MATERIAL TYPE <span className="text-red-600">*</span>
+                </label>
                 <SearchableDropdown
                   value={material.packagingMaterialType || ''}
                   onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', selectedValue)}
                   options={['CARTON BOX', 'CORNER PROTECTORS', 'EDGE PROTECTORS', 'FOAM INSERT', 'PALLET STRAP', 'DIVIDER', 'TAPE', 'POLYBAG~POLYBAG-FLAP', 'POLYBAG~Bale', 'SILICA GEL DESICCANT', 'STRETCH~WRAP', 'VOID~FILL']}
                   placeholder="Select or type Material Type"
                   style={{ width: '280px' }}
+                  className={errors?.[`packaging_material_${materialIndex}_packagingMaterialType`] ? 'border-red-600' : ''}
                 />
+                {errors?.[`packaging_material_${materialIndex}_packagingMaterialType`] && (
+                  <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_packagingMaterialType`]}</span>
+                )}
               </div>
 
               {material.packagingMaterialType && (
@@ -322,117 +350,132 @@ const Step5 = ({
                   {material.packagingMaterialType === 'CARTON BOX' && (
                     <>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TYPE <span className="text-red-500">*</span></label>
                         <SearchableDropdown
                           value={material.cartonBoxType || ''}
                           onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxType', selectedValue)}
                           options={['RSC (Regular Slotted Container)', 'HSC (Half Slotted)', 'FOL (Full Overlap)', 'Die-Cut', 'Telescope', 'Master Carton', 'Inner Carton']}
                           placeholder="Select or type Type"
+                          className={errors?.[`packaging_material_${materialIndex}_cartonBoxType`] ? 'border-red-600' : ''}
                         />
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxType`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxType`]}</span>}
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS <span className="text-red-500">*</span></label>
                         <SearchableDropdown
                           value={material.cartonBoxNoOfPlys || ''}
                           onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxNoOfPlys', selectedValue)}
                           options={['3 Ply', '5 Ply', '7 Ply', '9 Ply']}
                           placeholder="Select or type # of Plys"
+                          className={errors?.[`packaging_material_${materialIndex}_cartonBoxNoOfPlys`] ? 'border-red-600' : ''}
                         />
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxNoOfPlys`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxNoOfPlys`]}</span>}
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">BOARD GRADE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BOARD GRADE <span className="text-red-500">*</span></label>
                         <SearchableDropdown
                           value={material.cartonBoxBoardGrade || ''}
                           onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxBoardGrade', selectedValue)}
                           options={['Kraft (Brown)', 'White Top', 'Duplex', 'Test Liner', 'Virgin Kraft']}
                           placeholder="Select or type Board Grade"
+                          className={errors?.[`packaging_material_${materialIndex}_cartonBoxBoardGrade`] ? 'border-red-600' : ''}
                         />
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxBoardGrade`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxBoardGrade`]}</span>}
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE <span className="text-red-500">*</span></label>
                         <SearchableDropdown
                           value={material.cartonBoxJointType || ''}
                           onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxJointType', selectedValue)}
                           options={['Staple/Stitched', 'Glued/Binded', 'Taped']}
                           placeholder="Select or type Joint Type"
+                          className={errors?.[`packaging_material_${materialIndex}_cartonBoxJointType`] ? 'border-red-600' : ''}
                         />
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxJointType`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxJointType`]}</span>}
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">BURSTING STRENGTH</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">BURSTING STRENGTH <span className="text-red-500">*</span></label>
                         <input
                           type="text"
                           value={material.cartonBoxBurstingStrength || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxBurstingStrength', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_cartonBoxBurstingStrength`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., 175 lbs, 200 lbs, 275 lbs"
                         />
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxBurstingStrength`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxBurstingStrength`]}</span>}
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER REQUIRED</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER REQUIRED <span className="text-red-500">*</span></label>
                         <SearchableDropdown
                           value={material.cartonBoxStiffenerRequired || ''}
                           onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'cartonBoxStiffenerRequired', selectedValue)}
                           options={['YES', 'NO']}
                           placeholder="Select YES or NO"
+                          className={errors?.[`packaging_material_${materialIndex}_cartonBoxStiffenerRequired`] ? 'border-red-600' : ''}
                         />
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxStiffenerRequired`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxStiffenerRequired`]}</span>}
                       </div>
                       {material.cartonBoxStiffenerRequired === 'YES' && (
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER DIMENSIONS (L x W x H)</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER DIMENSIONS (L x W x H) <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             value={material.cartonBoxStiffenerDimensions || ''}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxStiffenerDimensions', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_cartonBoxStiffenerDimensions`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="L x W x H (CM)"
                           />
+                          {errors?.[`packaging_material_${materialIndex}_cartonBoxStiffenerDimensions`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxStiffenerDimensions`]}</span>}
                         </div>
                       )}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY <span className="text-red-500">*</span></label>
                         <input
                           type="text"
                           value={material.cartonBoxQuantity || ''}
                           onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxQuantity', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_cartonBoxQuantity`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="Pieces"
                         />
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxQuantity`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxQuantity`]}</span>}
                       </div>
                       {/* DIMENSIONS for CARTON BOX */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS (L x W x H)</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS (L x W x H) <span className="text-red-500">*</span></label>
                           <input
                             type="text"
                             value={material.cartonBoxDimensions || ''}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxDimensions', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_cartonBoxDimensions`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="L x W x H"
                           />
+                          {errors?.[`packaging_material_${materialIndex}_cartonBoxDimensions`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxDimensions`]}</span>}
                         </div>
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">UNIT <span className="text-red-500">*</span></label>
                           <select
                             value={material.cartonBoxDimensionsUnit || 'CM'}
                             onChange={(e) => handlePackagingMaterialChange(materialIndex, 'cartonBoxDimensionsUnit', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`packaging_material_${materialIndex}_cartonBoxDimensionsUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                             style={{ padding: '10px 14px', height: '44px', width: '120px' }}
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
                           </select>
+                          {errors?.[`packaging_material_${materialIndex}_cartonBoxDimensionsUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxDimensionsUnit`]}</span>}
                         </div>
                       </div>
                       {/* TESTING REQUIREMENTS - Multi-select with chips (SAME AS FIBER/FOAM) */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS <span className="text-red-500">*</span></label>
                         <div style={{ position: 'relative' }}>
                           <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus-within:outline-none ${errors?.[`packaging_material_${materialIndex}_cartonBoxTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb] focus-within:border-indigo-500'}`}
                             style={{ 
                               padding: '8px 12px',
                               minHeight: '44px',
@@ -578,6 +621,7 @@ const Step5 = ({
                             </div>
                           </div>
                         </div>
+                        {errors?.[`packaging_material_${materialIndex}_cartonBoxTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_material_${materialIndex}_cartonBoxTestingRequirements`]}</span>}
                       </div>
                     </>
                   )}
@@ -2206,7 +2250,7 @@ const Step5 = ({
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS % <span className="text-red-500">*</span></label>
                           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                             <input
                               type="text"
@@ -2252,15 +2296,33 @@ const Step5 = ({
                                   handlePackagingMaterialChange(materialIndex, 'dividerSurplus', numericValue);
                                 }
                               }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${(
+                                (material.packagingMaterialType === 'CARTON BOX' && errors?.[`packaging_material_${materialIndex}_cartonBoxSurplus`]) ||
+                                (material.packagingMaterialType === 'CORNER PROTECTORS' && errors?.[`packaging_material_${materialIndex}_cornerProtectorSurplus`]) ||
+                                (material.packagingMaterialType === 'EDGE PROTECTORS' && errors?.[`packaging_material_${materialIndex}_edgeProtectorSurplus`]) ||
+                                (material.packagingMaterialType === 'FOAM INSERT' && errors?.[`packaging_material_${materialIndex}_foamInsertSurplus`]) ||
+                                (material.packagingMaterialType === 'PALLET STRAP' && errors?.[`packaging_material_${materialIndex}_palletStrapSurplus`]) ||
+                                (material.packagingMaterialType === 'POLYBAG~Bale' && errors?.[`packaging_material_${materialIndex}_polybagBaleSurplus`]) ||
+                                (material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' && errors?.[`packaging_material_${materialIndex}_polybagPolybagFlapSurplus`]) ||
+                                (material.packagingMaterialType === 'SILICA GEL DESICCANT' && errors?.[`packaging_material_${materialIndex}_silicaGelDesiccantSurplus`]) ||
+                                (material.packagingMaterialType === 'STRETCH~WRAP' && errors?.[`packaging_material_${materialIndex}_stretchWrapSurplus`]) ||
+                                (material.packagingMaterialType === 'TAPE' && errors?.[`packaging_material_${materialIndex}_tapeSurplus`]) ||
+                                (material.packagingMaterialType === 'VOID~FILL' && errors?.[`packaging_material_${materialIndex}_voidFillSurplus`]) ||
+                                (material.packagingMaterialType === 'DIVIDER' && errors?.[`packaging_material_${materialIndex}_dividerSurplus`])
+                              ) ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                               style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
                               placeholder=""
                             />
                             <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
                           </div>
+                          {(material.packagingMaterialType === 'CARTON BOX' && errors?.[`packaging_material_${materialIndex}_cartonBoxSurplus`]) || (material.packagingMaterialType === 'CORNER PROTECTORS' && errors?.[`packaging_material_${materialIndex}_cornerProtectorSurplus`]) || (material.packagingMaterialType === 'EDGE PROTECTORS' && errors?.[`packaging_material_${materialIndex}_edgeProtectorSurplus`]) || (material.packagingMaterialType === 'FOAM INSERT' && errors?.[`packaging_material_${materialIndex}_foamInsertSurplus`]) || (material.packagingMaterialType === 'PALLET STRAP' && errors?.[`packaging_material_${materialIndex}_palletStrapSurplus`]) || (material.packagingMaterialType === 'POLYBAG~Bale' && errors?.[`packaging_material_${materialIndex}_polybagBaleSurplus`]) || (material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' && errors?.[`packaging_material_${materialIndex}_polybagPolybagFlapSurplus`]) || (material.packagingMaterialType === 'SILICA GEL DESICCANT' && errors?.[`packaging_material_${materialIndex}_silicaGelDesiccantSurplus`]) || (material.packagingMaterialType === 'STRETCH~WRAP' && errors?.[`packaging_material_${materialIndex}_stretchWrapSurplus`]) || (material.packagingMaterialType === 'TAPE' && errors?.[`packaging_material_${materialIndex}_tapeSurplus`]) || (material.packagingMaterialType === 'VOID~FILL' && errors?.[`packaging_material_${materialIndex}_voidFillSurplus`]) || (material.packagingMaterialType === 'DIVIDER' && errors?.[`packaging_material_${materialIndex}_dividerSurplus`]) ? (
+                            <span className="text-red-600 text-xs mt-1">
+                              {(material.packagingMaterialType === 'CARTON BOX' && errors[`packaging_material_${materialIndex}_cartonBoxSurplus`]) || (material.packagingMaterialType === 'CORNER PROTECTORS' && errors[`packaging_material_${materialIndex}_cornerProtectorSurplus`]) || (material.packagingMaterialType === 'EDGE PROTECTORS' && errors[`packaging_material_${materialIndex}_edgeProtectorSurplus`]) || (material.packagingMaterialType === 'FOAM INSERT' && errors[`packaging_material_${materialIndex}_foamInsertSurplus`]) || (material.packagingMaterialType === 'PALLET STRAP' && errors[`packaging_material_${materialIndex}_palletStrapSurplus`]) || (material.packagingMaterialType === 'POLYBAG~Bale' && errors[`packaging_material_${materialIndex}_polybagBaleSurplus`]) || (material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' && errors[`packaging_material_${materialIndex}_polybagPolybagFlapSurplus`]) || (material.packagingMaterialType === 'SILICA GEL DESICCANT' && errors[`packaging_material_${materialIndex}_silicaGelDesiccantSurplus`]) || (material.packagingMaterialType === 'STRETCH~WRAP' && errors[`packaging_material_${materialIndex}_stretchWrapSurplus`]) || (material.packagingMaterialType === 'TAPE' && errors[`packaging_material_${materialIndex}_tapeSurplus`]) || (material.packagingMaterialType === 'VOID~FILL' && errors[`packaging_material_${materialIndex}_voidFillSurplus`]) || (material.packagingMaterialType === 'DIVIDER' && errors[`packaging_material_${materialIndex}_dividerSurplus`])}
+                            </span>
+                          ) : null}
                         </div>
                         <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE % <span className="text-red-500">*</span></label>
                           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                             <input
                               type="text"
@@ -2306,12 +2368,30 @@ const Step5 = ({
                                   handlePackagingMaterialChange(materialIndex, 'dividerWastage', numericValue);
                                 }
                               }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${(
+                                (material.packagingMaterialType === 'CARTON BOX' && errors?.[`packaging_material_${materialIndex}_cartonBoxWastage`]) ||
+                                (material.packagingMaterialType === 'CORNER PROTECTORS' && errors?.[`packaging_material_${materialIndex}_cornerProtectorWastage`]) ||
+                                (material.packagingMaterialType === 'EDGE PROTECTORS' && errors?.[`packaging_material_${materialIndex}_edgeProtectorWastage`]) ||
+                                (material.packagingMaterialType === 'FOAM INSERT' && errors?.[`packaging_material_${materialIndex}_foamInsertWastage`]) ||
+                                (material.packagingMaterialType === 'PALLET STRAP' && errors?.[`packaging_material_${materialIndex}_palletStrapWastage`]) ||
+                                (material.packagingMaterialType === 'POLYBAG~Bale' && errors?.[`packaging_material_${materialIndex}_polybagBaleWastage`]) ||
+                                (material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' && errors?.[`packaging_material_${materialIndex}_polybagPolybagFlapWastage`]) ||
+                                (material.packagingMaterialType === 'SILICA GEL DESICCANT' && errors?.[`packaging_material_${materialIndex}_silicaGelDesiccantWastage`]) ||
+                                (material.packagingMaterialType === 'STRETCH~WRAP' && errors?.[`packaging_material_${materialIndex}_stretchWrapWastage`]) ||
+                                (material.packagingMaterialType === 'TAPE' && errors?.[`packaging_material_${materialIndex}_tapeWastage`]) ||
+                                (material.packagingMaterialType === 'VOID~FILL' && errors?.[`packaging_material_${materialIndex}_voidFillWastage`]) ||
+                                (material.packagingMaterialType === 'DIVIDER' && errors?.[`packaging_material_${materialIndex}_dividerWastage`])
+                              ) ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                               style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
                               placeholder=""
                             />
                             <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
                           </div>
+                          {(material.packagingMaterialType === 'CARTON BOX' && errors?.[`packaging_material_${materialIndex}_cartonBoxWastage`]) || (material.packagingMaterialType === 'CORNER PROTECTORS' && errors?.[`packaging_material_${materialIndex}_cornerProtectorWastage`]) || (material.packagingMaterialType === 'EDGE PROTECTORS' && errors?.[`packaging_material_${materialIndex}_edgeProtectorWastage`]) || (material.packagingMaterialType === 'FOAM INSERT' && errors?.[`packaging_material_${materialIndex}_foamInsertWastage`]) || (material.packagingMaterialType === 'PALLET STRAP' && errors?.[`packaging_material_${materialIndex}_palletStrapWastage`]) || (material.packagingMaterialType === 'POLYBAG~Bale' && errors?.[`packaging_material_${materialIndex}_polybagBaleWastage`]) || (material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' && errors?.[`packaging_material_${materialIndex}_polybagPolybagFlapWastage`]) || (material.packagingMaterialType === 'SILICA GEL DESICCANT' && errors?.[`packaging_material_${materialIndex}_silicaGelDesiccantWastage`]) || (material.packagingMaterialType === 'STRETCH~WRAP' && errors?.[`packaging_material_${materialIndex}_stretchWrapWastage`]) || (material.packagingMaterialType === 'TAPE' && errors?.[`packaging_material_${materialIndex}_tapeWastage`]) || (material.packagingMaterialType === 'VOID~FILL' && errors?.[`packaging_material_${materialIndex}_voidFillWastage`]) || (material.packagingMaterialType === 'DIVIDER' && errors?.[`packaging_material_${materialIndex}_dividerWastage`]) ? (
+                            <span className="text-red-600 text-xs mt-1">
+                              {(material.packagingMaterialType === 'CARTON BOX' && errors[`packaging_material_${materialIndex}_cartonBoxWastage`]) || (material.packagingMaterialType === 'CORNER PROTECTORS' && errors[`packaging_material_${materialIndex}_cornerProtectorWastage`]) || (material.packagingMaterialType === 'EDGE PROTECTORS' && errors[`packaging_material_${materialIndex}_edgeProtectorWastage`]) || (material.packagingMaterialType === 'FOAM INSERT' && errors[`packaging_material_${materialIndex}_foamInsertWastage`]) || (material.packagingMaterialType === 'PALLET STRAP' && errors[`packaging_material_${materialIndex}_palletStrapWastage`]) || (material.packagingMaterialType === 'POLYBAG~Bale' && errors[`packaging_material_${materialIndex}_polybagBaleWastage`]) || (material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' && errors[`packaging_material_${materialIndex}_polybagPolybagFlapWastage`]) || (material.packagingMaterialType === 'SILICA GEL DESICCANT' && errors[`packaging_material_${materialIndex}_silicaGelDesiccantWastage`]) || (material.packagingMaterialType === 'STRETCH~WRAP' && errors[`packaging_material_${materialIndex}_stretchWrapWastage`]) || (material.packagingMaterialType === 'TAPE' && errors[`packaging_material_${materialIndex}_tapeWastage`]) || (material.packagingMaterialType === 'VOID~FILL' && errors[`packaging_material_${materialIndex}_voidFillWastage`]) || (material.packagingMaterialType === 'DIVIDER' && errors[`packaging_material_${materialIndex}_dividerWastage`])}
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                     </>

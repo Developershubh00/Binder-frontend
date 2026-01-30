@@ -601,7 +601,7 @@ const CompanyEssentials = ({ onBack }) => {
       )}
 
       {/* Existing codes box - show when we have category selected and localStorage has entries */}
-      {selectedCategory && existingEssentials.filter(e => e.category === selectedCategory).length > 0 && (
+      {existingEssentials.length > 0 && (
         <div
           className="w-fit"
           style={{
@@ -624,7 +624,6 @@ const CompanyEssentials = ({ onBack }) => {
             }}
           >
             {existingEssentials
-              .filter(e => e.category === selectedCategory)
               .slice()
               .reverse()
               .map((item, idx) => (

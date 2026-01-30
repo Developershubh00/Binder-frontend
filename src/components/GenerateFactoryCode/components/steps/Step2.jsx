@@ -159,6 +159,7 @@ const Step2 = ({
   validateStep2,
   validateComponentMaterials,
   savedComponents: savedComponentsProp = new Set(), // From parent – add/edit/remove material clears this
+  onValidationFail,
 }) => {
   const prevWorkOrdersLengthRef = useRef({});
   const isInitialMountRef = useRef(true);
@@ -214,7 +215,10 @@ const Step2 = ({
 
     if (!result || !result.isValid) {
       setSaveStatus('error');
-      // Validation failed - errors are already set in state by validateComponentMaterials
+      // Show validation errors popup
+      if (onValidationFail && result?.errors) {
+        onValidationFail(result.errors);
+      }
       // Scroll to first error
       setTimeout(() => {
         const firstErrorKey = Object.keys(result?.errors || {})[0];
@@ -567,6 +571,7 @@ const Step2 = ({
                       handleRawMaterialChange(actualIndex, 'materialDescription', e.target.value);
                     }}
                     placeholder="e.g., Cotton 200TC"
+                    aria-invalid={errors[`rawMaterial_${actualIndex}_materialDescription`] ? true : undefined}
                     required
                   />
                 </Field>
@@ -586,13 +591,9 @@ const Step2 = ({
                     value={material.netConsumption}
                     onChange={(e) => {
                       handleRawMaterialChange(actualIndex, 'netConsumption', e.target.value);
-                      // Clear error when typing
-                      if (errors[`rawMaterial_${actualIndex}_netConsumption`] && e.target.value.trim()) {
-                        const newErrors = { ...errors };
-                        delete newErrors[`rawMaterial_${actualIndex}_netConsumption`];
-                      }
                     }}
                     placeholder="0.000"
+                    aria-invalid={errors[`rawMaterial_${actualIndex}_netConsumption`] ? true : undefined}
                     required
                   />
                 </Field>
@@ -1080,7 +1081,7 @@ const Step2 = ({
                 <h3 className="text-sm font-semibold text-foreground/90 mb-4">FIBER SPECIFICATIONS</h3>
                 <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
                   {/* Fiber Type Dropdown */}
-                  <Field label="FIBER TYPE" width="sm">
+                  <Field label="FIBER TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_fiberType`]}>
                     <SearchableDropdown
                       value={material.fiberType || ''}
                       onChange={(selectedFiberType) => {
@@ -1094,11 +1095,12 @@ const Step2 = ({
                       }}
                       options={getFiberTypes()}
                       placeholder="Select or type Fiber Type"
+                      className={errors[`rawMaterial_${actualIndex}_fiberType`] ? 'border-red-600' : ''}
                     />
                   </Field>
                   
                   {/* Yarn Type Dropdown */}
-                  <Field label="YARN TYPE" width="sm">
+                  <Field label="YARN TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnType`]}>
                     <SearchableDropdown
                       value={material.yarnType || ''}
                       onChange={(selectedYarnType) => {
@@ -1117,6 +1119,7 @@ const Step2 = ({
                       options={material.fiberType ? getYarnTypes(material.fiberType) : []}
                       placeholder={material.fiberType ? 'Select or type Yarn Type' : 'Select Fiber Type First'}
                       disabled={!material.fiberType}
+                      className={errors[`rawMaterial_${actualIndex}_yarnType`] ? 'border-red-600' : ''}
                     />
                   </Field>
                 </div>
@@ -1132,7 +1135,7 @@ const Step2 = ({
                       
                       {/* Input Fields Row */}
                       <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
-                        <Field label="COMPOSITION" required width="sm">
+                        <Field label="COMPOSITION" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnComposition`]}>
                           <SearchableDropdown
                             value={material.yarnComposition || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnComposition', value)}
@@ -1141,10 +1144,11 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Composition" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
+                            className={errors[`rawMaterial_${actualIndex}_yarnComposition`] ? 'border-red-600' : ''}
                           />
                         </Field>
                         
-                        <Field label="COUNT RANGE" required width="sm">
+                        <Field label="COUNT RANGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnCountRange`]}>
                           <SearchableDropdown
                             value={material.yarnCountRange || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnCountRange', value)}
@@ -1153,10 +1157,11 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Count Range" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
+                            className={errors[`rawMaterial_${actualIndex}_yarnCountRange`] ? 'border-red-600' : ''}
                           />
                         </Field>
                         
-                        <Field label="DOUBLING OPTIONS" required width="sm">
+                        <Field label="DOUBLING OPTIONS" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnDoublingOptions`]}>
                           <SearchableDropdown
                             value={material.yarnDoublingOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnDoublingOptions', value)}
@@ -1165,10 +1170,11 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Doubling Options" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
+                            className={errors[`rawMaterial_${actualIndex}_yarnDoublingOptions`] ? 'border-red-600' : ''}
                           />
                         </Field>
                         
-                        <Field label="PLY OPTIONS" required width="sm">
+                        <Field label="PLY OPTIONS" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnPlyOptions`]}>
                           <SearchableDropdown
                             value={material.yarnPlyOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnPlyOptions', value)}
@@ -1177,6 +1183,7 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Ply Options" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
+                            className={errors[`rawMaterial_${actualIndex}_yarnPlyOptions`] ? 'border-red-600' : ''}
                           />
                         </Field>
                         
@@ -1190,7 +1197,7 @@ const Step2 = ({
                           />
                         </Field>
                         
-                        <Field label="WINDING OPTIONS" width="sm">
+                        <Field label="WINDING OPTIONS" required width="sm" error={errors[`rawMaterial_${actualIndex}_windingOptions`]}>
                           <SearchableDropdown
                             value={material.windingOptions || details.windingOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'windingOptions', value)}
@@ -1199,49 +1206,55 @@ const Step2 = ({
                               : []}
                             placeholder={material.fiberType && material.yarnType ? "Select or type Winding Options" : "Select Yarn Type First"}
                             disabled={!material.fiberType || !material.yarnType}
+                            className={errors[`rawMaterial_${actualIndex}_windingOptions`] ? 'border-red-600' : ''}
                           />
                         </Field>
                         
-                        <Field label="SURPLUS %" width="sm">
+                        <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_surplus`]}>
                           <PercentInput
                               value={material.surplus || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'surplus', e.target.value)}
                             placeholder="e.g., 5"
+                            error={!!errors[`rawMaterial_${actualIndex}_surplus`]}
                           />
                         </Field>
                         
-                        <Field label="WASTAGE %" width="sm">
+                        <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_wastage`]}>
                           <PercentInput
                             value={material.wastage || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'wastage', e.target.value)}
                             placeholder="e.g., 3"
+                            error={!!errors[`rawMaterial_${actualIndex}_wastage`]}
                           />
                         </Field>
                         
-                        <Field label="TESTING REQUIREMENTS" width="lg">
+                        <Field label="TESTING REQUIREMENTS" required width="lg" error={errors[`rawMaterial_${actualIndex}_testingRequirements`]}>
                           <Input
                             type="text"
                             value={material.testingRequirements || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'testingRequirements', e.target.value)}
+                            aria-invalid={!!errors[`rawMaterial_${actualIndex}_testingRequirements`]}
                             placeholder="Enter testing requirements"
                           />
                         </Field>
                         
-                        <Field label="APPROVAL" width="sm">
+                        <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_approval`]}>
                           <SearchableDropdown
                             value={material.approval || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'approval', value)}
                             options={['BUYER\'S', 'PROTO', 'FIT', 'SIZE SET', 'PP', 'TOP SAMPLE']}
                             placeholder="Select or type Approval"
+                            className={errors[`rawMaterial_${actualIndex}_approval`] ? 'border-red-600' : ''}
                           />
                         </Field>
                         
-                        <Field label="REMARKS" width="sm">
+                        <Field label="REMARKS" required width="sm" error={errors[`rawMaterial_${actualIndex}_remarks`]}>
                           <Input
                             type="text"
                             value={material.remarks || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'remarks', e.target.value)}
                             placeholder="Enter remarks"
+                            aria-invalid={!!errors[`rawMaterial_${actualIndex}_remarks`]}
                           />
                         </Field>
                       </div>
@@ -1328,7 +1341,7 @@ const Step2 = ({
                 {/* Fiber Type and Fabric Name */}
                 <div className="flex flex-wrap items-start" style={{ gap: '16px 12px', marginBottom: '1rem' }}>
                   {/* Fiber Type */}
-                  <Field label="FIBER TYPE" required width="sm">
+                  <Field label="FIBER TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricFiberType`]}>
                     <SearchableDropdown
                       value={material.fabricFiberType || ''}
                       onChange={(selectedFiberType) => {
@@ -1340,11 +1353,12 @@ const Step2 = ({
                       }}
                       options={getTextileFabricFiberTypes()}
                       placeholder="Select or type Fiber Type"
+                      className={errors[`rawMaterial_${actualIndex}_fabricFiberType`] ? 'border-red-600' : ''}
                     />
                   </Field>
                   
                   {/* Fabric Name */}
-                  <Field label="FABRIC NAME" required width="sm">
+                  <Field label="FABRIC NAME" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricName`]}>
                     <SearchableDropdown
                       value={material.fabricName || ''}
                       onChange={(selectedFabricName) => {
@@ -1360,11 +1374,12 @@ const Step2 = ({
                       options={material.fabricFiberType ? getTextileFabricNames(material.fabricFiberType) : []}
                       placeholder={material.fabricFiberType ? 'Select or type Fabric Name' : 'Select Fiber Type First'}
                       disabled={!material.fabricFiberType}
+                      className={errors[`rawMaterial_${actualIndex}_fabricName`] ? 'border-red-600' : ''}
                     />
                   </Field>
                   
                   {/* Composition */}
-                  <Field label="COMPOSITION" required width="sm">
+                  <Field label="COMPOSITION" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricComposition`]}>
                     <SearchableDropdown
                       value={material.fabricComposition || ''}
                       onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricComposition', value)}
@@ -1373,49 +1388,54 @@ const Step2 = ({
                         : []}
                       placeholder={material.fabricFiberType && material.fabricName ? "Select or type Composition" : "Select Fabric First"}
                       disabled={!material.fabricFiberType || !material.fabricName}
+                      className={errors[`rawMaterial_${actualIndex}_fabricComposition`] ? 'border-red-600' : ''}
                     />
                   </Field>
                   
                   {/* GSM */}
-                  <Field label="GSM" width="sm">
+                  <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_gsm`]}>
                     <Input
                       type="text"
                       value={material.gsm || ''}
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'gsm', e.target.value)}
                       placeholder="e.g., 90"
+                      aria-invalid={!!errors[`rawMaterial_${actualIndex}_gsm`]}
                     />
                   </Field>
                   
                   {/* Surplus */}
-                  <Field label="SURPLUS %" width="sm">
+                  <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricSurplus`]}>
                     <PercentInput
                         value={material.fabricSurplus || ''}
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricSurplus', e.target.value)}
                       placeholder="e.g., 5"
+                      error={!!errors[`rawMaterial_${actualIndex}_fabricSurplus`]}
                     />
                   </Field>
                   
                   {/* Wastage */}
-                  <Field label="WASTAGE %" width="sm">
+                  <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricWastage`]}>
                     <PercentInput
                       value={material.fabricWastage || ''}
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricWastage', e.target.value)}
                       placeholder="e.g., 3"
+                      error={!!errors[`rawMaterial_${actualIndex}_fabricWastage`]}
                     />
                   </Field>
                   
                   {/* Testing Requirements */}
-                  <Field label="TESTING REQUIREMENTS" width="lg">
+                  <Field label="TESTING REQUIREMENTS" required width="lg" error={errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`]}>
                     <Input
                       type="text"
                       value={material.fabricTestingRequirements || ''}
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricTestingRequirements', e.target.value)}
                       placeholder="Enter testing requirements"
+                      aria-invalid={!!errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`]}
                     />
                   </Field>
                   
                   {/* Approval */}
-                  <Field label="APPROVAL" width="sm">
+                  <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricApproval`]}>
                     <SearchableDropdown
                       value={material.fabricApproval || ''}
                       onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricApproval', value)}
@@ -1424,16 +1444,18 @@ const Step2 = ({
                         : []}
                       placeholder={material.fabricFiberType && material.fabricName ? "Select or type Approval" : "Select Fabric First"}
                       disabled={!material.fabricFiberType || !material.fabricName}
+                      className={errors[`rawMaterial_${actualIndex}_fabricApproval`] ? 'border-red-600' : ''}
                     />
                   </Field>
                   
                   {/* Remarks */}
-                  <Field label="REMARKS" width="sm">
+                  <Field label="REMARKS" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricRemarks`]}>
                     <Input
                       type="text"
                       value={material.fabricRemarks || ''}
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricRemarks', e.target.value)}
                       placeholder="Text"
+                      aria-invalid={!!errors[`rawMaterial_${actualIndex}_fabricRemarks`]}
                     />
                   </Field>
                 </div>
@@ -1540,16 +1562,22 @@ const Step2 = ({
                     {/* The full trim/accessory fields will be imported from Step3 rendering logic */}
                     <div className="w-full mt-8 pt-6 border-t border-gray-100">
                       <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
-                        <label className="text-sm font-bold text-gray-800 mb-2">TRIM/ACCESSORY</label>
+                        <label className="text-sm font-bold text-gray-800 mb-2">
+                          TRIM/ACCESSORY <span className="text-red-600">*</span>
+                        </label>
                         <SearchableDropdown
                           value={material.trimAccessory || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'trimAccessory', selectedValue)}
                           options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
                           placeholder="Select or type Trim/Accessory"
                           style={{ width: '280px' }}
+                          className={errors[`rawMaterial_${actualIndex}_trimAccessory`] ? 'border-red-600' : ''}
                           onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                           onBlur={(e) => e.target.style.boxShadow = ''}
                         />
+                        {errors[`rawMaterial_${actualIndex}_trimAccessory`] && (
+                          <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_trimAccessory`]}</span>
+                        )}
                       </div>
                       
                       {/* Conditional fields based on trim/accessory type */}
@@ -1557,6 +1585,8 @@ const Step2 = ({
                         material={material}
                         materialIndex={actualIndex}
                         handleChange={handleRawMaterialChange}
+                        errors={errors}
+                        errorPrefix={`rawMaterial_${actualIndex}`}
                       />
                     </div>
                   </div>
@@ -1574,7 +1604,7 @@ const Step2 = ({
                   
                   <div className="bg-card rounded-lg border border-border" style={{ padding: '1.25rem' }}>
                     {/* Table Selection Dropdown */}
-                    <Field label="SELECT FOAM TABLE" width="sm" style={{ marginBottom: '1.5rem' }}>
+                    <Field label="SELECT FOAM TABLE" required width="sm" style={{ marginBottom: '1.5rem' }} error={errors[`rawMaterial_${actualIndex}_foamTableType`]}>
                       <SearchableDropdown
                         value={material.foamTableType || ''}
                         onChange={(selectedValue) => {
@@ -1808,74 +1838,84 @@ const Step2 = ({
                         }}
                         options={['EVA-form','HR-form','pe-epe','pu-foam','rebonded-foam','gel-infused-foam','latex-foam','memory-foam']}
                         placeholder="Select foam table"
+                        className={errors[`rawMaterial_${actualIndex}_foamTableType`] ? 'border-red-600' : ''}
                       />
+                      {errors[`rawMaterial_${actualIndex}_foamTableType`] && (
+                        <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_foamTableType`]}</span>
+                      )}
                     </Field>
 
                     {/* EVA-form Table */}
                     {material.foamTableType === 'EVA-form' && (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
                       {/* FOAM TYPE */}
-                      <Field label="FOAM TYPE" width="sm">
+                      <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamType`]}>
                         <SearchableDropdown
                           value={material.foamType || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamType', selectedValue)}
                           options={['EVA Foam (Ethylene Vinyl Acetate)']}
                           placeholder="Select or type"
+                          className={errors[`rawMaterial_${actualIndex}_foamType`] ? 'border-red-600' : ''}
                         />
                       </Field>
 
                       {/* SUBTYPE */}
-                      <Field label="SUBTYPE" width="sm">
+                      <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamSubtype`]}>
                         <SearchableDropdown
                           value={material.foamSubtype || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamSubtype', selectedValue)}
                           options={['Virgin EVA', 'Recycled EVA', 'Blended']}
                           placeholder="Select or type"
+                          className={errors[`rawMaterial_${actualIndex}_foamSubtype`] ? 'border-red-600' : ''}
                         />
                       </Field>
 
                       {/* VA CONTENT */}
-                      <Field label="VA CONTENT" width="sm">
+                      <Field label="VA CONTENT" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamVaContent`]}>
                         <SearchableDropdown
                           value={material.foamVaContent || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamVaContent', selectedValue)}
                           options={['18%', '25%', '28%', '33%']}
                           placeholder="Select or type"
+                          className={errors[`rawMaterial_${actualIndex}_foamVaContent`] ? 'border-red-600' : ''}
                         />
                       </Field>
 
                       {/* COLOUR */}
-                      <Field label="COLOUR" width="sm">
+                      <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamColour`]}>
                         <SearchableDropdown
                           value={material.foamColour || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamColour', selectedValue)}
                           options={['Black', 'White', 'Grey', 'Red', 'Blue', 'Green', 'Custom']}
                           placeholder="Select or type"
+                          className={errors[`rawMaterial_${actualIndex}_foamColour`] ? 'border-red-600' : ''}
                         />
                       </Field>
 
                       {/* THICKNESS */}
-                      <Field label="THICKNESS" width="sm">
+                      <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamThickness`]}>
                         <SearchableDropdown
                           value={material.foamThickness || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamThickness', selectedValue)}
                           options={['2mm', '3mm', '5mm', '10mm', '15mm', '20mm', '25mm']}
                           placeholder="Select or type"
+                          className={errors[`rawMaterial_${actualIndex}_foamThickness`] ? 'border-red-600' : ''}
                         />
                       </Field>
 
                       {/* SHAPE */}
-                      <Field label="SHAPE" width="sm">
+                      <Field label="SHAPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamShape`]}>
                         <Input
                           type="text"
                           value={material.foamShape || ''}
                           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamShape', e.target.value)}
                           placeholder="TEXT"
+                          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamShape`])}
                         />
                       </Field>
 
                       {/* UPLOAD REF IMAGE */}
-                      <Field label="UPLOAD REF IMAGE" width="sm">
+                      <Field label="UPLOAD REF IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamShapeRefImage`]}>
                         <input
                           type="file"
                           onChange={(e) => { const f = e.target.files?.[0]; if (f) handleRawMaterialChange(actualIndex, 'foamShapeRefImage', f); }}
@@ -1887,7 +1927,7 @@ const Step2 = ({
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="h-11 w-full"
+                          className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_foamShapeRefImage`] ? 'border-red-600' : ''}`}
                           onClick={() => document.getElementById(`upload-foam-shape-${actualIndex}`)?.click()}
                         >
                           {material.foamShapeRefImage ? 'UPLOADED' : 'UPLOAD REF IMAGE'}
@@ -1898,36 +1938,39 @@ const Step2 = ({
                       <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
                         <h4 className="text-sm font-semibold text-foreground/90 mb-4">SIZE SPEC</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-                          <Field label="SHEET/PCS" width="sm">
+                          <Field label="SHEET/PCS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamSheetPcs`]}>
                             <Input
                               type="text"
                               value={material.foamSheetPcs || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamSheetPcs', e.target.value)}
                               placeholder="Enter value"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamSheetPcs`])}
                             />
                           </Field>
-                          <Field label="GSM" width="sm">
+                          <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGsm`]}>
                             <Input
                               type="text"
                               value={material.foamGsm || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGsm', e.target.value)}
                               placeholder="Enter value"
-                            />
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGsm`])}/>
                           </Field>
-                          <Field label="LENGTH (CM)" width="sm">
+                          <Field label="LENGTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLengthCm`]}>
                             <Input
                               type="text"
                               value={material.foamLengthCm || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLengthCm', e.target.value)}
                               placeholder="Enter value"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLengthCm`])}
                             />
                           </Field>
-                          <Field label="WIDTH (CM)" width="sm">
+                          <Field label="WIDTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamWidthCm`]}>
                             <Input
                               type="text"
                               value={material.foamWidthCm || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamWidthCm', e.target.value)}
                               placeholder="Enter value"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamWidthCm`])}
                             />
                           </Field>
                         </div>
@@ -1937,20 +1980,22 @@ const Step2 = ({
                       <div style={{ marginTop: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
                         <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-                          <Field label="KGS (CNS)" width="sm">
+                          <Field label="KGS (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamKgsCns`]}>
                             <Input
                               type="text"
                               value={material.foamKgsCns || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamKgsCns', e.target.value)}
                               placeholder="Enter value"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamKgsCns`])}
                             />
                           </Field>
-                          <Field label="YARDAGE (CNS)" width="sm">
+                          <Field label="YARDAGE (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamYardageCns`]}>
                             <Input
                               type="text"
                               value={material.foamYardageCns || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamYardageCns', e.target.value)}
                               placeholder="Enter value"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamYardageCns`])}
                             />
                           </Field>
                         </div>
@@ -1958,7 +2003,7 @@ const Step2 = ({
 
                       {/* TESTING REQUIREMENTS */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 col-span-1 md:col-span-2 lg:col-span-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
-                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamTestingRequirements`]}>
                           <div className="flex items-center" style={{ gap: '0.75rem' }}>
                             <div className="flex-1">
                               <TestingRequirementsInput
@@ -1966,6 +2011,7 @@ const Step2 = ({
                                 onChange={(values) => handleRawMaterialChange(actualIndex, 'foamTestingRequirements', values)}
                                 options={['Density', 'Shore Hardness', 'Compression Set', 'Tensile Strength']}
                                 placeholder="Type to search or select testing requirements..."
+                                error={Boolean(errors[`rawMaterial_${actualIndex}_foamTestingRequirements`])}
                               />
                             </div>
                             <input
@@ -1979,7 +2025,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11"
+                              className={`h-11 ${errors[`rawMaterial_${actualIndex}_foamTestingRequirementsFile`] ? 'border-red-600' : ''}`}
                               onClick={() => document.getElementById(`upload-foam-testing-${actualIndex}`)?.click()}
                             >
                               {material.foamTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
@@ -1988,16 +2034,17 @@ const Step2 = ({
                         </Field>
 
                         {/* SURPLUS % */}
-                        <Field label="SURPLUS %" width="sm">
+                        <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamSurplus`]}>
                           <PercentInput
                             value={material.foamSurplus || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamSurplus', e.target.value)}
                             placeholder="e.g., 3-5"
+                            error={Boolean(errors[`rawMaterial_${actualIndex}_foamSurplus`])}
                           />
                         </Field>
 
                         {/* WASTAGE % */}
-                        <Field label="WASTAGE %" width="sm">
+                        <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamWastage`]}>
                           <div className="relative">
                             <SearchableDropdown
                               value={material.foamWastage || ''}
@@ -2012,7 +2059,7 @@ const Step2 = ({
                               }}
                               options={['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases']}
                               placeholder="Select or type %"
-                              className={material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) ? 'pr-10' : ''}
+                              className={`${material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamWastage`] ? 'border-red-600' : ''}`}
                             />
                             {material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) && (
                               <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
@@ -2021,22 +2068,24 @@ const Step2 = ({
                         </Field>
 
                         {/* APPROVAL */}
-                        <Field label="APPROVAL" width="sm">
+                        <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamApproval`]}>
                           <SearchableDropdown
                             value={material.foamApproval || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamApproval', selectedValue)}
                             options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                             placeholder="Select or type"
+                            className={errors[`rawMaterial_${actualIndex}_foamApproval`] ? 'border-red-600' : ''}
                           />
                         </Field>
 
                         {/* REMARKS */}
-                        <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                        <Field label="REMARKS" required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamRemarks`]}>
                           <Input
                             type="text"
                             value={material.foamRemarks || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamRemarks', e.target.value)}
                             placeholder="Higher VA%=softer, Interlocking for gym flooring, Closed cell=waterproof"
+                            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamRemarks`])}
                           />
                         </Field>
                       </div>
@@ -2173,57 +2222,62 @@ const Step2 = ({
 {material.foamTableType === 'pe-epe' && (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
     {/* FOAM TYPE */}
-    <Field label="FOAM TYPE" width="sm">
+    <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeType`]}>
       <SearchableDropdown
         value={material.foamPeEpeType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeType', selectedValue)}
         options={['PE Foam', 'EPE Foam (Expanded Polyethylene)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPeEpeType`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* SUBTYPE */}
-    <Field label="SUBTYPE" width="sm">
+    <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeSubtype`]}>
       <SearchableDropdown
         value={material.foamPeEpeSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeSubtype', selectedValue)}
         options={['Virgin PE', 'Recycled PE', 'Cross-Linked PE (XLPE)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPeEpeSubtype`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* COLOUR */}
-    <Field label="COLOUR" width="sm">
+    <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeColour`]}>
       <SearchableDropdown
         value={material.foamPeEpeColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeColour', selectedValue)}
         options={['White (standard)', 'Black', 'Pink (anti-static)', 'Blue', 'Custom']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPeEpeColour`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* THICKNESS */}
-    <Field label="THICKNESS" width="sm">
+    <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeThickness`]}>
       <Input
         type="text"
         value={material.foamPeEpeThickness || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeThickness', e.target.value)}
         placeholder="MM (e.g., 0.5mm, 1mm, 2mm, 3mm, 5mm, 10mm, 20mm, 50mm)"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeThickness`])}
       />
     </Field>
 
     {/* SHAPE */}
-    <Field label="SHAPE" width="sm">
+    <Field label="SHAPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeShape`]}>
       <Input
         type="text"
         value={material.foamPeEpeShape || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeShape', e.target.value)}
         placeholder="TEXT"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeShape`])}
       />
     </Field>
 
     {/* UPLOAD REF IMAGE */}
-    <Field label="UPLOAD REF IMAGE" width="sm">
+    <Field label="UPLOAD REF IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeShapeRefImage`]}>
       <input
         type="file"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleRawMaterialChange(actualIndex, 'foamPeEpeShapeRefImage', f); }}
@@ -2235,7 +2289,7 @@ const Step2 = ({
         type="button"
         variant="outline"
         size="sm"
-        className="h-11 w-full"
+        className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_foamPeEpeShapeRefImage`] ? 'border-red-600' : ''}`}
         onClick={() => document.getElementById(`upload-pe-epe-foam-shape-${actualIndex}`)?.click()}
       >
         {material.foamPeEpeShapeRefImage ? 'UPLOADED' : 'UPLOAD REF IMAGE'}
@@ -2246,36 +2300,40 @@ const Step2 = ({
     <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
       <h4 className="text-sm font-semibold text-foreground/90 mb-4">SIZE SPEC</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-        <Field label="SHEET/PCS" width="sm">
+        <Field label="SHEET/PCS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeSheetPcs`]}>
           <Input
             type="text"
             value={material.foamPeEpeSheetPcs || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeSheetPcs', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeSheetPcs`])}
           />
         </Field>
-        <Field label="GSM" width="sm">
+        <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeGsm`]}>
           <Input
             type="text"
             value={material.foamPeEpeGsm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeGsm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeGsm`])}
           />
         </Field>
-        <Field label="LENGTH (CM)" width="sm">
+        <Field label="LENGTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeLengthCm`]}>
           <Input
             type="text"
             value={material.foamPeEpeLengthCm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeLengthCm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeLengthCm`])}
           />
         </Field>
-        <Field label="WIDTH (CM)" width="sm">
+        <Field label="WIDTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeWidthCm`]}>
           <Input
             type="text"
             value={material.foamPeEpeWidthCm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeWidthCm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeWidthCm`])}
           />
         </Field>
       </div>
@@ -2285,20 +2343,22 @@ const Step2 = ({
     <div style={{ marginTop: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
       <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-        <Field label="KGS (CNS)" width="sm">
+        <Field label="KGS (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeKgsCns`]}>
           <Input
             type="text"
             value={material.foamPeEpeKgsCns || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeKgsCns', e.target.value)}
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeKgsCns`])}
             placeholder="Enter value"
           />
         </Field>
-        <Field label="YARDAGE (CNS)" width="sm">
+        <Field label="YARDAGE (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeYardageCns`]}>
           <Input
             type="text"
             value={material.foamPeEpeYardageCns || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeYardageCns', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeYardageCns`])}
           />
         </Field>
       </div>
@@ -2307,7 +2367,7 @@ const Step2 = ({
     {/* TESTING / SURPLUS / WASTAGE / APPROVAL / REMARKS */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 col-span-1 md:col-span-2 lg:col-span-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
       {/* TESTING REQ. */}
-      <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+      <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamPeEpeTestingRequirements`]}>
         <div className="flex items-center" style={{ gap: '0.75rem' }}>
           <div className="flex-1">
             <TestingRequirementsInput
@@ -2315,6 +2375,7 @@ const Step2 = ({
               onChange={(values) => handleRawMaterialChange(actualIndex, 'foamPeEpeTestingRequirements', values)}
               options={['Density', 'Compression', 'Water Absorption', 'Thermal Conductivity']}
               placeholder="Type to search or select testing requirements..."
+              error={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeTestingRequirements`])}
             />
           </div>
           <input
@@ -2328,7 +2389,7 @@ const Step2 = ({
             type="button"
             variant="outline"
             size="sm"
-            className="h-11"
+            className={`h-11 ${errors[`rawMaterial_${actualIndex}_foamPeEpeTestingRequirementsFile`] ? 'border-red-600' : ''}`}
             onClick={() => document.getElementById(`upload-pe-epe-testing-${actualIndex}`)?.click()}
           >
             {material.foamPeEpeTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
@@ -2337,16 +2398,17 @@ const Step2 = ({
       </Field>
 
     {/* SURPLUS % */}
-    <Field label="SURPLUS %" width="sm">
+    <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeSurplus`]}>
       <PercentInput
         value={material.foamPeEpeSurplus || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeSurplus', e.target.value)}
         placeholder="e.g., 3-5"
+        error={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeSurplus`])}
       />
     </Field>
 
     {/* WASTAGE % */}
-    <Field label="WASTAGE %" width="sm">
+    <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeWastage`]}>
       <div className="relative">
         <SearchableDropdown
           value={material.foamPeEpeWastage || ''}
@@ -2361,12 +2423,7 @@ const Step2 = ({
           }}
           options={['Packaging', 'Insulation', 'Protective Wrap', 'Underlayment']}
           placeholder="Select or type %"
-          className={
-            material.foamPeEpeWastage &&
-            !['Packaging', 'Insulation', 'Protective Wrap', 'Underlayment'].includes(material.foamPeEpeWastage)
-              ? 'pr-10'
-              : ''
-          }
+          className={`${material.foamPeEpeWastage && !['Packaging', 'Insulation', 'Protective Wrap', 'Underlayment'].includes(material.foamPeEpeWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamPeEpeWastage`] ? 'border-red-600' : ''}`}
         />
         {material.foamPeEpeWastage &&
           !['Packaging', 'Insulation', 'Protective Wrap', 'Underlayment'].includes(material.foamPeEpeWastage) && (
@@ -2376,23 +2433,24 @@ const Step2 = ({
     </Field>
 
       {/* APPROVAL */}
-      <Field label="APPROVAL" width="sm">
+      <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeApproval`]}>
         <SearchableDropdown
           value={material.foamPeEpeApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeApproval', selectedValue)}
           options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamPeEpeApproval`] ? 'border-red-600' : ''}
         />
       </Field>
 
       {/* REMARKS */}
-      <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+      <Field label="REMARKS" required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamPeEpeRemarks`]}>
         <Input
           type="text"
           value={material.foamPeEpeRemarks || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeRemarks', e.target.value)}
           placeholder="Typically closed-cell, lightweight, flexible. Applications: packaging, insulation."
-        />
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeRemarks`])}/>
       </Field>
     </div>
 
@@ -2503,67 +2561,73 @@ const Step2 = ({
   <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
     {/* FOAM TYPE */}
-    <Field label="FOAM TYPE" width="sm">
+    <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuType`]}>
       <SearchableDropdown
         value={material.foamPuType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuType', selectedValue)}
         options={['PU Foam (Polyurethane)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPuType`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* SUBTYPE */}
-    <Field label="SUBTYPE" width="sm">
+    <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuSubtype`]}>
       <SearchableDropdown
         value={material.foamPuSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuSubtype', selectedValue)}
         options={['Virgin', 'Recycled/Rebonded', 'Blended']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPuSubtype`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* GRADE */}
-    <Field label="GRADE" width="sm">
+    <Field label="GRADE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuGrade`]}>
       <SearchableDropdown
         value={material.foamPuGrade || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuGrade', selectedValue)}
         options={['Conventional PU', 'High Density (HD)', 'Super High Density (SHD)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPuGrade`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* COLOUR */}
-    <Field label="COLOUR" width="sm">
+    <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuColour`]}>
       <SearchableDropdown
         value={material.foamPuColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuColour', selectedValue)}
         options={['White', 'Grey', 'Pink', 'Blue', 'Black', 'Charcoal', 'Custom']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPuColour`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* THICKNESS */}
-    <Field label="THICKNESS" width="sm">
+    <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuThickness`]}>
       <Input
         type="text"
         value={material.foamPuThickness || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuThickness', e.target.value)}
         placeholder="in MM (e.g., 3, 4, 6, 8, 10, 12)"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuThickness`])}
       />
     </Field>
 
     {/* SHAPE */}
-    <Field label="SHAPE" width="sm">
+    <Field label="SHAPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuShape`]}>
       <Input
         type="text"
         value={material.foamPuShape || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuShape', e.target.value)}
         placeholder="TEXT"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuShape`])}
       />
     </Field>
 
     {/* UPLOAD REF IMAGE */}
-    <Field label="UPLOAD REF IMAGE" width="sm">
+    <Field label="UPLOAD REF IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuShapeRefImage`]}>
       <input
         type="file"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleRawMaterialChange(actualIndex, 'foamPuShapeRefImage', f); }}
@@ -2575,7 +2639,7 @@ const Step2 = ({
         type="button"
         variant="outline"
         size="sm"
-        className="h-11 w-full"
+        className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_foamPuShapeRefImage`] ? 'border-red-600' : ''}`}
         onClick={() => document.getElementById(`upload-pu-foam-shape-${actualIndex}`)?.click()}
       >
         {material.foamPuShapeRefImage ? 'UPLOADED' : 'UPLOAD'}
@@ -2587,36 +2651,40 @@ const Step2 = ({
   <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }}>
     <h4 className="text-sm font-semibold text-foreground/90 mb-4">SIZE SPEC</h4>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-      <Field label="SHEET/PCS" width="sm">
+      <Field label="SHEET/PCS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuSheetPcs`]}>
         <Input
           type="text"
           value={material.foamPuSheetPcs || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuSheetPcs', e.target.value)}
           placeholder="Enter value"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuSheetPcs`])}
         />
       </Field>
-      <Field label="GSM" width="sm">
+      <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuGsm`]}>
         <Input
           type="text"
           value={material.foamPuGsm || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuGsm', e.target.value)}
           placeholder="Enter value"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuGsm`])}
         />
       </Field>
-      <Field label="LENGTH (CM)" width="sm">
+      <Field label="LENGTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuLengthCm`]}>
         <Input
           type="text"
           value={material.foamPuLengthCm || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuLengthCm', e.target.value)}
           placeholder="Enter value"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuLengthCm`])}
         />
       </Field>
-      <Field label="WIDTH (CM)" width="sm">
+      <Field label="WIDTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuWidthCm`]}>
         <Input
           type="text"
           value={material.foamPuWidthCm || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuWidthCm', e.target.value)}
           placeholder="Enter value"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuWidthCm`])}
         />
       </Field>
     </div>
@@ -2626,20 +2694,22 @@ const Step2 = ({
   <div style={{ marginTop: '1.25rem' }}>
     <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-      <Field label="KGS (CNS)" width="sm">
+      <Field label="KGS (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuKgsCns`]}>
         <Input
           type="text"
           value={material.foamPuKgsCns || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuKgsCns', e.target.value)}
           placeholder="Enter value"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuKgsCns`])}
         />
       </Field>
-      <Field label="YARDAGE (CNS)" width="sm">
+      <Field label="YARDAGE (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuYardageCns`]}>
         <Input
           type="text"
           value={material.foamPuYardageCns || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuYardageCns', e.target.value)}
           placeholder="Enter value"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuYardageCns`])}
         />
       </Field>
     </div>
@@ -2647,7 +2717,7 @@ const Step2 = ({
 
   {/* TESTING REQUIREMENTS */}
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
-    <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+    <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamPuTestingRequirements`]}>
       <div className="flex items-center" style={{ gap: '0.75rem' }}>
         <div className="flex-1">
           <TestingRequirementsInput
@@ -2655,6 +2725,7 @@ const Step2 = ({
             onChange={(values) => handleRawMaterialChange(actualIndex, 'foamPuTestingRequirements', values)}
             options={['Density Test', 'ILD Test', 'Compression Set', 'Resilience', 'Flammability']}
             placeholder="Type to search or select testing requirements..."
+            error={Boolean(errors[`rawMaterial_${actualIndex}_foamPuTestingRequirements`])}
           />
         </div>
         <input
@@ -2668,7 +2739,7 @@ const Step2 = ({
           type="button"
           variant="outline"
           size="sm"
-          className="h-11"
+          className={`h-11 ${errors[`rawMaterial_${actualIndex}_foamPuTestingRequirementsFile`] ? 'border-red-600' : ''}`}
           onClick={() => document.getElementById(`upload-pu-foam-testing-${actualIndex}`)?.click()}
         >
           {material.foamPuTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
@@ -2677,16 +2748,17 @@ const Step2 = ({
     </Field>
 
     {/* SURPLUS % */}
-    <Field label="SURPLUS %" width="sm">
+    <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuSurplus`]}>
       <PercentInput
         value={material.foamPuSurplus || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuSurplus', e.target.value)}
         placeholder="e.g., 3-5"
+        error={Boolean(errors[`rawMaterial_${actualIndex}_foamPuSurplus`])}
       />
     </Field>
 
     {/* WASTAGE % */}
-    <Field label="WASTAGE %" width="sm">
+    <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuWastage`]}>
       <div className="relative">
         <SearchableDropdown
           value={material.foamPuWastage || ''}
@@ -2701,7 +2773,7 @@ const Step2 = ({
           }}
           options={['Mattress Core', 'Cushion Insert', 'Topper', 'Packaging']}
           placeholder="Select or type %"
-          className={material.foamPuWastage && !['Mattress Core', 'Cushion Insert', 'Topper', 'Packaging'].includes(material.foamPuWastage) ? 'pr-10' : ''}
+          className={`${material.foamPuWastage && !['Mattress Core', 'Cushion Insert', 'Topper', 'Packaging'].includes(material.foamPuWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamPuWastage`] ? 'border-red-600' : ''}`}
         />
         {material.foamPuWastage && !['Mattress Core', 'Cushion Insert', 'Topper', 'Packaging'].includes(material.foamPuWastage) && (
           <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
@@ -2710,23 +2782,24 @@ const Step2 = ({
     </Field>
 
     {/* APPROVAL */}
-    <Field label="APPROVAL" width="sm">
+    <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuApproval`]}>
       <SearchableDropdown
         value={material.foamPuApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuApproval', selectedValue)}
         options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamPuApproval`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* REMARKS */}
-    <Field label="REMARKS" width="sm">
+    <Field label="REMARKS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuRemarks`]}>
       <Input
         type="text"
         value={material.foamPuRemarks || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuRemarks', e.target.value)}
         placeholder="32D for mattresses, CertiPUR-US for USA market, FR treatment for bedding"
-      />
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuRemarks`])}/>
     </Field>
   </div>
   
@@ -2846,7 +2919,7 @@ const Step2 = ({
   <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
     {/* FOAM TYPE */}
-    <Field label="FOAM TYPE" width="sm">
+    <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedType`]}>
       <SearchableDropdown
         value={material.foamRebondedType || ''}
         onChange={(selectedValue) => {
@@ -2859,16 +2932,18 @@ const Step2 = ({
         }}
         options={['Rebonded Foam', 'Bonded Foam', 'Chip Foam']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamRebondedType`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* SUBTYPE */}
-    <Field label="SUBTYPE" width="sm">
+    <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedSubtype`]}>
       <SearchableDropdown
         value={material.foamRebondedSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedSubtype', selectedValue)}
         options={['Standard Rebond', 'High Density Rebond', 'Colored Chip']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamRebondedSubtype`] ? 'border-red-600' : ''}
       />
     </Field>
 
@@ -3051,16 +3126,17 @@ const Step2 = ({
     </Field>
 
     {/* SURPLUS % */}
-    <Field label="SURPLUS %" width="sm">
+    <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedSurplus`]}>
       <PercentInput
         value={material.foamRebondedSurplus || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamRebondedSurplus', e.target.value)}
         placeholder="e.g., 3-5"
+        error={Boolean(errors[`rawMaterial_${actualIndex}_foamRebondedSurplus`])}
       />
     </Field>
 
     {/* WASTAGE % */}
-    <Field label="WASTAGE %" width="sm">
+    <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedWastage`]}>
       <div className="relative">
         <SearchableDropdown
           value={material.foamRebondedWastage || ''}
@@ -3075,7 +3151,7 @@ const Step2 = ({
           }}
           options={['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging']}
           placeholder="Select or type %"
-          className={material.foamRebondedWastage && !['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging'].includes(material.foamRebondedWastage) ? 'pr-10' : ''}
+          className={`${material.foamRebondedWastage && !['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging'].includes(material.foamRebondedWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamRebondedWastage`] ? 'border-red-600' : ''}`}
         />
         {material.foamRebondedWastage && !['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging'].includes(material.foamRebondedWastage) && (
           <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
@@ -3084,21 +3160,23 @@ const Step2 = ({
     </Field>
 
     {/* APPROVAL */}
-    <Field label="APPROVAL" width="sm">
+    <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedApproval`]}>
       <SearchableDropdown
         value={material.foamRebondedApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedApproval', selectedValue)}
         options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamRebondedApproval`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* REMARKS */}
-    <Field label="REMARKS" width="sm">
+    <Field label="REMARKS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedRemarks`]}>
       <Input
         type="text"
         value={material.foamRebondedRemarks || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamRebondedRemarks', e.target.value)}
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamRebondedRemarks`])}
         placeholder="Cost-effective recycled option, High density for underlay, Multi-color is standard"
       />
     </Field>
@@ -3173,87 +3251,95 @@ const Step2 = ({
   <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
       {/* FOAM TYPE */}
-      <Field label="FOAM TYPE" width="sm">
+      <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedType`]}>
         <SearchableDropdown
           value={material.foamGelInfusedType || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedType', selectedValue)}
           options={['Gel-Infused Foam']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamGelInfusedType`] ? 'border-red-600' : ''}
         />
       </Field>
 
     {/* BASE FOAM */}
-    <Field label="BASE FOAM" width="sm">
+    <Field label="BASE FOAM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedBaseFoam`]}>
       <SearchableDropdown
         value={material.foamGelInfusedBaseFoam || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedBaseFoam', selectedValue)}
         options={['Memory Foam', 'PU Foam', 'HR Foam', 'Latex']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamGelInfusedBaseFoam`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* GEL TYPE */}
-    <Field label="GEL TYPE" width="sm">
+    <Field label="GEL TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedGelType`]}>
       <SearchableDropdown
         value={material.foamGelInfusedGelType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedGelType', selectedValue)}
         options={['Gel Beads', 'Gel Swirl', 'Gel Layer', 'Gel Particles', 'Phase Change Material (PCM)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamGelInfusedGelType`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* GEL CONTENT */}
-    <Field label="GEL CONTENT" width="sm">
+    <Field label="GEL CONTENT" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedGelContent`]}>
       <SearchableDropdown
         value={material.foamGelInfusedGelContent || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedGelContent', selectedValue)}
         options={['Gel content % or concentration']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamGelInfusedGelContent`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* SUBTYPE */}
-    <Field label="SUBTYPE" width="sm">
+    <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedSubtype`]}>
       <SearchableDropdown
         value={material.foamGelInfusedSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedSubtype', selectedValue)}
         options={['Virgin', 'Blended']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamGelInfusedSubtype`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* COLOUR */}
-    <Field label="COLOUR" width="sm">
+    <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedColour`]}>
       <SearchableDropdown
         value={material.foamGelInfusedColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedColour', selectedValue)}
         options={['Blue (common for gel)', 'White', 'Grey', 'Multi-color (swirl)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamGelInfusedColour`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* THICKNESS */}
-    <Field label="THICKNESS" width="sm">
+    <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedThickness`]}>
       <Input
         type="text"
         value={material.foamGelInfusedThickness || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedThickness', e.target.value)}
         placeholder="MM"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedThickness`])}
       />
     </Field>
 
     {/* SHAPE */}
-    <Field label="SHAPE" width="sm">
+    <Field label="SHAPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedShape`]}>
       <Input
         type="text"
         value={material.foamGelInfusedShape || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedShape', e.target.value)}
         placeholder="TEXT"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedShape`])}
       />
     </Field>
 
     {/* UPLOAD REF IMAGE */}
-    <Field label="UPLOAD REF IMAGE" width="sm">
+    <Field label="UPLOAD REF IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedShapeRefImage`]}>
       <input
         type="file"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleRawMaterialChange(actualIndex, 'foamGelInfusedShapeRefImage', f); }}
@@ -3265,7 +3351,7 @@ const Step2 = ({
         type="button"
         variant="outline"
         size="sm"
-        className="h-11 w-full"
+        className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_foamGelInfusedShapeRefImage`] ? 'border-red-600' : ''}`}
         onClick={() => document.getElementById(`upload-gel-infused-foam-shape-${actualIndex}`)?.click()}
       >
         {material.foamGelInfusedShapeRefImage ? 'UPLOADED' : 'UPLOAD'}
@@ -3285,30 +3371,34 @@ const Step2 = ({
             value={material.foamGelInfusedSheetPcs || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedSheetPcs', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedSheetPcs`])}
           />
         </Field>
-        <Field label="GSM" width="sm">
+        <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedGsm`]}>
           <Input
             type="text"
             value={material.foamGelInfusedGsm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedGsm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedGsm`])}
           />
         </Field>
-        <Field label="LENGTH (CM)" width="sm">
+        <Field label="LENGTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedLengthCm`]}>
           <Input
             type="text"
             value={material.foamGelInfusedLengthCm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedLengthCm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedLengthCm`])}
           />
         </Field>
-        <Field label="WIDTH (CM)" width="sm">
+        <Field label="WIDTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedWidthCm`]}>
           <Input
             type="text"
             value={material.foamGelInfusedWidthCm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedWidthCm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedWidthCm`])}
           />
         </Field>
       </div>
@@ -3318,20 +3408,22 @@ const Step2 = ({
     <div style={{ marginTop: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
       <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-        <Field label="KGS (CNS)" width="sm">
+        <Field label="KGS (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedKgsCns`]}>
           <Input
             type="text"
             value={material.foamGelInfusedKgsCns || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedKgsCns', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedKgsCns`])}
           />
         </Field>
-        <Field label="YARDAGE (CNS)" width="sm">
+        <Field label="YARDAGE (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedYardageCns`]}>
           <Input
             type="text"
             value={material.foamGelInfusedYardageCns || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedYardageCns', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedYardageCns`])}
           />
         </Field>
       </div>
@@ -3343,7 +3435,7 @@ const Step2 = ({
       style={{ gap: '16px 12px', marginTop: '1.25rem' }}
     >
       {/* TESTING REQ. */}
-      <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+      <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedTestingRequirements`]}>
         <div className="flex items-center" style={{ gap: '0.75rem' }}>
           <div className="flex-1">
             <TestingRequirementsInput
@@ -3351,6 +3443,7 @@ const Step2 = ({
               onChange={(values) => handleRawMaterialChange(actualIndex, 'foamGelInfusedTestingRequirements', values)}
               options={['Density', 'ILD', 'Temperature Differential Test', 'Compression Set']}
               placeholder="Type to search or select testing requirements..."
+              error={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedTestingRequirements`])}
             />
           </div>
           <input
@@ -3364,7 +3457,7 @@ const Step2 = ({
             type="button"
             variant="outline"
             size="sm"
-            className="h-11"
+            className={`h-11 ${errors[`rawMaterial_${actualIndex}_foamGelInfusedTestingRequirementsFile`] ? 'border-red-600' : ''}`}
             onClick={() => document.getElementById(`upload-gel-infused-testing-${actualIndex}`)?.click()}
           >
             {material.foamGelInfusedTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
@@ -3373,11 +3466,12 @@ const Step2 = ({
       </Field>
 
       {/* SURPLUS % */}
-      <Field label="SURPLUS %" width="sm">
+      <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedSurplus`]}>
         <PercentInput
           value={material.foamGelInfusedSurplus || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedSurplus', e.target.value)}
           placeholder="e.g., 3-5"
+          error={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedSurplus`])}
         />
       </Field>
 
@@ -3425,22 +3519,24 @@ const Step2 = ({
       </Field>
 
       {/* APPROVAL */}
-      <Field label="APPROVAL" width="sm">
+      <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedApproval`]}>
         <SearchableDropdown
           value={material.foamGelInfusedApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedApproval', selectedValue)}
           options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamGelInfusedApproval`] ? 'border-red-600' : ''}
         />
       </Field>
 
       {/* REMARKS */}
-      <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+      <Field label="REMARKS" required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedRemarks`]}>
         <Input
           type="text"
           value={material.foamGelInfusedRemarks || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedRemarks', e.target.value)}
           placeholder="Gel memory foam for hot sleepers, PCM for active temperature regulation"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedRemarks`])}
         />
       </Field>
     </div>
@@ -3554,87 +3650,95 @@ const Step2 = ({
   <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
       {/* FOAM TYPE */}
-      <Field label="FOAM TYPE" width="sm">
+      <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexType`]}>
         <SearchableDropdown
           value={material.foamLatexType || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexType', selectedValue)}
           options={['Latex Foam']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamLatexType`] ? 'border-red-600' : ''}
         />
       </Field>
 
     {/* LATEX TYPE */}
-    <Field label="LATEX TYPE" width="sm">
+    <Field label="LATEX TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexLatexType`]}>
       <SearchableDropdown
         value={material.foamLatexLatexType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexLatexType', selectedValue)}
         options={['Natural Latex (NR)', 'Synthetic Latex (SBR)', 'Blended (NR+SBR)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamLatexLatexType`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* NATURAL CONTENT */}
-    <Field label="NATURAL CONTENT" width="sm">
+    <Field label="NATURAL CONTENT" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexNaturalContent`]}>
       <SearchableDropdown
         value={material.foamLatexNaturalContent || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexNaturalContent', selectedValue)}
         options={['100% Natural', '95% Natural', '85% Natural', 'Blended (varies)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamLatexNaturalContent`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* PROCESS */}
-    <Field label="PROCESS" width="sm">
+    <Field label="PROCESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexProcess`]}>
       <SearchableDropdown
         value={material.foamLatexProcess || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexProcess', selectedValue)}
         options={['Dunlop Process', 'Talalay Process']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamLatexProcess`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* SUBTYPE */}
-    <Field label="SUBTYPE" width="sm">
+    <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexSubtype`]}>
       <SearchableDropdown
         value={material.foamLatexSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexSubtype', selectedValue)}
         options={['Virgin', 'Organic Certified']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamLatexSubtype`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* COLOUR */}
-    <Field label="COLOUR" width="sm">
+    <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexColour`]}>
       <SearchableDropdown
         value={material.foamLatexColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexColour', selectedValue)}
         options={['Natural (cream/off-white)', 'White (bleached/synthetic)']}
         placeholder="Select or type"
+        className={errors[`rawMaterial_${actualIndex}_foamLatexColour`] ? 'border-red-600' : ''}
       />
     </Field>
 
     {/* THICKNESS */}
-    <Field label="THICKNESS" width="sm">
+    <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexThickness`]}>
       <Input
         type="text"
         value={material.foamLatexThickness || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexThickness', e.target.value)}
         placeholder="MM (e.g., 2, 3, 4, 6, 8)"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexThickness`])}
       />
     </Field>
 
     {/* SHAPE */}
-    <Field label="SHAPE" width="sm">
+    <Field label="SHAPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexShape`]}>
       <Input
         type="text"
         value={material.foamLatexShape || ''}
         onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexShape', e.target.value)}
         placeholder="TEXT"
+        aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexShape`])}
       />
     </Field>
 
     {/* UPLOAD REF IMAGE */}
-    <Field label="UPLOAD REF IMAGE" width="sm">
+    <Field label="UPLOAD REF IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexShapeRefImage`]}>
       <input
         type="file"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleRawMaterialChange(actualIndex, 'foamLatexShapeRefImage', f); }}
@@ -3646,7 +3750,7 @@ const Step2 = ({
         type="button"
         variant="outline"
         size="sm"
-        className="h-11 w-full"
+        className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_foamLatexShapeRefImage`] ? 'border-red-600' : ''}`}
         onClick={() => document.getElementById(`upload-latex-foam-shape-${actualIndex}`)?.click()}
       >
         {material.foamLatexShapeRefImage ? 'UPLOADED' : 'UPLOAD'}
@@ -3657,36 +3761,40 @@ const Step2 = ({
     <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
       <h4 className="text-sm font-semibold text-foreground/90 mb-4">SIZE SPEC</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-        <Field label="SHEET/PCS" width="sm">
+        <Field label="SHEET/PCS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexSheetPcs`]}>
           <Input
             type="text"
             value={material.foamLatexSheetPcs || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexSheetPcs', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexSheetPcs`])}
           />
         </Field>
-        <Field label="GSM" width="sm">
+        <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexGsm`]}>
           <Input
             type="text"
             value={material.foamLatexGsm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexGsm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexGsm`])}
           />
         </Field>
-        <Field label="LENGTH (CM)" width="sm">
+        <Field label="LENGTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexLengthCm`]}>
           <Input
             type="text"
             value={material.foamLatexLengthCm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexLengthCm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexLengthCm`])}
           />
         </Field>
-        <Field label="WIDTH (CM)" width="sm">
+        <Field label="WIDTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexWidthCm`]}>
           <Input
             type="text"
             value={material.foamLatexWidthCm || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexWidthCm', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexWidthCm`])}
           />
         </Field>
       </div>
@@ -3696,10 +3804,11 @@ const Step2 = ({
     <div style={{ marginTop: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
       <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-        <Field label="KGS (CNS)" width="sm">
+        <Field label="KGS (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexKgsCns`]}>
           <Input
             type="text"
             value={material.foamLatexKgsCns || ''}
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexKgsCns`])}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexKgsCns', e.target.value)}
             placeholder="Enter value"
           />
@@ -3710,6 +3819,7 @@ const Step2 = ({
             value={material.foamLatexYardageCns || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexYardageCns', e.target.value)}
             placeholder="Enter value"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexYardageCns`])}
           />
         </Field>
       </div>
@@ -3718,7 +3828,7 @@ const Step2 = ({
     {/* TESTING / SURPLUS / WASTAGE / APPROVAL / REMARKS */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 col-span-1 md:col-span-2 lg:col-span-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
       {/* TESTING REQ. */}
-      <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+      <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamLatexTestingRequirements`]}>
         <div className="flex items-center" style={{ gap: '0.75rem' }}>
           <div className="flex-1">
             <TestingRequirementsInput
@@ -3726,6 +3836,7 @@ const Step2 = ({
               onChange={(values) => handleRawMaterialChange(actualIndex, 'foamLatexTestingRequirements', values)}
               options={['Density', 'ILD', 'Resilience', 'Natural Content %', 'GOLS Certification']}
               placeholder="Type to search or select testing requirements..."
+              error={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexTestingRequirements`])}
             />
           </div>
           <input
@@ -3739,7 +3850,7 @@ const Step2 = ({
             type="button"
             variant="outline"
             size="sm"
-            className="h-11"
+            className={`h-11 ${errors[`rawMaterial_${actualIndex}_foamLatexTestingRequirementsFile`] ? 'border-red-600' : ''}`}
             onClick={() => document.getElementById(`upload-latex-testing-${actualIndex}`)?.click()}
           >
             {material.foamLatexTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
@@ -3748,7 +3859,7 @@ const Step2 = ({
       </Field>
 
       {/* SURPLUS % */}
-      <Field label="SURPLUS %" width="sm">
+      <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexSurplus`]}>
         <PercentInput
           value={material.foamLatexSurplus || ''}
           onChange={(e) => {
@@ -3756,6 +3867,7 @@ const Step2 = ({
             handleRawMaterialChange(actualIndex, 'foamLatexSurplus', numericValue);
           }}
           placeholder="e.g., 2-5"
+          error={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexSurplus`])}
         />
       </Field>
 
@@ -3802,22 +3914,24 @@ const Step2 = ({
       </Field>
 
       {/* APPROVAL */}
-      <Field label="APPROVAL" width="sm">
+      <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexApproval`]}>
         <SearchableDropdown
           value={material.foamLatexApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexApproval', selectedValue)}
           options={["BUYER'S", 'INITIAL', 'PP SAMPLE', 'GOLS Certificate']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamLatexApproval`] ? 'border-red-600' : ''}
         />
       </Field>
 
       {/* REMARKS */}
-      <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+      <Field label="REMARKS" required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamLatexRemarks`]}>
         <Input
           type="text"
           value={material.foamLatexRemarks || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamLatexRemarks', e.target.value)}
           placeholder="Dunlop=denser, Talalay=softer/consistent, GOLS for organic claims, 7-zone for ergonomic"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexRemarks`])}
         />
       </Field>
     </div>
@@ -3950,67 +4064,73 @@ const Step2 = ({
   <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
       {/* FOAM TYPE */}
-      <Field label="FOAM TYPE" width="sm">
+      <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryType`]}>
         <SearchableDropdown
           value={material.foamMemoryType || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryType', selectedValue)}
           options={['Memory Foam', 'Visco-Elastic Foam']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamMemoryType`] ? 'border-red-600' : ''}
         />
       </Field>
 
       {/* SUBTYPE */}
-      <Field label="SUBTYPE" width="sm">
+      <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemorySubtype`]}>
         <SearchableDropdown
           value={material.foamMemorySubtype || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemorySubtype', selectedValue)}
           options={['Virgin', 'Blended', 'Plant-Based (Bio-Foam)']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamMemorySubtype`] ? 'border-red-600' : ''}
         />
       </Field>
 
       {/* GRADE */}
-      <Field label="GRADE" width="sm">
+      <Field label="GRADE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryGrade`]}>
         <SearchableDropdown
           value={material.foamMemoryGrade || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryGrade', selectedValue)}
           options={['Standard Memory', 'High Density Memory', 'Premium Memory']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamMemoryGrade`] ? 'border-red-600' : ''}
         />
       </Field>
 
       {/* COLOUR */}
-      <Field label="COLOUR" width="sm">
+      <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryColour`]}>
         <SearchableDropdown
           value={material.foamMemoryColour || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryColour', selectedValue)}
           options={['White', 'Grey', 'Blue', 'Green (plant-based)', 'Charcoal']}
           placeholder="Select or type"
+          className={errors[`rawMaterial_${actualIndex}_foamMemoryColour`] ? 'border-red-600' : ''}
         />
       </Field>
 
       {/* THICKNESS */}
-      <Field label="THICKNESS" width="sm">
+      <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryThickness`]}>
         <Input
           type="text"
           value={material.foamMemoryThickness || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryThickness', e.target.value)}
           placeholder="in MM (e.g., 2, 3, 4, 5, 6)"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryThickness`])}
         />
       </Field>
 
       {/* SHAPE */}
-      <Field label="SHAPE" width="sm">
+      <Field label="SHAPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryShape`]}>
         <Input
           type="text"
           value={material.foamMemoryShape || ''}
           onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryShape', e.target.value)}
           placeholder="TEXT"
+          aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryShape`])}
         />
       </Field>
 
       {/* UPLOAD REF IMAGE */}
-      <Field label="UPLOAD REF IMAGE" width="sm">
+      <Field label="UPLOAD REF IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryShapeRefImage`]}>
         <input
           type="file"
           onChange={(e) => { const f = e.target.files?.[0]; if (f) handleRawMaterialChange(actualIndex, 'foamMemoryShapeRefImage', f); }}
@@ -4022,7 +4142,7 @@ const Step2 = ({
           type="button"
           variant="outline"
           size="sm"
-          className="h-11 w-full"
+          className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_foamMemoryShapeRefImage`] ? 'border-red-600' : ''}`}
           onClick={() => document.getElementById(`upload-memory-foam-shape-${actualIndex}`)?.click()}
         >
           {material.foamMemoryShapeRefImage ? 'UPLOADED' : 'UPLOAD REF IMAGE'}
@@ -4041,28 +4161,31 @@ const Step2 = ({
               placeholder="Enter value"
             />
           </Field>
-          <Field label="GSM" width="sm">
+          <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryGsm`]}>
             <Input
               type="text"
               value={material.foamMemoryGsm || ''}
               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryGsm', e.target.value)}
               placeholder="Enter value"
+              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryGsm`])}
             />
           </Field>
-          <Field label="LENGTH (CM)" width="sm">
+          <Field label="LENGTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryLengthCm`]}>
             <Input
               type="text"
               value={material.foamMemoryLengthCm || ''}
               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryLengthCm', e.target.value)}
               placeholder="Enter value"
+              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryLengthCm`])}
             />
           </Field>
-          <Field label="WIDTH (CM)" width="sm">
+          <Field label="WIDTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryWidthCm`]}>
             <Input
               type="text"
               value={material.foamMemoryWidthCm || ''}
               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryWidthCm', e.target.value)}
               placeholder="Enter value"
+              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryWidthCm`])}
             />
           </Field>
         </div>
@@ -4072,20 +4195,22 @@ const Step2 = ({
       <div style={{ marginTop: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
         <h4 className="text-sm font-semibold text-foreground/90 mb-4">QTY</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-          <Field label="KGS (CNS)" width="sm">
+          <Field label="KGS (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryKgsCns`]}>
             <Input
               type="text"
               value={material.foamMemoryKgsCns || ''}
               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryKgsCns', e.target.value)}
               placeholder="Enter value"
+              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryKgsCns`])}
             />
           </Field>
-          <Field label="YARDAGE (CNS)" width="sm">
+          <Field label="YARDAGE (CNS)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryYardageCns`]}>
             <Input
               type="text"
               value={material.foamMemoryYardageCns || ''}
               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryYardageCns', e.target.value)}
               placeholder="Enter value"
+              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryYardageCns`])}
             />
           </Field>
         </div>
@@ -4094,7 +4219,7 @@ const Step2 = ({
       {/* TESTING / SURPLUS / WASTAGE / APPROVAL / REMARKS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 col-span-1 md:col-span-2 lg:col-span-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
         {/* TESTING REQ. */}
-        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamMemoryTestingRequirements`]}>
           <div className="flex items-center" style={{ gap: '0.75rem' }}>
             <div className="flex-1">
               <TestingRequirementsInput
@@ -4102,6 +4227,7 @@ const Step2 = ({
                 onChange={(values) => handleRawMaterialChange(actualIndex, 'foamMemoryTestingRequirements', values)}
                 options={['Density', 'ILD', 'Response Time', 'Compression Set', 'VOC Emissions', 'Flammability']}
                 placeholder="Type to search or select testing requirements..."
+                error={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryTestingRequirements`])}
               />
             </div>
             <input
@@ -4115,7 +4241,7 @@ const Step2 = ({
               type="button"
               variant="outline"
               size="sm"
-              className="h-11"
+              className={`h-11 ${errors[`rawMaterial_${actualIndex}_foamMemoryTestingRequirementsFile`] ? 'border-red-600' : ''}`}
               onClick={() => document.getElementById(`upload-memory-testing-${actualIndex}`)?.click()}
             >
               {material.foamMemoryTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
@@ -4124,11 +4250,12 @@ const Step2 = ({
         </Field>
 
         {/* SURPLUS % */}
-        <Field label="SURPLUS %" width="sm">
+        <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemorySurplus`]}>
           <PercentInput
             value={material.foamMemorySurplus || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemorySurplus', e.target.value)}
             placeholder="e.g., 3-5"
+            error={Boolean(errors[`rawMaterial_${actualIndex}_foamMemorySurplus`])}
           />
         </Field>
 
@@ -4175,22 +4302,24 @@ const Step2 = ({
         </Field>
 
         {/* APPROVAL */}
-        <Field label="APPROVAL" width="sm">
+        <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryApproval`]}>
           <SearchableDropdown
             value={material.foamMemoryApproval || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryApproval', selectedValue)}
             options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
             placeholder="Select or type"
+            className={errors[`rawMaterial_${actualIndex}_foamMemoryApproval`] ? 'border-red-600' : ''}
           />
         </Field>
 
         {/* REMARKS */}
-        <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+        <Field label="REMARKS" required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamMemoryRemarks`]}>
           <Input
             type="text"
             value={material.foamMemoryRemarks || ''}
             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemoryRemarks', e.target.value)}
             placeholder="50D+ for quality, Gel-infused for cooling, Low VOC for sensitive users"
+            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamMemoryRemarks`])}
           />
         </Field>
       </div>
@@ -4340,67 +4469,73 @@ const Step2 = ({
                     {material.foamTableType === 'HR-form' && (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
                         {/* FOAM TYPE */}
-                        <Field label="FOAM TYPE" width="sm">
+                        <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrType`]}>
                           <SearchableDropdown
                             value={material.foamHrType || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamHrType', selectedValue)}
                             options={['HR Foam (High Resilience)', 'High Resiliency Foam']}
                             placeholder="Select or type"
+                            className={errors[`rawMaterial_${actualIndex}_foamHrType`] ? 'border-red-600' : ''}
                           />
                         </Field>
 
                         {/* SUBTYPE */}
-                        <Field label="SUBTYPE" width="sm">
+                        <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrSubtype`]}>
                           <SearchableDropdown
                             value={material.foamHrSubtype || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamHrSubtype', selectedValue)}
                             options={['Virgin HR', 'Super HR', 'CME (Combustion Modified)']}
                             placeholder="Select or type"
+                            className={errors[`rawMaterial_${actualIndex}_foamHrSubtype`] ? 'border-red-600' : ''}
                           />
                         </Field>
 
                         {/* GRADE */}
-                        <Field label="GRADE" width="sm">
+                        <Field label="GRADE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrGrade`]}>
                           <SearchableDropdown
                             value={material.foamHrGrade || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamHrGrade', selectedValue)}
                             options={['HR 35', 'HR 40', 'HR 45', 'HR 50']}
                             placeholder="Select or type"
+                            className={errors[`rawMaterial_${actualIndex}_foamHrGrade`] ? 'border-red-600' : ''}
                           />
                         </Field>
 
                         {/* COLOUR */}
-                        <Field label="COLOUR" width="sm">
+                        <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrColour`]}>
                           <SearchableDropdown
                             value={material.foamHrColour || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamHrColour', selectedValue)}
                             options={['White', 'Off-White', 'Pink', 'Blue', 'Grey']}
                             placeholder="Select or type"
+                            className={errors[`rawMaterial_${actualIndex}_foamHrColour`] ? 'border-red-600' : ''}
                           />
                         </Field>
 
                         {/* THICKNESS */}
-                        <Field label="THICKNESS" width="sm">
+                        <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrThickness`]}>
                           <Input
                             type="text"
                             value={material.foamHrThickness || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrThickness', e.target.value)}
                             placeholder="MM"
+                            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamHrThickness`])}
                           />
                         </Field>
 
                         {/* SHAPE */}
-                        <Field label="SHAPE" width="sm">
+                        <Field label="SHAPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrShape`]}>
                           <Input
                             type="text"
                             value={material.foamHrShape || ''}
                             onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrShape', e.target.value)}
                             placeholder="TEXT"
+                            aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamHrShape`])}
                           />
                         </Field>
 
                         {/* UPLOAD REF IMAGE */}
-                        <Field label="UPLOAD REF IMAGE" width="sm">
+                        <Field label="UPLOAD REF IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrShapeRefImage`]}>
                           <input
                             type="file"
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleRawMaterialChange(actualIndex, 'foamHrShapeRefImage', f); }}
@@ -4412,7 +4547,7 @@ const Step2 = ({
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="h-11 w-full"
+                            className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_foamHrShapeRefImage`] ? 'border-red-600' : ''}`}
                             onClick={() => document.getElementById(`upload-hr-foam-shape-${actualIndex}`)?.click()}
                           >
                             {material.foamHrShapeRefImage ? 'UPLOADED' : 'UPLOAD REF IMAGE'}
@@ -4422,36 +4557,40 @@ const Step2 = ({
                         <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
                           <h4 className="text-sm font-semibold text-foreground/90 mb-4">SIZE SPEC</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
-                            <Field label="SHEET/PCS" width="sm">
+                            <Field label="SHEET/PCS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrSheetPcs`]}>
                               <Input
                                 type="text"
                                 value={material.foamHrSheetPcs || ''}
                                 onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrSheetPcs', e.target.value)}
                                 placeholder="Enter value"
+                                aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamHrSheetPcs`])}
                               />
                             </Field>
-                            <Field label="GSM" width="sm">
+                            <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrGsm`]}>
                               <Input
                                 type="text"
                                 value={material.foamHrGsm || ''}
                                 onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrGsm', e.target.value)}
                                 placeholder="Enter value"
+                                aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamHrGsm`])}
                               />
                             </Field>
-                            <Field label="LENGTH (CM)" width="sm">
+                            <Field label="LENGTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrLengthCm`]}>
                               <Input
                                 type="text"
                                 value={material.foamHrLengthCm || ''}
                                 onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrLengthCm', e.target.value)}
                                 placeholder="Enter value"
+                                aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamHrLengthCm`])}
                               />
                             </Field>
-                            <Field label="WIDTH (CM)" width="sm">
+                            <Field label="WIDTH (CM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrWidthCm`]}>
                               <Input
                                 type="text"
                                 value={material.foamHrWidthCm || ''}
                                 onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrWidthCm', e.target.value)}
                                 placeholder="Enter value"
+                                aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamHrWidthCm`])}
                               />
                             </Field>
                           </div>
@@ -4482,26 +4621,28 @@ const Step2 = ({
                         {/* TESTING / SURPLUS / WASTAGE / APPROVAL / REMARKS */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 col-span-1 md:col-span-2 lg:col-span-5" style={{ gap: '16px 12px', marginTop: '1.25rem' }}>
                           {/* TESTING REQ. */}
-                          <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamHrTestingRequirements`]}>
                             <TestingRequirementsInput
                               value={material.foamHrTestingRequirements || []}
                               onChange={(values) => handleRawMaterialChange(actualIndex, 'foamHrTestingRequirements', values)}
                               options={['Density', 'ILD', 'Support Factor', 'Resilience (>60%)', 'Fatigue Test']}
                               placeholder="Type to search or select testing requirements..."
+                              error={Boolean(errors[`rawMaterial_${actualIndex}_foamHrTestingRequirements`])}
                             />
                           </Field>
 
                           {/* SURPLUS % */}
-                          <Field label="SURPLUS %" width="sm">
+                          <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrSurplus`]}>
                             <PercentInput
                               value={material.foamHrSurplus || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrSurplus', e.target.value)}
                               placeholder="e.g., 3-5"
+                              error={Boolean(errors[`rawMaterial_${actualIndex}_foamHrSurplus`])}
                             />
                           </Field>
 
                           {/* WASTAGE % */}
-                          <Field label="WASTAGE %" width="sm">
+                          <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrWastage`]}>
                             <div className="relative">
                               <SearchableDropdown
                                 value={material.foamHrWastage || ''}
@@ -4516,7 +4657,7 @@ const Step2 = ({
                                 }}
                                 options={['Premium Mattress', 'Automotive Seating', 'High-End Cushions']}
                                 placeholder="Select or type %"
-                                className={material.foamHrWastage && !['Premium Mattress', 'Automotive Seating', 'High-End Cushions'].includes(material.foamHrWastage) ? 'pr-10' : ''}
+                                className={`${material.foamHrWastage && !['Premium Mattress', 'Automotive Seating', 'High-End Cushions'].includes(material.foamHrWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamHrWastage`] ? 'border-red-600' : ''}`}
                               />
                               {material.foamHrWastage && !['Premium Mattress', 'Automotive Seating', 'High-End Cushions'].includes(material.foamHrWastage) && (
                                 <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
@@ -4525,22 +4666,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrApproval`]}>
                             <SearchableDropdown
                               value={material.foamHrApproval || ''}
                               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamHrApproval', selectedValue)}
                               options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                               placeholder="Select or type"
+                              className={errors[`rawMaterial_${actualIndex}_foamHrApproval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Field label="REMARKS" required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[`rawMaterial_${actualIndex}_foamHrRemarks`]}>
                             <Input
                               type="text"
                               value={material.foamHrRemarks || ''}
                               onChange={(e) => handleRawMaterialChange(actualIndex, 'foamHrRemarks', e.target.value)}
                               placeholder="Resilience >60% is true HR, Better durability than conventional PU, CME for inherent FR"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamHrRemarks`])}
                             />
                           </Field>
                         </div>
@@ -4663,7 +4806,9 @@ const Step2 = ({
                   <div className="bg-white rounded-lg border border-gray-200" style={{ padding: '20px' }}>
                     {/* Table Selection Dropdown */}
                     <div className="flex flex-col" style={{ marginBottom: '24px', maxWidth: '300px' }}>
-                      <label className="text-sm font-semibold text-gray-700 mb-2">SELECT FIBER TABLE</label>
+                      <label className="text-sm font-semibold text-gray-700 mb-2">
+                        SELECT FIBER TABLE <span className="text-red-600">*</span>
+                      </label>
                       <SearchableDropdown
                         value={material.fiberTableType || ''}
                         onChange={(selectedValue) => {
@@ -4738,9 +4883,14 @@ const Step2 = ({
                         }}
                         options={['Polyester-Fills', 'Down-Feather', 'Wool-Natural','Specialty-Fills','Microfiber-Fill','Down-Alternative','Cotton-Fill']}
                         placeholder="Select fiber table"
-                        className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${
+                          errors[`rawMaterial_${actualIndex}_fiberTableType`] ? 'border-red-600' : 'border-[#e5e7eb]'
+                        }`}
                         style={{ padding: '10px 14px', height: '44px' }}
                       />
+                      {errors[`rawMaterial_${actualIndex}_fiberTableType`] && (
+                        <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_fiberTableType`]}</span>
+                      )}
                     </div>
 
                     {/* Polyester-Fills Table */}
@@ -4748,28 +4898,30 @@ const Step2 = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* FIBER TYPE */}
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">FIBER TYPE</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">FIBER TYPE <span className="text-red-500">*</span></label>
                           <SearchableDropdown
                             value={material.fiberFiberType || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberFiberType', selectedValue)}
                             options={['Polyester (PET)', 'Recycled Polyester (rPET)']}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`rawMaterial_${actualIndex}_fiberFiberType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                           />
+                          {errors[`rawMaterial_${actualIndex}_fiberFiberType`] && <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_fiberFiberType`]}</span>}
                         </div>
 
                       {/* SUBTYPE */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SUBTYPE</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">SUBTYPE <span className="text-red-500">*</span></label>
                         <SearchableDropdown
                           value={material.fiberSubtype || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberSubtype', selectedValue)}
                           options={['Virgin', 'Recycled', 'Conjugate', 'Hollow Conjugate']}
                           placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`rawMaterial_${actualIndex}_fiberSubtype`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
+                        {errors[`rawMaterial_${actualIndex}_fiberSubtype`] && <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_fiberSubtype`]}</span>}
                       </div>
 
                       {/* FORM */}
@@ -8749,8 +8901,8 @@ const Step2 = ({
                       {/* Machine Type / Specific Type Dropdown */}
                       {(['WEAVING', 'TUFTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET', 'CUTTING'].includes(workOrder.workOrder)) && (
                         <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">
-                            {workOrder.workOrder === 'CUTTING' ? 'TOOL TYPE' : 'MACHINE TYPE'}
+                          <label className={`text-sm font-semibold mb-2 ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] ? 'text-red-600' : 'text-gray-700'}`}>
+                            {workOrder.workOrder === 'CUTTING' ? 'TOOL TYPE *' : 'MACHINE TYPE *'}
                           </label>
                           <SearchableDropdown
                             value={workOrder.machineType || ''}
@@ -8767,9 +8919,11 @@ const Step2 = ({
                             }
                             placeholder={workOrder.workOrder === 'CUTTING' ? "Select or type Tool Type" : "Select or type Machine Type"}
                             style={{ width: '160px' }}
+                            className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] ? 'border-red-600' : ''}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
                           />
+                          {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] && <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`]}</span>}
                         </div>
                       )}
 
@@ -8779,52 +8933,60 @@ const Step2 = ({
                           {/* STRAND COUNT */}
                           <Field
                             label="STRAND COUNT"
+                            required
                             width="sm"
                             helper={workOrder.machineType ? getBraidingStrandCount(workOrder.machineType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_strandCount`]}
                           >
                             <Input
                               type="text"
                               value={workOrder.strandCount || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'strandCount', e.target.value)}
                               placeholder="Enter strand count"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_strandCount`])}
                             />
                           </Field>
 
                           {/* WIDTH / DIAMETER */}
                           <Field
                             label={workOrder.machineType ? getBraidingWidthDiameter(workOrder.machineType) : 'WIDTH / DIAMETER'}
+                            required
                             width="sm"
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_widthDiameter`]}
                           >
                             <Input
                               type="text"
                               value={workOrder.widthDiameter || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'widthDiameter', e.target.value)}
                               placeholder="Enter width/diameter"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_widthDiameter`])}
                             />
                           </Field>
 
                           {/* GSM */}
-                          <Field label="GSM" width="sm">
+                          <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`]}>
                             <Input
                               type="text"
                               value={workOrder.gsm || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                               placeholder="Enter GSM"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`])}
                             />
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={BRAIDING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -8835,7 +8997,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`braiding-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -8845,12 +9007,13 @@ const Step2 = ({
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Enter remarks"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -8860,7 +9023,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'KNITTING' && (
                         <>
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingDesignRef`]}>
                             <input
                               type="file"
                               onChange={(e) => {
@@ -8874,7 +9037,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingDesignRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`knitting-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -8886,8 +9049,10 @@ const Step2 = ({
                           {/* GAUGE */}
                           <Field
                             label="GAUGE"
+                            required
                             width="sm"
                             helper={workOrder.machineType ? getKnittingGaugeRange(workOrder.machineType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingGauge`]}
                           >
                             <Input
                               type="text"
@@ -8900,11 +9065,12 @@ const Step2 = ({
                                   ? getKnittingGaugeRange(workOrder.machineType)
                                   : 'Numeric'
                               }
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingGauge`])}
                             />
                           </Field>
 
                           {/* GSM */}
-                          <Field label="GSM" width="sm">
+                          <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingGsm`]}>
                             <Input
                               type="text"
                               value={workOrder.knittingGsm || ''}
@@ -8912,11 +9078,12 @@ const Step2 = ({
                                 handleWorkOrderChange(actualIndex, woIndex, 'knittingGsm', e.target.value)
                               }
                               placeholder="Numeric"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingGsm`])}
                             />
                           </Field>
 
                           {/* WALES Ratio */}
-                          <Field label="WALES RATIO" width="sm" helper="0–1">
+                          <Field label="WALES RATIO" required width="sm" helper="0–1" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingWalesRatio`]}>
                             <Input
                               type="number"
                               step="0.001"
@@ -8927,11 +9094,12 @@ const Step2 = ({
                                 handleWorkOrderChange(actualIndex, woIndex, 'knittingWalesRatio', e.target.value)
                               }
                               placeholder="0-1"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingWalesRatio`])}
                             />
                           </Field>
 
                           {/* COURSES Ratio */}
-                          <Field label="COURSES RATIO" width="sm" helper="0–1">
+                          <Field label="COURSES RATIO" required width="sm" helper="0–1" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingCoursesRatio`]}>
                             <Input
                               type="number"
                               step="0.001"
@@ -8942,32 +9110,36 @@ const Step2 = ({
                                 handleWorkOrderChange(actualIndex, woIndex, 'knittingCoursesRatio', e.target.value)
                               }
                               placeholder="0-1"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingCoursesRatio`])}
                             />
                           </Field>
 
                           {/* RATIO WEIGHT/%AGE (Wales) */}
-                          <Field label="RATIO WEIGHT(WALES)" width="sm">
+                          <Field label="RATIO WEIGHT(WALES)" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingRatioWeightWales`]}>
                             <PercentInput
                               value={workOrder.knittingRatioWeightWales || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'knittingRatioWeightWales', e.target.value)}
                               placeholder="e.g., 25"
+                              error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingRatioWeightWales`])}
                             />
                           </Field>
 
                           {/* RATIO WEIGHT/%AGE (Courses) */}
-                          <Field label="RATIO WEIGHT(COURSE)" width="sm">
+                          <Field label="RATIO WEIGHT(COURSE)" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingRatioWeightCourses`]}>
                             <PercentInput
                               value={workOrder.knittingRatioWeightCourses || ''}
                               onChange={(e) =>
                                 handleWorkOrderChange(actualIndex, woIndex, 'knittingRatioWeightCourses', e.target.value)
                               }
                               placeholder="e.g., 75"
+                              error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knittingRatioWeightCourses`])}
                             />
                           </Field>
 
                           {/* WASTAGE % */}
                           <Field
                             label="WASTAGE %"
+                            required
                             width="sm"
                             error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                           >
@@ -8980,22 +9152,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={KNITTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Text"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -9171,7 +9345,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'QUILTING' && (
                         <>
                           {/* QUILTING TYPE */}
-                          <Field label="QUILTING TYPE" width="sm">
+                          <Field label="QUILTING TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_quiltingType`]}>
                             <SearchableDropdown
                               value={workOrder.quiltingType || ''}
                               onChange={(selectedValue) =>
@@ -9179,11 +9353,12 @@ const Step2 = ({
                               }
                               options={getAllQuiltingTypes()}
                               placeholder="Select or type Quilting Type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_quiltingType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -9194,7 +9369,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`quilting-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -9206,8 +9381,10 @@ const Step2 = ({
                           {/* STITCH LENGTH (mm) */}
                           <Field
                             label="STITCH LENGTH (MM)"
+                            required
                             width="sm"
                             helper={workOrder.quiltingType ? getQuiltingStitchLength(workOrder.quiltingType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_stitchLength`]}
                           >
                             <Input
                               type="text"
@@ -9216,14 +9393,17 @@ const Step2 = ({
                               placeholder={
                                 workOrder.quiltingType ? getQuiltingStitchLength(workOrder.quiltingType) : 'Enter stitch length (mm)'
                               }
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_stitchLength`])}
                             />
                           </Field>
 
                           {/* PATTERN REPEAT */}
                           <Field
                             label="PATTERN REPEAT"
+                            required
                             width="sm"
                             helper={workOrder.quiltingType ? getQuiltingPatternRepeat(workOrder.quiltingType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_patternRepeat`]}
                           >
                             <Input
                               type="text"
@@ -9232,12 +9412,14 @@ const Step2 = ({
                               placeholder={
                                 workOrder.quiltingType ? getQuiltingPatternRepeat(workOrder.quiltingType) : 'Enter pattern repeat'
                               }
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_patternRepeat`])}
                             />
                           </Field>
 
                           {/* WASTAGE % */}
                           <Field
                             label="WASTAGE %"
+                            required
                             width="sm"
                             error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                           >
@@ -9250,22 +9432,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                               options={QUILTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Text"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -9275,7 +9459,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'PRINTING' && (
                         <>
                           {/* PRINTING TYPE */}
-                          <Field label="PRINTING TYPE" width="sm">
+                          <Field label="PRINTING TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_printingType`]}>
                             <SearchableDropdown
                               value={workOrder.printingType || ''}
                               onChange={(selectedValue) =>
@@ -9283,11 +9467,12 @@ const Step2 = ({
                               }
                               options={getAllPrintingTypes()}
                               placeholder="Select or type Printing Type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_printingType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -9298,7 +9483,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`printing-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -9310,20 +9495,24 @@ const Step2 = ({
                           {/* REPEAT SIZE */}
                           <Field
                             label="REPEAT SIZE"
+                            required
                             width="sm"
                             helper={workOrder.printingType ? getPrintingRepeatSize(workOrder.printingType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_repeatSize`]}
                           >
                             <Input
                               type="text"
                               value={workOrder.repeatSize || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'repeatSize', e.target.value)}
                               placeholder={workOrder.printingType ? getPrintingRepeatSize(workOrder.printingType) : 'Enter repeat size'}
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_repeatSize`])}
                             />
                           </Field>
 
                           {/* WASTAGE % */}
                           <Field
                             label="WASTAGE %"
+                            required
                             width="sm"
                             error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                           >
@@ -9336,22 +9525,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={PRINTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Text"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -9361,32 +9552,37 @@ const Step2 = ({
                       {workOrder.workOrder === 'SEWING' && (
                         <>
                           {/* SPI */}
-                          <Field label="SPI" width="sm">
+                          <Field label="SPI" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_spi`]}>
                             <Input
                               type="text"
                               value={workOrder.spi || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'spi', e.target.value)}
                               placeholder="Numeric"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_spi`])}
                             />
                           </Field>
 
                           {/* THREAD TYPE */}
                           <Field
                             label="THREAD TYPE"
+                            required
                             width="sm"
                             helper={workOrder.sewingMachineType ? getSewingThreadType(workOrder.sewingMachineType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_threadType`]}
                           >
                             <SearchableDropdown
                               value={workOrder.threadType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'threadType', selectedValue)}
                               options={SEWING_THREAD_TYPE_OPTIONS}
                               placeholder="Select or type Thread Type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_threadType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* WASTAGE % - OPTIONAL for SEWING */}
                           <Field
                             label="WASTAGE %"
+                            required
                             width="sm"
                             error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                           >
@@ -9395,28 +9591,30 @@ const Step2 = ({
                               onChange={(e) => {
                                 handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value);
                               }}
-                              placeholder="e.g., 2 (optional)"
+                              placeholder="e.g., 2"
                               error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`])}
                             />
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={SEWING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Text"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -9426,54 +9624,58 @@ const Step2 = ({
                       {workOrder.workOrder === 'FRINGE/TASSELS' && (
                         <>
                           {/* TYPE */}
-                          <Field label="TYPE" width="sm">
+                          <Field label="TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeType`]}>
                             <SearchableDropdown
                               value={workOrder.fringeType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeType', selectedValue)}
                               options={['Cut Fringe', 'Chainette', 'Tassel (individual)', 'Ball Fringe', 'Brush Fringe', 'Bullion', 'Loop Fringe']}
                               placeholder="Select or type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* MATERIAL */}
-                          <Field label="MATERIAL" width="sm">
+                          <Field label="MATERIAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeMaterial`]}>
                             <SearchableDropdown
                               value={workOrder.fringeMaterial || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeMaterial', selectedValue)}
                               options={['Rayon (shiny)', 'Polyester', 'Cotton', 'Silk', 'Metallic', 'Wool', 'Jute']}
                               placeholder="Select or type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeMaterial`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* DROP LENGTH */}
-                          <Field label="DROP LENGTH" width="sm">
+                          <Field label="DROP LENGTH" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dropLength`]}>
                             <SearchableDropdown
                               value={workOrder.dropLength || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'dropLength', selectedValue)}
                               options={['2cm', '5cm', '10cm', '15cm', '20cm']}
                               placeholder="Select or type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dropLength`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* TAPE/HEADER WIDTH */}
-                          <Field label="TAPE/HEADER WIDTH" width="sm">
+                          <Field label="TAPE/HEADER WIDTH" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tapeHeaderWidth`]}>
                             <SearchableDropdown
                               value={workOrder.tapeHeaderWidth || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'tapeHeaderWidth', selectedValue)}
                               options={['10mm', '15mm', '20mm']}
                               placeholder="Select or type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tapeHeaderWidth`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* COLOUR */}
-                          <Field label="COLOUR" width="lg">
+                          <Field label="COLOUR" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeColour`]}>
                             <div className="flex items-center gap-2">
                               <SearchableDropdown
                                 value={workOrder.fringeColour || ''}
                                 onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeColour', selectedValue)}
                                 options={['DTM', 'Multi-Coloured', 'Iridescent', 'Ombre']}
                                 placeholder="Select or type"
-                                className="flex-1"
+                                className={`flex-1 ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeColour`] ? 'border-red-600' : ''}`}
                               />
                               <input
                                 type="file"
@@ -9496,7 +9698,7 @@ const Step2 = ({
                           </Field>
 
                           {/* PLACEMENT */}
-                          <Field label="PLACEMENT" width="lg">
+                          <Field label="PLACEMENT" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringePlacement`]}>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="text"
@@ -9504,6 +9706,7 @@ const Step2 = ({
                                 onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringePlacement', e.target.value)}
                                 placeholder="Enter placement"
                                 className="flex-1"
+                                aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringePlacement`])}
                               />
                               <input
                                 type="file"
@@ -9526,40 +9729,43 @@ const Step2 = ({
                           </Field>
 
                           {/* QTY - Type Selection (PCS/LENGTH) */}
-                          <Field label="QTY" width="sm">
+                          <Field label="QTY" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyType`]}>
                             <SearchableDropdown
                               value={workOrder.fringeQtyType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeQtyType', selectedValue)}
                               options={['PCS', 'LENGTH']}
                               placeholder="Select type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* Conditional QTY Fields */}
                           {workOrder.fringeQtyType === 'PCS' && (
-                            <Field label="PIECES" width="sm">
+                            <Field label="PIECES" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyPcs`]}>
                               <Input
                                 type="text"
                                 value={workOrder.fringeQtyPcs || ''}
                                 onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeQtyPcs', e.target.value)}
                                 placeholder="Enter pieces"
+                                aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyPcs`])}
                               />
                             </Field>
                           )}
 
                           {workOrder.fringeQtyType === 'LENGTH' && (
-                            <Field label="CNS/PC" width="sm">
+                            <Field label="CNS/PC" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyCnsPerPc`]}>
                               <Input
                                 type="text"
                                 value={workOrder.fringeQtyCnsPerPc || ''}
                                 onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeQtyCnsPerPc', e.target.value)}
                                 placeholder="Enter CNS/PC"
+                                aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyCnsPerPc`])}
                               />
                             </Field>
                           )}
 
                           {/* TESTING REQUIREMENTS */}
-                          <Field label="TESTING REQ." width="lg">
+                          <Field label="TESTING REQ." required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeTestingRequirements`]}>
                             <div className="flex items-center" style={{ gap: '0.75rem' }}>
                               <div className="flex-1">
                                 <TestingRequirementsInput
@@ -9569,6 +9775,7 @@ const Step2 = ({
                                   onChange={(values) => handleWorkOrderChange(actualIndex, woIndex, 'fringeTestingRequirements', values)}
                                   options={['Colour Fastness (light/UV)', 'Wash Resistance', 'Flammability']}
                                   placeholder="Type to search or select testing requirements..."
+                                  error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeTestingRequirements`])}
                                 />
                               </div>
                               <input
@@ -9591,16 +9798,17 @@ const Step2 = ({
                           </Field>
 
                           {/* SURPLUS % */}
-                          <Field label="SURPLUS %" width="sm">
+                          <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeSurplus`]}>
                             <PercentInput
                               value={workOrder.fringeSurplus || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeSurplus', e.target.value)}
                               placeholder="e.g., 5"
+                              error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeSurplus`])}
                             />
                           </Field>
 
                           {/* WASTAGE % - With dropdown options */}
-                          <Field label="WASTAGE %" width="sm">
+                          <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeWastage`]}>
                             <div className="relative">
                               <SearchableDropdown
                                 value={workOrder.fringeWastage || ''}
@@ -9618,7 +9826,7 @@ const Step2 = ({
                                 options={['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim']}
                                 placeholder="Select or type %age"
                                 strictMode={false}
-                                className={workOrder.fringeWastage && !['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'].includes(workOrder.fringeWastage) ? 'pr-10' : ''}
+                                className={`${workOrder.fringeWastage && !['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'].includes(workOrder.fringeWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeWastage`] ? 'border-red-600' : ''}`}
                               />
                               {workOrder.fringeWastage && !['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'].includes(workOrder.fringeWastage) && (
                                 <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
@@ -9627,22 +9835,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeApproval`]}>
                             <SearchableDropdown
                               value={workOrder.fringeApproval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeApproval', selectedValue)}
                               options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                               placeholder="Select or type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeApproval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeRemarks`]}>
                             <Input
                               type="text"
                               value={workOrder.fringeRemarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeRemarks', e.target.value)}
                               placeholder="Text"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeRemarks`])}
                             />
                           </Field>
 
@@ -9726,7 +9936,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'DYEING' && (
                         <>
                           {/* DYEING TYPE */}
-                          <Field label="DYEING TYPE" width="sm">
+                          <Field label="DYEING TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dyeingType`]}>
                             <SearchableDropdown
                               value={workOrder.dyeingType || ''}
                               onChange={(selectedValue) => {
@@ -9743,43 +9953,47 @@ const Step2 = ({
                               }}
                               options={getAllDyeingTypes()}
                               placeholder="Select or type Dyeing Type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dyeingType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* COLOR REF */}
-                          <Field label="COLOR REF" width="sm">
+                          <Field label="COLOR REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_colorRef`]}>
                             <SearchableDropdown
                               value={workOrder.colorRef || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'colorRef', selectedValue)}
                               options={workOrder.dyeingType ? getDyeingColorRefOptions(workOrder.dyeingType) : []}
                               placeholder={workOrder.dyeingType ? "Select or type Color Ref" : "Select Dyeing Type First"}
                               disabled={!workOrder.dyeingType}
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_colorRef`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REFERENCE TYPE */}
-                          <Field label="REFERENCE TYPE" width="lg">
+                          <Field label="REFERENCE TYPE" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_referenceType`]}>
                             <SearchableDropdown
                               value={workOrder.referenceType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'referenceType', selectedValue)}
                               options={workOrder.dyeingType ? getDyeingReferenceTypeOptions(workOrder.dyeingType) : []}
                               placeholder={workOrder.dyeingType ? "Select or type Reference Type" : "Select Dyeing Type First"}
                               disabled={!workOrder.dyeingType}
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_referenceType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REFERENCE - Text Field (appears after REFERENCE TYPE is selected) */}
-                          <Field label="REFERENCE" width="sm">
+                          <Field label="REFERENCE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dyeingReference`]}>
                             <Input
                               type="text"
                               value={workOrder.dyeingReference || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'dyeingReference', e.target.value)}
                               placeholder="Enter reference"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dyeingReference`])}
                             />
                           </Field>
 
                           {/* REFERENCE IMAGE (Upload) */}
-                          <Field label="REFERENCE IMAGE" width="sm">
+                          <Field label="REFERENCE IMAGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -9790,7 +10004,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`dyeing-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -9801,43 +10015,47 @@ const Step2 = ({
 
                           {/* SHRINKAGE WIDTH % */}
                           {isShrinkageWidthApplicable(workOrder.dyeingType) && (
-                            <Field label="SHRINKAGE WIDTH %" width="sm">
+                            <Field label="SHRINKAGE WIDTH %" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_shrinkageWidthPercent`]}>
                               <PercentInput
                                 value={workOrder.shrinkageWidthPercent || ''}
                                 onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'shrinkageWidthPercent', e.target.value)}
                                 placeholder="e.g., 2"
+                                error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_shrinkageWidthPercent`])}
                               />
                             </Field>
                           )}
 
                           {/* SHRINKAGE LENGTH % */}
                           {isShrinkageLengthApplicable(workOrder.dyeingType) && (
-                            <Field label="SHRINKAGE LENGTH %" width="sm">
+                            <Field label="SHRINKAGE LENGTH %" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_shrinkageLengthPercent`]}>
                               <PercentInput
                                 value={workOrder.shrinkageLengthPercent || ''}
                                 onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'shrinkageLengthPercent', e.target.value)}
                                 placeholder="e.g., 2"
+                                error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_shrinkageLengthPercent`])}
                               />
                             </Field>
                           )}
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={DYEING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Enter remarks"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -9874,7 +10092,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'WEAVING' && (
                         <>
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -9885,7 +10103,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`weaving-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -9897,8 +10115,10 @@ const Step2 = ({
                           {/* REED */}
                           <Field
                             label="REED"
+                            required
                             width="sm"
                             helper={workOrder.machineType ? getWeavingReedRange(workOrder.machineType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_reed`]}
                           >
                             <Input
                               type="text"
@@ -9909,14 +10129,17 @@ const Step2 = ({
                                   ? getWeavingReedRange(workOrder.machineType)
                                   : 'Numeric'
                               }
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_reed`])}
                             />
                           </Field>
 
                           {/* PICK */}
                           <Field
                             label="PICK"
+                            required
                             width="sm"
                             helper={workOrder.machineType ? getWeavingPickRange(workOrder.machineType) : undefined}
+                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pick`]}
                           >
                             <Input
                               type="text"
@@ -9927,22 +10150,25 @@ const Step2 = ({
                                   ? getWeavingPickRange(workOrder.machineType)
                                   : 'Numeric'
                               }
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pick`])}
                             />
                           </Field>
 
                           {/* GSM */}
-                          <Field label="GSM" width="sm">
+                          <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`]}>
                             <Input
                               type="text"
                               value={workOrder.gsm || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                               placeholder="Enter GSM"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`])}
                             />
                           </Field>
 
                           {/* WASTAGE % */}
                           <Field
                             label="WASTAGE %"
+                            required
                             width="sm"
                             error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
                           >
@@ -9955,22 +10181,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={WEAVING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Text"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -9981,7 +10209,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'TUFTING' && (
                         <>
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -9992,7 +10220,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`tufting-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -10002,37 +10230,40 @@ const Step2 = ({
                           </Field>
 
                           {/* GSM */}
-                          <Field label="GSM" width="sm">
+                          <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`]}>
                             <Input
                               type="text"
                               value={workOrder.gsm || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                               placeholder="Enter GSM"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`])}
                             />
                           </Field>
 
                           {/* PILE HEIGHT (mm) */}
-                          <Field label="PILE HEIGHT (MM)" width="sm">
+                          <Field label="PILE HEIGHT (MM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pileHeight`]}>
                             <Input
                               type="text"
                               value={workOrder.pileHeight || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pileHeight', e.target.value)}
                               placeholder="Enter pile height (mm)"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pileHeight`])}
                             />
                           </Field>
 
                           {/* TPI (TUFT PER INCH) */}
-                          <Field label="TPI (TUFT PER INCH)" width="sm">
+                          <Field label="TPI (TUFT PER INCH)" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tpi`]}>
                             <Input
                               type="text"
                               value={workOrder.tpi || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'tpi', e.target.value)}
                               placeholder="Enter TPI"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tpi`])}
                             />
                           </Field>
 
                           {/* WASTAGE % */}
-                          <Field label="WASTAGE %" width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}>
+                          <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}>
                             <PercentInput
                               value={workOrder.wastage || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value)}
@@ -10042,22 +10273,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={TUFTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Text"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -10067,67 +10300,73 @@ const Step2 = ({
                       {workOrder.workOrder === 'CARPET' && (
                         <>
                           {/* GSM */}
-                          <Field label="GSM" width="sm">
+                          <Field label="GSM" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`]}>
                             <Input
                               type="text"
                               value={workOrder.gsm || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'gsm', e.target.value)}
                               placeholder="Enter GSM"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_gsm`])}
                             />
                           </Field>
 
                           {/* PILE HEIGHT (mm) */}
-                          <Field label="PILE HEIGHT (MM)" width="sm">
+                          <Field label="PILE HEIGHT (MM)" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pileHeight`]}>
                             <Input
                               type="text"
                               value={workOrder.pileHeight || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pileHeight', e.target.value)}
                               placeholder="Enter pile height"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pileHeight`])}
                             />
                           </Field>
 
                           {/* TPI / KPSI */}
-                          <Field label="TPI / KPSI" width="sm">
+                          <Field label="TPI / KPSI" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tpiKpsi`]}>
                             <Input
                               type="text"
                               value={workOrder.tpiKpsi || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'tpiKpsi', e.target.value)}
                               placeholder="Enter TPI/KPSI"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tpiKpsi`])}
                             />
                           </Field>
 
                           {/* KNOT TYPE */}
-                          <Field label="KNOT TYPE" width="sm">
+                          <Field label="KNOT TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knotType`]}>
                             <SearchableDropdown
                               value={workOrder.knotType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'knotType', selectedValue)}
                               options={KNOT_TYPE_OPTIONS}
                               placeholder="Select or type Knot Type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knotType`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* PITCH/ROWS */}
-                          <Field label="PITCH/ROWS" width="sm">
+                          <Field label="PITCH/ROWS" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pitchRows`]}>
                             <Input
                               type="text"
                               value={workOrder.pitchRows || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'pitchRows', e.target.value)}
                               placeholder="Enter pitch/rows"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_pitchRows`])}
                             />
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={CARPET_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -10138,7 +10377,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`carpet-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -10148,12 +10387,13 @@ const Step2 = ({
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Enter remarks"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -10229,33 +10469,36 @@ const Step2 = ({
                       {workOrder.workOrder === 'CUTTING' && (
                         <>
                           {/* VARIANTS - Dropdown */}
-                          <Field label="VARIANTS" width="sm">
+                          <Field label="VARIANTS" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_variants`]}>
                             <SearchableDropdown
                               value={workOrder.variants || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)}
                               options={workOrder.machineType ? getCuttingVariants(workOrder.machineType) : []}
                               placeholder={workOrder.machineType ? "Select or type Variant" : "Select Machine Type First"}
                               disabled={!workOrder.machineType}
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_variants`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={CUTTING_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Enter remarks"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>
@@ -10339,7 +10582,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'EMBROIDERY' && (
                         <>
                           {/* DESIGN REF (Upload) */}
-                          <Field label="DESIGN REF" width="sm">
+                          <Field label="DESIGN REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`]}>
                             <input
                               type="file"
                               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleWorkOrderChange(actualIndex, woIndex, 'imageRef', f); }}
@@ -10350,7 +10593,7 @@ const Step2 = ({
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="h-11 w-full"
+                              className={`h-11 w-full ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_imageRef`] ? 'border-red-600' : ''}`}
                               onClick={() =>
                                 document.getElementById(`embroidery-file-${materialIndex + 1}-${woIndex}`)?.click()
                               }
@@ -10360,22 +10603,24 @@ const Step2 = ({
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" width="sm">
+                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
                             <SearchableDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={EMBROIDERY_APPROVAL_OPTIONS}
                               placeholder="Select or type Approval"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
                             />
                           </Field>
 
                           {/* REMARKS */}
-                          <Field label="REMARKS" width="lg">
+                          <Field label="REMARKS" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`]}>
                             <Input
                               type="text"
                               value={workOrder.remarks || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'remarks', e.target.value)}
                               placeholder="Enter remarks"
+                              aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_remarks`])}
                             />
                           </Field>
                         </>

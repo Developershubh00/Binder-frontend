@@ -18,6 +18,7 @@ const Step1 = ({
   handleNext,
   showSaveMessage = false,
   isSaved: parentIsSaved = false,
+  onValidationFail,
 }) => {
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [isSaved, setIsSaved] = useState(parentIsSaved);
@@ -45,10 +46,16 @@ const Step1 = ({
   }, [componentsLength]);
 
   const onSave = () => {
-    if (validateStep1 && !validateStep1()) {
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
-      return;
+    if (validateStep1) {
+      const result = validateStep1();
+      if (!result.isValid) {
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus('idle'), 3000);
+        if (onValidationFail) {
+          onValidationFail(result.errors);
+        }
+        return;
+      }
     }
     if (handleSave) {
       handleSave();
