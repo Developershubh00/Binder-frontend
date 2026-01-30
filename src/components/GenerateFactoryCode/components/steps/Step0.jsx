@@ -23,6 +23,7 @@ const Step0 = ({
   handleNext,
   showSaveMessage,
   isSaved: parentIsSaved = false,
+  onValidationFail,
 }) => {
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
@@ -58,10 +59,16 @@ const Step0 = ({
 
   const onSave = () => {
     // Use same validation as Next (step0) - no IPC/save if data is not filled
-    if (validateStep0 && !validateStep0()) {
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
-      return;
+    if (validateStep0) {
+      const result = validateStep0();
+      if (!result.isValid) {
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus('idle'), 3000);
+        if (onValidationFail) {
+          onValidationFail(result.errors);
+        }
+        return;
+      }
     }
     if (handleSave) {
       try {

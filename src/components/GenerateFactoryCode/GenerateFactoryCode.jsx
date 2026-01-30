@@ -4,12 +4,28 @@ import { getFiberTypes, getYarnTypes, getSpinningMethod, getYarnDetails } from '
 import { initializeRawMaterials, initializeConsumptionMaterials } from './utils/initializers';
 import { calculateTotalWastage, calculateGrossConsumption } from './utils/calculations';
 import { isShrinkageWidthApplicable, isShrinkageLengthApplicable, DYEING_TYPES } from './data/dyeingData';
+import {
+  FABRIC_SCHEMA,
+  YARN_BASE_SCHEMA,
+  STITCHING_THREAD_SCHEMA,
+  WORK_ORDER_SCHEMAS,
+  TRIM_ACCESSORY_SCHEMAS,
+  FOAM_SCHEMAS,
+  FIBER_SCHEMAS,
+  ARTWORK_SCHEMAS,
+  PACKAGING_HEADER_SCHEMA,
+  PACKAGING_COMMON_SCHEMA,
+  PACKAGING_MATERIAL_SCHEMAS,
+  isEmpty,
+  validateMaterialAgainstSchema
+} from '@/utils/validationSchemas';
 import Step0 from './components/steps/Step0';
 import Step1 from './components/steps/Step1';
 import Step2 from './components/steps/Step2';
 import Step3 from './components/steps/Step3';
 import Step4 from './components/steps/Step4';
 import Step5 from './components/steps/Step5';
+import ValidationErrorsDialog from './components/ValidationErrorsDialog';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -35,6 +51,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const [saveMessage, setSaveMessage] = useState(''); // Message to display
   const [showFactoryCodePopup, setShowFactoryCodePopup] = useState(false);
   const [shippingGroups, setShippingGroups] = useState({}); // { "0-product": 1, "0-sp-0": 2, ... } -> itemId -> groupNum
+  const [validationErrorsPopup, setValidationErrorsPopup] = useState({
+    open: false,
+    messages: []
+  });
   const [formData, setFormData] = useState({
     // Internal Purchase Order fields (if provided)
     orderType: initialFormData.orderType || '',
@@ -565,6 +585,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         skus: updatedSkus
       };
     });
+    // Clear error for this field when user edits
+    const errorKey = `${field}_${skuIndex}`;
+    if (errors[errorKey]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[errorKey];
+        return newErrors;
+      });
+    }
   };
 
   const handleSkuImageChange = (skuIndex, file) => {
@@ -586,6 +615,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         });
       };
       reader.readAsDataURL(file);
+      // Clear error for image when user uploads
+      const errorKey = `image_${skuIndex}`;
+      if (errors[errorKey]) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[errorKey];
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -814,6 +852,23 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       };
       return { ...prev, skus: updatedSkus };
     });
+    // Clear error for this subproduct field when user edits
+    const errorKey = `subproduct_${skuIndex}_${subproductIndex}_${field}`;
+    if (errors[errorKey]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[errorKey];
+        return newErrors;
+      });
+    }
+    // Also check for subproduct name field without _field suffix
+    if (field === 'subproduct' && errors[`subproduct_${skuIndex}_${subproductIndex}`]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[`subproduct_${skuIndex}_${subproductIndex}`];
+        return newErrors;
+      });
+    }
   };
 
   const handleSubproductImageChange = (skuIndex, subproductIndex, file) => {
@@ -835,6 +890,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         });
       };
       reader.readAsDataURL(file);
+      // Clear error for subproduct image when user uploads
+      const errorKey = `subproduct_${skuIndex}_${subproductIndex}_image`;
+      if (errors[errorKey]) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[errorKey];
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -969,6 +1033,18 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     );
   };
 
+  // Helper to show validation errors popup
+  const showValidationErrorsPopup = (errors) => {
+    if (!errors || typeof errors !== 'object') return;
+    const messages = [...new Set(Object.values(errors).filter(msg => msg && msg.trim()))];
+    if (messages.length > 0) {
+      setValidationErrorsPopup({
+        open: true,
+        messages
+      });
+    }
+  };
+
   const validateStep0 = () => {
     const newErrors = {};
 
@@ -981,29 +1057,51 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
 
     // Validate each SKU
-    (formData.skus || []).forEach((sku, index) => {
+    (formData.skus || []).forEach((sku, skuIndex) => {
       if (!sku.sku?.trim()) {
-        newErrors[`sku_${index}`] = 'SKU / Item No. is required';
+        newErrors[`sku_${skuIndex}`] = 'SKU / Item No. is required';
       }
       if (!sku.image) {
-        newErrors[`image_${index}`] = 'Image is required';
+        newErrors[`image_${skuIndex}`] = 'Image is required';
       }
       if (!sku.product?.trim()) {
-        newErrors[`product_${index}`] = 'Product is required';
+        newErrors[`product_${skuIndex}`] = 'Product is required';
       }
       if (!sku.poQty) {
-        newErrors[`poQty_${index}`] = 'PO Qty is required';
+        newErrors[`poQty_${skuIndex}`] = 'PO Qty is required';
       }
       if (!sku.overagePercentage?.trim()) {
-        newErrors[`overagePercentage_${index}`] = 'Overage % is required';
+        newErrors[`overagePercentage_${skuIndex}`] = 'Overage % is required';
       }
       if (!sku.deliveryDueDate) {
-        newErrors[`deliveryDueDate_${index}`] = 'Delivery Due Date is required';
+        newErrors[`deliveryDueDate_${skuIndex}`] = 'Delivery Due Date is required';
+      }
+
+      // Validate subproducts if any
+      if (sku.subproducts && sku.subproducts.length > 0) {
+        sku.subproducts.forEach((subproduct, subIndex) => {
+          if (!subproduct.subproduct?.trim()) {
+            newErrors[`subproduct_${skuIndex}_${subIndex}`] = 'Subproduct name is required';
+          }
+          if (!subproduct.poQty) {
+            newErrors[`subproduct_${skuIndex}_${subIndex}_poQty`] = 'Subproduct PO Qty is required';
+          }
+          if (!subproduct.overagePercentage?.trim()) {
+            newErrors[`subproduct_${skuIndex}_${subIndex}_overagePercentage`] = 'Subproduct Overage % is required';
+          }
+          if (!subproduct.deliveryDueDate) {
+            newErrors[`subproduct_${skuIndex}_${subIndex}_deliveryDueDate`] = 'Subproduct Delivery Due Date is required';
+          }
+          if (!subproduct.image) {
+            newErrors[`subproduct_${skuIndex}_${subIndex}_image`] = 'Subproduct Image is required';
+          }
+        });
       }
     });
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    return { isValid, errors: newErrors };
   };
 
   const validateStep1 = () => {
@@ -1014,17 +1112,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     if (!stepData || !stepData.products) {
       newErrors['products'] = 'Products data is required';
       setErrors(newErrors);
-      return false;
+      return { isValid: false, errors: newErrors };
     }
     
     // Validate products and their components
     stepData.products.forEach((product, productIndex) => {
-      // Product name validation removed
-      
       // Validate components for each product
       product.components.forEach((component, componentIndex) => {
         if (!component.productComforter?.trim()) {
-          newErrors[`product_${productIndex}_component_${componentIndex}_productComforter`] = 'Product is required';
+          newErrors[`product_${productIndex}_component_${componentIndex}_productComforter`] = 'Component name is required';
         }
         if (!component.unit?.trim()) {
           newErrors[`product_${productIndex}_component_${componentIndex}_unit`] = 'Unit is required';
@@ -1038,38 +1134,39 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         // Validate cutting size for each component
         if (component.unit === 'KGS') {
           // For KGS, validate consumption field
-          if (!component.cuttingSize.consumption && component.cuttingSize.consumption !== 0) {
+          if (!component.cuttingSize?.consumption && component.cuttingSize?.consumption !== 0) {
             newErrors[`product_${productIndex}_component_${componentIndex}_cuttingConsumption`] = 'Cutting Consumption is required';
           }
         } else {
           // For CM, validate length and width
-          if (!component.cuttingSize.length && component.cuttingSize.length !== 0) {
+          if (!component.cuttingSize?.length && component.cuttingSize?.length !== 0) {
             newErrors[`product_${productIndex}_component_${componentIndex}_cuttingLength`] = 'Cutting Length is required';
           }
-          if (!component.cuttingSize.width && component.cuttingSize.width !== 0) {
+          if (!component.cuttingSize?.width && component.cuttingSize?.width !== 0) {
             newErrors[`product_${productIndex}_component_${componentIndex}_cuttingWidth`] = 'Cutting Width is required';
           }
         }
         // Validate sew size for each component
         if (component.unit === 'KGS') {
           // For KGS, validate consumption field
-          if (!component.sewSize.consumption && component.sewSize.consumption !== 0) {
+          if (!component.sewSize?.consumption && component.sewSize?.consumption !== 0) {
             newErrors[`product_${productIndex}_component_${componentIndex}_sewConsumption`] = 'Sew Consumption is required';
           }
         } else {
           // For CM, validate length and width
-          if (!component.sewSize.length && component.sewSize.length !== 0) {
-            newErrors[`product_${productIndex}_component_${componentIndex}_sewLength`] = 'Length is required';
+          if (!component.sewSize?.length && component.sewSize?.length !== 0) {
+            newErrors[`product_${productIndex}_component_${componentIndex}_sewLength`] = 'Sew Length is required';
           }
-          if (!component.sewSize.width && component.sewSize.width !== 0) {
-            newErrors[`product_${productIndex}_component_${componentIndex}_sewWidth`] = 'Width is required';
+          if (!component.sewSize?.width && component.sewSize?.width !== 0) {
+            newErrors[`product_${productIndex}_component_${componentIndex}_sewWidth`] = 'Sew Width is required';
           }
         }
       });
     });
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    return { isValid, errors: newErrors };
   };
 
   const handleProductNameChange = (productIndex, value) => {
@@ -2161,9 +2258,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleSaveStep3 = () => {
-    if (!validateStep4()) {
+    const result = validateStep4();
+    if (!result.isValid) {
       setStep3SaveStatus('error');
       setTimeout(() => setStep3SaveStatus('idle'), 3000);
+      showValidationErrorsPopup(result.errors);
       return;
     }
     setStep3Saved(true);
@@ -2173,9 +2272,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleSaveStep4 = () => {
-    if (!validateStep5()) {
+    const result = validateStep5();
+    if (!result.isValid) {
       setStep4SaveStatus('error');
       setTimeout(() => setStep4SaveStatus('idle'), 3000);
+      showValidationErrorsPopup(result.errors);
       return;
     }
     setStep4Saved(true);
@@ -2280,7 +2381,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleSaveStep1 = () => {
-    if (!validateStep1()) return;
+    const result = validateStep1();
+    if (!result.isValid) {
+      showValidationErrorsPopup(result.errors);
+      return;
+    }
     setStep1Saved(true);
     setShowSaveMessage(false);
     saveToLocalStorage(formData);
@@ -2861,15 +2966,135 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const validateStep5 = () => {
-    // Lenient validation for testing – Save always succeeds; no hard validation blocking.
-    setErrors({});
-    return true;
+    const newErrors = {};
+    const stepData = getSelectedSkuStepData();
+    const packaging = stepData?.packaging || {};
+    
+    // === HEADER FIELDS ===
+    if (isEmpty(packaging.productSelection)) {
+      newErrors['packaging_productSelection'] = 'Product is required';
+    }
+    if (isEmpty(packaging.type)) {
+      newErrors['packaging_type'] = 'Type is required';
+    }
+    if (isEmpty(packaging.casepackQty)) {
+      newErrors['packaging_casepackQty'] = 'Casepack Qty is required';
+    }
+    
+    // If ASSORTED type, require the link
+    if (packaging.type === 'ASSORTED (LINK IPC#)' && isEmpty(packaging.assortedSkuLink)) {
+      newErrors['packaging_assortedSkuLink'] = 'IPC Link is required for ASSORTED type';
+    }
+    
+    // === PACKAGING MATERIALS ===
+    const materials = packaging.materials || [];
+    if (materials.length === 0) {
+      newErrors['packaging_no_materials'] = 'At least one packaging material is required';
+    }
+    
+    // Validate each packaging material - base + type-specific fields
+    materials.forEach((material, materialIndex) => {
+      const errorPrefix = `packaging_material_${materialIndex}`;
+      
+      // === COMMON FIELDS ===
+      if (isEmpty(material.components)) {
+        newErrors[`${errorPrefix}_components`] = 'Component is required';
+      }
+      if (isEmpty(material.materialDescription)) {
+        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
+      }
+      if (isEmpty(material.netConsumptionPerPc)) {
+        newErrors[`${errorPrefix}_netConsumptionPerPc`] = 'Net Consumption per Pc is required';
+      }
+      if (isEmpty(material.unit)) {
+        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
+      }
+      if (isEmpty(material.placement)) {
+        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
+      }
+      const workOrderVal = material.workOrders?.[0]?.workOrder;
+      if (isEmpty(workOrderVal)) {
+        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
+      }
+      
+      // === PACKAGING MATERIAL TYPE ===
+      const packagingType = material.packagingMaterialType?.toString().trim();
+      if (isEmpty(packagingType)) {
+        newErrors[`${errorPrefix}_packagingMaterialType`] = 'Packaging Material Type is required';
+      } else {
+        // Validate based on selected packaging material type
+        const packagingSchema = PACKAGING_MATERIAL_SCHEMAS[packagingType];
+        if (packagingSchema) {
+          const packagingResult = validateMaterialAgainstSchema(material, packagingSchema, errorPrefix);
+          Object.assign(newErrors, packagingResult.errors);
+        }
+      }
+    });
+    
+    setErrors(newErrors);
+    const isValid = Object.keys(newErrors).length === 0;
+    return { isValid, errors: newErrors };
   };
 
   const validateStep4 = () => {
-    // Lenient validation for testing – Save always succeeds; no hard validation blocking.
-    setErrors({});
-    return true;
+    const newErrors = {};
+    const stepData = getSelectedSkuStepData();
+    const materials = stepData?.artworkMaterials || [];
+    
+    // Check if we have at least one artwork material
+    if (materials.length === 0) {
+      newErrors['artwork_no_materials'] = 'At least one artwork/labelling material is required';
+    }
+    
+    // Validate each artwork material - base fields + category-specific fields
+    materials.forEach((material, materialIndex) => {
+      const errorPrefix = `artworkMaterial_${materialIndex}`;
+      
+      // Only validate if the material has any data entered
+      const hasAnyData = material.components?.trim() || 
+                         material.materialDescription?.trim() || 
+                         material.netConsumption?.toString().trim() || 
+                         material.unit?.trim() ||
+                         material.placement?.trim() ||
+                         material.workOrder?.trim() ||
+                         material.artworkCategory?.trim();
+      
+      if (hasAnyData || materialIndex === 0) {
+        // === BASE FIELDS (required for all artwork materials) ===
+        if (isEmpty(material.components)) {
+          newErrors[`${errorPrefix}_components`] = 'Component is required';
+        }
+        if (isEmpty(material.materialDescription)) {
+          newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
+        }
+        if (isEmpty(material.netConsumption)) {
+          newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
+        }
+        if (isEmpty(material.unit)) {
+          newErrors[`${errorPrefix}_unit`] = 'Unit is required';
+        }
+        if (isEmpty(material.placement)) {
+          newErrors[`${errorPrefix}_placement`] = 'Placement is required';
+        }
+        if (isEmpty(material.workOrder)) {
+          newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
+        }
+        
+        // === ARTWORK CATEGORY SPECIFIC FIELDS ===
+        const artworkCategory = material.artworkCategory?.toString().trim();
+        if (artworkCategory) {
+          const artworkSchema = ARTWORK_SCHEMAS[artworkCategory];
+          if (artworkSchema) {
+            const artworkResult = validateMaterialAgainstSchema(material, artworkSchema, errorPrefix);
+            Object.assign(newErrors, artworkResult.errors);
+          }
+        }
+      }
+    });
+    
+    setErrors(newErrors);
+    const isValid = Object.keys(newErrors).length === 0;
+    return { isValid, errors: newErrors };
   };
 
   const handleArtworkMaterialChange = (materialIndex, field, value) => {
@@ -3242,10 +3467,12 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     });
     
     const errorKey = `packaging_material_${materialIndex}_workOrder_${workOrderIndex}_${field}`;
-    if (errors[errorKey]) {
+    const simpleWorkOrderKey = workOrderIndex === 0 && field === 'workOrder' ? `packaging_material_${materialIndex}_workOrder` : null;
+    if (errors[errorKey] || (simpleWorkOrderKey && errors[simpleWorkOrderKey])) {
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[errorKey];
+        if (simpleWorkOrderKey) delete newErrors[simpleWorkOrderKey];
         return newErrors;
       });
     }
@@ -3568,17 +3795,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     // Filter materials for this component only
     const materials = allMaterials.filter(m => m?.componentName === componentName);
 
-    const isMaterialComplete = (m) => {
-      const unitValue = m?.unit?.toString().trim();
-      return Boolean(
-        m?.materialType?.toString().trim() &&
-          m?.materialDescription?.toString().trim() &&
-          m?.netConsumption?.toString().trim() &&
-          unitValue
-      );
-    };
-
-    // Validate each material for this component - only required fields
+    // Validate each material for this component - base + category-specific required fields
     materials.forEach((material) => {
       if (!material) return;
       
@@ -3588,35 +3805,107 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         return;
       }
       
-      const keyIndex = materialIndex;
+      const idx = materialIndex;
+      const matType = material.materialType?.toString().trim();
+      const errorPrefix = `rawMaterial_${idx}`;
       
-      // Validate materialType
-      if (!material.materialType?.toString().trim()) {
-        newErrors[`rawMaterial_${keyIndex}_materialType`] = 'Material Type is required';
+      // === BASE FIELDS (required for all material types) ===
+      if (!matType) {
+        newErrors[`${errorPrefix}_materialType`] = 'Material Type is required';
+      }
+      if (isEmpty(material.materialDescription)) {
+        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
+      }
+      if (isEmpty(material.netConsumption)) {
+        newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption per Pc is required';
+      }
+      if (isEmpty(material.unit)) {
+        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
       }
       
-      if (!material.materialDescription?.toString().trim()) {
-        newErrors[`rawMaterial_${keyIndex}_materialDescription`] = 'Material Description is required';
+      // === FABRIC SPECIFIC FIELDS ===
+      if (matType === 'Fabric') {
+        const fabricResult = validateMaterialAgainstSchema(material, FABRIC_SCHEMA, errorPrefix);
+        Object.assign(newErrors, fabricResult.errors);
       }
-      if (!material.netConsumption?.toString().trim()) {
-        newErrors[`rawMaterial_${keyIndex}_netConsumption`] = 'Net Consumption per Pc is required';
+      
+      // === YARN SPECIFIC FIELDS ===
+      if (matType === 'Yarn') {
+        const subMaterial = material.subMaterial?.toString().trim();
+        if (subMaterial === 'Stitching Thread') {
+          const threadResult = validateMaterialAgainstSchema(material, STITCHING_THREAD_SCHEMA, errorPrefix);
+          Object.assign(newErrors, threadResult.errors);
+        } else {
+          const yarnResult = validateMaterialAgainstSchema(material, YARN_BASE_SCHEMA, errorPrefix);
+          Object.assign(newErrors, yarnResult.errors);
+        }
       }
-      const unitValue = material.unit?.toString().trim();
-      if (!unitValue || unitValue === '') {
-        newErrors[`rawMaterial_${keyIndex}_unit`] = 'Unit is required';
+      
+      // === TRIM & ACCESSORY SPECIFIC FIELDS ===
+      if (matType === 'Trim & Accessory') {
+        const trimType = material.trimAccessory?.toString().trim();
+        if (!trimType) {
+          newErrors[`${errorPrefix}_trimAccessory`] = 'Trim/Accessory type is required';
+        } else {
+          // Validate based on selected trim type
+          const trimSchema = TRIM_ACCESSORY_SCHEMAS[trimType];
+          if (trimSchema) {
+            const trimResult = validateMaterialAgainstSchema(material, trimSchema, errorPrefix);
+            Object.assign(newErrors, trimResult.errors);
+          }
+        }
       }
+      
+      // === FOAM SPECIFIC FIELDS ===
+      if (matType === 'Foam') {
+        const foamType = material.foamTableType?.toString().trim();
+        if (!foamType) {
+          newErrors[`${errorPrefix}_foamTableType`] = 'Foam Table Type is required';
+        } else {
+          // Validate based on selected foam type
+          const foamSchema = FOAM_SCHEMAS[foamType];
+          if (foamSchema) {
+            const foamResult = validateMaterialAgainstSchema(material, foamSchema, errorPrefix);
+            Object.assign(newErrors, foamResult.errors);
+          }
+        }
+      }
+      
+      // === FIBER SPECIFIC FIELDS ===
+      if (matType === 'Fiber') {
+        const fiberType = material.fiberTableType?.toString().trim();
+        if (!fiberType) {
+          newErrors[`${errorPrefix}_fiberTableType`] = 'Fiber Table Type is required';
+        } else {
+          // Validate based on selected fiber type
+          const fiberSchema = FIBER_SCHEMAS[fiberType];
+          if (fiberSchema) {
+            const fiberResult = validateMaterialAgainstSchema(material, fiberSchema, errorPrefix);
+            Object.assign(newErrors, fiberResult.errors);
+          }
+        }
+      }
+      
+      // === WORK ORDER SPECIFIC FIELDS ===
+      // Validate each selected work order's fields
+      const workOrders = material.workOrders || [];
+      workOrders.forEach((wo, woIdx) => {
+        if (!wo || !wo.workOrder) return;
+        const woType = wo.workOrder.toString().trim().toUpperCase();
+        const woSchema = WORK_ORDER_SCHEMAS[woType];
+        if (woSchema) {
+          // Use _workOrder_ prefix to match UI error key pattern
+          const woPrefix = `${errorPrefix}_workOrder_${woIdx}`;
+          const woResult = validateMaterialAgainstSchema(wo, woSchema, woPrefix);
+          Object.assign(newErrors, woResult.errors);
+        }
+      });
     });
     
-    // Component-level requirement: must have at least one COMPLETE raw material
+    // Component-level requirement: must have at least one raw material
     if (materials.length === 0) {
       const safe = componentName.replace(/[^a-zA-Z0-9]+/g, '_');
       newErrors[`component_${safe}_missing`] = `Please add at least one raw material for "${componentName}"`;
-    } else {
-      const hasComplete = materials.some(isMaterialComplete);
-      if (!hasComplete) {
-        const safe = componentName.replace(/[^a-zA-Z0-9]+/g, '_');
-        newErrors[`component_${safe}_incomplete`] = `Please fill all required fields for at least one material in "${componentName}"`;
-      }
     }
 
     // Set errors in state so UI can show red borders
@@ -3704,7 +3993,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         setSaveMessage('Save first');
         return;
       }
-      if (!validateStep0()) {
+      const result0 = validateStep0();
+      if (!result0.isValid) {
+        showValidationErrorsPopup(result0.errors);
         return;
       }
       setShowSaveMessage(false); // Clear message if validation passes
@@ -3718,7 +4009,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         setSaveMessage('Save first');
         return;
       }
-      if (!validateStep1()) {
+      const result1 = validateStep1();
+      if (!result1.isValid) {
+        showValidationErrorsPopup(result1.errors);
         return;
       }
       setShowSaveMessage(false);
@@ -3764,12 +4057,16 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         setSaveMessage('Save first');
         return;
       }
-      if (!validateStep4()) {
+      const result3 = validateStep4();
+      if (!result3.isValid) {
+        showValidationErrorsPopup(result3.errors);
         return;
       }
       setShowSaveMessage(false);
     } else if (currentStep === 4) {
-      if (!validateStep5()) {
+      const result4 = validateStep5();
+      if (!result4.isValid) {
+        showValidationErrorsPopup(result4.errors);
         return;
       }
     }
@@ -3898,6 +4195,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               handleNext={handleNext}
               showSaveMessage={showSaveMessage && currentStep === 0}
               isSaved={step0Saved}
+              onValidationFail={showValidationErrorsPopup}
             />
           );
         case 1:
@@ -3915,6 +4213,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               handleNext={handleNext}
               showSaveMessage={showSaveMessage && currentStep === 1}
               isSaved={step1Saved}
+              onValidationFail={showValidationErrorsPopup}
             />
           );
         case 2:
@@ -3933,6 +4232,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               validateField={validateField}
               validateStep2={validateStep2}
               validateComponentMaterials={validateComponentMaterials}
+              onValidationFail={showValidationErrorsPopup}
             />
           );
         case 3:
@@ -4677,6 +4977,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Validation Errors Dialog */}
+      <ValidationErrorsDialog
+        open={validationErrorsPopup.open}
+        onOpenChange={(open) => setValidationErrorsPopup(prev => ({ ...prev, open }))}
+        messages={validationErrorsPopup.messages}
+      />
     </div>
     </>
   );
