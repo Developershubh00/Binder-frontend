@@ -172,7 +172,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               unit: '',
             },
             workOrders: [
-              { workOrder: '', wastage: '', for: '' },
+              { workOrder: 'Packaging', wastage: '', for: '' },
               { workOrder: '', wastage: '', for: '' },
             ],
             totalNetConsumption: '',
@@ -333,7 +333,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         },
         // Work orders (two sets)
         workOrders: [
-          { workOrder: '', wastage: '', for: '' },
+          { workOrder: 'Packaging', wastage: '', for: '' },
           { workOrder: '', wastage: '', for: '' },
         ],
         // Calculated fields
@@ -710,7 +710,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           unit: '',
         },
         workOrders: [
-          { workOrder: '', wastage: '', for: '' },
+          { workOrder: 'Packaging', wastage: '', for: '' },
           { workOrder: '', wastage: '', for: '' },
         ],
         totalNetConsumption: '',
@@ -3272,7 +3272,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             unit: '',
           },
           workOrders: [
-            { workOrder: '', wastage: '', for: '' },
+            { workOrder: 'Packaging', wastage: '', for: '' },
             { workOrder: '', wastage: '', for: '' },
           ],
           totalNetConsumption: '',

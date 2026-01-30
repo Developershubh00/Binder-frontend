@@ -235,7 +235,6 @@ const Step5 = ({
                     onChange={(e) => handlePackagingWorkOrderChange(materialIndex, 0, 'workOrder', e.target.value)}
                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                     style={{ padding: '10px 14px', width: '150px', height: '44px' }}
-                    placeholder="PACKAGING"
                   />
               </div>
 
