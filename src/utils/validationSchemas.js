@@ -65,8 +65,6 @@ export const STITCHING_THREAD_SCHEMA = {
     'stitchingThreadTex',
     'stitchingThreadPly',
     'stitchingThreadColour',
-    'stitchingThreadColourRefImage',
-    'stitchingThreadColourRefFile',
     'stitchingThreadRef',
     'stitchingThreadTestingRequirements',
     'stitchingThreadQtyYardage',
@@ -85,7 +83,7 @@ export const STITCHING_THREAD_SCHEMA = {
 // ==================== WORK ORDER SCHEMAS ====================
 export const WORK_ORDER_SCHEMAS = {
   'BRAIDING': {
-    required: ['machineType', 'strandCount', 'widthDiameter', 'gsm', 'approval', 'imageRef', 'remarks'],
+    required: ['machineType', 'strandCount', 'widthDiameter', 'gsm', 'approval', 'remarks'],
     advanced: ['variants', 'braidingDesign', 'pattern']
   },
   'KNITTING': {
@@ -93,11 +91,11 @@ export const WORK_ORDER_SCHEMAS = {
     advanced: ['knittingDesign', 'knittingVariant']
   },
   'QUILTING': {
-    required: ['quiltingType', 'imageRef', 'stitchLength', 'patternRepeat', 'wastage', 'approval', 'remarks'],
+    required: ['quiltingType', 'stitchLength', 'patternRepeat', 'wastage', 'approval', 'remarks'],
     advanced: ['variants', 'quiltingDesign', 'needleSpacing']
   },
   'PRINTING': {
-    required: ['printingType', 'imageRef', 'repeatSize', 'wastage', 'approval', 'remarks'],
+    required: ['printingType', 'repeatSize', 'wastage', 'approval', 'remarks'],
     advanced: ['variants', 'printingDesign', 'numberOfScreens', 'colors', 'coveragePercent', 'resolution']
   },
   'SEWING': {
@@ -113,7 +111,7 @@ export const WORK_ORDER_SCHEMAS = {
     }
   },
   'DYEING': {
-    required: ['dyeingType', 'colorRef', 'referenceType', 'dyeingReference', 'imageRef', 'approval', 'remarks'],
+    required: ['dyeingType', 'colorRef', 'referenceType', 'dyeingReference', 'approval', 'remarks'],
     advanced: ['variants'],
     conditional: {
       'shrinkageWidthPercent': { when: 'dyeingType', notEmpty: true },
@@ -121,15 +119,15 @@ export const WORK_ORDER_SCHEMAS = {
     }
   },
   'WEAVING': {
-    required: ['machineType', 'imageRef', 'reed', 'pick', 'gsm', 'wastage', 'approval', 'remarks'],
+    required: ['machineType', 'reed', 'pick', 'gsm', 'wastage', 'approval', 'remarks'],
     advanced: ['variants', 'weavingDesign', 'advancedWarpRatio', 'advancedWeftRatio']
   },
   'TUFTING': {
-    required: ['machineType', 'imageRef', 'gsm', 'pileHeight', 'tpi', 'wastage', 'approval', 'remarks'],
+    required: ['machineType', 'gsm', 'pileHeight', 'tpi', 'wastage', 'approval', 'remarks'],
     advanced: ['tuftingDesign', 'variants', 'machineGauge', 'stitchRate']
   },
   'CARPET': {
-    required: ['machineType', 'gsm', 'pileHeight', 'tpiKpsi', 'knotType', 'pitchRows', 'approval', 'imageRef', 'remarks'],
+    required: ['machineType', 'gsm', 'pileHeight', 'tpiKpsi', 'knotType', 'pitchRows', 'approval', 'remarks'],
     advanced: ['variants', 'carpetDesign']
   },
   'CUTTING': {
@@ -137,7 +135,7 @@ export const WORK_ORDER_SCHEMAS = {
     advanced: ['cutType', 'layers', 'nesting', 'wastage']
   },
   'EMBROIDERY': {
-    required: ['machineType', 'imageRef', 'approval', 'remarks'],
+    required: ['machineType', 'approval', 'remarks'],
     advanced: ['variants', 'embroideryDesign', 'threadColors', 'stitchCount', 'hoopFrameSize']
   }
 };
@@ -145,7 +143,7 @@ export const WORK_ORDER_SCHEMAS = {
 // ==================== TRIM & ACCESSORY SCHEMAS ====================
 export const TRIM_ACCESSORY_SCHEMAS = {
   'VELCRO': {
-    required: ['velcroPart', 'velcroType', 'velcroMaterial', 'velcroAttachment', 'velcroPlacement', 'velcroPlacementReferenceImage', 'velcroGsm', 'velcroLengthCm', 'velcroWidthCm', 'velcroYardageCns', 'velcroKgsCns', 'velcroQtyType', 'velcroSurplus', 'velcroWastage', 'velcroApproval', 'velcroRemarks'],
+    required: ['velcroPart', 'velcroType', 'velcroMaterial', 'velcroAttachment', 'velcroPlacement', 'velcroGsm', 'velcroLengthCm', 'velcroWidthCm', 'velcroYardageCns', 'velcroKgsCns', 'velcroQtyType', 'velcroSurplus', 'velcroWastage', 'velcroApproval', 'velcroRemarks'],
     advanced: ['velcroColour', 'velcroColorReference', 'velcroHookDensity', 'velcroLoopType', 'velcroCycleLife', 'velcroFlameRetardant'],
     conditional: {
       'velcroYardagePerPc': { when: 'velcroQtyType', equals: 'YARDAGE' },
@@ -153,15 +151,15 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'BUTTONS': {
-    required: ['buttonType', 'buttonMaterial', 'buttonSize', 'buttonLigne', 'buttonHoles', 'buttonFinishColour', 'buttonPlacement', 'buttonTestingRequirements', 'buttonTestingRequirementFile', 'buttonQty', 'buttonSurplus', 'buttonWastage', 'buttonApproval', 'buttonRemarks', 'buttonColorReference', 'buttonReferenceImage'],
+    required: ['buttonType', 'buttonMaterial', 'buttonSize', 'buttonLigne', 'buttonHoles', 'buttonFinishColour', 'buttonPlacement', 'buttonTestingRequirements', 'buttonQty', 'buttonSurplus', 'buttonWastage', 'buttonApproval', 'buttonRemarks', 'buttonColorReference'],
     advanced: ['buttonAttachment', 'buttonFunction', 'buttonLogo']
   },
   'RIVETS': {
-    required: ['rivetType', 'rivetMaterial', 'rivetCapSize', 'rivetPostHeight', 'rivetFinishPlating', 'rivetPlacement', 'rivetPlacementReferenceImage', 'rivetTestingRequirements', 'rivetTestingRequirementFile', 'rivetQty', 'rivetSurplus', 'rivetWastage', 'rivetApproval', 'rivetRemarks'],
+    required: ['rivetType', 'rivetMaterial', 'rivetCapSize', 'rivetPostHeight', 'rivetFinishPlating', 'rivetPlacement', 'rivetTestingRequirements', 'rivetQty', 'rivetSurplus', 'rivetWastage', 'rivetApproval', 'rivetRemarks'],
     advanced: ['rivetLogo', 'rivetSetting']
   },
   'NIWAR-WEBBING': {
-    required: ['niwarType', 'niwarMaterial', 'niwarColour', 'niwarColorReference', 'niwarWeavePattern', 'niwarPlacement', 'niwarPlacementReferenceImage', 'niwarTestingRequirements', 'niwarTestingRequirementFile', 'niwarGsm', 'niwarLengthCm', 'niwarWidthCm', 'niwarYardageCns', 'niwarKgsCns', 'niwarQtyType', 'niwarSurplus', 'niwarWastage', 'niwarApproval', 'niwarRemarks'],
+    required: ['niwarType', 'niwarMaterial', 'niwarColour', 'niwarColorReference', 'niwarWeavePattern', 'niwarPlacement', 'niwarTestingRequirements', 'niwarGsm', 'niwarLengthCm', 'niwarWidthCm', 'niwarYardageCns', 'niwarKgsCns', 'niwarQtyType', 'niwarSurplus', 'niwarWastage', 'niwarApproval', 'niwarRemarks'],
     advanced: ['niwarThickness', 'niwarFinish', 'niwarTensileStrength', 'niwarEdgeType'],
     conditional: {
       'niwarQtyYardage': { when: 'niwarQtyType', equals: 'YARDAGE' },
@@ -169,7 +167,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'LACE': {
-    required: ['laceType', 'laceMaterial', 'laceWidth', 'laceColour', 'laceColorReference', 'laceDesignRef', 'laceDesignRefImage', 'lacePlacement', 'lacePlacementReferenceImage', 'laceTestingRequirements', 'laceTestingRequirementFile', 'laceGsm', 'laceLengthCm', 'laceWidthCm', 'laceSurplus', 'laceWastage', 'laceApproval', 'laceRemarks'],
+    required: ['laceType', 'laceMaterial', 'laceWidth', 'laceColour', 'laceColorReference', 'laceDesignRef', 'lacePlacement', 'laceTestingRequirements', 'laceGsm', 'laceLengthCm', 'laceWidthCm', 'laceSurplus', 'laceWastage', 'laceApproval', 'laceRemarks'],
     advanced: ['laceFinishing', 'laceStretch', 'lacePatternType'],
     conditional: {
       'laceQtyYardage': { when: 'laceQtyType', equals: 'YARDAGE' },
@@ -177,11 +175,11 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'ZIPPERS': {
-    required: ['zipNumber', 'zipType', 'brand', 'teeth', 'puller', 'pullerType', 'testingRequirement', 'testingRequirementFile', 'length', 'unitAdditional', 'surplus', 'approval', 'remarks'],
+    required: ['zipNumber', 'zipType', 'brand', 'teeth', 'puller', 'pullerType', 'testingRequirement', 'length', 'unitAdditional', 'surplus', 'approval', 'remarks'],
     advanced: ['zipSliderType', 'zipFinish', 'zipLengthTolerance']
   },
   'FELT': {
-    required: ['feltType', 'feltMaterial', 'feltColour', 'feltColorReference', 'feltGsm', 'feltLengthCm', 'feltWidthCm', 'feltTestingRequirements', 'feltTestingRequirementFile', 'feltSurplus', 'feltWastage', 'feltApproval', 'feltRemarks'],
+    required: ['feltType', 'feltMaterial', 'feltColour', 'feltColorReference', 'feltGsm', 'feltLengthCm', 'feltWidthCm', 'feltTestingRequirements', 'feltSurplus', 'feltWastage', 'feltApproval', 'feltRemarks'],
     advanced: ['feltThickness', 'feltFinishForm', 'feltApplication', 'feltStiffness'],
     conditional: {
       'feltYardage': { when: 'feltQtyType', equals: 'YARDAGE' },
@@ -197,7 +195,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'HOOKS-EYES': {
-    required: ['hookEyeType', 'hookEyeMaterial', 'hookEyeSize', 'hookEyeColourFinish', 'hookEyeFinishType', 'hookEyePlacement', 'hookEyeReferenceImage', 'hookEyeQty', 'hookEyeTestingRequirements', 'hookEyeSurplus', 'hookEyeWastage', 'hookEyeApproval', 'hookEyeRemarks'],
+    required: ['hookEyeType', 'hookEyeMaterial', 'hookEyeSize', 'hookEyeColourFinish', 'hookEyeFinishType', 'hookEyePlacement', 'hookEyeQty', 'hookEyeTestingRequirements', 'hookEyeSurplus', 'hookEyeWastage', 'hookEyeApproval', 'hookEyeRemarks'],
     advanced: ['hookEyeStrength', 'hookEyeApplication']
   },
   'BUCKLES': {
@@ -217,15 +215,15 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'CABLE-TIES': {
-    required: ['cableTieType', 'cableTieMaterial', 'cableTieSize', 'cableTieColour', 'cableTiePlacement', 'cableTieTestingRequirements', 'cableTieReferenceImage', 'cableTieQty', 'cableTieSurplus', 'cableTieWastage', 'cableTieApproval', 'cableTieRemarks'],
+    required: ['cableTieType', 'cableTieMaterial', 'cableTieSize', 'cableTieColour', 'cableTiePlacement', 'cableTieTestingRequirements', 'cableTieQty', 'cableTieSurplus', 'cableTieWastage', 'cableTieApproval', 'cableTieRemarks'],
     advanced: ['cableTieTensileStrength', 'cableTieFinish', 'cableTieUvResistance']
   },
   'SEAM TAPE': {
-    required: ['seamTapeType', 'seamTapeMaterial', 'seamTapeWidth', 'seamTapeColour', 'seamTapeAdhesiveType', 'seamTapePlacement', 'seamTapePlacementReferenceImage', 'seamTapeTestingRequirements', 'seamTapeTestingRequirementFile', 'seamTapeQty', 'seamTapeSurplus', 'seamTapeWastage', 'seamTapeApproval', 'seamTapeRemarks'],
+    required: ['seamTapeType', 'seamTapeMaterial', 'seamTapeWidth', 'seamTapeColour', 'seamTapeAdhesiveType', 'seamTapePlacement', 'seamTapeTestingRequirements', 'seamTapeQty', 'seamTapeSurplus', 'seamTapeWastage', 'seamTapeApproval', 'seamTapeRemarks'],
     advanced: ['seamTapeApplicationSpec', 'seamTapeElasticity', 'seamTapeBreathability']
   },
   'REFLECTIVE TAPES': {
-    required: ['reflectiveTapeType', 'reflectiveTapeMaterial', 'reflectiveTapeColour', 'reflectiveTapeBaseFabric', 'reflectiveTapePlacement', 'reflectiveTapePlacementReferenceImage', 'reflectiveTapeTestingRequirements', 'reflectiveTapeTestingRequirementFile', 'reflectiveTapeGsm', 'reflectiveTapeLengthCm', 'reflectiveTapeWidthCm', 'reflectiveTapeSurplus', 'reflectiveTapeWastage', 'reflectiveTapeApproval', 'reflectiveTapeRemarks'],
+    required: ['reflectiveTapeType', 'reflectiveTapeMaterial', 'reflectiveTapeColour', 'reflectiveTapeBaseFabric', 'reflectiveTapePlacement', 'reflectiveTapeTestingRequirements', 'reflectiveTapeGsm', 'reflectiveTapeLengthCm', 'reflectiveTapeWidthCm', 'reflectiveTapeSurplus', 'reflectiveTapeWastage', 'reflectiveTapeApproval', 'reflectiveTapeRemarks'],
     advanced: ['reflectiveTapeCertification', 'reflectiveTapeWashDurability', 'reflectiveTapeReflectivity'],
     conditional: {
       'reflectiveTapeYardage': { when: 'reflectiveTapeQtyType', equals: 'YARDAGE' },
@@ -233,7 +231,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'FIRE RETARDANT (FR) TRIMS': {
-    required: ['frTrimsType', 'frTrimsMaterial', 'frTrimsCompliance', 'frTrimsColour', 'frTrimsTestingRequirements', 'frTrimsTestingRequirementFile', 'frTrimsPlacement', 'frTrimsPlacementReferenceImage', 'frTrimsSurplus', 'frTrimsWastage', 'frTrimsApproval', 'frTrimsRemarks'],
+    required: ['frTrimsType', 'frTrimsMaterial', 'frTrimsCompliance', 'frTrimsColour', 'frTrimsTestingRequirements', 'frTrimsPlacement', 'frTrimsSurplus', 'frTrimsWastage', 'frTrimsApproval', 'frTrimsRemarks'],
     advanced: ['frTrimsDurability', 'frTrimsFrComponents', 'frTrimsLoi', 'frTrimsCharLength'],
     conditional: {
       'frTrimsQtyYardage': { when: 'frTrimsQtyType', equals: 'YARDAGE' },
@@ -241,19 +239,19 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'CORD STOPS': {
-    required: ['cordStopType', 'cordStopMaterial', 'cordStopSize', 'cordStopColour', 'cordStopLockingMechanism', 'cordStopPlacement', 'cordStopPlacementReferenceImage', 'cordStopTestingRequirements', 'cordStopQty', 'cordStopSurplus', 'cordStopWastage', 'cordStopApproval', 'cordStopRemarks'],
+    required: ['cordStopType', 'cordStopMaterial', 'cordStopSize', 'cordStopColour', 'cordStopLockingMechanism', 'cordStopPlacement', 'cordStopTestingRequirements', 'cordStopQty', 'cordStopSurplus', 'cordStopWastage', 'cordStopApproval', 'cordStopRemarks'],
     advanced: ['cordStopFunction', 'cordStopBreakaway']
   },
   'RINGS-LOOPS': {
-    required: ['ringsLoopsType', 'ringsLoopsMaterial', 'ringsLoopsSize', 'ringsLoopsThicknessGauge', 'ringsLoopsFinishPlating', 'ringsLoopsPlacement', 'ringsLoopsPlacementReferenceImage', 'ringsLoopsTestingRequirements', 'ringsLoopsTestingRequirementFile', 'ringsLoopsQty', 'ringsLoopsSurplus', 'ringsLoopsWastage', 'ringsLoopsApproval', 'ringsLoopsRemarks'],
+    required: ['ringsLoopsType', 'ringsLoopsMaterial', 'ringsLoopsSize', 'ringsLoopsThicknessGauge', 'ringsLoopsFinishPlating', 'ringsLoopsPlacement', 'ringsLoopsTestingRequirements', 'ringsLoopsQty', 'ringsLoopsSurplus', 'ringsLoopsWastage', 'ringsLoopsApproval', 'ringsLoopsRemarks'],
     advanced: ['ringsLoopsLoadRating', 'ringsLoopsWelded', 'ringsLoopsApplication']
   },
   'PIN-BARBS': {
-    required: ['pinBarbType', 'pinBarbMaterial', 'pinBarbSize', 'pinBarbColour', 'pinBarbHeadType', 'pinBarbPlacement', 'pinBarbPlacementReferenceImage', 'pinBarbTestingRequirements', 'pinBarbTestingRequirementFile', 'pinBarbQty', 'pinBarbSurplus', 'pinBarbWastage', 'pinBarbApproval', 'pinBarbRemarks'],
+    required: ['pinBarbType', 'pinBarbMaterial', 'pinBarbSize', 'pinBarbColour', 'pinBarbHeadType', 'pinBarbPlacement', 'pinBarbTestingRequirements', 'pinBarbQty', 'pinBarbSurplus', 'pinBarbWastage', 'pinBarbApproval', 'pinBarbRemarks'],
     advanced: ['pinBarbTensileStrength', 'pinBarbApplication', 'pinBarbMagazineCartridge']
   },
   'MAGNETIC CLOSURE': {
-    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosureStrength', 'magneticClosurePlacement', 'magneticClosurePlacementReferenceImage', 'magneticClosureTestingRequirements', 'magneticClosureTestingRequirementFile', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval', 'magneticClosureRemarks'],
+    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosureStrength', 'magneticClosurePlacement', 'magneticClosureTestingRequirements', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval', 'magneticClosureRemarks'],
     advanced: ['magneticClosurePolarity', 'magneticClosureApplication', 'magneticClosureEncasing', 'magneticClosureShielding']
   }
 };
@@ -261,19 +259,19 @@ export const TRIM_ACCESSORY_SCHEMAS = {
 // ==================== FOAM SCHEMAS ====================
 export const FOAM_SCHEMAS = {
   'EVA-form': {
-    required: ['foamType', 'foamSubtype', 'foamVaContent', 'foamColour', 'foamThickness', 'foamShape', 'foamShapeRefImage', 'foamSheetPcs', 'foamGsm', 'foamLengthCm', 'foamWidthCm', 'foamKgsCns', 'foamYardageCns', 'foamTestingRequirements', 'foamTestingRequirementsFile', 'foamSurplus', 'foamWastage', 'foamApproval', 'foamRemarks'],
+    required: ['foamType', 'foamSubtype', 'foamVaContent', 'foamColour', 'foamThickness', 'foamShape', 'foamSheetPcs', 'foamGsm', 'foamLengthCm', 'foamWidthCm', 'foamKgsCns', 'foamYardageCns', 'foamTestingRequirements', 'foamSurplus', 'foamWastage', 'foamApproval', 'foamRemarks'],
     advanced: ['foamShoreHardness', 'foamCellStructure', 'foamCompressionSet', 'foamTensileStrength', 'foamElongation', 'foamWaterResistance', 'foamUvResistance', 'foamFireRetardant', 'foamSurfaceTexture', 'foamAntiSlip', 'foamInterlocking', 'foamCertification', 'foamDensity']
   },
   'pe-epe': {
-    required: ['foamPeEpeType', 'foamPeEpeSubtype', 'foamPeEpeColour', 'foamPeEpeThickness', 'foamPeEpeShape', 'foamPeEpeShapeRefImage', 'foamPeEpeSheetPcs', 'foamPeEpeGsm', 'foamPeEpeLengthCm', 'foamPeEpeWidthCm', 'foamPeEpeKgsCns', 'foamPeEpeYardageCns', 'foamPeEpeTestingRequirements', 'foamPeEpeTestingRequirementsFile', 'foamPeEpeSurplus', 'foamPeEpeWastage', 'foamPeEpeApproval', 'foamPeEpeRemarks'],
+    required: ['foamPeEpeType', 'foamPeEpeSubtype', 'foamPeEpeColour', 'foamPeEpeThickness', 'foamPeEpeShape', 'foamPeEpeSheetPcs', 'foamPeEpeGsm', 'foamPeEpeLengthCm', 'foamPeEpeWidthCm', 'foamPeEpeKgsCns', 'foamPeEpeYardageCns', 'foamPeEpeTestingRequirements', 'foamPeEpeSurplus', 'foamPeEpeWastage', 'foamPeEpeApproval', 'foamPeEpeRemarks'],
     advanced: ['foamPeEpeCellStructure', 'foamPeEpeLamination', 'foamPeEpeCrossLinked', 'foamPeEpeAntiStatic', 'foamPeEpeWaterResistance', 'foamPeEpeCushioning', 'foamPeEpeFireRetardant', 'foamPeEpeThermalInsulation', 'foamPeEpeCertification', 'foamPeEpeDensity']
   },
   'pu-foam': {
-    required: ['foamPuType', 'foamPuSubtype', 'foamPuGrade', 'foamPuColour', 'foamPuThickness', 'foamPuShape', 'foamPuShapeRefImage', 'foamPuSheetPcs', 'foamPuGsm', 'foamPuLengthCm', 'foamPuWidthCm', 'foamPuKgsCns', 'foamPuYardageCns', 'foamPuTestingRequirements', 'foamPuTestingRequirementsFile', 'foamPuSurplus', 'foamPuWastage', 'foamPuApproval', 'foamPuRemarks'],
+    required: ['foamPuType', 'foamPuSubtype', 'foamPuGrade', 'foamPuColour', 'foamPuThickness', 'foamPuShape', 'foamPuSheetPcs', 'foamPuGsm', 'foamPuLengthCm', 'foamPuWidthCm', 'foamPuKgsCns', 'foamPuYardageCns', 'foamPuTestingRequirements', 'foamPuSurplus', 'foamPuWastage', 'foamPuApproval', 'foamPuRemarks'],
     advanced: ['foamPuIld', 'foamPuSupportFactor', 'foamPuResilience', 'foamPuCellStructure', 'foamPuCompressionSet', 'foamPuTensileStrength', 'foamPuElongation', 'foamPuFireRetardant', 'foamPuAntiMicrobial', 'foamPuDensity', 'foamPuCertification']
   },
   'rebonded-foam': {
-    required: ['foamRebondedType', 'foamRebondedSubtype', 'foamRebondedBonding', 'foamRebondedColour', 'foamRebondedThickness', 'foamRebondedShape', 'foamRebondedShapeRefImage', 'foamRebondedSheetPcs', 'foamRebondedGsm', 'foamRebondedLengthCm', 'foamRebondedWidthCm', 'foamRebondedKgsCns', 'foamRebondedYardageCns', 'foamRebondedTestingRequirements', 'foamRebondedTestingRequirementsFile', 'foamRebondedSurplus', 'foamRebondedWastage', 'foamRebondedApproval', 'foamRebondedRemarks'],
+    required: ['foamRebondedType', 'foamRebondedSubtype', 'foamRebondedBonding', 'foamRebondedColour', 'foamRebondedThickness', 'foamRebondedShape', 'foamRebondedSheetPcs', 'foamRebondedGsm', 'foamRebondedLengthCm', 'foamRebondedWidthCm', 'foamRebondedKgsCns', 'foamRebondedYardageCns', 'foamRebondedTestingRequirements', 'foamRebondedSurplus', 'foamRebondedWastage', 'foamRebondedApproval', 'foamRebondedRemarks'],
     advanced: ['foamRebondedIld', 'foamRebondedCompressionSet', 'foamRebondedFireRetardant', 'foamRebondedCertification', 'foamRebondedDensity'],
     conditional: {
       'foamRebondedChipSource': { when: 'foamRebondedType', contains: 'chip' },
@@ -281,19 +279,19 @@ export const FOAM_SCHEMAS = {
     }
   },
   'gel-infused-foam': {
-    required: ['foamGelInfusedType', 'foamGelInfusedBaseFoam', 'foamGelInfusedGelType', 'foamGelInfusedGelContent', 'foamGelInfusedSubtype', 'foamGelInfusedColour', 'foamGelInfusedThickness', 'foamGelInfusedShape', 'foamGelInfusedShapeRefImage', 'foamGelInfusedSheetPcs', 'foamGelInfusedGsm', 'foamGelInfusedLengthCm', 'foamGelInfusedWidthCm', 'foamGelInfusedKgsCns', 'foamGelInfusedYardageCns', 'foamGelInfusedTestingRequirements', 'foamGelInfusedTestingRequirementsFile', 'foamGelInfusedSurplus', 'foamGelInfusedWastage', 'foamGelInfusedApproval', 'foamGelInfusedRemarks'],
+    required: ['foamGelInfusedType', 'foamGelInfusedBaseFoam', 'foamGelInfusedGelType', 'foamGelInfusedGelContent', 'foamGelInfusedSubtype', 'foamGelInfusedColour', 'foamGelInfusedThickness', 'foamGelInfusedShape', 'foamGelInfusedSheetPcs', 'foamGelInfusedGsm', 'foamGelInfusedLengthCm', 'foamGelInfusedWidthCm', 'foamGelInfusedKgsCns', 'foamGelInfusedYardageCns', 'foamGelInfusedTestingRequirements', 'foamGelInfusedSurplus', 'foamGelInfusedWastage', 'foamGelInfusedApproval', 'foamGelInfusedRemarks'],
     advanced: ['foamGelInfusedDensity', 'foamGelInfusedIld', 'foamGelInfusedTemperatureRegulation', 'foamGelInfusedResponseTime', 'foamGelInfusedBreathability', 'foamGelInfusedFireRetardant', 'foamGelInfusedCoolingEffect', 'foamGelInfusedCertification']
   },
   'latex-foam': {
-    required: ['foamLatexType', 'foamLatexLatexType', 'foamLatexNaturalContent', 'foamLatexProcess', 'foamLatexSubtype', 'foamLatexColour', 'foamLatexThickness', 'foamLatexShape', 'foamLatexShapeRefImage', 'foamLatexSheetPcs', 'foamLatexGsm', 'foamLatexLengthCm', 'foamLatexWidthCm', 'foamLatexKgsCns', 'foamLatexYardageCns', 'foamLatexTestingRequirements', 'foamLatexTestingRequirementsFile', 'foamLatexSurplus', 'foamLatexWastage', 'foamLatexApproval', 'foamLatexRemarks'],
+    required: ['foamLatexType', 'foamLatexLatexType', 'foamLatexNaturalContent', 'foamLatexProcess', 'foamLatexSubtype', 'foamLatexColour', 'foamLatexThickness', 'foamLatexShape', 'foamLatexSheetPcs', 'foamLatexGsm', 'foamLatexLengthCm', 'foamLatexWidthCm', 'foamLatexKgsCns', 'foamLatexYardageCns', 'foamLatexTestingRequirements', 'foamLatexSurplus', 'foamLatexWastage', 'foamLatexApproval', 'foamLatexRemarks'],
     advanced: ['foamLatexIld', 'foamLatexResilience', 'foamLatexCompressionSet', 'foamLatexPincorePattern', 'foamLatexZoneConfiguration', 'foamLatexBreathability', 'foamLatexHypoallergenic', 'foamLatexAntiMicrobial', 'foamLatexFireRetardant', 'foamLatexCertification', 'foamLatexDensity']
   },
   'memory-foam': {
-    required: ['foamMemoryType', 'foamMemorySubtype', 'foamMemoryGrade', 'foamMemoryColour', 'foamMemoryThickness', 'foamMemoryShape', 'foamMemoryShapeRefImage', 'foamMemorySheetPcs', 'foamMemoryGsm', 'foamMemoryLengthCm', 'foamMemoryWidthCm', 'foamMemoryKgsCns', 'foamMemoryYardageCns', 'foamMemoryTestingRequirements', 'foamMemoryTestingRequirementsFile', 'foamMemorySurplus', 'foamMemoryWastage', 'foamMemoryApproval', 'foamMemoryRemarks'],
+    required: ['foamMemoryType', 'foamMemorySubtype', 'foamMemoryGrade', 'foamMemoryColour', 'foamMemoryThickness', 'foamMemoryShape', 'foamMemorySheetPcs', 'foamMemoryGsm', 'foamMemoryLengthCm', 'foamMemoryWidthCm', 'foamMemoryKgsCns', 'foamMemoryYardageCns', 'foamMemoryTestingRequirements', 'foamMemorySurplus', 'foamMemoryWastage', 'foamMemoryApproval', 'foamMemoryRemarks'],
     advanced: ['foamMemoryIld', 'foamMemoryResponseTime', 'foamMemoryTemperatureSensitivity', 'foamMemoryActivationTemperature', 'foamMemoryCompressionSet', 'foamMemoryResilience', 'foamMemoryBreathability', 'foamMemoryInfusion', 'foamMemoryCoolingTechnology', 'foamMemoryFireRetardant', 'foamMemoryVocEmissions', 'foamMemoryDensity', 'foamMemoryCertification']
   },
   'HR-form': {
-    required: ['foamHrType', 'foamHrSubtype', 'foamHrGrade', 'foamHrColour', 'foamHrThickness', 'foamHrShape', 'foamHrShapeRefImage', 'foamHrSheetPcs', 'foamHrGsm', 'foamHrLengthCm', 'foamHrWidthCm', 'foamHrKgsCns', 'foamHrYardageCns', 'foamHrTestingRequirements', 'foamHrSurplus', 'foamHrWastage', 'foamHrApproval', 'foamHrRemarks'],
+    required: ['foamHrType', 'foamHrSubtype', 'foamHrGrade', 'foamHrColour', 'foamHrThickness', 'foamHrShape', 'foamHrSheetPcs', 'foamHrGsm', 'foamHrLengthCm', 'foamHrWidthCm', 'foamHrKgsCns', 'foamHrYardageCns', 'foamHrTestingRequirements', 'foamHrSurplus', 'foamHrWastage', 'foamHrApproval', 'foamHrRemarks'],
     advanced: []
   }
 };
@@ -395,7 +393,7 @@ export const FIBER_SCHEMAS = {
 // ==================== ARTWORK SCHEMAS ====================
 export const ARTWORK_SCHEMAS = {
   'LABELS (BRAND/MAIN)': {
-    required: ['labelsBrandType', 'labelsBrandMaterial', 'labelsBrandArtworkSpecFile', 'labelsBrandSizeWidth', 'labelsBrandSizeHeight', 'labelsBrandSizeUnit', 'labelsBrandPlacement', 'labelsBrandPlacementImageRef', 'labelsBrandAttachment', 'labelsBrandTestingRequirements', 'labelsBrandQty', 'labelsBrandSurplus', 'labelsBrandApproval', 'labelsBrandRemarks'],
+    required: ['labelsBrandType', 'labelsBrandMaterial', 'labelsBrandSizeWidth', 'labelsBrandSizeHeight', 'labelsBrandSizeUnit', 'labelsBrandPlacement', 'labelsBrandAttachment', 'labelsBrandTestingRequirements', 'labelsBrandQty', 'labelsBrandSurplus', 'labelsBrandApproval', 'labelsBrandRemarks'],
     advanced: [],
     conditional: {
       'labelsBrandTypeText': { when: 'labelsBrandType', equals: 'OTHERS (TEXT)' },
@@ -406,7 +404,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'CARE & COMPOSITION': {
-    required: ['careCompositionType', 'careCompositionMaterial', 'careCompositionArtworkSpecFile', 'careCompositionSizeWidth', 'careCompositionSizeLength', 'careCompositionSizeUnit', 'careCompositionPlacement', 'careCompositionPlacementImageRef', 'careCompositionTestingRequirements', 'careCompositionQty', 'careCompositionSurplus', 'careCompositionApproval', 'careCompositionRemarks'],
+    required: ['careCompositionType', 'careCompositionMaterial', 'careCompositionSizeWidth', 'careCompositionSizeLength', 'careCompositionSizeUnit', 'careCompositionPlacement', 'careCompositionTestingRequirements', 'careCompositionQty', 'careCompositionSurplus', 'careCompositionApproval', 'careCompositionRemarks'],
     advanced: ['careCompositionPrintType', 'careCompositionInkType', 'careCompositionManufacturerId', 'careCompositionPermanence', 'careCompositionLanguage'],
     conditional: {
       'careCompositionTypeText': { when: 'careCompositionType', equals: 'OTHERS (TEXT)' },
@@ -414,7 +412,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'RFID / SECURITY TAGS': {
-    required: ['rfidType', 'rfidFormFactor', 'rfidArtworkSpecFile', 'rfidChipModel', 'rfidSizeWidth', 'rfidSizeHeight', 'rfidSizeUnit', 'rfidPlacementText', 'rfidPlacementImageRef', 'rfidTestingRequirements', 'rfidTestingRequirementsFile', 'rfidQty', 'rfidSurplus', 'rfidApprovalFile', 'rfidRemarks'],
+    required: ['rfidType', 'rfidFormFactor', 'rfidChipModel', 'rfidSizeWidth', 'rfidSizeHeight', 'rfidSizeUnit', 'rfidPlacementText', 'rfidTestingRequirements', 'rfidQty', 'rfidSurplus', 'rfidRemarks'],
     advanced: [],
     conditional: {
       'rfidTypeText': { when: 'rfidType', equals: 'OTHERS (TEXT)' },
@@ -423,7 +421,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'LAW LABEL / CONTENTS TAG': {
-    required: ['lawLabelType', 'lawLabelMaterial', 'lawLabelArtworkSpecFile', 'lawLabelSizeWidth', 'lawLabelSizeHeight', 'lawLabelSizeUnit', 'lawLabelPlacement', 'lawLabelPlacementImageRef', 'lawLabelTestingRequirements', 'lawLabelQty', 'lawLabelSurplus', 'lawLabelApproval', 'lawLabelRemarks'],
+    required: ['lawLabelType', 'lawLabelMaterial', 'lawLabelSizeWidth', 'lawLabelSizeHeight', 'lawLabelSizeUnit', 'lawLabelPlacement', 'lawLabelTestingRequirements', 'lawLabelQty', 'lawLabelSurplus', 'lawLabelApproval', 'lawLabelRemarks'],
     advanced: [],
     conditional: {
       'lawLabelTypeText': { when: 'lawLabelType', equals: 'OTHERS (TEXT)' },
@@ -431,7 +429,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'HANG TAG SEALS / STRINGS': {
-    required: ['hangTagSealsType', 'hangTagSealsMaterial', 'hangTagSealsArtworkSpecFile', 'hangTagSealsSizeWidth', 'hangTagSealsSizeHeight', 'hangTagSealsSizeUnit', 'hangTagSealsPlacement', 'hangTagSealsPlacementImageRef', 'hangTagSealsTestingRequirements', 'hangTagSealsQty', 'hangTagSealsSurplus', 'hangTagSealsApproval', 'hangTagSealsRemarks'],
+    required: ['hangTagSealsType', 'hangTagSealsMaterial', 'hangTagSealsSizeWidth', 'hangTagSealsSizeHeight', 'hangTagSealsSizeUnit', 'hangTagSealsPlacement', 'hangTagSealsTestingRequirements', 'hangTagSealsQty', 'hangTagSealsSurplus', 'hangTagSealsApproval', 'hangTagSealsRemarks'],
     advanced: ['hangTagSealsFastening', 'hangTagSealsPreStringing', 'hangTagSealsStringFinish', 'hangTagSealsSealShape', 'hangTagSealsColour', 'hangTagSealsLogoBranding'],
     conditional: {
       'hangTagSealsTypeText': { when: 'hangTagSealsType', equals: 'OTHERS (TEXT)' },
@@ -439,7 +437,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'HEAT TRANSFER LABELS': {
-    required: ['heatTransferType', 'heatTransferMaterialBase', 'heatTransferSizeWidth', 'heatTransferSizeHeight', 'heatTransferSizeUnit', 'heatTransferPlacement', 'heatTransferPlacementImageRef', 'heatTransferTestingRequirements', 'heatTransferQty', 'heatTransferSurplus', 'heatTransferApproval', 'heatTransferRemarks'],
+    required: ['heatTransferType', 'heatTransferMaterialBase', 'heatTransferSizeWidth', 'heatTransferSizeHeight', 'heatTransferSizeUnit', 'heatTransferPlacement', 'heatTransferTestingRequirements', 'heatTransferQty', 'heatTransferSurplus', 'heatTransferApproval', 'heatTransferRemarks'],
     advanced: ['heatTransferInkType', 'heatTransferFabricCompatibility', 'heatTransferApplicationSpec', 'heatTransferPeelType', 'heatTransferFinishHandFeel', 'heatTransferStretch'],
     conditional: {
       'heatTransferTypeText': { when: 'heatTransferType', equals: 'OTHERS (TEXT)' },
@@ -447,7 +445,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'UPC LABEL / BARCODE STICKER': {
-    required: ['upcBarcodeType', 'upcBarcodeMaterial', 'upcBarcodeArtworkSpecFile', 'upcBarcodeSizeWidth', 'upcBarcodeSizeHeight', 'upcBarcodeSizeUnit', 'upcBarcodePlacement', 'upcBarcodeTestingRequirements', 'upcBarcodeQty', 'upcBarcodeSurplus', 'upcBarcodeApproval', 'upcBarcodeRemarks'],
+    required: ['upcBarcodeType', 'upcBarcodeMaterial', 'upcBarcodeSizeWidth', 'upcBarcodeSizeHeight', 'upcBarcodeSizeUnit', 'upcBarcodePlacement', 'upcBarcodeTestingRequirements', 'upcBarcodeQty', 'upcBarcodeSurplus', 'upcBarcodeApproval', 'upcBarcodeRemarks'],
     advanced: [],
     conditional: {
       'upcBarcodeTypeText': { when: 'upcBarcodeType', equals: 'OTHERS (TEXT)' },
@@ -455,7 +453,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'PRICE TICKET / BARCODE TAG': {
-    required: ['priceTicketType', 'priceTicketMaterial', 'priceTicketArtworkSpecFile', 'priceTicketSizeWidth', 'priceTicketSizeHeight', 'priceTicketSizeUnit', 'priceTicketPlacement', 'priceTicketTestingRequirements', 'priceTicketQty', 'priceTicketSurplus', 'priceTicketApproval', 'priceTicketRemarks'],
+    required: ['priceTicketType', 'priceTicketMaterial', 'priceTicketSizeWidth', 'priceTicketSizeHeight', 'priceTicketSizeUnit', 'priceTicketPlacement', 'priceTicketTestingRequirements', 'priceTicketQty', 'priceTicketSurplus', 'priceTicketApproval', 'priceTicketRemarks'],
     advanced: [],
     conditional: {
       'priceTicketTypeText': { when: 'priceTicketType', equals: 'OTHERS (TEXT)' },
@@ -463,7 +461,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'ANTI-COUNTERFEIT & HOLOGRAMS': {
-    required: ['antiCounterfeitType', 'antiCounterfeitMaterial', 'artworkSpecFile', 'antiCounterfeitSizeWidth', 'antiCounterfeitSizeHeight', 'antiCounterfeitSizeUnit', 'securityFeature', 'hologramType', 'numbering', 'antiCounterfeitPlacement', 'placementImageRef', 'testingRequirements', 'antiCounterfeitQty', 'antiCounterfeitSurplus', 'antiCounterfeitApproval', 'antiCounterfeitRemarks'],
+    required: ['antiCounterfeitType', 'antiCounterfeitMaterial', 'antiCounterfeitSizeWidth', 'antiCounterfeitSizeHeight', 'antiCounterfeitSizeUnit', 'securityFeature', 'hologramType', 'numbering', 'antiCounterfeitPlacement', 'testingRequirements', 'antiCounterfeitQty', 'antiCounterfeitSurplus', 'antiCounterfeitApproval', 'antiCounterfeitRemarks'],
     advanced: ['verification', 'qrCodeContent', 'antiCounterfeitApplication', 'tamperEvidence', 'antiCounterfeitDatabase', 'gummingQuality'],
     conditional: {
       'antiCounterfeitTypeText': { when: 'antiCounterfeitType', equals: 'OTHERS (TEXT)' },
@@ -471,7 +469,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'QC / INSPECTION LABELS': {
-    required: ['qcInspectionType', 'qcInspectionMaterial', 'qcInspectionArtworkSpecFile', 'qcInspectionSizeWidth', 'qcInspectionSizeHeight', 'qcInspectionSizeUnit', 'qcInspectionContent', 'qcInspectionCodingSystem', 'qcInspectionGummingQuality', 'qcInspectionPlacement', 'qcInspectionPlacementImageFile', 'qcInspectionTestingRequirements', 'qcInspectionQty', 'qcInspectionSurplus', 'qcInspectionApproval', 'qcInspectionRemarks'],
+    required: ['qcInspectionType', 'qcInspectionMaterial', 'qcInspectionSizeWidth', 'qcInspectionSizeHeight', 'qcInspectionSizeUnit', 'qcInspectionContent', 'qcInspectionCodingSystem', 'qcInspectionGummingQuality', 'qcInspectionPlacement', 'qcInspectionTestingRequirements', 'qcInspectionQty', 'qcInspectionSurplus', 'qcInspectionApproval', 'qcInspectionRemarks'],
     advanced: [],
     conditional: {
       'qcInspectionTypeText': { when: 'qcInspectionType', equals: 'OTHERS (TEXT)' },
@@ -479,7 +477,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'BELLY BAND / WRAPPER': {
-    required: ['bellyBandType', 'bellyBandMaterial', 'bellyBandArtworkSpecFile', 'bellyBandSizeWidth', 'bellyBandSizeHeight', 'bellyBandSizeUnit', 'bellyBandClosure', 'bellyBandTestingRequirements', 'bellyBandPlacement', 'bellyBandPlacementImageRef', 'bellyBandQty', 'bellyBandSurplus', 'bellyBandApproval', 'bellyBandRemarks', 'permanence'],
+    required: ['bellyBandType', 'bellyBandMaterial', 'bellyBandSizeWidth', 'bellyBandSizeHeight', 'bellyBandSizeUnit', 'bellyBandClosure', 'bellyBandTestingRequirements', 'bellyBandPlacement', 'bellyBandQty', 'bellyBandSurplus', 'bellyBandApproval', 'bellyBandRemarks', 'permanence'],
     advanced: ['bellyBandProductFit', 'bellyBandPrinting', 'bellyBandFoldLines', 'bellyBandDurability', 'bellyBandContent', 'bellyBandColours', 'bellyBandFinish', 'bellyBandDieCut', 'bellyBandGummingQuality'],
     conditional: {
       'bellyBandTypeText': { when: 'bellyBandType', equals: 'OTHERS (TEXT)' },
@@ -487,7 +485,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'SIZE LABELS (INDIVIDUAL)': {
-    required: ['sizeLabelsType', 'sizeLabelsMaterial', 'sizeLabelsArtworkSpecFile', 'sizeLabelsSizeWidth', 'sizeLabelsSizeHeight', 'sizeLabelsSizeUnit', 'sizeLabelsSizeSystem', 'sizeLabelsSizeCode', 'sizeLabelsFoldType', 'sizeLabelsPlacementText', 'sizeLabelsPlacementImageRef', 'sizeLabelsTestingRequirements', 'sizeLabelsQty', 'sizeLabelsSurplus', 'sizeLabelsApproval', 'sizeLabelsRemarks'],
+    required: ['sizeLabelsType', 'sizeLabelsMaterial', 'sizeLabelsSizeWidth', 'sizeLabelsSizeHeight', 'sizeLabelsSizeUnit', 'sizeLabelsSizeSystem', 'sizeLabelsSizeCode', 'sizeLabelsFoldType', 'sizeLabelsPlacementText', 'sizeLabelsTestingRequirements', 'sizeLabelsQty', 'sizeLabelsSurplus', 'sizeLabelsApproval', 'sizeLabelsRemarks'],
     advanced: [],
     conditional: {
       'sizeLabelsTypeText': { when: 'sizeLabelsType', equals: 'OTHERS (TEXT)' },
@@ -495,7 +493,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'TAGS & SPECIAL LABELS': {
-    required: ['tagsSpecialLabelsType', 'tagsSpecialLabelsMaterial', 'tagsSpecialLabelsArtworkSpecFile', 'tagsSpecialLabelsSizeWidth', 'tagsSpecialLabelsSizeHeight', 'tagsSpecialLabelsSizeUnit', 'tagsSpecialLabelsAttachment', 'tagsSpecialLabelsFinishing', 'tagsSpecialLabelsPlacement', 'tagsSpecialLabelsPlacementImageFile', 'tagsSpecialLabelsPlacementImageRef', 'tagsSpecialLabelsQty', 'tagsSpecialLabelsSurplus', 'tagsSpecialLabelsTestingRequirements', 'tagsSpecialLabelsTestingRequirementsFile', 'tagsSpecialLabelsApproval', 'tagsSpecialLabelsApprovalFile', 'tagsSpecialLabelsRemarks'],
+    required: ['tagsSpecialLabelsType', 'tagsSpecialLabelsMaterial', 'tagsSpecialLabelsSizeWidth', 'tagsSpecialLabelsSizeHeight', 'tagsSpecialLabelsSizeUnit', 'tagsSpecialLabelsAttachment', 'tagsSpecialLabelsFinishing', 'tagsSpecialLabelsPlacement', 'tagsSpecialLabelsQty', 'tagsSpecialLabelsSurplus', 'tagsSpecialLabelsTestingRequirements', 'tagsSpecialLabelsApproval', 'tagsSpecialLabelsRemarks'],
     advanced: [],
     conditional: {
       'tagsSpecialLabelsTypeText': { when: 'tagsSpecialLabelsType', equals: 'OTHERS (TEXT)' },
@@ -503,7 +501,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'FLAMMABILITY / SAFETY LABELS': {
-    required: ['flammabilitySafetyType', 'flammabilitySafetyMaterial', 'flammabilitySafetyArtworkSpecFile', 'flammabilitySafetySizeWidth', 'flammabilitySafetySizeHeight', 'flammabilitySafetySizeUnit', 'flammabilitySafetyPlacement', 'flammabilitySafetyPlacementImageRef', 'flammabilitySafetyTestingRequirements', 'flammabilitySafetyQty', 'flammabilitySafetySurplus', 'flammabilitySafetyApproval', 'flammabilitySafetyRemarks'],
+    required: ['flammabilitySafetyType', 'flammabilitySafetyMaterial', 'flammabilitySafetySizeWidth', 'flammabilitySafetySizeHeight', 'flammabilitySafetySizeUnit', 'flammabilitySafetyPlacement', 'flammabilitySafetyTestingRequirements', 'flammabilitySafetyQty', 'flammabilitySafetySurplus', 'flammabilitySafetyApproval', 'flammabilitySafetyRemarks'],
     advanced: ['flammabilitySafetyRegulation', 'flammabilitySafetyFontSize', 'flammabilitySafetyPermanence', 'flammabilitySafetySymbol', 'flammabilitySafetyInkDurability', 'flammabilitySafetyCertificationId'],
     conditional: {
       'flammabilitySafetyTypeText': { when: 'flammabilitySafetyType', equals: 'OTHERS (TEXT)' },
@@ -511,7 +509,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'INSERT CARDS': {
-    required: ['insertCardsType', 'insertCardsMaterial', 'insertCardsArtworkSpec', 'insertCardsSizeWidth', 'insertCardsSizeHeight', 'insertCardsSizeUnit', 'insertCardsPlacement', 'insertCardsPlacementImageRef', 'insertCardsTestingRequirements', 'insertCardsQty', 'insertCardsSurplus', 'insertCardsApproval', 'insertCardsRemarks'],
+    required: ['insertCardsType', 'insertCardsMaterial', 'insertCardsArtworkSpec', 'insertCardsSizeWidth', 'insertCardsSizeHeight', 'insertCardsSizeUnit', 'insertCardsPlacement', 'insertCardsTestingRequirements', 'insertCardsQty', 'insertCardsSurplus', 'insertCardsApproval', 'insertCardsRemarks'],
     advanced: ['insertCardsFunction', 'insertCardsContent', 'insertCardsPrinting', 'insertCardsFinish', 'insertCardsStiffness', 'insertCardsAcidFree', 'insertCardsBranding'],
     conditional: {
       'insertCardsTypeText': { when: 'insertCardsType', equals: 'OTHERS (TEXT)' },
@@ -519,7 +517,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'RIBBONS': {
-    required: ['ribbonsType', 'ribbonsMaterial', 'ribbonsArtworkSpecFile', 'ribbonsWidth', 'ribbonsRollLength', 'ribbonsTestingRequirements', 'ribbonsQty', 'ribbonsSurplus', 'ribbonsApprovalFile', 'ribbonsRemarks'],
+    required: ['ribbonsType', 'ribbonsMaterial', 'ribbonsWidth', 'ribbonsRollLength', 'ribbonsTestingRequirements', 'ribbonsQty', 'ribbonsSurplus', 'ribbonsRemarks'],
     advanced: [],
     conditional: {
       'ribbonsTypeText': { when: 'ribbonsType', equals: 'OTHERS (TEXT)' },
@@ -576,7 +574,7 @@ export const PACKAGING_MATERIAL_SCHEMAS = {
     }
   },
   'SILICA GEL DESICCANT': {
-    required: ['silicaGelDesiccantType', 'silicaGelDesiccantForm', 'silicaGelDesiccantUnitSize', 'silicaGelDesiccantColor', 'silicaGelDesiccantPlacement', 'silicaGelDesiccantQuantity', 'silicaGelDesiccantImageReference', 'silicaGelDesiccantCasepackLogic', 'silicaGelDesiccantSurplus', 'silicaGelDesiccantWastage'],
+    required: ['silicaGelDesiccantType', 'silicaGelDesiccantForm', 'silicaGelDesiccantUnitSize', 'silicaGelDesiccantColor', 'silicaGelDesiccantPlacement', 'silicaGelDesiccantQuantity', 'silicaGelDesiccantCasepackLogic', 'silicaGelDesiccantSurplus', 'silicaGelDesiccantWastage'],
     advanced: ['silicaGelDesiccantAbsorptionCapacity', 'silicaGelDesiccantIndicatingType', 'silicaGelDesiccantPacketMaterial', 'silicaGelDesiccantPacketSize', 'silicaGelDesiccantFoodSafe']
   },
   'STRETCH~WRAP': {
@@ -612,6 +610,7 @@ export const isEmpty = (value) => {
   if (value === null || value === undefined) return true;
   if (typeof value === 'string') return value.trim() === '';
   if (Array.isArray(value)) return value.length === 0;
+  if (value instanceof File) return false; // File uploads are not empty
   if (typeof value === 'object') return Object.keys(value).length === 0;
   return false;
 };

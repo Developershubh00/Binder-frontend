@@ -43,6 +43,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const [step0Saved, setStep0Saved] = useState(false);
   const [step1Saved, setStep1Saved] = useState(false);
   const [step2SavedComponents, setStep2SavedComponents] = useState(new Set()); // Track saved components in Step-2
+  const step3SelectedComponentRef = useRef(''); // Current component selected in Step-3 (for per-component save)
   const [step3Saved, setStep3Saved] = useState(false); // Step-3 = Artwork / Labelling
   const [step3SaveStatus, setStep3SaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [step4Saved, setStep4Saved] = useState(false); // Last step = Packaging
@@ -2258,7 +2259,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleSaveStep3 = () => {
-    const result = validateStep4();
+    const componentName = step3SelectedComponentRef.current || '';
+    if (!componentName?.trim()) {
+      setStep3SaveStatus('error');
+      setTimeout(() => setStep3SaveStatus('idle'), 3000);
+      showValidationErrorsPopup({ artwork_select_component: 'Select a component to save' });
+      return;
+    }
+    const result = validateArtworkComponentMaterials(componentName);
     if (!result.isValid) {
       setStep3SaveStatus('error');
       setTimeout(() => setStep3SaveStatus('idle'), 3000);
@@ -3036,62 +3044,129 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     return { isValid, errors: newErrors };
   };
 
+  // Validate only artwork materials for a given component (for per-component Save)
+  const validateArtworkComponentMaterials = (componentName) => {
+    const newErrors = {};
+    const stepData = getSelectedSkuStepData();
+    const materials = stepData?.artworkMaterials || [];
+    const materialsForComponent = materials.filter((m) => (m.components || '') === componentName);
+
+    if (materialsForComponent.length === 0) {
+      newErrors['artwork_component_no_materials'] = `Add at least one artwork material for "${componentName}"`;
+      setErrors(newErrors);
+      return { isValid: false, errors: newErrors };
+    }
+
+    materials.forEach((material, materialIndex) => {
+      if ((material.components || '') !== componentName) return;
+
+      const errorPrefix = `artworkMaterial_${materialIndex}`;
+      const hasAnyData = material.components?.trim() ||
+        material.materialDescription?.trim() ||
+        material.netConsumption?.toString().trim() ||
+        material.unit?.trim() ||
+        material.placement?.trim() ||
+        material.workOrder?.trim() ||
+        material.artworkCategory?.trim();
+
+      if (!hasAnyData) return;
+
+      if (isEmpty(material.components)) {
+        newErrors[`${errorPrefix}_components`] = 'Component is required';
+      }
+      if (isEmpty(material.materialDescription)) {
+        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
+      }
+      if (isEmpty(material.netConsumption)) {
+        newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
+      }
+      if (isEmpty(material.unit)) {
+        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
+      }
+      if (isEmpty(material.placement)) {
+        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
+      }
+      if (isEmpty(material.workOrder)) {
+        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
+      }
+
+      const artworkCategory = material.artworkCategory?.toString().trim();
+      if (artworkCategory) {
+        const artworkSchema = ARTWORK_SCHEMAS[artworkCategory];
+        if (artworkSchema) {
+          const artworkResult = validateMaterialAgainstSchema(material, artworkSchema, errorPrefix);
+          Object.assign(newErrors, artworkResult.errors);
+        }
+      }
+    });
+
+    setErrors(newErrors);
+    const isValid = Object.keys(newErrors).length === 0;
+    return { isValid, errors: newErrors };
+  };
+
   const validateStep4 = () => {
     const newErrors = {};
     const stepData = getSelectedSkuStepData();
     const materials = stepData?.artworkMaterials || [];
-    
-    // Check if we have at least one artwork material
-    if (materials.length === 0) {
+
+    // Only validate materials that have a component and have data entered (don't require material 0 or others to be filled)
+    const materialsWithData = materials.filter((material) => {
+      const hasAnyData = material.components?.trim() ||
+        material.materialDescription?.trim() ||
+        material.netConsumption?.toString().trim() ||
+        material.unit?.trim() ||
+        material.placement?.trim() ||
+        material.workOrder?.trim() ||
+        material.artworkCategory?.trim();
+      return hasAnyData;
+    });
+
+    if (materialsWithData.length === 0) {
       newErrors['artwork_no_materials'] = 'At least one artwork/labelling material is required';
     }
-    
-    // Validate each artwork material - base fields + category-specific fields
+
     materials.forEach((material, materialIndex) => {
       const errorPrefix = `artworkMaterial_${materialIndex}`;
-      
-      // Only validate if the material has any data entered
-      const hasAnyData = material.components?.trim() || 
-                         material.materialDescription?.trim() || 
-                         material.netConsumption?.toString().trim() || 
-                         material.unit?.trim() ||
-                         material.placement?.trim() ||
-                         material.workOrder?.trim() ||
-                         material.artworkCategory?.trim();
-      
-      if (hasAnyData || materialIndex === 0) {
-        // === BASE FIELDS (required for all artwork materials) ===
-        if (isEmpty(material.components)) {
-          newErrors[`${errorPrefix}_components`] = 'Component is required';
-        }
-        if (isEmpty(material.materialDescription)) {
-          newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
-        }
-        if (isEmpty(material.netConsumption)) {
-          newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
-        }
-        if (isEmpty(material.unit)) {
-          newErrors[`${errorPrefix}_unit`] = 'Unit is required';
-        }
-        if (isEmpty(material.placement)) {
-          newErrors[`${errorPrefix}_placement`] = 'Placement is required';
-        }
-        if (isEmpty(material.workOrder)) {
-          newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
-        }
-        
-        // === ARTWORK CATEGORY SPECIFIC FIELDS ===
-        const artworkCategory = material.artworkCategory?.toString().trim();
-        if (artworkCategory) {
-          const artworkSchema = ARTWORK_SCHEMAS[artworkCategory];
-          if (artworkSchema) {
-            const artworkResult = validateMaterialAgainstSchema(material, artworkSchema, errorPrefix);
-            Object.assign(newErrors, artworkResult.errors);
-          }
+      const hasAnyData = material.components?.trim() ||
+        material.materialDescription?.trim() ||
+        material.netConsumption?.toString().trim() ||
+        material.unit?.trim() ||
+        material.placement?.trim() ||
+        material.workOrder?.trim() ||
+        material.artworkCategory?.trim();
+
+      if (!hasAnyData) return;
+
+      if (isEmpty(material.components)) {
+        newErrors[`${errorPrefix}_components`] = 'Component is required';
+      }
+      if (isEmpty(material.materialDescription)) {
+        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
+      }
+      if (isEmpty(material.netConsumption)) {
+        newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
+      }
+      if (isEmpty(material.unit)) {
+        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
+      }
+      if (isEmpty(material.placement)) {
+        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
+      }
+      if (isEmpty(material.workOrder)) {
+        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
+      }
+
+      const artworkCategory = material.artworkCategory?.toString().trim();
+      if (artworkCategory) {
+        const artworkSchema = ARTWORK_SCHEMAS[artworkCategory];
+        if (artworkSchema) {
+          const artworkResult = validateMaterialAgainstSchema(material, artworkSchema, errorPrefix);
+          Object.assign(newErrors, artworkResult.errors);
         }
       }
     });
-    
+
     setErrors(newErrors);
     const isValid = Object.keys(newErrors).length === 0;
     return { isValid, errors: newErrors };
@@ -3169,7 +3244,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
   };
 
-  const addArtworkMaterial = () => {
+  const addArtworkMaterial = (componentName = '') => {
     setStep3Saved(false);
     setStep3SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
@@ -3181,7 +3256,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           ...currentMaterials,
           {
             srNo: newSrNo,
-            components: '',
+            components: componentName || '',
             materialDescription: '',
             netConsumption: '',
             unit: '',
@@ -4243,6 +4318,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               handleArtworkMaterialChange={handleArtworkMaterialChange}
               addArtworkMaterial={addArtworkMaterial}
               removeArtworkMaterial={removeArtworkMaterial}
+              step3SelectedComponentRef={step3SelectedComponentRef}
             />
           );
         case 4:
@@ -4786,30 +4862,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                     className={`min-w-[90px] ${step3SaveStatus === 'error' ? 'text-red-600 border-red-500 hover:text-red-700' : step3Saved || step3SaveStatus === 'success' ? 'text-green-600 hover:text-green-700' : ''}`}
                   >
                     {step3SaveStatus === 'error' ? 'Not Saved' : step3Saved || step3SaveStatus === 'success' ? 'Saved' : 'Save'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const stepData = getSelectedSkuStepData();
-                      const currentLength = stepData?.artworkMaterials?.length || 0;
-                      addArtworkMaterial();
-                      const newIndex = currentLength;
-                      const attemptScroll = (attempts = 0) => {
-                        if (attempts > 30) return;
-                        const element = document.getElementById(`artwork-material-${newIndex}`);
-                        if (element) {
-                          setTimeout(() => {
-                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                          }, 150);
-                        } else {
-                          setTimeout(() => attemptScroll(attempts + 1), 50);
-                        }
-                      };
-                      attemptScroll();
-                    }}
-                  >
-                    + Add Material
                   </Button>
                 </div>
                 <div className="flex items-center gap-3">
