@@ -540,7 +540,7 @@ export const PACKAGING_COMMON_SCHEMA = {
 
 export const PACKAGING_MATERIAL_SCHEMAS = {
   'CARTON BOX': {
-    required: ['cartonBoxType', 'cartonBoxNoOfPlys', 'cartonBoxBoardGrade', 'cartonBoxJointType', 'cartonBoxBurstingStrength', 'cartonBoxStiffenerRequired', 'cartonBoxQuantity', 'cartonBoxDimensions', 'cartonBoxDimensionsUnit', 'cartonBoxTestingRequirements', 'cartonBoxSurplus', 'cartonBoxWastage'],
+    required: ['cartonBoxType', 'cartonBoxNoOfPlys', 'cartonBoxBoardGrade', 'cartonBoxJointType', 'cartonBoxBurstingStrength', 'cartonBoxStiffenerRequired', 'cartonBoxQuantity', 'cartonBoxTestingRequirements', 'cartonBoxSurplus', 'cartonBoxWastage'],
     advanced: [],
     conditional: {
       'cartonBoxStiffenerDimensions': { when: 'cartonBoxStiffenerRequired', equals: 'YES' }
@@ -555,7 +555,7 @@ export const PACKAGING_MATERIAL_SCHEMAS = {
     advanced: []
   },
   'FOAM INSERT': {
-    required: ['foamInsertType', 'foamInsertMaterial', 'foamInsertDensity', 'foamInsertThickness', 'foamInsertDimensions', 'foamInsertDimensionsUnit', 'foamInsertColor', 'foamInsertQuantity', 'foamInsertSurplus', 'foamInsertWastage'],
+    required: ['foamInsertType', 'foamInsertMaterial', 'foamInsertDensity', 'foamInsertThickness', 'foamInsertColor', 'foamInsertQuantity', 'foamInsertSurplus', 'foamInsertWastage'],
     advanced: []
   },
   'PALLET STRAP': {
@@ -567,7 +567,7 @@ export const PACKAGING_MATERIAL_SCHEMAS = {
     advanced: []
   },
   'POLYBAG~POLYBAG-FLAP': {
-    required: ['polybagPolybagFlapPackagingType', 'polybagPolybagFlapInnerCasepack', 'polybagPolybagFlapType', 'polybagPolybagFlapMaterial', 'polybagPolybagFlapGaugeThickness', 'polybagPolybagFlapDimensions', 'polybagPolybagFlapFlapRequired', 'polybagPolybagFlapTestingRequirements', 'polybagPolybagFlapQuantity', 'polybagPolybagFlapQuantityUnit', 'polybagPolybagFlapSurplus', 'polybagPolybagFlapWastage'],
+    required: ['polybagPolybagFlapPackagingType', 'polybagPolybagFlapInnerCasepack', 'polybagPolybagFlapType', 'polybagPolybagFlapMaterial', 'polybagPolybagFlapFlapRequired', 'polybagPolybagFlapTestingRequirements', 'polybagPolybagFlapQuantity', 'polybagPolybagFlapQuantityUnit', 'polybagPolybagFlapSurplus', 'polybagPolybagFlapWastage'],
     advanced: [],
     conditional: {
       'polybagPolybagFlapFlapDimensions': { when: 'polybagPolybagFlapFlapRequired', equals: 'YES' }

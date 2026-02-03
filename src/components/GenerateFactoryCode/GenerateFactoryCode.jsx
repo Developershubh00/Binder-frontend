@@ -3420,6 +3420,35 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           [field]: value
         };
       }
+
+      // Keep legacy single-field dimension strings in sync (best-effort) for:
+      // - CARTON BOX: cartonBoxLength/cartonBoxWidth/cartonBoxHeight -> cartonBoxDimensions
+      // - FOAM INSERT: foamInsertLength/foamInsertWidth/foamInsertHeight -> foamInsertDimensions
+      // - POLYBAG~POLYBAG-FLAP: polybagPolybagFlapWidth/polybagPolybagFlapLength/polybagPolybagFlapGaugeThickness -> polybagPolybagFlapDimensions
+      const formatDim = (...parts) => parts.filter((p) => String(p || '').trim() !== '').join(' x ');
+      const mDim = updatedMaterials[materialIndex];
+      if (['cartonBoxLength', 'cartonBoxWidth', 'cartonBoxHeight'].includes(field)) {
+        updatedMaterials[materialIndex].cartonBoxDimensions = formatDim(
+          mDim.cartonBoxLength,
+          mDim.cartonBoxWidth,
+          mDim.cartonBoxHeight
+        );
+      }
+      if (['foamInsertLength', 'foamInsertWidth', 'foamInsertHeight'].includes(field)) {
+        updatedMaterials[materialIndex].foamInsertDimensions = formatDim(
+          mDim.foamInsertLength,
+          mDim.foamInsertWidth,
+          mDim.foamInsertHeight
+        );
+      }
+      if (['polybagPolybagFlapWidth', 'polybagPolybagFlapLength', 'polybagPolybagFlapGaugeThickness'].includes(field)) {
+        // Keep the historical order (W x L x G) used by the placeholder.
+        updatedMaterials[materialIndex].polybagPolybagFlapDimensions = formatDim(
+          mDim.polybagPolybagFlapWidth,
+          mDim.polybagPolybagFlapLength,
+          mDim.polybagPolybagFlapGaugeThickness
+        );
+      }
       
       // Auto-calculate gross consumption when relevant fields change
       const material = updatedMaterials[materialIndex];
