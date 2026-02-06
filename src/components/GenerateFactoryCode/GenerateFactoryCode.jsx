@@ -3703,6 +3703,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     rollWidthUnit: '',
     tapeWidth: '',
     tapeWidthUnit: '',
+    polybagBalePolybagCount: '',
+    polybagBaleAssdQtyByIpc: {},
   });
 
   const getDefaultExtraPack = () => ({

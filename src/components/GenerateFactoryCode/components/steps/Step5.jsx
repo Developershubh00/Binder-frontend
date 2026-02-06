@@ -409,6 +409,9 @@ const Step5 = ({
                   onChange={(field, value) => handlePackagingMaterialChange(materialIndex, field, value)}
                   errorKeyPrefix={`packaging_material_${materialIndex}`}
                   errors={errors}
+                  casepackQty={formData.packaging?.casepackQty}
+                  productSelection={formData.packaging?.productSelection}
+                  skus={formData.skus}
                 />
               )}
             </div>
@@ -589,6 +592,9 @@ const Step5 = ({
                           onChange={(field, value) => handleExtraPackMaterialChange(extraIndex, materialIndex, field, value)}
                           errorKeyPrefix={`packaging_extra_${extraIndex}_material_${materialIndex}`}
                           errors={errors}
+                          casepackQty={pack.casepackQty}
+                          productSelection={pack.productSelection}
+                          skus={formData.skus}
                         />
                       )}
                     </div>

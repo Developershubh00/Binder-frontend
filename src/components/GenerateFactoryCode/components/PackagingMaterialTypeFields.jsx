@@ -32,9 +32,29 @@ const parsePairDimensions = (value) => {
   };
 };
 
-const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, errors, materialIndex = 0 }) => {
+const getPoQtyAndImageForIpc = (skus, ipc) => {
+  if (!ipc || !Array.isArray(skus)) return { poQty: '', imagePreview: null };
+  const isSub = /\/SP\d+$/i.test(ipc);
+  const baseIpc = (ipc || '').replace(/\/SP\d+$/i, '');
+  const spNum = isSub ? parseInt(ipc.replace(/.*\/SP(\d+)$/i, '$1'), 10) : 0;
+  for (const sku of skus) {
+    const skuBase = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode || '';
+    if (skuBase !== baseIpc) continue;
+    if (!isSub) return { poQty: sku.poQty ?? '', imagePreview: sku.imagePreview ?? null };
+    const sub = sku.subproducts?.[spNum - 1];
+    return sub ? { poQty: sub.poQty ?? '', imagePreview: sub.imagePreview ?? null } : { poQty: '', imagePreview: null };
+  }
+  return { poQty: '', imagePreview: null };
+};
+
+const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, errors, materialIndex = 0, casepackQty, productSelection, skus }) => {
   if (!material || typeof material !== 'object') return null;
   const safeIndex = Number.isFinite(materialIndex) ? materialIndex : 0;
+  const selectedIpcs = Array.isArray(productSelection) ? productSelection : (productSelection ? [productSelection] : []);
+  const casepack = typeof casepackQty === 'number' ? casepackQty : parseFloat(String(casepackQty || '').trim()) || 0;
+  const polybagNum = parseFloat(String(material.polybagBalePolybagCount || '').trim()) || 0;
+  const innerQty = polybagNum > 0 ? casepack / polybagNum : 0;
+  const assdByIpc = material.polybagBaleAssdQtyByIpc && typeof material.polybagBaleAssdQtyByIpc === 'object' ? material.polybagBaleAssdQtyByIpc : {};
   return (
   <>
     {material.packagingMaterialType && (
@@ -1065,6 +1085,87 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         </div>
                         {(errors?.[`${errorKeyPrefix}_polybagBaleQuantity`] || errors?.[`${errorKeyPrefix}_polybagBaleQuantityUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_polybagBaleQuantity`] || errors[`${errorKeyPrefix}_polybagBaleQuantityUnit`]}</span>}
                       </div>
+                      {/* INNER~CASEAPACK: Polybag count + per-IPC table (Casepack / Polybag = Inner QTY, ASSD / Inner = Required Material) */}
+                      {material.polybagBalePackagingType === 'INNER~CASEAPACK' && (
+                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 space-y-4">
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">POLYBAG (count)</label>
+                            <input
+                              type="number"
+                              min={1}
+                              value={material.polybagBalePolybagCount ?? ''}
+                              onChange={(e) => onChange('polybagBalePolybagCount', e.target.value)}
+                              className={cn('border-2 rounded-lg text-sm bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]')}
+                              style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                              placeholder="e.g. 3"
+                            />
+                          </div>
+                          <div className="flex flex-wrap gap-6 items-center rounded-lg border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm">
+                            <span className="font-semibold text-gray-700">Casepack:</span>
+                            <span className="text-gray-900">{casepack || '—'}</span>
+                            <span className="font-semibold text-gray-700">Inner QTY:</span>
+                            <span className="text-gray-900">{innerQty > 0 ? Math.round(innerQty * 100) / 100 : '—'}</span>
+                            <span className="font-semibold text-gray-700">Polybag:</span>
+                            <span className="text-gray-900">{polybagNum || '—'}</span>
+                          </div>
+                          {selectedIpcs.length > 0 && (
+                            <div className="rounded-xl border-2 border-gray-200 bg-white overflow-hidden">
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-sm border-collapse">
+                                  <thead>
+                                    <tr className="bg-gray-100 border-b border-gray-200">
+                                      <th className="text-left font-semibold text-gray-700 p-3">PO</th>
+                                      <th className="text-left font-semibold text-gray-700 p-3">IPC</th>
+                                      <th className="text-left font-semibold text-gray-700 p-3">IMAGE</th>
+                                      <th className="text-left font-semibold text-gray-700 p-3">ASSD QTY</th>
+                                      <th className="text-left font-semibold text-gray-700 p-3">INNER QTY</th>
+                                      <th className="text-left font-semibold text-gray-700 p-3">REQUIRED MATERIAL QTY</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {selectedIpcs.map((ipc) => {
+                                      const { poQty, imagePreview } = getPoQtyAndImageForIpc(skus, ipc);
+                                      const assd = parseFloat(String(assdByIpc[ipc] ?? '').trim()) || 0;
+                                      const reqMaterial = innerQty > 0 ? assd / innerQty : 0;
+                                      return (
+                                        <tr key={ipc} className="border-b border-gray-100 hover:bg-gray-50/50">
+                                          <td className="p-3 text-gray-900">{poQty !== '' && poQty !== undefined ? poQty : '—'}</td>
+                                          <td className="p-3 text-gray-900 font-medium">{ipc}</td>
+                                          <td className="p-2">
+                                            {imagePreview ? (
+                                              <img src={imagePreview} alt="" className="w-10 h-10 rounded border border-gray-200 object-cover" />
+                                            ) : (
+                                              <div className="w-10 h-10 rounded border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-400">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" strokeWidth="1.5" /></svg>
+                                              </div>
+                                            )}
+                                          </td>
+                                          <td className="p-2">
+                                            <input
+                                              type="number"
+                                              min={0}
+                                              value={assdByIpc[ipc] ?? ''}
+                                              onChange={(e) => {
+                                                const next = { ...assdByIpc, [ipc]: e.target.value };
+                                                onChange('polybagBaleAssdQtyByIpc', next);
+                                              }}
+                                              className={cn('border-2 rounded-lg text-sm w-full max-w-[100px] bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]')}
+                                              style={{ padding: '6px 10px' }}
+                                              placeholder="0"
+                                            />
+                                          </td>
+                                          <td className="p-3 text-gray-900">{innerQty > 0 ? Math.round(innerQty * 100) / 100 : '—'}</td>
+                                          <td className="p-3 text-gray-900 font-medium">{reqMaterial > 0 ? Math.round(reqMaterial * 100) / 100 : '—'}</td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </>
                   )}
 
