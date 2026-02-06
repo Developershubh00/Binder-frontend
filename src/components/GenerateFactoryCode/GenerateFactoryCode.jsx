@@ -3004,30 +3004,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       newErrors['packaging_no_materials'] = 'At least one packaging material is required';
     }
     
-    // Validate each packaging material - base + type-specific fields
+    // Validate each packaging material - only Packaging Material Type + type-specific fields (Component, Material Description, Net Consumption, Unit, Placement, Work Order were removed from form)
     materials.forEach((material, materialIndex) => {
       const errorPrefix = `packaging_material_${materialIndex}`;
-      
-      // === COMMON FIELDS ===
-      if (isEmpty(material.components)) {
-        newErrors[`${errorPrefix}_components`] = 'Component is required';
-      }
-      if (isEmpty(material.materialDescription)) {
-        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
-      }
-      if (isEmpty(material.netConsumptionPerPc)) {
-        newErrors[`${errorPrefix}_netConsumptionPerPc`] = 'Net Consumption per Pc is required';
-      }
-      if (isEmpty(material.unit)) {
-        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
-      }
-      if (isEmpty(material.placement)) {
-        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
-      }
-      const workOrderVal = material.workOrders?.[0]?.workOrder;
-      if (isEmpty(workOrderVal)) {
-        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
-      }
       
       // === PACKAGING MATERIAL TYPE ===
       const packagingType = material.packagingMaterialType?.toString().trim();
@@ -3737,13 +3716,18 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const addExtraPack = () => {
     setStep4Saved(false);
     setStep4SaveStatus('idle');
-    updateSelectedSkuStepData((stepData) => ({
-      ...stepData,
-      packaging: {
-        ...stepData.packaging,
-        extraPacks: [...(stepData.packaging.extraPacks || []), getDefaultExtraPack()],
-      },
-    }));
+    updateSelectedSkuStepData((stepData) => {
+      const existing = stepData.packaging || {};
+      const keepMaterials = existing.materials && existing.materials.length > 0;
+      return {
+        ...stepData,
+        packaging: {
+          ...existing,
+          materials: keepMaterials ? existing.materials : [getDefaultPackagingMaterial()],
+          extraPacks: [...(existing.extraPacks || []), getDefaultExtraPack()],
+        },
+      };
+    });
   };
 
   const handleExtraPackChange = (extraIndex, field, value) => {
@@ -4405,13 +4389,18 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
     
     // Merge selected SKU's step data with main formData
+    const packaging = stepData.packaging || formData.packaging;
+    // Ensure main block always has at least one material so it never disappears
+    const packagingSafe = packaging && (!packaging.materials || packaging.materials.length === 0)
+      ? { ...packaging, materials: [getDefaultPackagingMaterial()] }
+      : packaging;
     return {
       ...formData,
       products: stepData.products || [],
       rawMaterials: stepData.rawMaterials || [],
       consumptionMaterials: stepData.consumptionMaterials || [],
       artworkMaterials: stepData.artworkMaterials || [],
-      packaging: stepData.packaging || formData.packaging,
+      packaging: packagingSafe,
       // Also include SKU-specific data for calculations
       poQty: (() => {
         const parsed = parseSelectedSku();

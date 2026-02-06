@@ -447,31 +447,22 @@ const Step5 = ({
         </div>
       </div>
 
-      {/* Leftover packs: shown only after save when "Please complete leftover IPC" → next block opens */}
+      {/* Message only when save reports leftover IPC */}
       {errors?.packaging_leftover_ipc && (
         <div className="mt-6 p-4 rounded-xl border-2 border-amber-200 bg-amber-50 text-amber-800 text-sm font-medium">
           {errors.packaging_leftover_ipc}
         </div>
       )}
-      {(() => {
-        // Show leftover section ONLY after user clicks Save and we prompt "IPC left to fill" — never initially.
-        if (!errors.packaging_leftover_ipc) return null;
-        if (extraPacks.length === 0) return null;
-        const lastIndex = extraPacks.length - 1;
-        const pack = extraPacks[lastIndex];
-        const leftoverOptions = getLeftover(lastIndex - 1);
-        const packSelection = Array.isArray(pack.productSelection) ? pack.productSelection : (pack.productSelection ? [pack.productSelection] : []);
-        const hasPurpose = leftoverOptions.length > 0 || packSelection.length > 0;
-        if (!hasPurpose) return null;
-        const extraIndex = lastIndex;
-        const isExtraStandalone = (pack.toBeShipped || formData.packaging?.toBeShipped || '').toLowerCase() === 'standalone';
-        return (
+      {/* All filled extra packs: show whenever we have any (so blocks stay visible after save) */}
+      {extraPacks.length > 0 && (
         <div className="mt-10 space-y-8 overflow-visible">
           <h3 className="text-lg font-bold text-gray-800">Leftover packs</h3>
-          {(() => {
+          {extraPacks.map((pack, extraIndex) => {
+            const leftoverOptions = getLeftover(extraIndex - 1);
+            const packSelection = Array.isArray(pack.productSelection) ? pack.productSelection : (pack.productSelection ? [pack.productSelection] : []);
+            const isExtraStandalone = (pack.toBeShipped || formData.packaging?.toBeShipped || '').toLowerCase() === 'standalone';
             return (
               <div key={extraIndex} className="space-y-0 overflow-visible">
-                {/* Same structure as main block: header box then materials box */}
                 <div className="bg-gray-50 rounded-xl border border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
                   <h3 className="text-sm font-bold text-gray-800" style={{ marginBottom: '16px' }}>PACKAGING HEADER</h3>
                   <div className="flex flex-wrap items-start gap-4">
@@ -488,80 +479,80 @@ const Step5 = ({
                       />
                     </div>
                     <div className="flex flex-col" style={{ width: '280px' }}>
-                      <label className="text-sm font-semibold text-gray-700 mb-2">PRODUCT (leftover only) <span className="text-red-500">*</span></label>
-                    {isExtraStandalone ? (
-                      <SearchableDropdown
-                        value={packSelection[0] || ''}
-                        onChange={(v) => handleExtraPackChange(extraIndex, 'productSelection', v ? [v] : [])}
-                        options={leftoverOptions}
-                        placeholder="Select IPC"
-                        strictMode={false}
-                        className={cn('border-2 rounded-lg text-sm bg-white', errors?.[`packaging_extra_${extraIndex}_productSelection`] ? 'border-red-600' : 'border-gray-200')}
-                        style={{ padding: '10px 14px', height: '44px' }}
-                      />
-                    ) : (
-                      <div className="relative w-full" data-extra-merged-dropdown>
-                        <input
-                          type="text"
-                          readOnly
-                          value={packSelection.length === 0 ? '' : `${packSelection.length} IPC(s) selected`}
-                          onFocus={() => setExtraMergedOpenIndex(extraIndex)}
-                          onClick={() => setExtraMergedOpenIndex(extraIndex)}
-                          placeholder="Select IPCs (click to open)"
-                          className={cn(
-                            'border-2 rounded-lg text-sm w-full pl-3 pr-10 bg-white cursor-pointer',
-                            errors?.[`packaging_extra_${extraIndex}_productSelection`] ? 'border-red-600' : 'border-gray-200'
-                          )}
-                          style={{ height: '44px' }}
+                      <label className="text-sm font-semibold text-gray-700 mb-2">PRODUCT <span className="text-red-500">*</span></label>
+                      {isExtraStandalone ? (
+                        <SearchableDropdown
+                          value={packSelection[0] || ''}
+                          onChange={(v) => handleExtraPackChange(extraIndex, 'productSelection', v ? [v] : [])}
+                          options={leftoverOptions}
+                          placeholder="Select IPC"
+                          strictMode={false}
+                          className={cn('border-2 rounded-lg text-sm bg-white', errors?.[`packaging_extra_${extraIndex}_productSelection`] ? 'border-red-600' : 'border-gray-200')}
+                          style={{ padding: '10px 14px', height: '44px' }}
                         />
-                        <button type="button" onClick={() => { setExtraMergedOpenIndex(extraMergedOpenIndex === extraIndex ? null : extraIndex); setExtraMergedSearchTerm(''); }} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-500 hover:bg-gray-100">
-                          <ChevronDown className={cn('h-4 w-4', extraMergedOpenIndex === extraIndex && 'rotate-180')} />
-                        </button>
-                        {extraMergedOpenIndex === extraIndex && (
-                          <div className="absolute z-50 mt-1 w-full rounded-md border-2 border-gray-200 bg-white shadow-lg" style={{ top: '100%', left: 0 }}>
-                            <input type="text" value={extraMergedSearchTerm} onChange={(e) => setExtraMergedSearchTerm(e.target.value)} placeholder="Search IPC..." className="w-full border-b border-gray-200 px-3 py-2 text-sm outline-none rounded-t-md" onMouseDown={(e) => e.stopPropagation()} />
-                            <div className="max-h-56 overflow-auto">
-                              {(extraMergedSearchTerm.trim() ? leftoverOptions.filter((v) => v.toLowerCase().includes(extraMergedSearchTerm.toLowerCase())) : leftoverOptions).map((ipcVal) => {
-                                const opt = ipcOptionsWithImages.find((o) => o.value === ipcVal) || { value: ipcVal, label: ipcVal, imagePreview: null };
-                                const checked = packSelection.includes(ipcVal);
-                                return (
-                                  <label key={ipcVal} className="flex items-center gap-3 cursor-pointer px-3 py-2.5 text-sm border-b border-gray-100 last:border-b-0 hover:bg-indigo-50">
-                                    <input type="checkbox" checked={checked} onChange={() => { const next = checked ? packSelection.filter((v) => v !== ipcVal) : [...packSelection, ipcVal]; handleExtraPackChange(extraIndex, 'productSelection', next); }} className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-                                    <div className="flex-shrink-0 w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '40px' }}>{opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>}</div>
-                                    <span className="font-medium text-gray-800 truncate">{opt.label}</span>
-                                  </label>
-                                );
-                              })}
+                      ) : (
+                        <div className="relative w-full" data-extra-merged-dropdown>
+                          <input
+                            type="text"
+                            readOnly
+                            value={packSelection.length === 0 ? '' : `${packSelection.length} IPC(s) selected`}
+                            onFocus={() => setExtraMergedOpenIndex(extraIndex)}
+                            onClick={() => setExtraMergedOpenIndex(extraIndex)}
+                            placeholder="Select IPCs (click to open)"
+                            className={cn(
+                              'border-2 rounded-lg text-sm w-full pl-3 pr-10 bg-white cursor-pointer',
+                              errors?.[`packaging_extra_${extraIndex}_productSelection`] ? 'border-red-600' : 'border-gray-200'
+                            )}
+                            style={{ height: '44px' }}
+                          />
+                          <button type="button" onClick={() => { setExtraMergedOpenIndex(extraMergedOpenIndex === extraIndex ? null : extraIndex); setExtraMergedSearchTerm(''); }} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-500 hover:bg-gray-100">
+                            <ChevronDown className={cn('h-4 w-4', extraMergedOpenIndex === extraIndex && 'rotate-180')} />
+                          </button>
+                          {extraMergedOpenIndex === extraIndex && (
+                            <div className="absolute z-50 mt-1 w-full rounded-md border-2 border-gray-200 bg-white shadow-lg" style={{ top: '100%', left: 0 }}>
+                              <input type="text" value={extraMergedSearchTerm} onChange={(e) => setExtraMergedSearchTerm(e.target.value)} placeholder="Search IPC..." className="w-full border-b border-gray-200 px-3 py-2 text-sm outline-none rounded-t-md" onMouseDown={(e) => e.stopPropagation()} />
+                              <div className="max-h-56 overflow-auto">
+                                {(extraMergedSearchTerm.trim() ? leftoverOptions.filter((v) => v.toLowerCase().includes(extraMergedSearchTerm.toLowerCase())) : leftoverOptions).map((ipcVal) => {
+                                  const opt = ipcOptionsWithImages.find((o) => o.value === ipcVal) || { value: ipcVal, label: ipcVal, imagePreview: null };
+                                  const checked = packSelection.includes(ipcVal);
+                                  return (
+                                    <label key={ipcVal} className="flex items-center gap-3 cursor-pointer px-3 py-2.5 text-sm border-b border-gray-100 last:border-b-0 hover:bg-indigo-50">
+                                      <input type="checkbox" checked={checked} onChange={() => { const next = checked ? packSelection.filter((v) => v !== ipcVal) : [...packSelection, ipcVal]; handleExtraPackChange(extraIndex, 'productSelection', next); }} className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                                      <div className="flex-shrink-0 w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '40px' }}>{opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>}</div>
+                                      <span className="font-medium text-gray-800 truncate">{opt.label}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {errors?.[`packaging_extra_${extraIndex}_productSelection`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_extra_${extraIndex}_productSelection`]}</span>}
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">MASTER PACK</label>
-                    <select
-                      value={pack.type || 'STANDARD'}
-                      onChange={(e) => handleExtraPackChange(extraIndex, 'type', e.target.value)}
-                      className="border-2 rounded-lg text-sm bg-white text-gray-900"
-                      style={{ padding: '10px 14px', width: '200px', height: '44px' }}
-                    >
-                      <option value="STANDARD">STANDARD</option>
-                      <option value="ASSORTED">ASSORTED</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">CASEPACK QTY</label>
-                    <input
-                      type="number"
-                      value={pack.casepackQty || ''}
-                      onChange={(e) => handleExtraPackChange(extraIndex, 'casepackQty', e.target.value)}
-                      className="border-2 rounded-lg text-sm bg-white"
-                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                      placeholder="10"
-                    />
-                  </div>
+                          )}
+                        </div>
+                      )}
+                      {errors?.[`packaging_extra_${extraIndex}_productSelection`] && <span className="text-red-600 text-xs mt-1">{errors[`packaging_extra_${extraIndex}_productSelection`]}</span>}
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">MASTER PACK</label>
+                      <select
+                        value={pack.type || 'STANDARD'}
+                        onChange={(e) => handleExtraPackChange(extraIndex, 'type', e.target.value)}
+                        className="border-2 rounded-lg text-sm bg-white text-gray-900"
+                        style={{ padding: '10px 14px', width: '200px', height: '44px' }}
+                      >
+                        <option value="STANDARD">STANDARD</option>
+                        <option value="ASSORTED">ASSORTED</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm font-semibold text-gray-700 mb-2">CASEPACK QTY</label>
+                      <input
+                        type="number"
+                        value={pack.casepackQty || ''}
+                        onChange={(e) => handleExtraPackChange(extraIndex, 'casepackQty', e.target.value)}
+                        className="border-2 rounded-lg text-sm bg-white"
+                        style={{ padding: '10px 14px', width: '120px', height: '44px' }}
+                        placeholder="10"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="bg-white rounded-xl border-2 border-gray-200 overflow-visible" style={{ padding: '24px', marginBottom: '24px' }}>
@@ -615,10 +606,9 @@ const Step5 = ({
                 </div>
               </div>
             );
-          })()}
+          })}
         </div>
-        );
-      })()}
+      )}
     </div>
   );
 };
