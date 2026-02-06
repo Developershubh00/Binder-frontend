@@ -201,6 +201,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
           productIndex,
           ipcCode: sku.ipcCode || `IPC-${skuIndex + 1}`,
           productName: product.name || sku.product || '',
+          setOf: sku.setOf || '',
           poQty: sku.poQty,
           overagePercentage: sku.overagePercentage,
           isSubproduct: false,
@@ -219,6 +220,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
             productIndex,
             ipcCode: subproduct.ipcCode || `${sku.ipcCode || `IPC-${skuIndex + 1}`}/SP${spIndex + 1}`,
             productName: product.name || subproduct.subproduct || '',
+            setOf: sku.setOf || '',
             poQty: subproduct.poQty,
             overagePercentage: subproduct.overagePercentage,
             isSubproduct: true,
@@ -258,12 +260,17 @@ const ConsumptionSheet = ({ formData = {} }) => {
             <span className="text-lg font-bold text-foreground">{product.ipcCode}</span>
           </div>
 
-          {/* ROW 2: Product (or Subproduct name) */}
-          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/30 to-muted/10">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-              {product.isSubproduct ? 'Subproduct' : 'Product'}
-            </span>
-            <span className="text-base font-semibold text-foreground">{product.productName || '-'}</span>
+          {/* ROW 2: Product (or Subproduct name) + Set Of */}
+          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+                {product.isSubproduct ? 'Subproduct' : 'Product'}
+              </span>
+              <span className="text-base font-semibold text-foreground">{product.productName || '-'}</span>
+            </div>
+            {product.setOf && (
+              <span className="text-sm font-medium text-muted-foreground shrink-0">Set of {product.setOf}</span>
+            )}
           </div>
 
           {/* ROW 3: Component */}
