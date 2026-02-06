@@ -341,6 +341,20 @@ const Step0 = ({
 
                     {/* SUBPRODUCT + ADD BUYER SKU - side by side */}
                     <div className="flex flex-wrap" style={{ gap: '16px 12px', marginBottom: '16px' }}>
+                    <Field
+                        label="BUYER SKU"
+                        error={errors[`subproduct_${skuIndex}_${subproductIndex}_buyerSku`]}
+                        width="md"
+                      >
+                        <SearchableDropdown
+                          value={subproduct.buyerSku || ''}
+                          onChange={(value) => handleSubproductChange(skuIndex, subproductIndex, 'buyerSku', value)}
+                          options={[]}
+                          placeholder="Select or type buyer SKU"
+                          strictMode={false}
+                          className={errors[`subproduct_${skuIndex}_${subproductIndex}_buyerSku`] ? 'border-destructive' : ''}
+                        />
+                      </Field>
                       <Field
                         label="SUBPRODUCT"
                         error={errors[`subproduct_${skuIndex}_${subproductIndex}`]}
@@ -357,20 +371,7 @@ const Step0 = ({
                         />
                       </Field>
 
-                      <Field
-                        label="ADD BUYER SKU"
-                        error={errors[`subproduct_${skuIndex}_${subproductIndex}_buyerSku`]}
-                        width="md"
-                      >
-                        <SearchableDropdown
-                          value={subproduct.buyerSku || ''}
-                          onChange={(value) => handleSubproductChange(skuIndex, subproductIndex, 'buyerSku', value)}
-                          options={[]}
-                          placeholder="Select or type buyer SKU"
-                          strictMode={false}
-                          className={errors[`subproduct_${skuIndex}_${subproductIndex}_buyerSku`] ? 'border-destructive' : ''}
-                        />
-                      </Field>
+                      
                     </div>
 
                     {/* Row: PO QTY, Overage %, Delivery Date */}
