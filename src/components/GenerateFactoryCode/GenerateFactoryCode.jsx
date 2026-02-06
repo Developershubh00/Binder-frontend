@@ -179,10 +179,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           casepackQty: '',
           qtyToBePacked: 'AS_PER_PO',
           customQty: '',
-          productSelection: '',
+          productSelection: [],
           isAssortedPack: false,
           assortedSkuLink: '',
           artworkAndPackaging: '',
+          extraPacks: [],
           materials: [{
             srNo: 1,
             product: '',
@@ -339,10 +340,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       casepackQty: '',
       qtyToBePacked: 'AS_PER_PO',
       customQty: '',
-      productSelection: '',
+      productSelection: [],
       isAssortedPack: false,
       assortedSkuLink: '',
       artworkAndPackaging: '',
+      extraPacks: [],
       materials: [{
         srNo: 1,
         product: '',
@@ -352,25 +354,21 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         unit: '',
         casepack: '',
         placement: '',
-        // Size fields (conditional for CUSHION/FILLER/TOTE BAG)
         size: {
           width: '',
           length: '',
           height: '',
           unit: '',
         },
-        // Work orders (two sets)
         workOrders: [
           { workOrder: 'Packaging', wastage: '', for: '' },
           { workOrder: '', wastage: '', for: '' },
         ],
-        // Calculated fields
         totalNetConsumption: '',
         totalWastage: '',
         calculatedUnit: '',
         overage: '',
         grossConsumption: '',
-        // New conditional fields for Part 5
         packagingMaterialType: '',
         noOfPlys: '',
         jointType: '',
@@ -737,10 +735,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       casepackQty: '',
       qtyToBePacked: 'AS_PER_PO',
       customQty: '',
-      productSelection: '',
+      productSelection: [],
       isAssortedPack: false,
       assortedSkuLink: '',
       artworkAndPackaging: '',
+      extraPacks: [],
       materials: [{
         srNo: 1,
         product: '',
@@ -2988,7 +2987,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     if (isEmpty(packaging.toBeShipped)) {
       newErrors['packaging_toBeShipped'] = 'To be shipped is required';
     }
-    if (isEmpty(packaging.productSelection)) {
+    const mainSelection = Array.isArray(packaging.productSelection) ? packaging.productSelection : (packaging.productSelection ? [packaging.productSelection] : []);
+    if (mainSelection.length === 0) {
       newErrors['packaging_productSelection'] = 'Product (IPC) is required';
     }
     if (isEmpty(packaging.type)) {
@@ -3042,7 +3042,29 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         }
       }
     });
-    
+
+    // === LEFTOVER IPC (dynamic: only add next block on save when there are unassigned IPCs) ===
+    const allIpcValues = [];
+    (formData.skus || []).forEach((sku) => {
+      const baseIpc = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode || '';
+      if (baseIpc) allIpcValues.push(baseIpc);
+      (sku.subproducts || []).forEach((_, idx) => allIpcValues.push(`${baseIpc}/SP${idx + 1}`));
+    });
+    const extraPacks = packaging.extraPacks || [];
+    const selectedIpcs = new Set([
+      ...mainSelection,
+      ...extraPacks.flatMap((p) => (Array.isArray(p.productSelection) ? p.productSelection : (p.productSelection ? [p.productSelection] : []))),
+    ]);
+    const leftover = allIpcValues.filter((v) => !selectedIpcs.has(v));
+    if (leftover.length > 0) {
+      newErrors['packaging_leftover_ipc'] = 'Please complete leftover IPC';
+      const lastPack = extraPacks[extraPacks.length - 1];
+      const lastPackSelection = lastPack ? (Array.isArray(lastPack.productSelection) ? lastPack.productSelection : (lastPack.productSelection ? [lastPack.productSelection] : [])) : [];
+      // Add at most ONE leftover block per save: only when no blocks yet, or when the last block has at least one product selected (so user filled it and there is still leftover).
+      const shouldAddBlock = extraPacks.length === 0 || lastPackSelection.length > 0;
+      if (shouldAddBlock) addExtraPack();
+    }
+
     setErrors(newErrors);
     const isValid = Object.keys(newErrors).length === 0;
     return { isValid, errors: newErrors };
@@ -3662,6 +3684,137 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         };
       });
     }
+  };
+
+  // Default material object for packaging / extra packs
+  const getDefaultPackagingMaterial = () => ({
+    srNo: 1,
+    product: '',
+    components: '',
+    materialDescription: '',
+    netConsumptionPerPc: '',
+    unit: '',
+    casepack: '',
+    placement: '',
+    size: { width: '', length: '', height: '', unit: '' },
+    workOrders: [
+      { workOrder: 'Packaging', wastage: '', for: '' },
+      { workOrder: '', wastage: '', for: '' },
+    ],
+    totalNetConsumption: '',
+    totalWastage: '',
+    calculatedUnit: '',
+    overage: '',
+    grossConsumption: '',
+    packagingMaterialType: '',
+    noOfPlys: '',
+    jointType: '',
+    burstingStrength: '',
+    surplus: '',
+    surplusForSection: '',
+    approvalAgainst: '',
+    remarks: '',
+    guage: '',
+    printingRef: null,
+    gummingQuality: '',
+    punchHoles: '',
+    flapSize: '',
+    guageGsm: '',
+    rollWidth: '',
+    rollWidthUnit: '',
+    tapeWidth: '',
+    tapeWidthUnit: '',
+  });
+
+  const getDefaultExtraPack = () => ({
+    toBeShipped: '',
+    productSelection: [],
+    type: 'STANDARD',
+    casepackQty: '',
+    materials: [getDefaultPackagingMaterial()],
+  });
+
+  const addExtraPack = () => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
+    updateSelectedSkuStepData((stepData) => ({
+      ...stepData,
+      packaging: {
+        ...stepData.packaging,
+        extraPacks: [...(stepData.packaging.extraPacks || []), getDefaultExtraPack()],
+      },
+    }));
+  };
+
+  const handleExtraPackChange = (extraIndex, field, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
+    updateSelectedSkuStepData((stepData) => {
+      const extraPacks = [...(stepData.packaging.extraPacks || [])];
+      if (!extraPacks[extraIndex]) return stepData;
+      extraPacks[extraIndex] = { ...extraPacks[extraIndex], [field]: value };
+      return {
+        ...stepData,
+        packaging: { ...stepData.packaging, extraPacks },
+      };
+    });
+    const errorKey = `packaging_extra_${extraIndex}_${field}`;
+    if (errors[errorKey]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[errorKey];
+        return next;
+      });
+    }
+  };
+
+  const handleExtraPackMaterialChange = (extraIndex, materialIndex, field, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
+    updateSelectedSkuStepData((stepData) => {
+      const extraPacks = [...(stepData.packaging.extraPacks || [])];
+      if (!extraPacks[extraIndex] || !extraPacks[extraIndex].materials) return stepData;
+      const materials = [...extraPacks[extraIndex].materials];
+      const defaultMaterial = getDefaultPackagingMaterial();
+      materials[materialIndex] = { ...defaultMaterial, ...materials[materialIndex], [field]: value };
+      extraPacks[extraIndex] = { ...extraPacks[extraIndex], materials };
+      return {
+        ...stepData,
+        packaging: { ...stepData.packaging, extraPacks },
+      };
+    });
+  };
+
+  const addExtraPackMaterial = (extraIndex) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
+    updateSelectedSkuStepData((stepData) => {
+      const extraPacks = [...(stepData.packaging.extraPacks || [])];
+      if (!extraPacks[extraIndex]) return stepData;
+      const materials = [...(extraPacks[extraIndex].materials || []), getDefaultPackagingMaterial()];
+      materials.forEach((m, i) => { m.srNo = i + 1; });
+      extraPacks[extraIndex] = { ...extraPacks[extraIndex], materials };
+      return {
+        ...stepData,
+        packaging: { ...stepData.packaging, extraPacks },
+      };
+    });
+  };
+
+  const removeExtraPackMaterial = (extraIndex, materialIndex) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
+    updateSelectedSkuStepData((stepData) => {
+      const extraPacks = [...(stepData.packaging.extraPacks || [])];
+      if (!extraPacks[extraIndex] || (extraPacks[extraIndex].materials?.length || 0) <= 1) return stepData;
+      const materials = extraPacks[extraIndex].materials.filter((_, i) => i !== materialIndex);
+      materials.forEach((m, i) => { m.srNo = i + 1; });
+      extraPacks[extraIndex] = { ...extraPacks[extraIndex], materials };
+      return {
+        ...stepData,
+        packaging: { ...stepData.packaging, extraPacks },
+      };
+    });
   };
 
   // Check if product requires size fields (CUSHION/FILLER/TOTE BAG)
@@ -4361,10 +4514,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               errors={errors}
               handlePackagingChange={handlePackagingChange}
               handlePackagingMaterialChange={handlePackagingMaterialChange}
-              handlePackagingMaterialSizeChange={handlePackagingMaterialSizeChange}
-              handlePackagingWorkOrderChange={handlePackagingWorkOrderChange}
               addPackagingMaterial={addPackagingMaterial}
               removePackagingMaterial={removePackagingMaterial}
+              addExtraPack={addExtraPack}
+              handleExtraPackChange={handleExtraPackChange}
+              handleExtraPackMaterialChange={handleExtraPackMaterialChange}
+              addExtraPackMaterial={addExtraPackMaterial}
+              removeExtraPackMaterial={removeExtraPackMaterial}
             />
           );
         default:

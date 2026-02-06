@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -13,12 +14,14 @@ const SearchableDropdown = ({
   error = false,
   onFocus,
   onBlur,
-  strictMode = false // If true, only accepts values from options list
+  strictMode = false, // If true, only accepts values from options list
+  usePortal = false // If true, render dropdown in portal so it isn't clipped by overflow
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [dropdownWidth, setDropdownWidth] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const blurTimeoutRef = useRef(null);
@@ -44,13 +47,16 @@ const SearchableDropdown = ({
     }
   }, [isOpen, options, searchTerm]);
 
-  // Handle click outside
+  // Handle click outside (when using portal, also ignore clicks inside the portal dropdown)
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-        setSearchTerm('');
+      if (containerRef.current && containerRef.current.contains(event.target)) return;
+      if (usePortal) {
+        const portalEl = document.querySelector('[data-searchable-dropdown-portal]');
+        if (portalEl && portalEl.contains(event.target)) return;
       }
+      setIsOpen(false);
+      setSearchTerm('');
     };
 
     if (isOpen) {
@@ -59,7 +65,7 @@ const SearchableDropdown = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, usePortal]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value;
@@ -135,13 +141,34 @@ const SearchableDropdown = ({
     }
   }, [value, options]);
 
-  // Measure input width when dropdown opens to match dropdown width
+  // Measure input and position when dropdown opens (for portal: need position for fixed placement)
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isOpen && containerRef.current && inputRef.current) {
       const inputWidth = inputRef.current.offsetWidth;
       setDropdownWidth(inputWidth);
+      if (usePortal && typeof document !== 'undefined') {
+        const rect = containerRef.current.getBoundingClientRect();
+        setDropdownPosition({ top: rect.bottom, left: rect.left });
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, usePortal]);
+
+  // Update portal dropdown position on scroll/resize when open
+  useEffect(() => {
+    if (!isOpen || !usePortal || !containerRef.current) return;
+    const updatePosition = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setDropdownPosition({ top: rect.bottom, left: rect.left });
+      }
+    };
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen, usePortal]);
 
   // Show search term when typing, otherwise show value
   const displayValue = isOpen ? searchTerm : (value || '');
@@ -200,7 +227,36 @@ const SearchableDropdown = ({
           <ChevronDown className={cn('h-4 w-4 transition-transform', isOpen && 'rotate-180')} />
         </button>
       )}
-      {isOpen && !disabled && filteredOptions.length > 0 && (
+      {isOpen && !disabled && filteredOptions.length > 0 && (usePortal && typeof document !== 'undefined' ? createPortal(
+        <div
+          data-searchable-dropdown-portal
+          className="fixed z-[9999] max-h-60 overflow-auto rounded-md border border-border bg-popover text-popover-foreground shadow-md"
+          style={{
+            top: dropdownPosition.top + 4,
+            left: dropdownPosition.left,
+            width: dropdownWidth || 280,
+            minWidth: 200,
+          }}
+        >
+          {filteredOptions.map((option, index) => (
+            <div
+              key={`${option}-${index}`}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleSelect(option);
+              }}
+              className={cn(
+                'cursor-pointer px-3 py-2 text-sm',
+                'border-b border-border last:border-b-0',
+                'hover:bg-accent hover:text-accent-foreground'
+              )}
+            >
+              {option}
+            </div>
+          ))}
+        </div>,
+        document.body
+      ) : (
         <div
           className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-popover text-popover-foreground shadow-md"
           style={{ top: '100%', left: 0, width: dropdownWidth || '100%' }}
@@ -209,7 +265,7 @@ const SearchableDropdown = ({
             <div
               key={`${option}-${index}`}
               onMouseDown={(e) => {
-                e.preventDefault(); // Prevent blur
+                e.preventDefault();
                 handleSelect(option);
               }}
               className={cn(
@@ -222,7 +278,7 @@ const SearchableDropdown = ({
             </div>
           ))}
         </div>
-      )}
+      ))}
     </div>
   );
 };
