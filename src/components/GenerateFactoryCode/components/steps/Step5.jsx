@@ -405,6 +405,7 @@ const Step5 = ({
               {material.packagingMaterialType && (
                 <PackagingMaterialTypeFields
                   material={material}
+                  materialIndex={materialIndex}
                   onChange={(field, value) => handlePackagingMaterialChange(materialIndex, field, value)}
                   errorKeyPrefix={`packaging_material_${materialIndex}`}
                   errors={errors}
@@ -593,6 +594,7 @@ const Step5 = ({
                       {material.packagingMaterialType && (
                         <PackagingMaterialTypeFields
                           material={material}
+                          materialIndex={materialIndex}
                           onChange={(field, value) => handleExtraPackMaterialChange(extraIndex, materialIndex, field, value)}
                           errorKeyPrefix={`packaging_extra_${extraIndex}_material_${materialIndex}`}
                           errors={errors}

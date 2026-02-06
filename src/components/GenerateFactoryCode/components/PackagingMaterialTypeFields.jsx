@@ -9,7 +9,33 @@ const asArray = (value) => {
   return v ? [v] : [];
 };
 
-const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, errors }) => (
+const extractNumbers = (value) => {
+  if (!value) return [];
+  const matches = String(value).match(/\d+(\.\d+)?/g);
+  return matches || [];
+};
+
+const parseTripletDimensions = (value) => {
+  const nums = extractNumbers(value);
+  return {
+    length: nums[0] || '',
+    width: nums[1] || '',
+    height: nums[2] || '',
+  };
+};
+
+const parsePairDimensions = (value) => {
+  const nums = extractNumbers(value);
+  return {
+    width: nums[0] || '',
+    length: nums[1] || '',
+  };
+};
+
+const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, errors, materialIndex = 0 }) => {
+  if (!material || typeof material !== 'object') return null;
+  const safeIndex = Number.isFinite(materialIndex) ? materialIndex : 0;
+  return (
   <>
     {material.packagingMaterialType && (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-6">
@@ -230,7 +256,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             ))}
                             {/* Dropdown for selecting new options */}
                             <div 
-                              id={`carton-box-testing-wrapper-${materialIndex}`}
+                              id={`carton-box-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
                               <SearchableDropdown
@@ -922,7 +948,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             ))}
                             {/* Dropdown for selecting new options */}
                             <div 
-                              id={`polybag-bale-testing-wrapper-${materialIndex}`}
+                              id={`polybag-bale-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
                               <SearchableDropdown
@@ -1220,7 +1246,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             ))}
                             {/* Dropdown for selecting new options */}
                             <div 
-                              id={`polybag-polybag-flap-testing-wrapper-${materialIndex}`}
+                              id={`polybag-polybag-flap-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
                               <SearchableDropdown
@@ -1422,10 +1448,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             type="file"
                             onChange={(e) => onChange('silicaGelDesiccantImageReference', e.target.files[0])}
                             className="hidden"
-                            id={`silica-gel-desiccant-image-${materialIndex}`}
+                            id={`silica-gel-desiccant-image-${safeIndex}`}
                           />
                           <label
-                            htmlFor={`silica-gel-desiccant-image-${materialIndex}`}
+                            htmlFor={`silica-gel-desiccant-image-${safeIndex}`}
                             className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
                             style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                           >
@@ -2000,7 +2026,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             ))}
                             {/* Dropdown for selecting new options */}
                             <div 
-                              id={`tape-testing-wrapper-${materialIndex}`}
+                              id={`tape-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
                               <SearchableDropdown
@@ -2126,12 +2152,12 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <div className="flex items-center gap-2">
                         <input
                           type="file"
-                          onChange={(e) => onChange('printingRef', e.target.files[0])}
+                          onChange={(e) => onChange('printingRef', e.target?.files?.[0] ?? null)}
                           className="hidden"
-                          id={`pkg-file-${materialIndex}`}
+                          id={`pkg-file-${safeIndex}`}
                         />
                         <label
-                          htmlFor={`pkg-file-${materialIndex}`}
+                          htmlFor={`pkg-file-${safeIndex}`}
                           className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
                           style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                         >
@@ -2648,10 +2674,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                   type="file"
                                   onChange={(e) => onChange('polybagBaleArtworkSpec', e.target.files[0])}
                                   className="hidden"
-                                  id={`polybag-bale-artwork-${materialIndex}`}
+                                  id={`polybag-bale-artwork-${safeIndex}`}
                                 />
                                 <label
-                                  htmlFor={`polybag-bale-artwork-${materialIndex}`}
+                                  htmlFor={`polybag-bale-artwork-${safeIndex}`}
                                   className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
                                   style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                                 >
@@ -2801,10 +2827,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                   type="file"
                                   onChange={(e) => onChange('polybagPolybagFlapArtworkSpec', e.target.files[0])}
                                   className="hidden"
-                                  id={`polybag-polybag-flap-artwork-${materialIndex}`}
+                                  id={`polybag-polybag-flap-artwork-${safeIndex}`}
                                 />
                                 <label
-                                  htmlFor={`polybag-polybag-flap-artwork-${materialIndex}`}
+                                  htmlFor={`polybag-polybag-flap-artwork-${safeIndex}`}
                                   className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
                                   style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                                 >
@@ -2842,10 +2868,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                   type="file"
                                   onChange={(e) => onChange('polybagPolybagFlapPrintPosition', e.target.files[0])}
                                   className="hidden"
-                                  id={`polybag-polybag-flap-print-position-${materialIndex}`}
+                                  id={`polybag-polybag-flap-print-position-${safeIndex}`}
                                 />
                                 <label
-                                  htmlFor={`polybag-polybag-flap-print-position-${materialIndex}`}
+                                  htmlFor={`polybag-polybag-flap-print-position-${safeIndex}`}
                                   className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
                                   style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                                 >
@@ -3139,10 +3165,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                   type="file"
                                   onChange={(e) => onChange('tapeArtworkSpec', e.target.files[0])}
                                   className="hidden"
-                                  id={`tape-artwork-${materialIndex}`}
+                                  id={`tape-artwork-${safeIndex}`}
                                 />
                                 <label
-                                  htmlFor={`tape-artwork-${materialIndex}`}
+                                  htmlFor={`tape-artwork-${safeIndex}`}
                                   className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
                                   style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                                 >
@@ -3252,10 +3278,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                   type="file"
                                   onChange={(e) => onChange('cartonBoxArtworkSpec', e.target.files[0])}
                                   className="hidden"
-                                  id={`carton-box-artwork-${materialIndex}`}
+                                  id={`carton-box-artwork-${safeIndex}`}
                                 />
                                 <label
-                                  htmlFor={`carton-box-artwork-${materialIndex}`}
+                                  htmlFor={`carton-box-artwork-${safeIndex}`}
                                   className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
                                   style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                                 >
@@ -3364,6 +3390,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
       </div>
     )}
   </>
-);
+  );
+};
 
 export default PackagingMaterialTypeFields;
