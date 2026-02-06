@@ -98,7 +98,7 @@ const Step5 = ({
   const getIpcOptionsWithImages = () => {
     const options = [];
     (formData.skus || []).forEach((sku) => {
-      const baseIpc = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode || '';
+      const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
       if (baseIpc) {
         options.push({
           value: baseIpc,
@@ -107,7 +107,7 @@ const Step5 = ({
         });
       }
       (sku.subproducts || []).forEach((sub, idx) => {
-        const spIpc = `${baseIpc}/SP${idx + 1}`;
+        const spIpc = `${baseIpc}/SP-${idx + 1}`;
         options.push({
           value: spIpc,
           label: spIpc,

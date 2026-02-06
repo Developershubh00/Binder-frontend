@@ -218,7 +218,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
             skuIndex,
             spIndex,
             productIndex,
-            ipcCode: subproduct.ipcCode || `${sku.ipcCode || `IPC-${skuIndex + 1}`}/SP${spIndex + 1}`,
+            ipcCode: subproduct.ipcCode || `${(sku.ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`,
             productName: product.name || subproduct.subproduct || '',
             setOf: sku.setOf || '',
             poQty: subproduct.poQty,

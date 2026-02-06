@@ -34,11 +34,11 @@ const parsePairDimensions = (value) => {
 
 const getPoQtyAndImageForIpc = (skus, ipc) => {
   if (!ipc || !Array.isArray(skus)) return { poQty: '', imagePreview: null };
-  const isSub = /\/SP\d+$/i.test(ipc);
-  const baseIpc = (ipc || '').replace(/\/SP\d+$/i, '');
-  const spNum = isSub ? parseInt(ipc.replace(/.*\/SP(\d+)$/i, '$1'), 10) : 0;
+  const isSub = /\/SP-?\d+$/i.test(ipc);
+  const baseIpc = (ipc || '').replace(/\/SP-?\d+$/i, '');
+  const spNum = isSub ? parseInt(ipc.replace(/.*\/SP-?(\d+)$/i, '$1'), 10) : 0;
   for (const sku of skus) {
-    const skuBase = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode || '';
+    const skuBase = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
     if (skuBase !== baseIpc) continue;
     if (!isSub) return { poQty: sku.poQty ?? '', imagePreview: sku.imagePreview ?? null };
     const sub = sku.subproducts?.[spNum - 1];

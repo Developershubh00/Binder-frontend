@@ -2330,14 +2330,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       const updatedSkus = formData.skus.map((sku, skuIndex) => {
         const ipcNumber = skuIndex + 1;
         
-        // Generate IPC code - if subproducts exist, add SP{quantity}
-        let ipcCode;
-        if (sku.subproducts && sku.subproducts.length > 0) {
-          const subproductQuantity = sku.subproducts.length;
-          ipcCode = `CHD/${buyerCode}/PO-${poSrNo}/IPC-${ipcNumber}/SP${subproductQuantity}`;
-        } else {
-          ipcCode = `CHD/${buyerCode}/PO-${poSrNo}/IPC-${ipcNumber}`;
-        }
+        // Generate IPC code - main is always IPC-{digit}, no SP; subproducts use IPC-{digit}/SP-{n}
+        const ipcCode = `CHD/${buyerCode}/PO-${poSrNo}/IPC-${ipcNumber}`;
         
         // Update subproducts with the same IPC code as the main product
         const updatedSubproducts = sku.subproducts?.map((subproduct) => {
@@ -3032,9 +3026,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     // === LEFTOVER IPC (dynamic: only add next block on save when there are unassigned IPCs) ===
     const allIpcValues = [];
     (formData.skus || []).forEach((sku) => {
-      const baseIpc = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode || '';
+      const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
       if (baseIpc) allIpcValues.push(baseIpc);
-      (sku.subproducts || []).forEach((_, idx) => allIpcValues.push(`${baseIpc}/SP${idx + 1}`));
+      (sku.subproducts || []).forEach((_, idx) => allIpcValues.push(`${baseIpc}/SP-${idx + 1}`));
     });
     const extraPacks = packaging.extraPacks || [];
     const selectedIpcs = new Set([
@@ -4821,7 +4815,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                       </svg>
                     )}
                         <span style={{ fontWeight: '600' }}>
-                          {skuItem.ipcCode ? skuItem.ipcCode.replace(/\/SP\d+$/i, '') : `SKU #${index + 1}`}
+                          {skuItem.ipcCode ? (skuItem.ipcCode || '').replace(/\/SP-?\d+$/i, '') : `SKU #${index + 1}`}
                         </span>
                   </div>
                   <div style={{ 
@@ -4924,7 +4918,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                                   </svg>
                                 )}
                                 <span style={{ fontWeight: '600', fontSize: '12px' }}>
-                                  {skuItem.ipcCode ? `${skuItem.ipcCode.replace(/\/SP\d+$/i, '')}/SP${subproductIndex + 1}` : `/SP${subproductIndex + 1}`}
+                                  {skuItem.ipcCode ? `${(skuItem.ipcCode || '').replace(/\/SP-?\d+$/i, '')}/SP-${subproductIndex + 1}` : `/SP-${subproductIndex + 1}`}
                                 </span>
                   </div>
                   <div style={{ 
@@ -4972,7 +4966,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 <FormCard className="rounded-xl border-border bg-card" style={{ padding: '20px 18px' }}>
                   <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                     {generatedIPCCodes.map((sku, idx) => {
-                      const baseIpc = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode;
+                      const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode;
                       return (
                         <div key={idx} style={{ marginBottom: idx === generatedIPCCodes.length - 1 ? 0 : '12px' }}>
                           <div className="text-sm font-semibold text-foreground">
@@ -4982,7 +4976,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                             <div className="text-sm text-muted-foreground" style={{ marginLeft: '16px', marginTop: '6px' }}>
                               {sku.subproducts.map((sp, spIdx) => (
                                 <div key={spIdx} style={{ marginTop: spIdx === 0 ? 0 : '4px' }}>
-                                  Subproduct {spIdx + 1}: <span className="text-foreground">{baseIpc}/SP{spIdx + 1}</span>
+                                  Subproduct {spIdx + 1}: <span className="text-foreground">{baseIpc}/SP-{spIdx + 1}</span>
                                 </div>
                               ))}
                             </div>
@@ -5180,11 +5174,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">All IPC Codes</h4>
               <div className="flex flex-wrap gap-3">
                 {formData.skus?.map((sku, idx) => {
-                  const baseIpc = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode || '';
+                  const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
                   const items = [];
                   if (baseIpc) items.push({ label: `SKU ${idx + 1}`, code: baseIpc });
                   (sku.subproducts || []).forEach((sp, spIdx) => {
-                    items.push({ label: `SKU ${idx + 1} SP${spIdx + 1}`, code: `${baseIpc}/SP${spIdx + 1}` });
+                    items.push({ label: `SKU ${idx + 1} SP-${spIdx + 1}`, code: `${baseIpc}/SP-${spIdx + 1}` });
                   });
                   return items.map((item, i) => (
                     <span
@@ -5205,7 +5199,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
               <p className="text-sm text-muted-foreground mb-4">Assign each product and subproduct to a shipping group. Items in the same group ship together.</p>
               <div className="space-y-4 rounded-xl border border-border p-5 bg-white">
                 {formData.skus?.map((sku, idx) => {
-                  const baseIpc = sku.ipcCode?.replace(/\/SP\d+$/i, '') || sku.ipcCode || '';
+                  const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
                   const maxGroup = Math.max(1, ...Object.values(shippingGroups));
                   return (
                     <div key={idx} className="space-y-3">
@@ -5229,7 +5223,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                           className="flex items-center gap-4 p-3 pl-8 rounded-lg border border-border bg-muted/10"
                         >
                           <span className="text-sm flex-1">{sp.subproduct || `Subproduct ${spIdx + 1}`}</span>
-                          <span className="text-xs text-muted-foreground font-mono">{baseIpc}/SP{spIdx + 1}</span>
+                          <span className="text-xs text-muted-foreground font-mono">{baseIpc}/SP-{spIdx + 1}</span>
                           <select
                             value={shippingGroups[`${idx}-sp-${spIdx}`] ?? 1}
                             onChange={(e) => setShippingGroups(prev => ({ ...prev, [`${idx}-sp-${spIdx}`]: parseInt(e.target.value) }))}
