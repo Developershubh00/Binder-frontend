@@ -54,6 +54,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const [step4SaveStatus, setStep4SaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [showSaveMessage, setShowSaveMessage] = useState(false); // Show "save first" message
   const [saveMessage, setSaveMessage] = useState(''); // Message to display
+  const [showPackagingBlockPrompt, setShowPackagingBlockPrompt] = useState(false); // "Fill all IPCs" when user clicks Proceed to Packaging
   const [showFactoryCodePopup, setShowFactoryCodePopup] = useState(false);
   const [showConsumptionSheet, setShowConsumptionSheet] = useState(false);
   const [shippingGroups, setShippingGroups] = useState({}); // { "0-product": 1, "0-sp-0": 2, ... } -> itemId -> groupNum
@@ -4570,6 +4571,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 key={item.id}
                 type="button"
                 onClick={() => {
+                  setShowPackagingBlockPrompt(false);
                   setSelectedSku(item.id);
                   setFlowPhase('ipcFlow');
                   setCurrentStep(0);
@@ -4593,10 +4595,25 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             );
           })}
         </div>
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex flex-col items-end gap-3">
+          {showPackagingBlockPrompt && ipcItems.some((item) => {
+            const comp = getIpcCompletion(item.id);
+            return !comp.cut || !comp.raw || !comp.artwork;
+          }) && (
+            <p className="text-sm text-amber-600 font-medium">Fill all IPCs (Cut, Raw, Artwork) to continue for packaging</p>
+          )}
           <Button
             type="button"
             onClick={() => {
+              const allComplete = ipcItems.every((item) => {
+                const comp = getIpcCompletion(item.id);
+                return comp.cut && comp.raw && comp.artwork;
+              });
+              if (!allComplete) {
+                setShowPackagingBlockPrompt(true);
+                return;
+              }
+              setShowPackagingBlockPrompt(false);
               setFlowPhase('packaging');
               setSelectedSku('product_0');
               setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 100);
