@@ -4841,7 +4841,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           <button
             type="button"
             onClick={() => handleBreadcrumbClick(-1)}
-            className="rounded-lg px-3 py-1.5 font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
+            style={{ padding: '8px 14px' }}
           >
             Departments
           </button>
@@ -4849,7 +4850,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           <button
             type="button"
             onClick={() => handleBreadcrumbClick(-2)}
-            className="rounded-lg px-3 py-1.5 font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
+            style={{ padding: '8px 14px' }}
           >
             Code creation
           </button>
@@ -4857,7 +4859,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           <button
             type="button"
             onClick={() => handleBreadcrumbClick(-3)}
-            className="rounded-lg px-3 py-1.5 font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
+            style={{ padding: '8px 14px' }}
           >
             IPO
           </button>
@@ -4865,9 +4868,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           {/* IPC Creation - always shown after IPO, clickable (goes to step0 when not there) */}
           <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
           {flowPhase === 'step0' ? (
-            <span className="rounded-lg bg-accent px-3 py-1.5 font-semibold text-foreground">IPC Creation</span>
+            <span className="rounded-lg bg-accent font-semibold text-foreground" style={{ padding: '8px 14px' }}>IPC Creation</span>
           ) : (
-            <button type="button" onClick={() => handleBreadcrumbClick(-5)} className="rounded-lg px-3 py-1.5 font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground">
+            <button type="button" onClick={() => handleBreadcrumbClick(-5)} className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground" style={{ padding: '8px 14px' }}>
               IPC Creation
             </button>
           )}
@@ -4875,17 +4878,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           {flowPhase === 'ipcSelector' && (
             <>
               <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
-              <span className="rounded-lg bg-accent px-3 py-1.5 font-semibold text-foreground">IPC Selector</span>
+              <span className="rounded-lg bg-accent font-semibold text-foreground" style={{ padding: '8px 14px' }}>IPC Selector</span>
             </>
           )}
           {flowPhase === 'ipcFlow' && (
             <>
               <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
-              <button type="button" onClick={() => handleBreadcrumbClick(-4)} className="rounded-lg px-3 py-1.5 font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground">
+              <button type="button" onClick={() => handleBreadcrumbClick(-4)} className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground" style={{ padding: '8px 14px' }}>
                 IPC Selector
               </button>
               <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
-              <button type="button" onClick={() => handleBreadcrumbClick(-4)} className="rounded-lg px-3 py-1.5 font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground truncate max-w-[140px]" title="Back to IPC list">
+              <button type="button" onClick={() => handleBreadcrumbClick(-4)} className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground truncate max-w-[140px]" title="Back to IPC list" style={{ padding: '8px 14px' }}>
                 {(() => {
                   const p = parseSelectedSku();
                   const sku = formData.skus?.[p.skuIndex];
@@ -4896,17 +4899,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 })()}
               </button>
               <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
-              <span className="rounded-lg bg-accent px-3 py-1.5 font-semibold text-foreground">{ipcFlowStepLabels[currentStep] || 'Step'}</span>
+              <span className="rounded-lg bg-accent font-semibold text-foreground" style={{ padding: '8px 14px' }}>{ipcFlowStepLabels[currentStep] || 'Step'}</span>
             </>
           )}
           {flowPhase === 'packaging' && (
             <>
               <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
-              <button type="button" onClick={() => handleBreadcrumbClick(-4)} className="rounded-lg px-3 py-1.5 font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground">
+              <button type="button" onClick={() => handleBreadcrumbClick(-4)} className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground" style={{ padding: '8px 14px' }}>
                 IPC Selector
               </button>
               <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
-              <span className="rounded-lg bg-accent px-3 py-1.5 font-semibold text-foreground">Packaging</span>
+              <span className="rounded-lg bg-accent font-semibold text-foreground" style={{ padding: '8px 14px' }}>Packaging</span>
             </>
           )}
         </div>
