@@ -5284,13 +5284,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                   >
                     Generate Factory Code
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowConsumptionSheet(true)}
-                  >
-                    Consumption Sheet
-                  </Button>
                 </div>
               </div>
             ) : flowPhase === 'ipcFlow' && currentStep === 2 ? (
@@ -5409,15 +5402,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           </DialogHeader>
 
           <div className="flex flex-col gap-6 overflow-y-auto px-6 py-6" style={{ maxHeight: 'calc(90vh - 160px)' }}>
-            {/* Derived consumption loading - hardcoded */}
-            <div
-              className="flex items-center gap-3 px-5 py-4 rounded-xl"
-              style={{ background: 'rgba(34 197 94 / 0.08)', border: '1px solid rgb(34 197 94 / 0.4)' }}
-            >
-              <div className="w-8 h-8 rounded-full border-2 border-green-500 border-t-transparent animate-spin" />
-              <span className="text-sm font-medium text-foreground">
-                Derived consumption table is loading...
-              </span>
+            {/* Consumption Sheet */}
+            <div className="rounded-xl border border-border overflow-hidden">
+              <ConsumptionSheet formData={formData} />
             </div>
 
             {/* All IPC codes */}
