@@ -4555,8 +4555,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
     return (
       <div className="w-full max-w-2xl mx-auto" style={{ padding: '24px 0' }}>
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-2">Select IPC to Edit</h2>
-        <p className="text-sm text-muted-foreground mb-6">Choose an IPC to fill Cut, Raw Material, and Artwork</p>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-2">Select SKU to proceed</h2>
+        <p className="text-sm text-muted-foreground mb-6">Choose an SKU to fill Cut & Sew, Raw Material, and Artwork</p>
         <div className="flex flex-col gap-4">
           {ipcItems.map((item) => {
             const comp = getIpcCompletion(item.id);
