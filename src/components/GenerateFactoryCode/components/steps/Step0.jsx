@@ -99,7 +99,7 @@ const Step0 = ({
     <div className="w-full max-w-6xl mx-auto" style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header Section */}
       <div style={{ marginBottom: '12px' }}>
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-1">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground mb-1">
           PRODUCT SPEC
         </h2>
         <p className="text-sm text-muted-foreground">
