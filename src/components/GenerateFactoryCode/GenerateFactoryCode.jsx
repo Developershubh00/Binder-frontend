@@ -4578,9 +4578,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                   setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 100);
                 }}
                 className={cn(
-                  'w-full flex items-center justify-between gap-4 rounded-xl border p-4 text-left transition-colors',
+                  'w-full flex items-center justify-between gap-4 rounded-xl border text-left transition-colors',
                   'border-border hover:bg-muted/50 hover:border-primary/50'
                 )}
+                style={{ padding: '20px 24px' }}
               >
                 <div>
                   <div className="font-semibold text-foreground">{label}</div>
@@ -4595,7 +4596,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             );
           })}
         </div>
-        <div className="mt-8 flex flex-col items-end gap-3">
+        <div className="flex flex-col items-start gap-3" style={{ marginTop: '32px' }}>
           {showPackagingBlockPrompt && ipcItems.some((item) => {
             const comp = getIpcCompletion(item.id);
             return !comp.cut || !comp.raw || !comp.artwork;
@@ -4662,7 +4663,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 )}
                 title={`Go to ${label}`}
               >
-                {isDone ? '✓' : i}
+                {isDone ? '✓' : i + 1}
               </button>
               <div className={cn('text-[10px] mt-2 text-center leading-tight', isDone || isCurrent ? 'text-primary font-medium' : 'text-muted-foreground')} style={{ maxWidth: 44 }}>
                 {label.split(' ')[0]}
