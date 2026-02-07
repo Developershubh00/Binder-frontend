@@ -4650,7 +4650,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   // Vertical progress bar on left - circular progress for Cut/Raw/Artwork (shown ONLY in ipcFlow)
   const renderVerticalProgressBar = () => {
     return (
-      <div className="shrink-0 w-14 flex flex-col items-center py-4 px-1 ml-2 mr-8">
+      <div className="shrink-0 w-14 flex flex-col items-center py-4 px-1 ml-2 mr-8" style={{ marginTop: '7px' }}>
         {ipcFlowStepLabels.map((label, i) => {
           const isDone = i < currentStep;
           const isCurrent = i === currentStep;
