@@ -132,7 +132,8 @@ export const WORK_ORDER_SCHEMAS = {
   },
   'CUTTING': {
     required: ['machineType', 'variants', 'approval', 'remarks'],
-    advanced: ['cutType', 'layers', 'nesting', 'wastage']
+    advanced: ['cutType', 'layers', 'nesting', 'wastage'],
+    fieldLabels: { machineType: 'Tool type' }
   },
   'EMBROIDERY': {
     required: ['machineType', 'approval', 'remarks'],
@@ -641,12 +642,16 @@ export const shouldValidateConditional = (condition, material) => {
 export const validateMaterialAgainstSchema = (material, schema, errorPrefix = '') => {
   const errors = {};
   
+  const getFieldLabel = (field) => {
+    return (schema.fieldLabels && schema.fieldLabels[field]) || formatFieldName(field);
+  };
+
   // Validate required fields
   if (schema.required) {
     for (const field of schema.required) {
       if (isEmpty(material[field])) {
         const fieldKey = errorPrefix ? `${errorPrefix}_${field}` : field;
-        errors[fieldKey] = `${formatFieldName(field)} is required`;
+        errors[fieldKey] = `${getFieldLabel(field)} is required`;
       }
     }
   }
@@ -656,7 +661,7 @@ export const validateMaterialAgainstSchema = (material, schema, errorPrefix = ''
     for (const [field, condition] of Object.entries(schema.conditional)) {
       if (shouldValidateConditional(condition, material) && isEmpty(material[field])) {
         const fieldKey = errorPrefix ? `${errorPrefix}_${field}` : field;
-        errors[fieldKey] = `${formatFieldName(field)} is required`;
+        errors[fieldKey] = `${getFieldLabel(field)} is required`;
       }
     }
   }

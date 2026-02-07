@@ -3961,9 +3961,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             delete newErrors[fieldKey];
           }
         }
-      } else if (fieldKey.includes('machineType') && workOrder?.workOrder === 'WEAVING') {
+      } else if (fieldKey.includes('machineType') && workOrder?.workOrder) {
         if (!value?.trim()) {
-          newErrors[fieldKey] = 'Machine Type is required';
+          newErrors[fieldKey] = workOrder.workOrder === 'CUTTING' ? 'Tool type is required' : 'Machine Type is required';
         } else {
           delete newErrors[fieldKey];
         }

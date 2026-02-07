@@ -8901,7 +8901,7 @@ const Step2 = ({
                       {/* Machine Type / Specific Type Dropdown */}
                       {(['WEAVING', 'TUFTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET', 'CUTTING'].includes(workOrder.workOrder)) && (
                         <div className="flex flex-col">
-                          <label className={`text-sm font-semibold mb-2 ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] ? 'text-red-600' : 'text-gray-700'}`}>
+                          <label className="text-sm font-semibold mb-2 text-gray-700">
                             {workOrder.workOrder === 'CUTTING' ? 'TOOL TYPE *' : 'MACHINE TYPE *'}
                           </label>
                           <SearchableDropdown
