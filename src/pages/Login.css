@@ -32,7 +32,7 @@ body, html {
 /* Left Side - Gradient Background */
 .login-left-side {
   flex: 1;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 25%, #d946ef 50%, #ec4899 75%, #f43f5e 100%);
+  background: var(--primary);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   display: flex;
@@ -101,7 +101,7 @@ body, html {
 /* Right Side - Login Form */
 .login-right-side {
   flex: 1;
-  background: white;
+  background: var(--background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -126,7 +126,7 @@ body, html {
 .logo-text {
   font-size: 24px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--foreground);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -136,7 +136,7 @@ body, html {
   content: '○○○';
   margin-right: 8px;
   font-size: 14px;
-  color: #6366f1;
+  color: var(--primary);
 }
 
 .form-header {
@@ -146,13 +146,13 @@ body, html {
 .form-title {
   font-size: 32px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--foreground);
   margin-bottom: 8px;
 }
 
 .form-subtitle {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--muted-foreground);
   line-height: 1.5;
 }
 
@@ -165,7 +165,7 @@ body, html {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--foreground);
   margin-bottom: 8px;
 }
 
@@ -178,11 +178,11 @@ body, html {
 .role-select {
   width: 100%;
   padding: 12px 40px 12px 16px; /* Added right padding for arrow */
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border);
   border-radius: 12px;
   font-size: 16px;
-  color: #1f2937;
-  background: white;
+  color: var(--foreground);
+  background: var(--input);
   cursor: pointer;
   transition: all 0.2s;
   outline: none;
@@ -192,8 +192,8 @@ body, html {
 }
 
 .role-select:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .select-arrow {
@@ -202,17 +202,17 @@ body, html {
   right: 16px;
   transform: translateY(-50%);
   pointer-events: none;
-  color: #6b7280;
+  color: var(--muted-foreground);
   transition: transform 0.2s ease;
 }
 
 .select-container:hover .select-arrow {
-  color: #374151;
+  color: var(--foreground);
 }
 
 .role-select:focus + .select-arrow {
   transform: translateY(-50%) rotate(180deg);
-  color: #6366f1;
+  color: var(--primary);
 }
 
 /* Form */
@@ -231,7 +231,7 @@ body, html {
 .input-label {
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--foreground);
 }
 
 .input-container {
@@ -243,28 +243,28 @@ body, html {
 .input-field {
   width: 100%;
   padding: 14px 16px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border);
   border-radius: 12px;
   font-size: 16px;
-  color: #1f2937;
-  background: #f9fafb;
+  color: var(--foreground);
+  background: var(--input);
   transition: all 0.2s;
   outline: none;
 }
 
 .input-field::placeholder {
-  color: #9ca3af;
+  color: var(--muted-foreground);
 }
 
 .input-field:focus {
-  border-color: #6366f1;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: var(--primary);
+  background: var(--background);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .input-field.error {
-  border-color: #ef4444;
-  background: #fef2f2;
+  border-color: var(--destructive);
+  background: var(--muted);
 }
 
 .toggle-password {
@@ -274,18 +274,18 @@ body, html {
   border: none;
   cursor: pointer;
   font-size: 18px;
-  color: #6b7280;
+  color: var(--muted-foreground);
   transition: color 0.2s;
   padding: 4px;
 }
 
 .toggle-password:hover {
-  color: #374151;
+  color: var(--foreground);
 }
 
 .error-text {
   font-size: 13px;
-  color: #ef4444;
+  color: var(--destructive);
   margin-top: 4px;
 }
 
@@ -301,7 +301,7 @@ body, html {
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: #374151;
+  color: var(--foreground);
   cursor: pointer;
   position: relative;
 }
@@ -313,7 +313,7 @@ body, html {
 .checkmark {
   width: 20px;
   height: 20px;
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--border);
   border-radius: 4px;
   margin-right: 8px;
   display: flex;
@@ -323,37 +323,37 @@ body, html {
 }
 
 .remember-checkbox input[type="checkbox"]:checked + .checkmark {
-  background: #6366f1;
-  border-color: #6366f1;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 .remember-checkbox input[type="checkbox"]:checked + .checkmark::after {
   content: '✓';
-  color: white;
+  color: var(--primary-foreground);
   font-size: 12px;
   font-weight: bold;
 }
 
 .forgot-link {
   font-size: 14px;
-  color: #6366f1;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;
 }
 
 .forgot-link:hover {
-  color: #4f46e5;
+  opacity: 0.9;
 }
 
 /* Sign In Button */
 .signin-button {
   width: 100%;
   padding: 14px 24px;
-  background: #1f2937;
+  background: var(--primary);
   border: none;
   border-radius: 12px;
-  color: white;
+  color: var(--primary-foreground);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -362,7 +362,7 @@ body, html {
 }
 
 .signin-button:hover:not(:disabled) {
-  background: #111827;
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
@@ -404,19 +404,19 @@ body, html {
 
 .signup-text {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--muted-foreground);
 }
 
 .signup-link {
   font-size: 14px;
-  color: #6366f1;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;
 }
 
 .signup-link:hover {
-  color: #4f46e5;
+  opacity: 0.9;
   text-decoration: underline;
 }
 
@@ -442,13 +442,13 @@ body, html {
 }
 
 .popup-modal {
-  background: white;
+  background: var(--card);
   border-radius: 24px;
   padding: 40px;
   width: 90%;
   max-width: 420px;
   text-align: center;
-  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-2xl);
   animation: popScale 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
@@ -479,33 +479,33 @@ body, html {
 }
 
 .popup-icon.error {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
+  background: var(--destructive);
+  color: var(--destructive-foreground);
 }
 
 .popup-icon.success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .popup-title {
   font-size: 26px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--foreground);
   margin-bottom: 12px;
 }
 
 .popup-text {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--muted-foreground);
   line-height: 1.6;
   margin-bottom: 28px;
 }
 
 .popup-btn {
   padding: 16px 40px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
+  background: var(--primary);
+  color: var(--primary-foreground);
   border: none;
   border-radius: 12px;
   font-size: 16px;
@@ -516,7 +516,7 @@ body, html {
 
 .popup-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Responsive Design - Maintain Fixed Height */

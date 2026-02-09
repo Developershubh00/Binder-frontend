@@ -17,8 +17,8 @@ body {
   overflow-y: auto;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
-  color: #1a1a1a;
-  background-color: #f5f7fa;
+  color: var(--foreground);
+  background-color: var(--background);
 }
 
 /* Main page scrollbar styling - Light theme */
@@ -27,30 +27,30 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-track {
-  background: #f9fafb; /* Light background matching theme */
+  background: var(--muted);
   border-radius: 6px;
 }
 
 body::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); /* Light gradient */
+  background: var(--secondary);
   border-radius: 6px;
-  border: 2px solid #f9fafb; /* Border matching track */
+  border: 2px solid var(--muted);
   transition: all 0.2s ease;
 }
 
 body::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%); /* Slightly darker on hover */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--muted-foreground);
+  box-shadow: var(--shadow-sm);
 }
 
 body::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%); /* Darker when active */
+  background: var(--muted-foreground);
 }
 
 /* For Firefox - Main page scrollbar */
 body {
   scrollbar-width: thin;
-  scrollbar-color: #e5e7eb #f9fafb; /* thumb color, track color */
+  scrollbar-color: var(--secondary) var(--muted);
 }
 
 /* Alternative scrollbar for the community page container */
@@ -59,20 +59,20 @@ body {
 }
 
 .community-page::-webkit-scrollbar-track {
-  background: #f9fafb;
+  background: var(--muted);
   border-radius: 6px;
 }
 
 .community-page::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  background: var(--secondary);
   border-radius: 6px;
-  border: 2px solid #f9fafb;
+  border: 2px solid var(--muted);
   transition: all 0.2s ease;
 }
 
 .community-page::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--muted-foreground);
+  box-shadow: var(--shadow-sm);
 }
 
 #root {
@@ -86,34 +86,34 @@ body {
 }
 
 #root::-webkit-scrollbar-track {
-  background: #f9fafb;
+  background: var(--muted);
   border-radius: 6px;
 }
 
 #root::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  background: var(--secondary);
   border-radius: 6px;
-  border: 2px solid #f9fafb;
+  border: 2px solid var(--muted);
   transition: all 0.2s ease;
 }
 
 #root::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--muted-foreground);
+  box-shadow: var(--shadow-sm);
 }
 
 .community-page {
   width: 100%;
-  background: #f5f7fa;
+  background: var(--background);
   position: relative;
   padding-bottom: 120px;
 }
 
 .community-page-header {
-  background: white;
+  background: var(--card);
   padding: 24px 32px;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -124,9 +124,9 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  color: #374151;
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  color: var(--secondary-foreground);
   padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
@@ -137,7 +137,7 @@ body {
 }
 
 .back-to-dashboard:hover {
-  background: #e5e7eb;
+  background: var(--accent);
   transform: translateX(-2px);
 }
 
@@ -149,13 +149,13 @@ body {
 .community-page-title {
   font-size: 36px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--foreground);
   margin-bottom: 8px;
 }
 
 .community-page-subtitle {
   font-size: 18px;
-  color: #6b7280;
+  color: var(--muted-foreground);
 }
 
 .community-main-content {
@@ -181,7 +181,7 @@ body {
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: var(--muted-foreground);
   font-size: 16px;
   z-index: 2;
 }
@@ -189,22 +189,22 @@ body {
 .search-input {
   width: 100%;
   padding: 16px 16px 16px 48px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border);
   border-radius: 12px;
   font-size: 16px;
-  background: white;
-  color: #1a1a1a;
+  background: var(--input);
+  color: var(--foreground);
   transition: all 0.2s;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .search-input::placeholder {
-  color: #9ca3af;
+  color: var(--muted-foreground);
 }
 
 .category-filters {
@@ -219,26 +219,26 @@ body {
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  border: 2px solid #e5e7eb;
-  background: white;
+  border: 2px solid var(--border);
+  background: var(--card);
   border-radius: 25px;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--foreground);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .category-btn:hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
+  border-color: var(--muted-foreground);
+  background: var(--muted);
   transform: translateY(-2px);
 }
 
 .category-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-  color: white;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .category-icon {
@@ -259,17 +259,17 @@ body {
 }
 
 .faq-item {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   width: 100%;
 }
 
 .faq-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -280,21 +280,21 @@ body {
   padding: 20px 24px;
   cursor: pointer;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--foreground);
   transition: all 0.2s;
 }
 
 .faq-question:hover {
-  background: #f9fafb;
+  background: var(--muted);
 }
 
 .faq-answer {
   padding: 0 24px 24px 24px;
-  color: #4b5563;
+  color: var(--muted-foreground);
   line-height: 1.6;
-  background: #f9fafb;
+  background: var(--muted);
   animation: fadeIn 0.3s ease;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--border);
 }
 
 @keyframes fadeIn {
@@ -316,7 +316,7 @@ body {
   }
   
   body::-webkit-scrollbar-thumb {
-    border: 1px solid #f9fafb;
+    border: 1px solid var(--muted);
   }
   
   .community-page-header {

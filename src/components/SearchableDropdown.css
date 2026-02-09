@@ -8,36 +8,36 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border);
   border-radius: 8px;
-  background: white;
+  background: var(--card);
   cursor: pointer;
   transition: all 0.2s;
   min-height: 48px;
 }
 
 .dropdown-input:hover {
-  border-color: #d1d5db;
+  border-color: var(--muted-foreground);
 }
 
 .dropdown-input.open {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .searchable-dropdown.error .dropdown-input {
-  border-color: #dc2626;
+  border-color: var(--destructive);
 }
 
 .selected-value {
   font-size: 14px;
-  color: #1a1a1a; /* Black text color */
+  color: var(--foreground);
   flex: 1;
   text-align: left;
 }
 
 .selected-value.placeholder {
-  color: #9ca3af;
+  color: var(--muted-foreground);
 }
 
 .dropdown-arrow-button {
@@ -49,7 +49,7 @@
   background: transparent;
   cursor: pointer;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--muted-foreground);
   transition: transform 0.2s;
   margin-left: 8px;
 }
@@ -63,11 +63,11 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border: 2px solid #d1d5db; /* Grey border */
+  background: var(--popover);
+  border: 2px solid var(--border);
   border-top: none;
   border-radius: 0 0 8px 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   z-index: 1000;
   max-height: 300px;
   overflow: hidden;
@@ -88,30 +88,30 @@
 .search-container {
   position: relative;
   padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid var(--border);
+  background: var(--muted);
 }
 
 .search-input {
   width: 100%;
   padding: 8px 35px 8px 12px;
-  border: 1px solid #d1d5db; /* Grey border */
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
   outline: none;
   transition: all 0.2s;
-  background: white; /* White background */
-  color: #1a1a1a; /* Black text color */
+  background: var(--input);
+  color: var(--foreground);
 }
 
 .search-input::placeholder {
-  color: #9ca3af;
+  color: var(--muted-foreground);
 }
 
 .search-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-  color: #1a1a1a; /* Black text color when focused */
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--ring);
+  color: var(--foreground);
 }
 
 .search-icon {
@@ -119,7 +119,7 @@
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: var(--muted-foreground);
   font-size: 14px;
   pointer-events: none;
   transition: color 0.2s;
@@ -127,7 +127,7 @@
 
 /* Icon color change on input focus */
 .search-container:focus-within .search-icon {
-  color: #667eea;
+  color: var(--primary);
 }
 
 .options-container {
@@ -140,17 +140,17 @@
   cursor: pointer;
   transition: background-color 0.2s;
   font-size: 14px;
-  color: #1a1a1a; /* Black text color */
-  border-bottom: 1px solid #f3f4f6;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
 }
 
 .option-item:hover {
-  background-color: #f3f4f6;
+  background-color: var(--muted);
 }
 
 .option-item.selected {
-  background-color: #667eea;
-  color: white;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .option-item:last-child {
@@ -160,7 +160,7 @@
 .no-options {
   padding: 16px;
   text-align: center;
-  color: #9ca3af;
+  color: var(--muted-foreground);
   font-size: 14px;
   font-style: italic;
 }
@@ -171,14 +171,14 @@
 }
 
 .options-container::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--muted);
 }
 
 .options-container::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--secondary);
   border-radius: 3px;
 }
 
 .options-container::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--muted-foreground);
 }

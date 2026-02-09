@@ -11,14 +11,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px',
-        color: '#667eea'
-      }}>
+      <div className="loading-screen">
         <div>Loading...</div>
       </div>
     );
@@ -32,24 +25,10 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const Unauthorized = () => (
-  <div style={{ 
-    padding: '40px', 
-    textAlign: 'center',
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }}>
-    <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>Unauthorized</h1>
-    <p style={{ fontSize: '16px', marginBottom: '24px' }}>You don't have permission to access this page.</p>
-    <a href="/login" style={{ 
-      padding: '12px 24px',
-      background: '#667eea',
-      color: 'white',
-      textDecoration: 'none',
-      borderRadius: '8px'
-    }}>Go to Login</a>
+  <div className="unauthorized-screen">
+    <h1>Unauthorized</h1>
+    <p>You don't have permission to access this page.</p>
+    <a href="/login" className="unauthorized-login-link">Go to Login</a>
   </div>
 );
 

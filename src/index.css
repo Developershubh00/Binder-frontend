@@ -313,3 +313,67 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Home welcome section - uses primary token */
+.home-welcome-section {
+  background: var(--primary);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  color: var(--primary-foreground);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+}
+.home-welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--primary-foreground);
+}
+.home-welcome-subtitle {
+  font-size: 16px;
+  opacity: 0.95;
+  line-height: 1.5;
+  color: var(--primary-foreground);
+}
+
+/* Loading & Unauthorized screens - use primary token */
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: var(--primary);
+}
+.unauthorized-screen {
+  padding: 40px;
+  text-align: center;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+}
+.unauthorized-screen h1 {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+.unauthorized-screen p {
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+.unauthorized-login-link {
+  padding: 12px 24px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.unauthorized-login-link:hover {
+  opacity: 0.9;
+}

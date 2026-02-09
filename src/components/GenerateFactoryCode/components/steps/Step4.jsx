@@ -238,14 +238,14 @@ const Step4 = ({
       {/* Header with proper spacing */}
       <div style={{ marginBottom: '28px' }} className="flex justify-between items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">PART-3 ARTWORK & LABELING</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">PART-3 ARTWORK & LABELING</h2>
           <p className="text-sm text-gray-600">Artwork & packaging materials</p>
         </div>
         {renderHeaderAction}
       </div>
 
       {/* Component Selection - OUTSIDE form border (like Part-2) */}
-      <div style={{ marginBottom: '24px', padding: '20px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+      <div style={{ marginBottom: '24px', padding: '20px', background: 'var(--muted)', borderRadius: '8px', border: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '300px' }}>
           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ display: 'block', marginBottom: '8px' }}>
             COMPONENT
@@ -255,7 +255,7 @@ const Step4 = ({
             onChange={(val) => setSelectedComponent(val || '')}
             options={getComponentOptions()}
             placeholder="Select component"
-            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
             style={{ padding: '10px 14px', height: '44px', width: '100%' }}
           />
         </div>
@@ -271,7 +271,7 @@ const Step4 = ({
                 type="button"
                 onClick={() => addArtworkMaterial(selectedComponent)}
                 className="border-2 rounded-lg text-sm font-medium transition-all cursor-pointer"
-                style={{ padding: '10px 20px', backgroundColor: '#fff', borderColor: '#e5e7eb', color: '#374151' }}
+                style={{ padding: '10px 20px', backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
               >
                 + Add Artwork Material
               </button>
@@ -296,12 +296,12 @@ const Step4 = ({
                   style={{
                     backgroundColor: '#f3f4f6',
                     borderColor: '#d1d5db',
-                    color: '#374151',
+                    color: 'var(--foreground)',
                     padding: '4px 10px',
                     height: '28px'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                    e.currentTarget.style.backgroundColor = 'var(--muted)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = '#f3f4f6';
@@ -323,10 +323,10 @@ const Step4 = ({
                     type="text"
                     value={material.materialDescription}
                     onChange={(e) => handleArtworkMaterialChange(actualIndex, 'materialDescription', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
                       errors[`artworkMaterial_${actualIndex}_materialDescription`] 
                         ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                        : 'border-border focus:border-primary focus:outline-none'
                     }`}
                     style={{ padding: '10px 14px', width: '180px', height: '44px' }}
                     onFocus={(e) => {
@@ -356,10 +356,10 @@ const Step4 = ({
                     step="0.001"
                     value={material.netConsumption}
                     onChange={(e) => handleArtworkMaterialChange(actualIndex, 'netConsumption', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
                       errors[`artworkMaterial_${actualIndex}_netConsumption`] 
                         ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                        : 'border-border focus:border-primary focus:outline-none'
                     }`}
                     style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                     onFocus={(e) => {
@@ -421,10 +421,10 @@ const Step4 = ({
                     type="text"
                     value={material.placement}
                     onChange={(e) => handleArtworkMaterialChange(actualIndex, 'placement', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 ${
+                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
                       errors[`artworkMaterial_${actualIndex}_placement`] 
                         ? 'border-red-600' 
-                        : 'border-[#e5e7eb] focus:border-indigo-500 focus:outline-none'
+                        : 'border-border focus:border-primary focus:outline-none'
                     }`}
                     style={{ padding: '12px 16px' }}
                     onFocus={(e) => {
@@ -452,7 +452,7 @@ const Step4 = ({
                     <SearchableDropdown
                       value={material.workOrder || ''}
                       onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'workOrder', selectedValue)}
-                      options={['Sewing', 'DYEING', 'WEAVING', 'PRINTING', 'CUTTING']}
+                      options={["WEAVING", "TUFTING", "QUILTING", "PRINTING", "KNITTING", "EMBROIDERY", "DYEING", "BRAIDING", "CARPET", "CUTTING" , "SEWING" , "FRINGE/TASSELS"]}
                       placeholder="Select or type Work Order"
                       className={errors[`artworkMaterial_${actualIndex}_workOrder`] 
                         ? 'border-red-600' 
@@ -485,7 +485,7 @@ const Step4 = ({
                       type="text"
                       value={material.sizeWidth || ''}
                       onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeWidth', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                      className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeWidth`] ? 'border-red-600' : 'border-border'}`}
                       style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                       placeholder="e.g., 52"
                     />
@@ -497,7 +497,7 @@ const Step4 = ({
                       type="text"
                       value={material.sizeLength || ''}
                       onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLength', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLength`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                      className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLength`] ? 'border-red-600' : 'border-border'}`}
                       style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                       placeholder="e.g., 48"
                     />
@@ -509,7 +509,7 @@ const Step4 = ({
                       type="text"
                       value={material.sizeHeight || ''}
                       onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeHeight', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                      className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeHeight`] ? 'border-red-600' : 'border-border'}`}
                       style={{ padding: '10px 14px', width: '120px', height: '44px' }}
                       placeholder="e.g., 52"
                     />
@@ -529,7 +529,7 @@ const Step4 = ({
               </div>
 
               {/* ARTWORK CATEGORY SELECTOR */}
-              <div className="w-full" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
+              <div className="w-full" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
                 <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
                   <label className="text-sm font-bold text-gray-800 mb-2">ARTWORK CATEGORY</label>
                   <SearchableDropdown
@@ -578,7 +578,7 @@ const Step4 = ({
                         type="text"
                         value={material.material}
                         onChange={(e) => handleArtworkMaterialChange(actualIndex, 'material', e.target.value)}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_material`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                        className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_material`] ? 'border-red-600' : 'border-border'}`}
                         style={{ padding: '10px 14px', height: '44px' }}
                           placeholder={
                             material.artworkCategory === 'CARE & COMPOSITION' ? 'Fiber Content' : 
@@ -614,7 +614,7 @@ const Step4 = ({
                             type="text"
                               value={material.labelsBrandTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -642,7 +642,7 @@ const Step4 = ({
                             type="text"
                               value={material.labelsBrandMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -660,7 +660,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`labels-brand-artwork-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -678,7 +678,7 @@ const Step4 = ({
                           type="text"
                                   value={material.labelsBrandSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_labelsBrandSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_labelsBrandSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -687,7 +687,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.labelsBrandSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_labelsBrandSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_labelsBrandSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -709,7 +709,7 @@ const Step4 = ({
                               type="text"
                               value={material.labelsBrandPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_labelsBrandPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_labelsBrandPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -721,7 +721,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`labels-brand-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -753,7 +753,7 @@ const Step4 = ({
                             type="text"
                               value={material.labelsBrandAttachmentText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandAttachmentText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandAttachmentText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandAttachmentText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter ATTACHMENT"
                           />
@@ -781,7 +781,7 @@ const Step4 = ({
                             type="text"
                               value={material.labelsBrandTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -798,7 +798,7 @@ const Step4 = ({
                             type="text"
                                 value={material.labelsBrandQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces/R LENGTH"
                           />
@@ -812,7 +812,7 @@ const Step4 = ({
                             type="text"
                                 value={material.labelsBrandSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -841,7 +841,7 @@ const Step4 = ({
                             type="text"
                               value={material.labelsBrandApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_labelsBrandApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -854,7 +854,7 @@ const Step4 = ({
                           <textarea
                             value={material.labelsBrandRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -888,7 +888,7 @@ const Step4 = ({
                             type="text"
                               value={material.careCompositionTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -916,7 +916,7 @@ const Step4 = ({
                             type="text"
                               value={material.careCompositionMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionMaterialText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                             />
@@ -938,7 +938,7 @@ const Step4 = ({
                                 />
                                 <label
                                   htmlFor={`care-composition-artwork-${actualIndex}`}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -957,7 +957,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.careCompositionSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="Width (mm)"
                                 />
@@ -966,7 +966,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.careCompositionSizeLength || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionSizeLength', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionSizeLength`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionSizeLength`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="Length (mm)"
                                 />
@@ -990,7 +990,7 @@ const Step4 = ({
                               type="text"
                               value={material.careCompositionPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_careCompositionPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_careCompositionPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -1002,7 +1002,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`care-composition-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1036,7 +1036,7 @@ const Step4 = ({
                               type="text"
                               value={material.careCompositionTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                             />
@@ -1053,7 +1053,7 @@ const Step4 = ({
                                 type="text"
                                 value={material.careCompositionQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionQty`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces/ R LENGTH"
                               />
@@ -1067,7 +1067,7 @@ const Step4 = ({
                                 type="text"
                                 value={material.careCompositionSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionSurplus`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                               />
@@ -1097,7 +1097,7 @@ const Step4 = ({
                               type="text"
                               value={material.careCompositionApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionApprovalText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -1111,7 +1111,7 @@ const Step4 = ({
                             type="text"
                             value={material.careCompositionRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
@@ -1145,7 +1145,7 @@ const Step4 = ({
                             type="text"
                               value={material.rfidTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -1173,7 +1173,7 @@ const Step4 = ({
                             type="text"
                               value={material.rfidFormFactorText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidFormFactorText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidFormFactorText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidFormFactorText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter FORM FACTOR"
                           />
@@ -1191,7 +1191,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`rfid-artwork-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1222,7 +1222,7 @@ const Step4 = ({
                             type="text"
                               value={material.rfidChipModelText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidChipModelText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidChipModelText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidChipModelText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter CHIP MODEL"
                           />
@@ -1237,7 +1237,7 @@ const Step4 = ({
                             type="text"
                                   value={material.rfidSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_rfidSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_rfidSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -1246,7 +1246,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.rfidSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_rfidSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_rfidSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -1268,7 +1268,7 @@ const Step4 = ({
                             type="text"
                               value={material.rfidPlacementText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidPlacementText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_rfidPlacementText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_rfidPlacementText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -1280,7 +1280,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`rfid-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border flex-shrink-0"
                               style={{ padding: '10px 14px', height: '44px', width: '150px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1312,7 +1312,7 @@ const Step4 = ({
                             type="text"
                               value={material.rfidTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_rfidTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -1325,7 +1325,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`rfid-testing-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] mt-2"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1345,7 +1345,7 @@ const Step4 = ({
                             type="text"
                                 value={material.rfidQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                           />
@@ -1359,7 +1359,7 @@ const Step4 = ({
                             type="text"
                                 value={material.rfidSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -1379,7 +1379,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`rfid-approval-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1395,7 +1395,7 @@ const Step4 = ({
                           <textarea
                             value={material.rfidRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -1421,7 +1421,7 @@ const Step4 = ({
                             }}
                             options={LAW_LABEL_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_lawLabelType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelType`]}</span>}
                           {material.lawLabelType === 'OTHERS (TEXT)' && (
@@ -1429,7 +1429,7 @@ const Step4 = ({
                             type="text"
                               value={material.lawLabelTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -1449,7 +1449,7 @@ const Step4 = ({
                             }}
                             options={LAW_LABEL_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_lawLabelMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelMaterial`]}</span>}
                           {material.lawLabelMaterial === 'OTHERS (TEXT)' && (
@@ -1457,7 +1457,7 @@ const Step4 = ({
                             type="text"
                               value={material.lawLabelMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -1475,7 +1475,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`law-label-artwork-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1493,7 +1493,7 @@ const Step4 = ({
                             type="text"
                                   value={material.lawLabelSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lawLabelSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lawLabelSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -1502,7 +1502,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.lawLabelSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lawLabelSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lawLabelSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -1511,7 +1511,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'lawLabelSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lawLabelSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lawLabelSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -1525,7 +1525,7 @@ const Step4 = ({
                               type="text"
                               value={material.lawLabelPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_lawLabelPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_lawLabelPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -1537,7 +1537,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`law-label-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1561,14 +1561,14 @@ const Step4 = ({
                             }}
                             options={LAW_LABEL_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.lawLabelTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.lawLabelTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -1585,7 +1585,7 @@ const Step4 = ({
                             type="text"
                                 value={material.lawLabelQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                           />
@@ -1599,7 +1599,7 @@ const Step4 = ({
                             type="text"
                                 value={material.lawLabelSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -1621,7 +1621,7 @@ const Step4 = ({
                             }}
                             options={LAW_LABEL_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_lawLabelApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelApproval`]}</span>}
                           {material.lawLabelApproval === 'OTHERS (TEXT)' && (
@@ -1629,7 +1629,7 @@ const Step4 = ({
                             type="text"
                               value={material.lawLabelApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_lawLabelApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -1642,7 +1642,7 @@ const Step4 = ({
                           <textarea
                             value={material.lawLabelRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -1668,7 +1668,7 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_hangTagSealsType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hangTagSealsType`]}</span>}
                           {material.hangTagSealsType === 'OTHERS (TEXT)' && (
@@ -1676,7 +1676,7 @@ const Step4 = ({
                             type="text"
                               value={material.hangTagSealsTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -1696,7 +1696,7 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_hangTagSealsMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hangTagSealsMaterial`]}</span>}
                           {material.hangTagSealsMaterial === 'OTHERS (TEXT)' && (
@@ -1704,7 +1704,7 @@ const Step4 = ({
                             type="text"
                               value={material.hangTagSealsMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -1726,7 +1726,7 @@ const Step4 = ({
                                 />
                                 <label
                                   htmlFor={`hang-tag-seals-artwork-${actualIndex}`}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1745,7 +1745,7 @@ const Step4 = ({
                             type="text"
                                   value={material.hangTagSealsSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -1754,7 +1754,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.hangTagSealsSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -1763,7 +1763,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -1779,7 +1779,7 @@ const Step4 = ({
                               type="text"
                               value={material.hangTagSealsPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -1791,7 +1791,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`hang-tag-seals-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1815,14 +1815,14 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.hangTagSealsTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.hangTagSealsTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -1839,7 +1839,7 @@ const Step4 = ({
                             type="text"
                                 value={material.hangTagSealsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                           />
@@ -1853,7 +1853,7 @@ const Step4 = ({
                             type="text"
                                 value={material.hangTagSealsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="e.g., 5%"
                               />
@@ -1875,7 +1875,7 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_hangTagSealsApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hangTagSealsApproval`]}</span>}
                           {material.hangTagSealsApproval === 'OTHERS (TEXT)' && (
@@ -1883,7 +1883,7 @@ const Step4 = ({
                               type="text"
                               value={material.hangTagSealsApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsApprovalText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -1896,7 +1896,7 @@ const Step4 = ({
                           <textarea
                             value={material.hangTagSealsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -1922,14 +1922,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.heatTransferType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.heatTransferTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -1949,14 +1949,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_MATERIAL_BASE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferMaterialBase`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferMaterialBase`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.heatTransferMaterialBase === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.heatTransferMaterialBaseText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferMaterialBaseText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferMaterialBaseText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferMaterialBaseText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL BASE"
                             />
@@ -1971,7 +1971,7 @@ const Step4 = ({
                           type="text"
                                   value={material.heatTransferSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_heatTransferSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_heatTransferSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -1980,7 +1980,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.heatTransferSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_heatTransferSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_heatTransferSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -1989,7 +1989,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'heatTransferSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_heatTransferSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_heatTransferSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -2003,7 +2003,7 @@ const Step4 = ({
                               type="text"
                               value={material.heatTransferPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_\${actualIndex}_heatTransferPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_\${actualIndex}_heatTransferPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -2015,7 +2015,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`heat-transfer-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2039,14 +2039,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.heatTransferTestingRequirements === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.heatTransferTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -2063,7 +2063,7 @@ const Step4 = ({
                             type="text"
                                 value={material.heatTransferQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces / Sheets (rolls of transfer film)"
                           />
@@ -2076,7 +2076,7 @@ const Step4 = ({
                             type="text"
                                 value={material.heatTransferSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -2097,14 +2097,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.heatTransferApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.heatTransferApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_heatTransferApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -2117,7 +2117,7 @@ const Step4 = ({
                           <textarea
                             value={material.heatTransferRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -2144,7 +2144,7 @@ const Step4 = ({
                             }}
                             options={UPC_BARCODE_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_upcBarcodeType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_upcBarcodeType`]}</span>}
                           {material.upcBarcodeType === 'OTHERS (TEXT)' && (
@@ -2152,7 +2152,7 @@ const Step4 = ({
                             type="text"
                               value={material.upcBarcodeTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -2172,7 +2172,7 @@ const Step4 = ({
                             }}
                             options={UPC_BARCODE_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_upcBarcodeMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_upcBarcodeMaterial`]}</span>}
                           {material.upcBarcodeMaterial === 'OTHERS (TEXT)' && (
@@ -2180,7 +2180,7 @@ const Step4 = ({
                             type="text"
                               value={material.upcBarcodeMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -2193,7 +2193,7 @@ const Step4 = ({
                           <input
                             type="file"
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleArtworkMaterialChange(actualIndex, 'upcBarcodeArtworkSpecFile', f); }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
                           />
                         </div>
@@ -2206,7 +2206,7 @@ const Step4 = ({
                               type="text"
                               value={material.upcBarcodeSizeWidth || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSizeWidth', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="WIDTH"
                             />
@@ -2215,7 +2215,7 @@ const Step4 = ({
                               type="text"
                               value={material.upcBarcodeSizeHeight || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSizeHeight', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="HEIGHT"
                             />
@@ -2224,7 +2224,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '100px' }}
                           />
                           </div>
@@ -2237,7 +2237,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`upc-barcode-size-image-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border flex-shrink-0"
                               style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2249,7 +2249,7 @@ const Step4 = ({
                               type="text"
                               value={material.upcBarcodeSizeImageRef || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSizeImageRef', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSizeImageRef`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSizeImageRef`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="IMAGE REFERENCE"
                             />
@@ -2263,7 +2263,7 @@ const Step4 = ({
                             type="text"
                               value={material.upcBarcodePlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodePlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodePlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodePlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -2283,7 +2283,7 @@ const Step4 = ({
                             }}
                             options={UPC_BARCODE_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_upcBarcodeTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_upcBarcodeTestingRequirements`]}</span>}
                           {material.upcBarcodeTestingRequirements === 'OTHERS (TEXT)' && (
@@ -2291,7 +2291,7 @@ const Step4 = ({
                             type="text"
                               value={material.upcBarcodeTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -2308,7 +2308,7 @@ const Step4 = ({
                             type="text"
                                 value={material.upcBarcodeQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces / Rolls"
                           />
@@ -2321,7 +2321,7 @@ const Step4 = ({
                             type="text"
                                 value={material.upcBarcodeSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="5%"
                           />
@@ -2342,14 +2342,14 @@ const Step4 = ({
                             }}
                             options={UPC_BARCODE_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.upcBarcodeApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.upcBarcodeApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_upcBarcodeApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -2362,7 +2362,7 @@ const Step4 = ({
                           <textarea
                             value={material.upcBarcodeRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -2388,14 +2388,14 @@ const Step4 = ({
                             }}
                             options={PRICE_TICKET_TYPES}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none w-full"
                           />
                           {material.priceTicketType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.priceTicketTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketTypeText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -2415,14 +2415,14 @@ const Step4 = ({
                             }}
                             options={PRICE_TICKET_MATERIALS}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none w-full"
                           />
                           {material.priceTicketMaterial === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.priceTicketMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketMaterialText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -2440,7 +2440,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`price-ticket-artwork-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2458,7 +2458,7 @@ const Step4 = ({
                             type="text"
                                   value={material.priceTicketSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_priceTicketSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_priceTicketSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -2467,7 +2467,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.priceTicketSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_priceTicketSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_priceTicketSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -2476,7 +2476,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'priceTicketSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_priceTicketSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_priceTicketSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -2490,7 +2490,7 @@ const Step4 = ({
                             type="text"
                             value={material.priceTicketPlacement || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketPlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
@@ -2510,7 +2510,7 @@ const Step4 = ({
                             }}
                             options={PRICE_TICKET_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_priceTicketTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_priceTicketTestingRequirements`]}</span>}
                           {material.priceTicketTestingRequirements === 'OTHERS (TEXT)' && (
@@ -2518,7 +2518,7 @@ const Step4 = ({
                             type="text"
                               value={material.priceTicketTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_priceTicketTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_priceTicketTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -2535,7 +2535,7 @@ const Step4 = ({
                             type="text"
                                 value={material.priceTicketQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces / Rolls"
                           />
@@ -2548,7 +2548,7 @@ const Step4 = ({
                             type="text"
                                 value={material.priceTicketSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -2569,14 +2569,14 @@ const Step4 = ({
                             }}
                             options={PRICE_TICKET_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.priceTicketApproval === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.priceTicketApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_priceTicketApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_priceTicketApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -2589,7 +2589,7 @@ const Step4 = ({
                           <textarea
                             value={material.priceTicketRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -2616,14 +2616,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.antiCounterfeitType === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.antiCounterfeitTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitTypeText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                             />
@@ -2643,14 +2643,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {material.antiCounterfeitMaterial === 'OTHERS (TEXT)' && (
                             <input
                               type="text"
                               value={material.antiCounterfeitMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitMaterialText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                             />
@@ -2672,7 +2672,7 @@ const Step4 = ({
                                 />
                                 <label
                                   htmlFor={`anti-counterfeit-artwork-${actualIndex}`}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2691,7 +2691,7 @@ const Step4 = ({
                             type="text"
                                   value={material.antiCounterfeitSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitSizeWidth', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -2700,7 +2700,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.antiCounterfeitSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitSizeHeight', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -2709,7 +2709,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -2733,7 +2733,7 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_SECURITY_FEATURES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_securityFeature`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_securityFeature`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_securityFeature`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_securityFeature`]}</span>}
                               {material.securityFeature === 'OTHERS (TEXT)' && (
@@ -2741,7 +2741,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.securityFeatureText || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'securityFeatureText', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                                   style={{ padding: '10px 14px', height: '44px' }}
                                   placeholder="Enter SECURITY"
                                 />
@@ -2761,7 +2761,7 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_HOLOGRAM_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hologramType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hologramType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_hologramType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hologramType`]}</span>}
                               {material.hologramType === 'OTHERS (TEXT)' && (
@@ -2769,7 +2769,7 @@ const Step4 = ({
                             type="text"
                                   value={material.hologramTypeText || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hologramTypeText', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                                   placeholder="Enter HOLOGRAM TYPE"
                           />
@@ -2789,7 +2789,7 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_NUMBERING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_numbering`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_numbering`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_numbering`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_numbering`]}</span>}
                               {material.numbering === 'OTHERS (TEXT)' && (
@@ -2797,7 +2797,7 @@ const Step4 = ({
                             type="text"
                                   value={material.numberingText || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'numberingText', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_numberingText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_numberingText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                   placeholder="Enter NUMBERING"
                           />
@@ -2814,7 +2814,7 @@ const Step4 = ({
                               type="text"
                               value={material.antiCounterfeitPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitPlacement`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -2826,7 +2826,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`anti-counterfeit-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2849,7 +2849,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'testingRequirements', selectedValue)}
                             options={ANTI_COUNTERFEIT_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_testingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_testingRequirements`] ? 'border-red-600' : 'border-border'}`}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
                           />
@@ -2863,7 +2863,7 @@ const Step4 = ({
                                 type="number"
                                 value={material.antiCounterfeitQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitQty`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                               />
@@ -2877,7 +2877,7 @@ const Step4 = ({
                             type="text"
                                 value={material.antiCounterfeitSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -2902,7 +2902,7 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_antiCounterfeitApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_antiCounterfeitApproval`]}</span>}
                               {material.antiCounterfeitApproval === 'OTHERS (TEXT)' && (
@@ -2910,7 +2910,7 @@ const Step4 = ({
                             type="text"
                                   value={material.antiCounterfeitApprovalText || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitApprovalText', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                   placeholder="Enter APPROVAL"
                                 />
@@ -2924,7 +2924,7 @@ const Step4 = ({
                                 type="text"
                                 value={material.antiCounterfeitRemarks || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitRemarks', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitRemarks`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Text"
                               />
@@ -2952,7 +2952,7 @@ const Step4 = ({
                             }}
                             options={QC_INSPECTION_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_qcInspectionType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionType`]}</span>}
                           {material.qcInspectionType === 'OTHERS (TEXT)' && (
@@ -2960,7 +2960,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -2980,7 +2980,7 @@ const Step4 = ({
                             }}
                             options={QC_INSPECTION_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_qcInspectionMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionMaterial`]}</span>}
                           {material.qcInspectionMaterial === 'OTHERS (TEXT)' && (
@@ -2988,7 +2988,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -3006,7 +3006,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`qc-inspection-artwork-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3024,7 +3024,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionSizeWidth || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_qcInspectionSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_qcInspectionSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -3033,7 +3033,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.qcInspectionSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_qcInspectionSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_qcInspectionSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -3042,7 +3042,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'qcInspectionSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -3062,7 +3062,7 @@ const Step4 = ({
                             }}
                             options={QC_INSPECTION_CONTENT}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionContent`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionContent`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_qcInspectionContent`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionContent`]}</span>}
                           {material.qcInspectionContent === 'OTHERS (TEXT)' && (
@@ -3070,7 +3070,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionContentText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionContentText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionContentText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionContentText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter CONTENT"
                           />
@@ -3090,7 +3090,7 @@ const Step4 = ({
                             }}
                             options={QC_INSPECTION_CODING_SYSTEM}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionCodingSystem`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionCodingSystem`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_qcInspectionCodingSystem`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionCodingSystem`]}</span>}
                           {material.qcInspectionCodingSystem === 'OTHERS (TEXT)' && (
@@ -3098,7 +3098,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionCodingSystemText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionCodingSystemText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionCodingSystemText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionCodingSystemText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter CODING SYSTEM"
                           />
@@ -3118,7 +3118,7 @@ const Step4 = ({
                             }}
                             options={QC_INSPECTION_GUMMING_QUALITY}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionGummingQuality`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionGummingQuality`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_qcInspectionGummingQuality`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionGummingQuality`]}</span>}
                           {material.qcInspectionGummingQuality === 'OTHERS (TEXT)' && (
@@ -3126,7 +3126,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionGummingQualityText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionGummingQualityText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionGummingQualityText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qcInspectionGummingQualityText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter GUMMING QUALITY"
                           />
@@ -3141,7 +3141,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_qcInspectionPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_qcInspectionPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -3153,7 +3153,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`qc-inspection-placement-image-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border flex-shrink-0"
                               style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3177,7 +3177,7 @@ const Step4 = ({
                             }}
                             options={QC_INSPECTION_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_qcInspectionTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionTestingRequirements`]}</span>}
                           {material.qcInspectionTestingRequirements === 'OTHERS (TEXT)' && (
@@ -3185,7 +3185,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionTestingRequirementsText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -3202,7 +3202,7 @@ const Step4 = ({
                             type="text"
                                 value={material.qcInspectionQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                           />
@@ -3216,7 +3216,7 @@ const Step4 = ({
                             type="text"
                                 value={material.qcInspectionSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -3238,7 +3238,7 @@ const Step4 = ({
                             }}
                             options={QC_INSPECTION_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_qcInspectionApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionApproval`]}</span>}
                           {material.qcInspectionApproval === 'OTHERS (TEXT)' && (
@@ -3246,7 +3246,7 @@ const Step4 = ({
                             type="text"
                               value={material.qcInspectionApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionApprovalText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -3260,7 +3260,7 @@ const Step4 = ({
                             type="text"
                             value={material.qcInspectionRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionRemarks', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Enter REMARKS"
                           />
@@ -3286,7 +3286,7 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_bellyBandType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandType`]}</span>}
                           {material.bellyBandType === 'OTHERS (TEXT)' && (
@@ -3294,7 +3294,7 @@ const Step4 = ({
                             type="text"
                               value={material.bellyBandTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandTypeText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -3314,7 +3314,7 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_bellyBandMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandMaterial`]}</span>}
                           {material.bellyBandMaterial === 'OTHERS (TEXT)' && (
@@ -3322,7 +3322,7 @@ const Step4 = ({
                             type="text"
                               value={material.bellyBandMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -3344,7 +3344,7 @@ const Step4 = ({
                                 />
                                 <label
                                   htmlFor={`belly-band-artwork-${actualIndex}`}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3363,7 +3363,7 @@ const Step4 = ({
                             type="text"
                                   value={material.bellyBandSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -3372,7 +3372,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.bellyBandSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -3381,7 +3381,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'bellyBandSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -3403,7 +3403,7 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_CLOSURE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandClosure`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandClosure`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_bellyBandClosure`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandClosure`]}</span>}
                           {material.bellyBandClosure === 'OTHERS (TEXT)' && (
@@ -3411,7 +3411,7 @@ const Step4 = ({
                               type="text"
                               value={material.bellyBandClosureText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandClosureText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandClosureText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandClosureText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter CLOSURE"
                             />
@@ -3431,7 +3431,7 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                             onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                             onBlur={(e) => e.target.style.boxShadow = ''}
                           />
@@ -3441,7 +3441,7 @@ const Step4 = ({
                             type="text"
                               value={material.bellyBandTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -3456,7 +3456,7 @@ const Step4 = ({
                               type="text"
                               value={material.bellyBandPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_bellyBandPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_bellyBandPlacement`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -3468,7 +3468,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`belly-band-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3490,7 +3490,7 @@ const Step4 = ({
                                 type="number"
                                 value={material.bellyBandQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandQty`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                               />
@@ -3504,7 +3504,7 @@ const Step4 = ({
                             type="text"
                                 value={material.bellyBandSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -3526,7 +3526,7 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_bellyBandApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandApproval`]}</span>}
                           {material.bellyBandApproval === 'OTHERS (TEXT)' && (
@@ -3534,7 +3534,7 @@ const Step4 = ({
                             type="text"
                               value={material.bellyBandApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -3548,7 +3548,7 @@ const Step4 = ({
                             type="text"
                             value={material.bellyBandRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
@@ -3575,7 +3575,7 @@ const Step4 = ({
                             }}
                             options={SIZE_LABELS_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_sizeLabelsType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsType`]}</span>}
                           {material.sizeLabelsType === 'OTHERS (TEXT)' && (
@@ -3583,7 +3583,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -3603,7 +3603,7 @@ const Step4 = ({
                             }}
                             options={SIZE_LABELS_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_sizeLabelsMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsMaterial`]}</span>}
                           {material.sizeLabelsMaterial === 'OTHERS (TEXT)' && (
@@ -3611,7 +3611,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -3629,7 +3629,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`size-labels-artwork-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3647,7 +3647,7 @@ const Step4 = ({
                             type="text"
                                   value={material.sizeLabelsSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -3656,7 +3656,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.sizeLabelsSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -3665,7 +3665,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -3685,7 +3685,7 @@ const Step4 = ({
                             }}
                             options={SIZE_LABELS_SIZE_SYSTEM_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeSystem`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeSystem`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeSystem`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeSystem`]}</span>}
                           {material.sizeLabelsSizeSystem === 'OTHERS (TEXT)' && (
@@ -3693,7 +3693,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsSizeSystemText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeSystemText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter SIZE SYSTEM"
                           />
@@ -3713,7 +3713,7 @@ const Step4 = ({
                             }}
                             options={SIZE_LABELS_SIZE_CODE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeCode`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeCode`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeCode`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeCode`]}</span>}
                           {material.sizeLabelsSizeCode === 'OTHERS (TEXT)' && (
@@ -3721,7 +3721,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsSizeCodeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeCodeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeCodeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeCodeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter SIZE / CODE"
                           />
@@ -3741,7 +3741,7 @@ const Step4 = ({
                             }}
                             options={SIZE_LABELS_FOLD_TYPE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsFoldType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsFoldType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_sizeLabelsFoldType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsFoldType`]}</span>}
                           {material.sizeLabelsFoldType === 'OTHERS (TEXT)' && (
@@ -3749,7 +3749,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsFoldTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsFoldTypeText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter FOLD TYPE"
                           />
@@ -3764,7 +3764,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsPlacementText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsPlacementText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none flex-1"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none flex-1"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -3776,7 +3776,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`size-labels-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border flex-shrink-0"
                               style={{ padding: '10px 14px', height: '44px', width: '150px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3801,7 +3801,7 @@ const Step4 = ({
                             }}
                             options={SIZE_LABELS_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_sizeLabelsTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsTestingRequirements`]}</span>}
                           {material.sizeLabelsTestingRequirements === 'OTHERS (TEXT)' && (
@@ -3809,7 +3809,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsTestingRequirementsText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -3826,7 +3826,7 @@ const Step4 = ({
                             type="text"
                                 value={material.sizeLabelsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces or Rolls"
                           />
@@ -3840,7 +3840,7 @@ const Step4 = ({
                             type="text"
                                 value={material.sizeLabelsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -3862,7 +3862,7 @@ const Step4 = ({
                             }}
                             options={SIZE_LABELS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_sizeLabelsApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsApproval`]}</span>}
                           {material.sizeLabelsApproval === 'OTHERS (TEXT)' && (
@@ -3870,7 +3870,7 @@ const Step4 = ({
                             type="text"
                               value={material.sizeLabelsApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_sizeLabelsApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                           />
@@ -3883,7 +3883,7 @@ const Step4 = ({
                           <textarea
                             value={material.sizeLabelsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -3909,7 +3909,7 @@ const Step4 = ({
                             }}
                             options={TAGS_SPECIAL_LABELS_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsType`]}</span>}
                           {material.tagsSpecialLabelsType === 'OTHERS (TEXT)' && (
@@ -3917,7 +3917,7 @@ const Step4 = ({
                             type="text"
                               value={material.tagsSpecialLabelsTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsTypeText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -3937,7 +3937,7 @@ const Step4 = ({
                             }}
                             options={TAGS_SPECIAL_LABELS_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsMaterial`]}</span>}
                           {material.tagsSpecialLabelsMaterial === 'OTHERS (TEXT)' && (
@@ -3945,7 +3945,7 @@ const Step4 = ({
                             type="text"
                               value={material.tagsSpecialLabelsMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsMaterialText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -3958,7 +3958,7 @@ const Step4 = ({
                           <input
                             type="file"
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsArtworkSpecFile', f); }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none w-full"
                             style={{ padding: '10px 14px', height: '44px' }}
                           />
                         </div>
@@ -3971,7 +3971,7 @@ const Step4 = ({
                               type="text"
                             value={material.tagsSpecialLabelsSizeWidth || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsSizeWidth', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="WIDTH"
                             />
@@ -3980,7 +3980,7 @@ const Step4 = ({
                               type="text"
                             value={material.tagsSpecialLabelsSizeHeight || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsSizeHeight', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="HEIGHT"
                             />
@@ -3989,7 +3989,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '100px' }}
                           />
                           </div>
@@ -4009,14 +4009,14 @@ const Step4 = ({
                             }}
                             options={TAGS_SPECIAL_LABELS_ATTACHMENT_OPTIONS}
                             placeholder="Select or type"
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none w-full"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none w-full"
                           />
                           {material.tagsSpecialLabelsAttachment === 'OTHERS (TEXT)' && (
                           <input
                             type="text"
                               value={material.tagsSpecialLabelsAttachmentText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsAttachmentText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter ATTACHMENT"
                           />
@@ -4036,7 +4036,7 @@ const Step4 = ({
                             }}
                             options={TAGS_SPECIAL_LABELS_FINISHING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsFinishing`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsFinishing`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsFinishing`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsFinishing`]}</span>}
                           {material.tagsSpecialLabelsFinishing === 'OTHERS (TEXT)' && (
@@ -4044,7 +4044,7 @@ const Step4 = ({
                             type="text"
                               value={material.tagsSpecialLabelsFinishingText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsFinishingText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter FINISHING"
                           />
@@ -4059,7 +4059,7 @@ const Step4 = ({
                             type="text"
                               value={material.tagsSpecialLabelsPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -4071,7 +4071,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`tags-special-labels-placement-image-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border flex-shrink-0"
                               style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4083,7 +4083,7 @@ const Step4 = ({
                               type="text"
                               value={material.tagsSpecialLabelsPlacementImageRef || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsPlacementImageRef', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                               style={{ padding: '10px 14px', height: '44px', width: '120px' }}
                               placeholder="REFERENCE"
                             />
@@ -4101,7 +4101,7 @@ const Step4 = ({
                             type="text"
                                 value={material.tagsSpecialLabelsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="PCS/R LENGTH"
                           />
@@ -4115,7 +4115,7 @@ const Step4 = ({
                             type="text"
                                 value={material.tagsSpecialLabelsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -4137,7 +4137,7 @@ const Step4 = ({
                             }}
                             options={TAGS_SPECIAL_LABELS_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsTestingRequirements`]}</span>}
                           {material.tagsSpecialLabelsTestingRequirements === 'OTHERS (TEXT)' && (
@@ -4145,7 +4145,7 @@ const Step4 = ({
                             type="text"
                               value={material.tagsSpecialLabelsTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsTestingRequirementsText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -4153,7 +4153,7 @@ const Step4 = ({
                           <input
                             type="file"
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsTestingRequirementsFile', f); }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                           />
                         </div>
@@ -4171,7 +4171,7 @@ const Step4 = ({
                             }}
                             options={TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsApproval`]}</span>}
                           {material.tagsSpecialLabelsApproval === 'OTHERS (TEXT)' && (
@@ -4179,7 +4179,7 @@ const Step4 = ({
                             type="text"
                               value={material.tagsSpecialLabelsApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsApprovalText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -4187,7 +4187,7 @@ const Step4 = ({
                           <input
                             type="file"
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsApprovalFile', f); }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                            className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                           />
                         </div>
@@ -4198,7 +4198,7 @@ const Step4 = ({
                           <textarea
                             value={material.tagsSpecialLabelsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -4223,7 +4223,7 @@ const Step4 = ({
                           type="text"
                           value={material.sizeArtworkId || ''}
                           onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeArtworkId', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder=""
                         />
@@ -4239,7 +4239,7 @@ const Step4 = ({
                           type="text"
                           value={material.colours}
                           onChange={(e) => handleArtworkMaterialChange(actualIndex, 'colours', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                          className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., 4 colors"
                         />
@@ -4264,7 +4264,7 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_flammabilitySafetyType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_flammabilitySafetyType`]}</span>}
                           {material.flammabilitySafetyType === 'OTHERS (TEXT)' && (
@@ -4272,7 +4272,7 @@ const Step4 = ({
                     type="text"
                               value={material.flammabilitySafetyTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTypeText`] ? 'border-red-600' : 'border-border'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                         />
@@ -4292,7 +4292,7 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_flammabilitySafetyMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_flammabilitySafetyMaterial`]}</span>}
                           {material.flammabilitySafetyMaterial === 'OTHERS (TEXT)' && (
@@ -4300,7 +4300,7 @@ const Step4 = ({
                               type="text"
                               value={material.flammabilitySafetyMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyMaterialText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                             />
@@ -4322,7 +4322,7 @@ const Step4 = ({
                                 />
                                 <label
                                   htmlFor={`flammability-safety-artwork-${actualIndex}`}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                                  className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4341,7 +4341,7 @@ const Step4 = ({
                           type="text"
                                   value={material.flammabilitySafetySizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySizeWidth', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                          className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -4350,7 +4350,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.flammabilitySafetySizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -4359,7 +4359,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -4376,7 +4376,7 @@ const Step4 = ({
                               type="text"
                               value={material.flammabilitySafetyPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyPlacement`] ? 'border-red-600' : 'border-border'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -4388,7 +4388,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`flammability-safety-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4413,7 +4413,7 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTestingRequirements`]}</span>}
                           {material.flammabilitySafetyTestingRequirements === 'OTHERS (TEXT)' && (
@@ -4421,7 +4421,7 @@ const Step4 = ({
                               type="text"
                               value={material.flammabilitySafetyTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                             />
@@ -4438,7 +4438,7 @@ const Step4 = ({
                           type="text"
                                 value={material.flammabilitySafetyQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQty`] ? 'border-red-600' : 'border-border'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                         />
@@ -4452,7 +4452,7 @@ const Step4 = ({
                                 type="text"
                                 value={material.flammabilitySafetySurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySurplus`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                               />
@@ -4474,7 +4474,7 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_flammabilitySafetyApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_flammabilitySafetyApproval`]}</span>}
                           {material.flammabilitySafetyApproval === 'OTHERS (TEXT)' && (
@@ -4482,7 +4482,7 @@ const Step4 = ({
                               type="text"
                               value={material.flammabilitySafetyApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyApprovalText`] ? 'border-red-600' : 'border-border'}`}
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -4496,7 +4496,7 @@ const Step4 = ({
                             type="text"
                             value={material.flammabilitySafetyRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
@@ -4516,7 +4516,7 @@ const Step4 = ({
                           type="text"
                           value={material.permanence}
                           onChange={(e) => handleArtworkMaterialChange(actualIndex, 'permanence', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_permanence`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                          className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_permanence`] ? 'border-red-600' : 'border-border'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., Permanent"
                         />
@@ -4532,7 +4532,7 @@ const Step4 = ({
                           type="text"
                           value={material.adhesive}
                           onChange={(e) => handleArtworkMaterialChange(actualIndex, 'adhesive', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_adhesive`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                          className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_adhesive`] ? 'border-red-600' : 'border-border'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., High-bond"
                         />
@@ -4560,7 +4560,7 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_insertCardsType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsType`]}</span>}
                           {material.insertCardsType === 'OTHERS (TEXT)' && (
@@ -4568,7 +4568,7 @@ const Step4 = ({
                             type="text"
                               value={material.insertCardsTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -4588,7 +4588,7 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_insertCardsMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsMaterial`]}</span>}
                           {material.insertCardsMaterial === 'OTHERS (TEXT)' && (
@@ -4596,7 +4596,7 @@ const Step4 = ({
                             type="text"
                               value={material.insertCardsMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -4610,7 +4610,7 @@ const Step4 = ({
                             type="text"
                             value={material.insertCardsArtworkSpec || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsArtworkSpec', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsArtworkSpec`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsArtworkSpec`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Artwork specifications"
                           />
@@ -4625,7 +4625,7 @@ const Step4 = ({
                           type="text"
                                   value={material.insertCardsSizeWidth || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsSizeWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsSizeWidth`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="WIDTH"
                                 />
@@ -4634,7 +4634,7 @@ const Step4 = ({
                                   type="text"
                                   value={material.insertCardsSizeHeight || ''}
                                   onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsSizeHeight', e.target.value)}
-                                  className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                  className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsSizeHeight`] ? 'border-red-600' : 'border-border'}`}
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
@@ -4643,7 +4643,7 @@ const Step4 = ({
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'insertCardsSizeUnit', selectedValue)}
                             options={['CM', 'KGS','PCS']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
                               </div>
@@ -4658,7 +4658,7 @@ const Step4 = ({
                               type="text"
                               value={material.insertCardsPlacement || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsPlacement', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_insertCardsPlacement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_insertCardsPlacement`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Text"
                             />
@@ -4670,7 +4670,7 @@ const Step4 = ({
                             />
                             <label
                               htmlFor={`insert-cards-placement-${actualIndex}`}
-                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                               style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4695,7 +4695,7 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_insertCardsTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsTestingRequirements`]}</span>}
                           {material.insertCardsTestingRequirements === 'OTHERS (TEXT)' && (
@@ -4703,7 +4703,7 @@ const Step4 = ({
                             type="text"
                               value={material.insertCardsTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsTestingRequirementsText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsTestingRequirementsText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -4720,7 +4720,7 @@ const Step4 = ({
                             type="text"
                                 value={material.insertCardsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                           />
@@ -4734,7 +4734,7 @@ const Step4 = ({
                             type="text"
                                 value={material.insertCardsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -4756,7 +4756,7 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsApproval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsApproval`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_insertCardsApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsApproval`]}</span>}
                           {material.insertCardsApproval === 'OTHERS (TEXT)' && (
@@ -4764,7 +4764,7 @@ const Step4 = ({
                             type="text"
                               value={material.insertCardsApprovalText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsApprovalText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsApprovalText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsApprovalText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter APPROVAL"
                             />
@@ -4777,7 +4777,7 @@ const Step4 = ({
                           <textarea
                             value={material.insertCardsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -4803,7 +4803,7 @@ const Step4 = ({
                             }}
                             options={RIBBONS_TYPES}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_ribbonsType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsType`]}</span>}
                           {material.ribbonsType === 'OTHERS (TEXT)' && (
@@ -4811,7 +4811,7 @@ const Step4 = ({
                             type="text"
                               value={material.ribbonsTypeText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsTypeText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_ribbonsTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_ribbonsTypeText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TYPE"
                           />
@@ -4831,7 +4831,7 @@ const Step4 = ({
                             }}
                             options={RIBBONS_MATERIALS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsMaterial`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_ribbonsMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsMaterial`]}</span>}
                           {material.ribbonsMaterial === 'OTHERS (TEXT)' && (
@@ -4839,7 +4839,7 @@ const Step4 = ({
                             type="text"
                               value={material.ribbonsMaterialText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsMaterialText', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_ribbonsMaterialText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_ribbonsMaterialText`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter MATERIAL"
                           />
@@ -4857,7 +4857,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`ribbons-artwork-${actualIndex}`}
-                            className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                            className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4874,7 +4874,7 @@ const Step4 = ({
                             type="text"
                             value={material.ribbonsWidth || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsWidth', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsWidth`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="e.g., 10mm, 1 inch"
                           />
@@ -4888,7 +4888,7 @@ const Step4 = ({
                             type="text"
                             value={material.ribbonsRollLength || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsRollLength', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsRollLength`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsRollLength`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="e.g., 100m, 500 yards"
                           />
@@ -4908,7 +4908,7 @@ const Step4 = ({
                             }}
                             options={RIBBONS_TESTING_REQUIREMENTS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsTestingRequirements`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_ribbonsTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsTestingRequirements`]}</span>}
                           {material.ribbonsTestingRequirements === 'OTHERS (TEXT)' && (
@@ -4916,7 +4916,7 @@ const Step4 = ({
                             type="text"
                               value={material.ribbonsTestingRequirementsText || ''}
                               onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsTestingRequirementsText', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none mt-2"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none mt-2"
                             style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="Enter TESTING REQUIREMENTS"
                           />
@@ -4933,7 +4933,7 @@ const Step4 = ({
                             type="text"
                                 value={material.ribbonsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsQty`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
                           />
@@ -4947,7 +4947,7 @@ const Step4 = ({
                             type="text"
                                 value={material.ribbonsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsSurplus`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
                           />
@@ -4967,7 +4967,7 @@ const Step4 = ({
                           />
                           <label
                             htmlFor={`ribbons-approval-${actualIndex}`}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 ${errors[`artworkMaterial_${actualIndex}_ribbonsApprovalFile`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 ${errors[`artworkMaterial_${actualIndex}_ribbonsApprovalFile`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4984,7 +4984,7 @@ const Step4 = ({
                           <textarea
                             value={material.ribbonsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsRemarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsRemarks`] ? 'border-red-600' : 'border-border'}`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -5003,7 +5003,7 @@ const Step4 = ({
                           type="text"
                             value={material.testingRequirement || ''}
                           onChange={(e) => handleArtworkMaterialChange(actualIndex, 'testingRequirement', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-grow ${errors[`artworkMaterial_${actualIndex}_testingRequirement`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                          className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-grow ${errors[`artworkMaterial_${actualIndex}_testingRequirement`] ? 'border-red-600' : 'border-border'}`}
                           style={{ padding: '10px 14px', height: '44px' }}
                           placeholder="e.g., Wash Fastness"
                         />
@@ -5015,7 +5015,7 @@ const Step4 = ({
                         />
                         <label
                           htmlFor={`art-file-${actualIndex}`}
-                          className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb] flex-shrink-0"
+                          className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border flex-shrink-0"
                           style={{ padding: '10px 14px', height: '44px', width: '110px' }}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -5036,7 +5036,7 @@ const Step4 = ({
                         type="text"
                           value={material.lengthQuantity || ''}
                         onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lengthQuantity', e.target.value)}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lengthQuantity`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                        className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lengthQuantity`] ? 'border-red-600' : 'border-border'}`}
                         style={{ padding: '10px 14px', height: '44px' }}
                         placeholder="e.g., 5000 pcs"
                       />
@@ -5048,12 +5048,12 @@ const Step4 = ({
                     {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col md:col-span-2">
                       <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR)</label>
-                      <div className={`flex items-center gap-0 border-2 rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all ${errors[`artworkMaterial_${actualIndex}_surplus`] || errors[`artworkMaterial_${actualIndex}_surplusForSection`] ? 'border-red-600' : 'border-[#e5e7eb]'}`} style={{ height: '44px' }}>
+                      <div className={`flex items-center gap-0 border-2 rounded-lg bg-white overflow-hidden focus-within:border-primary transition-all ${errors[`artworkMaterial_${actualIndex}_surplus`] || errors[`artworkMaterial_${actualIndex}_surplusForSection`] ? 'border-red-600' : 'border-border'}`} style={{ height: '44px' }}>
                         <input
                           type="text"
                             value={material.surplus || ''}
                           onChange={(e) => handleArtworkMaterialChange(actualIndex, 'surplus', e.target.value)}
-                          className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                          className="text-sm bg-transparent text-foreground focus:outline-none border-r border-border"
                           style={{ padding: '10px 14px', width: '80px' }}
                           placeholder="5%"
                         />
@@ -5061,7 +5061,7 @@ const Step4 = ({
                           type="text"
                             value={material.surplusForSection || ''}
                           onChange={(e) => handleArtworkMaterialChange(actualIndex, 'surplusForSection', e.target.value)}
-                          className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
+                          className="text-sm bg-transparent text-foreground focus:outline-none flex-grow"
                           style={{ padding: '10px 14px' }}
                           placeholder="FOR SECTION (e.g., PACKAGING / QUALITY)"
                         />
@@ -5079,7 +5079,7 @@ const Step4 = ({
                         onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'approval', selectedValue)}
                         options={["BUYER'S", 'INITIAL', 'IPP', 'PP', 'TOP']}
                         placeholder="Select or type Approval"
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_approval`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                        className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_approval`] ? 'border-red-600' : 'border-border'}`}
                       />
                 </div>
                     )}
@@ -5091,7 +5091,7 @@ const Step4 = ({
                       <textarea
                         value={material.remarks}
                         onChange={(e) => handleArtworkMaterialChange(actualIndex, 'remarks', e.target.value)}
-                        className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_remarks`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                        className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_remarks`] ? 'border-red-600' : 'border-border'}`}
                         style={{ padding: '10px 14px', width: '100%' }}
                         onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
                         onBlur={(e) => e.target.style.boxShadow = ''}
@@ -5114,20 +5114,20 @@ const Step4 = ({
                         style={{
                           padding: '10px 20px',
                           height: '44px',
-                          backgroundColor: material.showInsertCardsAdvancedFilter ? '#667eea' : '#ffffff',
-                          borderColor: material.showInsertCardsAdvancedFilter ? '#667eea' : '#e5e7eb',
-                          color: material.showInsertCardsAdvancedFilter ? '#ffffff' : '#374151'
+                          backgroundColor: material.showInsertCardsAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showInsertCardsAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showInsertCardsAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
                         }}
                         onMouseEnter={(e) => {
                           if (!material.showInsertCardsAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
                             e.currentTarget.style.borderColor = '#d1d5db';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!material.showInsertCardsAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
                           }
                         }}
                       >
@@ -5137,7 +5137,7 @@ const Step4 = ({
                     
                     {/* Advanced Filter UI Table */}
                     {material.showInsertCardsAdvancedFilter && (
-                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
                         <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -5156,14 +5156,14 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_FUNCTION_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsFunction`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsFunction`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.insertCardsFunction === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.insertCardsFunctionText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsFunctionText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsFunctionText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsFunctionText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FUNCTION"
                               />
@@ -5185,14 +5185,14 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_CONTENT_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsContent`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsContent`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.insertCardsContent === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.insertCardsContentText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsContentText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsContentText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsContentText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter CONTENT"
                               />
@@ -5214,14 +5214,14 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_PRINTING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsPrinting`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsPrinting`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.insertCardsPrinting === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.insertCardsPrintingText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsPrintingText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsPrintingText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsPrintingText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PRINTING"
                               />
@@ -5243,14 +5243,14 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_FINISH_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsFinish`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsFinish`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.insertCardsFinish === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.insertCardsFinishText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsFinishText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsFinishText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsFinishText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FINISH"
                               />
@@ -5272,14 +5272,14 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_STIFFNESS_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsStiffness`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsStiffness`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.insertCardsStiffness === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.insertCardsStiffnessText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsStiffnessText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsStiffnessText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsStiffnessText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter STIFFNESS"
                               />
@@ -5301,14 +5301,14 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_ACID_FREE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsAcidFree`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsAcidFree`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.insertCardsAcidFree === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.insertCardsAcidFreeText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsAcidFreeText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsAcidFreeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsAcidFreeText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter ACID-FREE"
                               />
@@ -5330,14 +5330,14 @@ const Step4 = ({
                             }}
                             options={INSERT_CARDS_BRANDING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsBranding`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsBranding`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.insertCardsBranding === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.insertCardsBrandingText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsBrandingText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsBrandingText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_insertCardsBrandingText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter BRANDING"
                               />
@@ -5361,20 +5361,20 @@ const Step4 = ({
                         style={{
                           padding: '10px 20px',
                           height: '44px',
-                          backgroundColor: material.showHeatTransferAdvancedFilter ? '#667eea' : '#ffffff',
-                          borderColor: material.showHeatTransferAdvancedFilter ? '#667eea' : '#e5e7eb',
-                          color: material.showHeatTransferAdvancedFilter ? '#ffffff' : '#374151'
+                          backgroundColor: material.showHeatTransferAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showHeatTransferAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showHeatTransferAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
                         }}
                         onMouseEnter={(e) => {
                           if (!material.showHeatTransferAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
                             e.currentTarget.style.borderColor = '#d1d5db';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!material.showHeatTransferAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
                           }
                         }}
                       >
@@ -5384,7 +5384,7 @@ const Step4 = ({
                     
                     {/* Advanced Filter UI Table */}
                     {material.showHeatTransferAdvancedFilter && (
-                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
                         <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -5403,14 +5403,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_INK_TYPE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferInkType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferInkType`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.heatTransferInkType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.heatTransferInkTypeText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferInkTypeText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferInkTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferInkTypeText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter INK TYPE"
                               />
@@ -5432,14 +5432,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferFabricCompatibility`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferFabricCompatibility`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.heatTransferFabricCompatibility === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.heatTransferFabricCompatibilityText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferFabricCompatibilityText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferFabricCompatibilityText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferFabricCompatibilityText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FABRIC COMPATIBILITY"
                               />
@@ -5461,14 +5461,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferApplicationSpec`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferApplicationSpec`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.heatTransferApplicationSpec === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.heatTransferApplicationSpecText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferApplicationSpecText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferApplicationSpecText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferApplicationSpecText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter APPLICATION SPEC"
                               />
@@ -5490,14 +5490,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_PEEL_TYPE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferPeelType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferPeelType`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.heatTransferPeelType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.heatTransferPeelTypeText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferPeelTypeText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferPeelTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferPeelTypeText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PEEL TYPE"
                               />
@@ -5519,14 +5519,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferFinishHandFeel`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferFinishHandFeel`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.heatTransferFinishHandFeel === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.heatTransferFinishHandFeelText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferFinishHandFeelText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferFinishHandFeelText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferFinishHandFeelText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FINISH / HAND FEEL"
                               />
@@ -5548,14 +5548,14 @@ const Step4 = ({
                             }}
                             options={HEAT_TRANSFER_STRETCH_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferStretch`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_heatTransferStretch`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.heatTransferStretch === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.heatTransferStretchText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferStretchText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferStretchText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_heatTransferStretchText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter STRETCH"
                               />
@@ -5579,20 +5579,20 @@ const Step4 = ({
                         style={{
                           padding: '10px 20px',
                           height: '44px',
-                          backgroundColor: material.showHangTagSealsAdvancedFilter ? '#667eea' : '#ffffff',
-                          borderColor: material.showHangTagSealsAdvancedFilter ? '#667eea' : '#e5e7eb',
-                          color: material.showHangTagSealsAdvancedFilter ? '#ffffff' : '#374151'
+                          backgroundColor: material.showHangTagSealsAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showHangTagSealsAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showHangTagSealsAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
                         }}
                         onMouseEnter={(e) => {
                           if (!material.showHangTagSealsAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
                             e.currentTarget.style.borderColor = '#d1d5db';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!material.showHangTagSealsAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
                           }
                         }}
                       >
@@ -5602,7 +5602,7 @@ const Step4 = ({
                     
                     {/* Advanced Filter UI Table */}
                     {material.showHangTagSealsAdvancedFilter && (
-                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
                         <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -5621,14 +5621,14 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_FASTENING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsFastening`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsFastening`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.hangTagSealsFastening === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.hangTagSealsFasteningText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsFasteningText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsFasteningText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsFasteningText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FASTENING"
                               />
@@ -5650,14 +5650,14 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_PRE_STRINGING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsPreStringing`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsPreStringing`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.hangTagSealsPreStringing === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.hangTagSealsPreStringingText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsPreStringingText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsPreStringingText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsPreStringingText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PRE-STRINGING"
                               />
@@ -5679,14 +5679,14 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_STRING_FINISH_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsStringFinish`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsStringFinish`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.hangTagSealsStringFinish === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.hangTagSealsStringFinishText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsStringFinishText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsStringFinishText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsStringFinishText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter STRING FINISH"
                               />
@@ -5708,14 +5708,14 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsSealShape`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsSealShape`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.hangTagSealsSealShape === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.hangTagSealsSealShapeText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSealShapeText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsSealShapeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsSealShapeText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter SEAL SHAPE"
                               />
@@ -5737,14 +5737,14 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_COLOUR_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsColour`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsColour`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.hangTagSealsColour === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.hangTagSealsColourText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsColourText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsColourText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsColourText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter COLOUR"
                               />
@@ -5766,14 +5766,14 @@ const Step4 = ({
                             }}
                             options={HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsLogoBranding`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_hangTagSealsLogoBranding`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.hangTagSealsLogoBranding === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.hangTagSealsLogoBrandingText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsLogoBrandingText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsLogoBrandingText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_hangTagSealsLogoBrandingText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter LOGO/BRANDING"
                               />
@@ -5797,20 +5797,20 @@ const Step4 = ({
                         style={{
                           padding: '10px 20px',
                           height: '44px',
-                          backgroundColor: material.showAntiCounterfeitAdvancedFilter ? '#667eea' : '#ffffff',
-                          borderColor: material.showAntiCounterfeitAdvancedFilter ? '#667eea' : '#e5e7eb',
-                          color: material.showAntiCounterfeitAdvancedFilter ? '#ffffff' : '#374151'
+                          backgroundColor: material.showAntiCounterfeitAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showAntiCounterfeitAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showAntiCounterfeitAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
                         }}
                         onMouseEnter={(e) => {
                           if (!material.showAntiCounterfeitAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
                             e.currentTarget.style.borderColor = '#d1d5db';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!material.showAntiCounterfeitAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
                           }
                         }}
                       >
@@ -5820,7 +5820,7 @@ const Step4 = ({
                     
                     {/* Advanced Filter UI Table */}
                     {material.showAntiCounterfeitAdvancedFilter && (
-                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
                         <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -5839,14 +5839,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_VERIFICATION_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_verification`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_verification`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.verification === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.verificationText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'verificationText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_verificationText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_verificationText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter VERIFICATION"
                               />
@@ -5868,14 +5868,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_qrCodeContent`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_qrCodeContent`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.qrCodeContent === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.qrCodeContentText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qrCodeContentText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qrCodeContentText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_qrCodeContentText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter QR/CODE CONTENT"
                               />
@@ -5897,14 +5897,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_APPLICATION_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApplication`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApplication`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.antiCounterfeitApplication === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.antiCounterfeitApplicationText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitApplicationText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApplicationText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitApplicationText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter APPLICATION"
                               />
@@ -5926,14 +5926,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_tamperEvidence`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_tamperEvidence`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.tamperEvidence === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.tamperEvidenceText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tamperEvidenceText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_tamperEvidenceText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_tamperEvidenceText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter TAMPER EVIDENCE"
                               />
@@ -5955,14 +5955,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_DATABASE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitDatabase`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitDatabase`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.antiCounterfeitDatabase === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.antiCounterfeitDatabaseText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitDatabaseText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitDatabaseText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitDatabaseText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter DATABASE"
                               />
@@ -5984,14 +5984,14 @@ const Step4 = ({
                             }}
                             options={ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_gummingQuality`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_gummingQuality`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.gummingQuality === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.gummingQualityText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'gummingQualityText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_gummingQualityText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_gummingQualityText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter GUMMING QUALITY"
                               />
@@ -6015,20 +6015,20 @@ const Step4 = ({
                         style={{
                           padding: '10px 20px',
                           height: '44px',
-                          backgroundColor: material.showCareCompositionAdvancedFilter ? '#667eea' : '#ffffff',
-                          borderColor: material.showCareCompositionAdvancedFilter ? '#667eea' : '#e5e7eb',
-                          color: material.showCareCompositionAdvancedFilter ? '#ffffff' : '#374151'
+                          backgroundColor: material.showCareCompositionAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showCareCompositionAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showCareCompositionAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
                         }}
                         onMouseEnter={(e) => {
                           if (!material.showCareCompositionAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
                             e.currentTarget.style.borderColor = '#d1d5db';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!material.showCareCompositionAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
                           }
                         }}
                       >
@@ -6038,7 +6038,7 @@ const Step4 = ({
                     
                     {/* Advanced Filter UI Table */}
                     {material.showCareCompositionAdvancedFilter && (
-                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
                         <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -6057,14 +6057,14 @@ const Step4 = ({
                             }}
                             options={CARE_COMPOSITION_PRINT_TYPE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionPrintType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionPrintType`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.careCompositionPrintType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.careCompositionPrintTypeText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionPrintTypeText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionPrintTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionPrintTypeText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PRINT TYPE"
                               />
@@ -6086,14 +6086,14 @@ const Step4 = ({
                             }}
                             options={CARE_COMPOSITION_INK_TYPE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionInkType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionInkType`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.careCompositionInkType === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.careCompositionInkTypeText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionInkTypeText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionInkTypeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionInkTypeText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter INK TYPE"
                               />
@@ -6115,14 +6115,14 @@ const Step4 = ({
                             }}
                             options={CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionManufacturerId`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionManufacturerId`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.careCompositionManufacturerId === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.careCompositionManufacturerIdText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionManufacturerIdText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionManufacturerIdText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionManufacturerIdText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter MANUFACTURER ID"
                               />
@@ -6144,14 +6144,14 @@ const Step4 = ({
                             }}
                             options={CARE_COMPOSITION_PERMANENCE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionPermanence`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionPermanence`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.careCompositionPermanence === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.careCompositionPermanenceText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionPermanenceText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionPermanenceText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionPermanenceText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PERMANENCE"
                               />
@@ -6173,14 +6173,14 @@ const Step4 = ({
                             }}
                             options={CARE_COMPOSITION_LANGUAGE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionLanguage`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_careCompositionLanguage`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.careCompositionLanguage === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.careCompositionLanguageText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionLanguageText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionLanguageText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_careCompositionLanguageText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter LANGUAGE"
                               />
@@ -6204,20 +6204,20 @@ const Step4 = ({
                         style={{
                           padding: '10px 20px',
                           height: '44px',
-                          backgroundColor: material.showFlammabilitySafetyAdvancedFilter ? '#667eea' : '#ffffff',
-                          borderColor: material.showFlammabilitySafetyAdvancedFilter ? '#667eea' : '#e5e7eb',
-                          color: material.showFlammabilitySafetyAdvancedFilter ? '#ffffff' : '#374151'
+                          backgroundColor: material.showFlammabilitySafetyAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showFlammabilitySafetyAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showFlammabilitySafetyAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
                         }}
                         onMouseEnter={(e) => {
                           if (!material.showFlammabilitySafetyAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
                             e.currentTarget.style.borderColor = '#d1d5db';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!material.showFlammabilitySafetyAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
                           }
                         }}
                       >
@@ -6227,7 +6227,7 @@ const Step4 = ({
                     
                     {/* Advanced Filter UI Table */}
                     {material.showFlammabilitySafetyAdvancedFilter && (
-                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
                         <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -6246,14 +6246,14 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_REGULATION_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyRegulation`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyRegulation`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.flammabilitySafetyRegulation === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.flammabilitySafetyRegulationText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyRegulationText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyRegulationText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyRegulationText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter REGULATION"
                               />
@@ -6275,14 +6275,14 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyFontSize`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyFontSize`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.flammabilitySafetyFontSize === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.flammabilitySafetyFontSizeText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyFontSizeText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyFontSizeText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyFontSizeText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FONT SIZE"
                               />
@@ -6304,14 +6304,14 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyPermanence`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyPermanence`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.flammabilitySafetyPermanence === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.flammabilitySafetyPermanenceText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyPermanenceText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyPermanenceText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyPermanenceText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PERMANENCE"
                               />
@@ -6333,14 +6333,14 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_SYMBOL_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySymbol`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySymbol`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.flammabilitySafetySymbol === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.flammabilitySafetySymbolText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySymbolText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySymbolText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySymbolText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter SYMBOL"
                               />
@@ -6362,14 +6362,14 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyInkDurability`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyInkDurability`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.flammabilitySafetyInkDurability === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.flammabilitySafetyInkDurabilityText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyInkDurabilityText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyInkDurabilityText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyInkDurabilityText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter INK DURABILITY"
                               />
@@ -6391,14 +6391,14 @@ const Step4 = ({
                             }}
                             options={FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyCertificationId`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyCertificationId`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.flammabilitySafetyCertificationId === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.flammabilitySafetyCertificationIdText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyCertificationIdText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyCertificationIdText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyCertificationIdText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter CERTIFICATION ID"
                               />
@@ -6422,20 +6422,20 @@ const Step4 = ({
                         style={{
                           padding: '10px 20px',
                           height: '44px',
-                          backgroundColor: material.showBellyBandAdvancedFilter ? '#667eea' : '#ffffff',
-                          borderColor: material.showBellyBandAdvancedFilter ? '#667eea' : '#e5e7eb',
-                          color: material.showBellyBandAdvancedFilter ? '#ffffff' : '#374151'
+                          backgroundColor: material.showBellyBandAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showBellyBandAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showBellyBandAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
                         }}
                         onMouseEnter={(e) => {
                           if (!material.showBellyBandAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
                             e.currentTarget.style.borderColor = '#d1d5db';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!material.showBellyBandAdvancedFilter) {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
                           }
                         }}
                       >
@@ -6445,7 +6445,7 @@ const Step4 = ({
                     
                     {/* Advanced Filter UI Table */}
                     {material.showBellyBandAdvancedFilter && (
-                      <div style={{ padding: '24px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', width: '100%' }}>
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
                         <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -6464,14 +6464,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_PRODUCT_FIT_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandProductFit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandProductFit`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandProductFit === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandProductFitText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandProductFitText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandProductFitText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandProductFitText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PRODUCT FIT"
                               />
@@ -6493,14 +6493,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_PRINTING_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandPrinting`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandPrinting`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandPrinting === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandPrintingText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandPrintingText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandPrintingText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandPrintingText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter PRINTING"
                               />
@@ -6522,14 +6522,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_FOLD_LINES_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandFoldLines`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandFoldLines`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandFoldLines === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandFoldLinesText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandFoldLinesText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandFoldLinesText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandFoldLinesText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FOLD LINES"
                               />
@@ -6551,14 +6551,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_DURABILITY_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandDurability`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandDurability`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandDurability === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandDurabilityText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandDurabilityText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandDurabilityText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandDurabilityText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter DURABILITY"
                               />
@@ -6580,14 +6580,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_CONTENT_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandContent`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandContent`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandContent === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandContentText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandContentText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandContentText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandContentText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter CONTENT"
                               />
@@ -6609,14 +6609,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_COLOURS_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandColours`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandColours`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandColours === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandColoursText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandColoursText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandColoursText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandColoursText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter COLOURS"
                               />
@@ -6638,14 +6638,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_FINISH_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandFinish`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandFinish`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandFinish === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandFinishText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandFinishText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandFinishText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandFinishText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter FINISH"
                               />
@@ -6667,14 +6667,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_DIE_CUT_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandDieCut`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandDieCut`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandDieCut === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandDieCutText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandDieCutText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandDieCutText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandDieCutText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter DIE-CUT"
                               />
@@ -6696,14 +6696,14 @@ const Step4 = ({
                             }}
                             options={BELLY_BAND_GUMMING_QUALITY_OPTIONS}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandGummingQuality`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandGummingQuality`] ? 'border-red-600' : 'border-border'}`}
                           />
                             {material.bellyBandGummingQuality === 'OTHERS (TEXT)' && (
                               <input
                                 type="text"
                                 value={material.bellyBandGummingQualityText || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandGummingQualityText', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandGummingQualityText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_bellyBandGummingQualityText`] ? 'border-red-600' : 'border-border'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter GUMMING QUALITY"
                               />
@@ -6726,7 +6726,7 @@ const Step4 = ({
                   type="button"
                   onClick={() => addArtworkMaterial(selectedComponent)}
                   className="border-2 rounded-lg text-sm font-medium transition-all cursor-pointer"
-                  style={{ padding: '10px 20px', backgroundColor: '#fff', borderColor: '#e5e7eb', color: '#374151' }}
+                  style={{ padding: '10px 20px', backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                 >
                   + Add Artwork Material
                 </button>
@@ -6740,4 +6740,6 @@ const Step4 = ({
 };
 
 export default Step4;
+
+
 

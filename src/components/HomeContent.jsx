@@ -33,10 +33,10 @@ const HomeContent = ({ user }) => {
   ]);
 
   const [departmentStats] = useState([
-    { name: 'Sourcing', active: 45, pending: 12, completed: 156, color: '#667eea' },
-    { name: 'Operations', active: 34, pending: 8, completed: 203, color: '#764ba2' },
-    { name: 'Quality', active: 28, pending: 15, completed: 178, color: '#f093fb' },
-    { name: 'Shipping', active: 19, pending: 7, completed: 145, color: '#4facfe' }
+    { name: 'Sourcing', active: 45, pending: 12, completed: 156, color: 'var(--primary)' },
+    { name: 'Operations', active: 34, pending: 8, completed: 203, color: 'var(--secondary)' },
+    { name: 'Quality', active: 28, pending: 15, completed: 178, color: 'var(--primary)' },
+    { name: 'Shipping', active: 19, pending: 7, completed: 145, color: 'var(--secondary)' }
   ]);
 
   const formatCurrency = (amount) => {
@@ -68,13 +68,13 @@ const HomeContent = ({ user }) => {
 
   return (
     <div style={styles.container}>
-      {/* Welcome Section */}
-      <div style={styles.welcomeSection}>
+      {/* Welcome Section - uses shadcn primary */}
+      <div className="home-welcome-section">
         <div style={styles.welcomeContent}>
-          <h1 style={styles.welcomeTitle}>
+          <h1 className="home-welcome-title">
             Welcome back, {user?.name || user?.email}! 👋
           </h1>
-          <p style={styles.welcomeSubtitle}>
+          <p className="home-welcome-subtitle">
             {user?.role === 'master-admin' && 'Here\'s what\'s happening across all departments today.'}
             {user?.role === 'manager' && 'Track your team\'s performance and manage operations efficiently.'}
             {user?.role === 'tenant' && 'View your dashboard metrics and recent activities.'}
@@ -257,30 +257,8 @@ const styles = {
     maxWidth: '1400px',
     margin: '0 auto'
   },
-  welcomeSection: {
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    borderRadius: '16px',
-    padding: '32px',
-    marginBottom: '24px',
-    color: 'white',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
-  },
   welcomeContent: {
     flex: 1
-  },
-  welcomeTitle: {
-    fontSize: '32px',
-    fontWeight: '700',
-    marginBottom: '8px',
-    color: 'white'
-  },
-  welcomeSubtitle: {
-    fontSize: '16px',
-    opacity: 0.95,
-    lineHeight: '1.5'
   },
   quickActions: {
     display: 'flex',
@@ -297,12 +275,12 @@ const styles = {
     whiteSpace: 'nowrap'
   },
   primaryBtn: {
-    background: 'white',
-    color: '#667eea'
+    background: 'var(--primary-foreground)',
+    color: 'var(--primary)'
   },
   secondaryBtn: {
     background: 'rgba(255, 255, 255, 0.2)',
-    color: 'white',
+    color: 'var(--primary-foreground)',
     backdropFilter: 'blur(10px)'
   },
   statsGrid: {
@@ -345,8 +323,8 @@ const styles = {
   },
   viewAllBtn: {
     padding: '6px 16px',
-    background: '#667eea15',
-    color: '#667eea',
+    background: 'var(--muted)',
+    color: 'var(--primary)',
     border: 'none',
     borderRadius: '6px',
     fontSize: '14px',
