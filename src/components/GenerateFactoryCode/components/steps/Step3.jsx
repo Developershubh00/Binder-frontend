@@ -230,7 +230,7 @@ const Step3 = ({
                   value={material.trimAccessory || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'trimAccessory', selectedValue)}
 
-                  options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
+                  options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING(FUSING)', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
 
                   placeholder="Select or type Trim/Accessory"
                   style={{ width: '280px' }}
@@ -1882,8 +1882,8 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* INTERLINING Fields */}
-                  {material.trimAccessory === 'INTERLINING' && (
+                  {/* INTERLINING(FUSING) Fields */}
+                  {material.trimAccessory === 'INTERLINING(FUSING)' && (
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
@@ -2012,8 +2012,8 @@ const Step3 = ({
                     </>
                   )}
 
-                  {/* INTERLINING - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'INTERLINING' && (
+                  {/* INTERLINING(FUSING) - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'INTERLINING(FUSING)' && (
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
@@ -2106,7 +2106,7 @@ const Step3 = ({
                         />
                       </div>
 
-                      {/* INTERLINING - Advance Spec Button and Fields */}
+                      {/* INTERLINING(FUSING) - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         {/* Show/Hide Advance Spec Button */}
                         <div style={{ marginBottom: '20px', width: '100%' }}>
@@ -2164,16 +2164,16 @@ const Step3 = ({
                               />
                             </div>
                             <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">FUSING SPEC</label>
-                              <SearchableDropdown
-                                value={material.interliningFusingSpec || ''}
-                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningFusingSpec', selectedValue)}
-                                options={['Temperature (±5°C)', 'Pressure (±0.5 Bar)', 'Time (±1 sec)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
+                            <label className="text-sm font-semibold text-gray-700 mb-2">INTERLINING(FUSING) SPEC</label>
+                            <SearchableDropdown
+                              value={material.interliningFusingSpec || ''}
+                              onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningFusingSpec', selectedValue)}
+                              options={['Temperature (±5°C)', 'Pressure (±0.5 Bar)', 'Time (±1 sec)']}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            />
+                          </div>
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">HAND FEEL</label>
                               <SearchableDropdown
@@ -2446,7 +2446,7 @@ const Step3 = ({
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
                         </Field>
-                        <Field label="MATERIAL" width="sm">
+                        <Field label="MATERIAL DESCRIPTION" width="sm">
                           <SearchableDropdown
                             value={material.bucklesMaterial || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'bucklesMaterial', selectedValue)}
@@ -2757,19 +2757,6 @@ const Step3 = ({
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-
-                      {/* MULTISELECT - Empty field as per image */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">MULTISELECT</label>
-                        <input
-                          type="text"
-                          value={material.shoulderPadMultiselect || ''}
-                          onChange={(e) => handleConsumptionMaterialChange(materialIndex, 'shoulderPadMultiselect', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder=""
                         />
                       </div>
 
@@ -4636,17 +4623,7 @@ const Step3 = ({
                           placeholder="CM (e.g., 10mm, 14mm, 18mm, 20mm, Thickness)"
                         />
                       </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
-                                                <SearchableDropdown
-                          value={material.magneticClosureStrength || ''}
-                          onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureStrength', selectedValue)}
-                          options={['Pull Force (Newtons)', 'Pull Force (Kilograms)']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
+                      {/* STRENGTH moved to Advanced Spec */}
                       <div className="flex items-end gap-4">
                         <div className="flex flex-col flex-1">
                           <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
@@ -4796,6 +4773,17 @@ const Step3 = ({
                         {/* Advanced Spec Fields */}
                         {material.showMagneticClosureAdvancedSpec && (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
+                              <SearchableDropdown
+                                value={material.magneticClosureStrength || ''}
+                                onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureStrength', selectedValue)}
+                                options={['Pull Force (Newtons)', 'Pull Force (Kilograms)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">POLARITY</label>
                               <SearchableDropdown

@@ -81,10 +81,10 @@
 .nav-label {
   font-size: 15px;
   font-weight: 600;
-  color: var(--primary);
+  color: #000;
 }
 .nav-item.active .nav-label {
-  color: var(--primary-foreground);
+  color: #000;
 }
 /* Sidebar Footer */
 .sidebar-footer {

@@ -2016,7 +2016,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           foamInterlocking: '',
           foamCertification: '',
           foamDensity: '',
-          // HR-form fields
+          // HR-foam fields
           foamHrType: '',
           foamHrSubtype: '',
           foamHrGrade: '',

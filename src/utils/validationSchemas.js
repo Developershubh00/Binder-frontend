@@ -187,7 +187,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
       'feltKgs': { when: 'feltQtyType', equals: 'KGS' }
     }
   },
-  'INTERLINING': {
+  'INTERLINING(FUSING)': {
     required: ['interliningType', 'interliningMaterial', 'interliningAdhesiveType', 'interliningColour', 'interliningPlacement', 'interliningGsm', 'interliningLength', 'interliningWidth', 'interliningSurplus', 'interliningWastage', 'interliningApproval', 'interliningRemarks'],
     advanced: ['interliningDotDensity', 'interliningStretch', 'interliningFusingSpec', 'interliningHandFeel'],
     conditional: {
@@ -204,7 +204,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     advanced: ['bucklesFunction', 'bucklesTensileStrength', 'bucklesSafety']
   },
   'SHOULDER PADS': {
-    required: ['shoulderPadType', 'shoulderPadMaterial', 'shoulderPadSize', 'shoulderPadThickness', 'shoulderPadShape', 'shoulderPadCovering', 'shoulderPadCoveringColour', 'shoulderPadAttachment', 'shoulderPadDensity', 'shoulderPadPlacement', 'shoulderPadMultiselect', 'shoulderPadQty', 'shoulderPadSurplus', 'shoulderPadWastage', 'shoulderPadApproval', 'shoulderPadRemarks'],
+    required: ['shoulderPadType', 'shoulderPadMaterial', 'shoulderPadSize', 'shoulderPadThickness', 'shoulderPadShape', 'shoulderPadCovering', 'shoulderPadCoveringColour', 'shoulderPadAttachment', 'shoulderPadDensity', 'shoulderPadPlacement', 'shoulderPadQty', 'shoulderPadSurplus', 'shoulderPadWastage', 'shoulderPadApproval', 'shoulderPadRemarks'],
     advanced: []
   },
   'RIBBING': {
@@ -252,14 +252,14 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     advanced: ['pinBarbTensileStrength', 'pinBarbApplication', 'pinBarbMagazineCartridge']
   },
   'MAGNETIC CLOSURE': {
-    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosureStrength', 'magneticClosurePlacement', 'magneticClosureTestingRequirements', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval', 'magneticClosureRemarks'],
-    advanced: ['magneticClosurePolarity', 'magneticClosureApplication', 'magneticClosureEncasing', 'magneticClosureShielding']
+    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosurePlacement', 'magneticClosureTestingRequirements', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval', 'magneticClosureRemarks'],
+    advanced: ['magneticClosureStrength', 'magneticClosurePolarity', 'magneticClosureApplication', 'magneticClosureEncasing', 'magneticClosureShielding']
   }
 };
 
 // ==================== FOAM SCHEMAS ====================
 export const FOAM_SCHEMAS = {
-  'EVA-form': {
+  'EVA-foam': {
     required: ['foamType', 'foamSubtype', 'foamVaContent', 'foamColour', 'foamThickness', 'foamShape', 'foamSheetPcs', 'foamGsm', 'foamLengthCm', 'foamWidthCm', 'foamKgsCns', 'foamYardageCns', 'foamTestingRequirements', 'foamSurplus', 'foamWastage', 'foamApproval', 'foamRemarks'],
     advanced: ['foamShoreHardness', 'foamCellStructure', 'foamCompressionSet', 'foamTensileStrength', 'foamElongation', 'foamWaterResistance', 'foamUvResistance', 'foamFireRetardant', 'foamSurfaceTexture', 'foamAntiSlip', 'foamInterlocking', 'foamCertification', 'foamDensity']
   },
@@ -291,7 +291,7 @@ export const FOAM_SCHEMAS = {
     required: ['foamMemoryType', 'foamMemorySubtype', 'foamMemoryGrade', 'foamMemoryColour', 'foamMemoryThickness', 'foamMemoryShape', 'foamMemorySheetPcs', 'foamMemoryGsm', 'foamMemoryLengthCm', 'foamMemoryWidthCm', 'foamMemoryKgsCns', 'foamMemoryYardageCns', 'foamMemoryTestingRequirements', 'foamMemorySurplus', 'foamMemoryWastage', 'foamMemoryApproval', 'foamMemoryRemarks'],
     advanced: ['foamMemoryIld', 'foamMemoryResponseTime', 'foamMemoryTemperatureSensitivity', 'foamMemoryActivationTemperature', 'foamMemoryCompressionSet', 'foamMemoryResilience', 'foamMemoryBreathability', 'foamMemoryInfusion', 'foamMemoryCoolingTechnology', 'foamMemoryFireRetardant', 'foamMemoryVocEmissions', 'foamMemoryDensity', 'foamMemoryCertification']
   },
-  'HR-form': {
+  'HR-foam': {
     required: ['foamHrType', 'foamHrSubtype', 'foamHrGrade', 'foamHrColour', 'foamHrThickness', 'foamHrShape', 'foamHrSheetPcs', 'foamHrGsm', 'foamHrLengthCm', 'foamHrWidthCm', 'foamHrKgsCns', 'foamHrYardageCns', 'foamHrTestingRequirements', 'foamHrSurplus', 'foamHrWastage', 'foamHrApproval', 'foamHrRemarks'],
     advanced: []
   }

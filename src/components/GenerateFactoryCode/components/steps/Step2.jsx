@@ -1572,7 +1572,7 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.trimAccessory || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'trimAccessory', selectedValue)}
-                          options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
+                          options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING(FUSING)', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
                           placeholder="Select or type Trim/Accessory"
                           style={{ width: '280px' }}
                           className={errors[`rawMaterial_${actualIndex}_trimAccessory`] ? 'border-red-600' : ''}
@@ -1608,7 +1608,7 @@ const Step2 = ({
                   
                   <div className="bg-card rounded-lg border border-border" style={{ padding: '1.25rem' }}>
                     {/* Table Selection Dropdown */}
-                    <Field label="SELECT FOAM TABLE" required width="sm" style={{ marginBottom: '1.5rem' }} error={errors[`rawMaterial_${actualIndex}_foamTableType`]}>
+                    <Field label="SELECT FOAM TYPE" required width="sm" style={{ marginBottom: '1.5rem' }} error={errors[`rawMaterial_${actualIndex}_foamTableType`]}>
                       <SearchableDropdown
                         value={material.foamTableType || ''}
                         onChange={(selectedValue) => {
@@ -1840,7 +1840,7 @@ const Step2 = ({
 
                           }
                         }}
-                        options={['EVA-form','HR-form','pe-epe','pu-foam','rebonded-foam','gel-infused-foam','latex-foam','memory-foam']}
+                        options={['EVA-foam','HR-foam','pe-epe','pu-foam','rebonded-foam','gel-infused-foam','latex-foam','memory-foam']}
                         placeholder="Select foam table"
                         className={errors[`rawMaterial_${actualIndex}_foamTableType`] ? 'border-red-600' : ''}
                       />
@@ -1850,7 +1850,7 @@ const Step2 = ({
                     </Field>
 
                     {/* EVA-form Table */}
-                    {material.foamTableType === 'EVA-form' && (
+                    {material.foamTableType === 'EVA-foam' && (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
                       {/* FOAM TYPE */}
                       <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamType`]}>
@@ -4469,8 +4469,8 @@ const Step2 = ({
 
 
                     
-                    {/* HR-form Table */}
-                    {material.foamTableType === 'HR-form' && (
+                    {/* HR-foam Table */}
+                    {material.foamTableType === 'HR-foam' && (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
                         {/* FOAM TYPE */}
                         <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrType`]}>

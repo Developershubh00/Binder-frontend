@@ -20,6 +20,32 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
   // Helper to get error key
   const getErrorKey = (fieldName) => errorPrefix ? `${errorPrefix}_${fieldName}` : `rawMaterial_${materialIndex}_${fieldName}`;
   const hasError = (fieldName) => !!errors[getErrorKey(fieldName)];
+  const dropdownClass = (error) =>
+    `border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none${error ? ' border-red-600' : ''}`;
+  const toCount = (value) => {
+    const parsed = parseInt(value, 10);
+    if (Number.isNaN(parsed) || parsed < 0) return 0;
+    return parsed;
+  };
+  const getFileArray = (fieldName) => {
+    const value = material[fieldName];
+    if (Array.isArray(value)) return value;
+    if (value instanceof File) return [value];
+    return [];
+  };
+  const trimFileArrayToCount = (fieldName, count) => {
+    const current = getFileArray(fieldName);
+    if (current.length > count) {
+      handleChange(materialIndex, fieldName, current.slice(0, count));
+    } else if (count === 0 && current.length) {
+      handleChange(materialIndex, fieldName, []);
+    }
+  };
+  const updateFileArrayAtIndex = (fieldName, index, file) => {
+    const next = [...getFileArray(fieldName)];
+    next[index] = file;
+    handleChange(materialIndex, fieldName, next);
+  };
   if (!material.trimAccessory) {
     return null;
   }
@@ -32,232 +58,59 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* VELCRO Fields */}
                   {material.trimAccessory === 'VELCRO' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('velcroPart') ? 'text-red-600' : 'text-gray-700'}`}>PART *</label>
-                        <SearchableDropdown
-                          value={material.velcroPart || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'velcroPart', selectedValue)}
-                          options={['HOOK','LOOP','BOTH']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('velcroPart') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('velcroPart') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('velcroPart')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('velcroType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.velcroType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'velcroType', selectedValue)}
-                          options={['Sew-On', 'Adhesive Backed (PSA)', 'Die-Cut Shapes', 'ONE-WRAP', 'Soft Loop', 'Mushroom']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('velcroType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('velcroType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('velcroType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('velcroMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.velcroMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'velcroMaterial', selectedValue)}
-                          options={['Nylon (Higher cycle life)', 'Polyester (UV/moisture resistant)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('velcroMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('velcroMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('velcroMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('velcroAttachment') ? 'text-red-600' : 'text-gray-700'}`}>ATTACHMENT *</label>
-                        <SearchableDropdown
-                          value={material.velcroAttachment || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'velcroAttachment', selectedValue)}
-                          options={['Sewing', 'Adhesive','General','High','Temp','Permanent']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('velcroAttachment') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('velcroAttachment') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('velcroAttachment')]}</span>}
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('velcroPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                          <input
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="PART" required width="sm" error={errors[getErrorKey('velcroPart')]}>
+                          <SearchableDropdown
+                            value={material.velcroPart || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'velcroPart', selectedValue)}
+                            options={['HOOK','LOOP','BOTH']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('velcroPart'))}
+                          />
+                        </Field>
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('velcroType')]}>
+                          <SearchableDropdown
+                            value={material.velcroType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'velcroType', selectedValue)}
+                            options={['Sew-On', 'Adhesive Backed (PSA)', 'Die-Cut Shapes', 'ONE-WRAP', 'Soft Loop', 'Mushroom']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('velcroType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('velcroMaterial')]}>
+                          <SearchableDropdown
+                            value={material.velcroMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'velcroMaterial', selectedValue)}
+                            options={['Nylon (Higher cycle life)', 'Polyester (UV/moisture resistant)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('velcroMaterial'))}
+                          />
+                        </Field>
+                        <Field label="ATTACHMENT" required width="sm" error={errors[getErrorKey('velcroAttachment')]}>
+                          <SearchableDropdown
+                            value={material.velcroAttachment || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'velcroAttachment', selectedValue)}
+                            options={['Sewing', 'Adhesive','General','High','Temp','Permanent']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('velcroAttachment'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('velcroPlacement')]}>
+                          <Input
                             type="text"
                             value={material.velcroPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'velcroPlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('velcroPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="PLACEMENT"
-                          />
-                          {hasError('velcroPlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('velcroPlacement')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'velcroPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-velcro-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-velcro-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('velcroPlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.velcroPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">GSM</label>
-                            <input
-                              type="text"
-                              value={material.velcroGsm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'velcroGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="GSM"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                            <input
-                              type="text"
-                              value={material.velcroLengthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'velcroLengthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="LENGTH"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                            <input
-                              type="text"
-                              value={material.velcroWidthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'velcroWidthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="WIDTH"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">Yardage (cns per pc)</label>
-                            <input
-                              type="text"
-                              value={material.velcroYardageCns || ''}
-                              onChange={(e) => handleChange(materialIndex, 'velcroYardageCns', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Yardage (cns per pc)"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">Kgs (cns per pc)</label>
-                            <input
-                              type="text"
-                              value={material.velcroKgsCns || ''}
-                              onChange={(e) => handleChange(materialIndex, 'velcroKgsCns', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Kgs (cns per pc)"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* BUTTONS — Field, Input, PercentInput, TestingRequirementsInput, Button, shadcn tokens */}
-                  {material.trimAccessory === 'BUTTONS' && (
-                    <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('buttonType')]}>
-                          <SearchableDropdown
-                            value={material.buttonType || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'buttonType', selectedValue)}
-                            options={['Sewing (Flat/Shank)', 'Snap (Press Stud)', 'Tack (Jeans)', 'Toggle', 'Magnetic', 'Covered']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('buttonType') ? 'border-red-600' : ''}`}
+                            aria-invalid={hasError('velcroPlacement')}
                           />
                         </Field>
-                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('buttonMaterial')]}>
-                          <SearchableDropdown
-                            value={material.buttonMaterial || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'buttonMaterial', selectedValue)}
-                            options={['Polyester', 'Metal (Brass, Alloy, Zinc)', 'Shell', 'Wood', 'Horn', 'Corozo', 'Coconut']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('buttonMaterial') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="SIZE SPEC" required width="sm" error={errors[getErrorKey('buttonSize')]}>
-                          <Input
-                            type="text"
-                            value={material.buttonSize || ''}
-                            onChange={(e) => handleChange(materialIndex, 'buttonSize', e.target.value)}
-                            placeholder="Text"
-                            aria-invalid={hasError('buttonSize')}
-                          />
-                        </Field>
-                        <Field label="LIGNE" required width="sm" error={errors[getErrorKey('buttonLigne')]}>
-                          <SearchableDropdown
-                            value={material.buttonLigne || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'buttonLigne', selectedValue)}
-                            options={['14L', '16L', '18L', '20L', '22L', '24L', '26L', '28L', '30L', '32L', '34L', '36L', '38L', '40L']}
-                            placeholder="Select or type (1L=0.635mm)"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('buttonLigne') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="HOLES" required width="sm" error={errors[getErrorKey('buttonHoles')]}>
-                          <SearchableDropdown
-                            value={material.buttonHoles || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'buttonHoles', selectedValue)}
-                            options={['2-Hole', '4-Hole', 'Shank (no holes)', 'Snap Components']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('buttonHoles') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="FINISH/COLOUR" required width="sm" error={errors[getErrorKey('buttonFinishColour')]}>
-                          <SearchableDropdown
-                            value={material.buttonFinishColour || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'buttonFinishColour', selectedValue)}
-                            options={['DTM', 'Glossy', 'Matte', 'Engraved', 'Plated (Nickel)', 'Plated (Antique Brass)', 'Plated (Gunmetal)']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('buttonFinishColour') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('buttonPlacement')]}>
-                          <Input
-                            type="text"
-                            value={material.buttonPlacement || ''}
-                            onChange={(e) => handleChange(materialIndex, 'buttonPlacement', e.target.value)}
-                            placeholder="Text"
-                            aria-invalid={hasError('buttonPlacement')}
-                          />
-                        </Field>
-
-                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('buttonTestingRequirements')]}>
+                        <Field label="PLACEMENT REF" width="sm">
                           <div className="flex items-center gap-3">
-                            <div className="flex-1">
-                              <TestingRequirementsInput
-                                value={Array.isArray(material.buttonTestingRequirements) ? material.buttonTestingRequirements : (material.buttonTestingRequirements ? [material.buttonTestingRequirements] : [])}
-                                onChange={(arr) => handleChange(materialIndex, 'buttonTestingRequirements', arr)}
-                                options={['Needle Detection', 'Pull Strength', 'Colour Fastness', 'REACH/OEKO-TEX', 'Corrosion']}
-                                placeholder="Select testing requirements"
-                                className={hasError('buttonTestingRequirements') ? 'border-red-600' : ''}
-                              />
-                            </div>
                             <input
                               type="file"
-                              onChange={(e) => handleChange(materialIndex, 'buttonTestingRequirementFile', e.target.files[0])}
+                              onChange={(e) => handleChange(materialIndex, 'velcroPlacementReferenceImage', e.target.files[0])}
                               className="hidden"
-                              id={`upload-button-testing-${materialIndex}`}
+                              id={'upload-velcro-placement-' + materialIndex}
                               accept="image/*"
                             />
                             <Button
@@ -265,1326 +118,118 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                               variant="outline"
                               size="sm"
                               className="h-11"
-                              onClick={() => document.getElementById(`upload-button-testing-${materialIndex}`)?.click()}
+                              onClick={() => document.getElementById('upload-velcro-placement-' + materialIndex)?.click()}
                             >
-                              {material.buttonTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                              {material.velcroPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
                             </Button>
                           </div>
                         </Field>
-
-                        <Field label="QTY" required width="sm" error={errors[getErrorKey('buttonQty')]}>
+                        <Field label="GSM" required width="sm" error={errors[getErrorKey('velcroGsm')]}>
                           <Input
                             type="text"
-                            value={material.buttonQty || ''}
-                            onChange={(e) => handleChange(materialIndex, 'buttonQty', e.target.value)}
-                            placeholder="Unit: Pieces"
-                            aria-invalid={hasError('buttonQty')}
+                            value={material.velcroGsm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroGsm', e.target.value)}
+                            placeholder="GSM"
+                            aria-invalid={hasError('velcroGsm')}
                           />
                         </Field>
-                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('buttonSurplus')]}>
+                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('velcroLengthCm')]}>
+                          <Input
+                            type="text"
+                            value={material.velcroLengthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroLengthCm', e.target.value)}
+                            placeholder="LENGTH"
+                            aria-invalid={hasError('velcroLengthCm')}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('velcroWidthCm')]}>
+                          <Input
+                            type="text"
+                            value={material.velcroWidthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroWidthCm', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('velcroWidthCm')}
+                          />
+                        </Field>
+                        <Field label="YARDAGE (CNS/PC)" required width="sm" error={errors[getErrorKey('velcroYardageCns')]}>
+                          <Input
+                            type="text"
+                            value={material.velcroYardageCns || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroYardageCns', e.target.value)}
+                            placeholder="Yardage (cns per pc)"
+                            aria-invalid={hasError('velcroYardageCns')}
+                          />
+                        </Field>
+                        <Field label="KGS (CNS/PC)" required width="sm" error={errors[getErrorKey('velcroKgsCns')]}>
+                          <Input
+                            type="text"
+                            value={material.velcroKgsCns || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroKgsCns', e.target.value)}
+                            placeholder="Kgs (cns per pc)"
+                            aria-invalid={hasError('velcroKgsCns')}
+                          />
+                        </Field>
+                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('velcroTestingRequirements')]}>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.velcroTestingRequirements) ? material.velcroTestingRequirements : (material.velcroTestingRequirements ? [material.velcroTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'velcroTestingRequirements', arr)}
+                                options={['Tensile Strength', 'Colour Fastness', 'Abrasion Resistance', 'Flammability', 'REACH/OEKO-TEX']}
+                                placeholder="Select testing requirements"
+                                className={hasError('velcroTestingRequirements') ? 'border-red-600' : ''}
+                              />
+                            </div>
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'velcroTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-velcro-testing-' + materialIndex}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-velcro-testing-' + materialIndex)?.click()}
+                            >
+                              {material.velcroTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('velcroSurplus')]}> 
                           <PercentInput
-                            value={material.buttonSurplus || ''}
-                            onChange={(e) => handleChange(materialIndex, 'buttonSurplus', e.target.value)}
-                            error={hasError('buttonSurplus')}
+                            value={material.velcroSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroSurplus', e.target.value)}
+                            error={hasError('velcroSurplus')}
                           />
                         </Field>
-                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('buttonWastage')]}>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('velcroWastage')]}> 
                           <PercentInput
-                            value={material.buttonWastage || ''}
-                            onChange={(e) => handleChange(materialIndex, 'buttonWastage', e.target.value)}
-                            error={hasError('buttonWastage')}
+                            value={material.velcroWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroWastage', e.target.value)}
+                            error={hasError('velcroWastage')}
                           />
                         </Field>
-                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('buttonApproval')]}>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('velcroApproval')]}> 
                           <SearchableDropdown
-                            value={material.buttonApproval || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'buttonApproval', selectedValue)}
+                            value={material.velcroApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'velcroApproval', selectedValue)}
                             options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
                             placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('buttonApproval') ? 'border-red-600' : ''}`}
+                            className={dropdownClass(hasError('velcroApproval'))}
                           />
                         </Field>
-                        <Field label="REMARKS" required width="md" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('buttonRemarks')]}>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
                           <Input
                             type="text"
-                            value={material.buttonRemarks || ''}
-                            onChange={(e) => handleChange(materialIndex, 'buttonRemarks', e.target.value)}
-                            placeholder="Self-Shank, Laser Engraved Logo"
-                            aria-invalid={hasError('buttonRemarks')}
-                          />
-                        </Field>
-                        <Field label="" width="sm" className="col-span-1 md:col-span-2 lg:col-span-5 flex flex-row gap-3 items-end">
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'buttonColorReference', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-button-color-ref-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-11"
-                            onClick={() => document.getElementById(`upload-button-color-ref-${materialIndex}`)?.click()}
-                          >
-                            {material.buttonColorReference ? 'UPLOADED' : 'UPLOAD COLOR REFERENCE'}
-                          </Button>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'buttonReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-button-ref-image-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-11"
-                            onClick={() => document.getElementById(`upload-button-ref-image-${materialIndex}`)?.click()}
-                          >
-                            {material.buttonReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </Button>
-                        </Field>
-                      </div>
-
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
-                        <Button
-                          type="button"
-                          variant={material.showButtonsAdvancedSpec ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => handleChange(materialIndex, 'showButtonsAdvancedSpec', !material.showButtonsAdvancedSpec)}
-                        >
-                          {material.showButtonsAdvancedSpec ? '− Advance Spec' : '+ Advance Spec'}
-                        </Button>
-                      </div>
-                      {material.showButtonsAdvancedSpec && (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                          <Field label="ATTACHMENT" width="sm">
-                            <SearchableDropdown
-                              value={material.buttonAttachment || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'buttonAttachment', selectedValue)}
-                              options={['Machine Sew', 'Hand Sew (Shank)', 'Pneumatic Press (Snaps)']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="FUNCTION" width="sm">
-                            <SearchableDropdown
-                              value={material.buttonFunction || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'buttonFunction', selectedValue)}
-                              options={['Functional (Closure)', 'Decorative', 'Dual Purpose']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="LOGO" width="sm">
-                            <SearchableDropdown
-                              value={material.buttonLogo || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'buttonLogo', selectedValue)}
-                              options={['Plain', 'Embossed', 'Engraved', 'Laser Engraved', 'Custom']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* RIVETS Fields */}
-                  {material.trimAccessory === 'RIVETS' && (
-                    <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('rivetType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.rivetType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'rivetType', selectedValue)}
-                          options={['Open-End', 'Closed-End', 'Blind Rivet', 'Cap Rivet', 'Tubular', 'Double Cap', 'Tubular Rivet', 'Solid/Blind Rivet', 'Decorative Rivet', 'Jeans Rivet', 'Burr Rivet', 'Eyelet Rivet']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('rivetType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('rivetType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('rivetType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('rivetMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.rivetMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'rivetMaterial', selectedValue)}
-                          options={['Brass', 'Copper', 'Zinc Alloy', 'Steel', 'Aluminium', 'Stainless Steel']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('rivetMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('rivetMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('rivetMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('rivetCapSize') ? 'text-red-600' : 'text-gray-700'}`}>CAP SIZE *</label>
-                        <SearchableDropdown
-                          value={material.rivetCapSize || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'rivetCapSize', selectedValue)}
-                          options={['6mm', '7mm', '8mm', '9mm', '10mm', '12mm']}
-                          placeholder="Select or type Diameter"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('rivetCapSize') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('rivetCapSize') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('rivetCapSize')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('rivetPostHeight') ? 'text-red-600' : 'text-gray-700'}`}>POST HEIGHT *</label>
-                        <SearchableDropdown
-                          value={material.rivetPostHeight || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'rivetPostHeight', selectedValue)}
-                          options={['Short (5mm)', 'Medium (6mm)', 'Long (7mm, 8mm)']}
-                          placeholder="Select or type (match fabric thickness)"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('rivetPostHeight') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('rivetPostHeight') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('rivetPostHeight')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('rivetFinishPlating') ? 'text-red-600' : 'text-gray-700'}`}>FINISH/PLATING *</label>
-                        <SearchableDropdown
-                          value={material.rivetFinishPlating || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'rivetFinishPlating', selectedValue)}
-                          options={['Nickel', 'Copper', 'Antique Brass', 'Gunmetal', 'Black Oxide', 'Matte', 'Shiny']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('rivetFinishPlating') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('rivetFinishPlating') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('rivetFinishPlating')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('rivetPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <div className="flex items-end gap-4">
-                        <input
-                          type="text"
-                            value={material.rivetPlacement || ''}
-                            onChange={(e) => handleChange(materialIndex, 'rivetPlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${hasError('rivetPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Enter placement"
-                        />
-                        <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'rivetPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-rivet-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-rivet-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('rivetPlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.rivetPlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
-                          </label>
-                        </div>
-                        {hasError('rivetPlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('rivetPlacement')]}</span>}
-                      </div>
-                    </>
-                  )}
-
-                  {/* NIWAR-WEBBING Fields */}
-                  {material.trimAccessory === 'NIWAR-WEBBING' && (
-                    <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('niwarType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.niwarType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'niwarType', selectedValue)}
-                          options={['Woven (Twill, Plain, Herringbone)', 'Knitted', 'Non-Woven', 'Binding Tape', 'Grosgrain']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('niwarType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('niwarType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('niwarType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('niwarMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.niwarMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'niwarMaterial', selectedValue)}
-                          options={['Cotton', 'Polyester', 'Polypropylene (PP)', 'Nylon', 'Blends', 'Jute']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('niwarMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('niwarMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('niwarMaterial')]}</span>}
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('niwarColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                          <SearchableDropdown
-                            value={material.niwarColour || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'niwarColour', selectedValue)}
-                            options={['DTM', 'White', 'Black', 'Natural', 'Pantone TPX/TCX']}
-                            placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('niwarColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                          {hasError('niwarColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('niwarColour')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'niwarColorReference', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-niwar-color-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-niwar-color-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('niwarColorReference') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.niwarColorReference ? 'UPLOADED' : 'UPLOAD COLOR REFERENCE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('niwarWeavePattern') ? 'text-red-600' : 'text-gray-700'}`}>WEAVE PATTERN *</label>
-                        <SearchableDropdown
-                          value={material.niwarWeavePattern || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'niwarWeavePattern', selectedValue)}
-                          options={['Plain', 'Twill', 'Herringbone', 'Seatbelt-style', 'Tubular']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('niwarWeavePattern') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('niwarWeavePattern') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('niwarWeavePattern')]}</span>}
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('niwarPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                          <input
-                            type="text"
-                            value={material.niwarPlacement || ''}
-                            onChange={(e) => handleChange(materialIndex, 'niwarPlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('niwarPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="PLACEMENT"
-                          />
-                          {hasError('niwarPlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('niwarPlacement')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'niwarPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-niwar-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-niwar-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('niwarPlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.niwarPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.niwarTestingRequirements) ? material.niwarTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.niwarTestingRequirements) ? material.niwarTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'niwarTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`niwar-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.niwarTestingRequirements) ? material.niwarTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'niwarTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage']}
-                                placeholder={(Array.isArray(material.niwarTestingRequirements) && material.niwarTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.niwarTestingRequirements) ? material.niwarTestingRequirements : [];
-                                      const options = ['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'niwarTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.niwarTestingRequirements) ? material.niwarTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'niwarTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {/* UPLOAD button for testing requirements */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'niwarTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-niwar-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-niwar-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                          >
-                            {material.niwarTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">GSM</label>
-                            <input
-                              type="text"
-                              value={material.niwarGsm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'niwarGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="GSM"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                            <input
-                              type="text"
-                              value={material.niwarLengthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'niwarLengthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="LENGTH (CM)"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                            <input
-                              type="text"
-                              value={material.niwarWidthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'niwarWidthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="WIDTH (CM)"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">Yardage (cns per pc)</label>
-                            <input
-                              type="text"
-                              value={material.niwarYardageCns || ''}
-                              onChange={(e) => handleChange(materialIndex, 'niwarYardageCns', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Yardage (cns per pc)"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">Kgs (cns per pc)</label>
-                            <input
-                              type="text"
-                              value={material.niwarKgsCns || ''}
-                              onChange={(e) => handleChange(materialIndex, 'niwarKgsCns', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Kgs (cns per pc)"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* LACE Fields */}
-                  {material.trimAccessory === 'LACE' && (
-                    <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('laceType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.laceType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'laceType', selectedValue)}
-                          options={['Woven/Twill', 'Braided', 'Crochet', 'Knit', 'Embroidered', 'Macrame', 'Guipure', 'Chantilly', 'Raschel', 'Others']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('laceType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('laceType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('laceType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('laceMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.laceMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'laceMaterial', selectedValue)}
-                          options={['100% Cotton', 'Nylon', 'Rayon', 'Polyester', 'Spandex Blend', 'Silk', 'Metallic']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('laceMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('laceMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('laceMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('laceWidth') ? 'text-red-600' : 'text-gray-700'}`}>WIDTH *</label>
-                        <input
-                          type="text"
-                          value={material.laceWidth || ''}
-                          onChange={(e) => handleChange(materialIndex, 'laceWidth', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('laceWidth') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="CM"
-                        />
-                        {hasError('laceWidth') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('laceWidth')]}</span>}
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('laceColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                          <SearchableDropdown
-                            value={material.laceColour || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'laceColour', selectedValue)}
-                            options={['DTM', 'White', 'Ecru', 'Black', 'Ivory', 'Pantone']}
-                            placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('laceColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                          {hasError('laceColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('laceColour')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'laceColorReference', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-lace-color-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-lace-color-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('laceColorReference') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.laceColorReference ? 'UPLOADED' : 'UPLOAD COLOR REFERENCE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('laceDesignRef') ? 'text-red-600' : 'text-gray-700'}`}>DESIGN REF *</label>
-                          <SearchableDropdown
-                            value={material.laceDesignRef || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'laceDesignRef', selectedValue)}
-                            options={['Supplier Pattern ID or Design Name']}
-                            placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('laceDesignRef') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'laceDesignRefImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-lace-design-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-lace-design-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.laceDesignRefImage ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
-                            type="text"
-                            value={material.lacePlacement || ''}
-                            onChange={(e) => handleChange(materialIndex, 'lacePlacement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="TEXT"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'lacePlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-lace-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-lace-placement-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.lacePlacementReferenceImage ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.laceTestingRequirements) ? material.laceTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.laceTestingRequirements) ? material.laceTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'laceTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`lace-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Colour Fastness', 'Shrinkage', 'Pilling', 'Azo-Free', 'OEKO-TEX'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.laceTestingRequirements) ? material.laceTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'laceTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Colour Fastness', 'Shrinkage', 'Pilling', 'Azo-Free', 'OEKO-TEX']}
-                                placeholder={(Array.isArray(material.laceTestingRequirements) && material.laceTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.laceTestingRequirements) ? material.laceTestingRequirements : [];
-                                      const options = ['Colour Fastness', 'Shrinkage', 'Pilling', 'Azo-Free', 'OEKO-TEX'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'laceTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Colour Fastness', 'Shrinkage', 'Pilling', 'Azo-Free', 'OEKO-TEX'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.laceTestingRequirements) ? material.laceTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'laceTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {/* UPLOAD button for testing requirements */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'laceTestingRequirementFile', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-lace-testing-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-lace-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                          >
-                            {material.laceTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
-                        </div>
-                      </div>
-                      
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">GSM</label>
-                            <input
-                              type="text"
-                              value={material.laceGsm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'laceGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="GSM"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">LENGTH (CM)</label>
-                            <input
-                              type="text"
-                              value={material.laceLengthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'laceLengthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="LENGTH (CM)"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">WIDTH (CM)</label>
-                            <input
-                              type="text"
-                              value={material.laceWidthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'laceWidthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="WIDTH (CM)"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* ZIPPERS — Field, Input, PercentInput, TestingRequirementsInput, Button, shadcn tokens */}
-                  {material.trimAccessory === 'ZIPPERS' && (
-                    <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                        <Field label="ZIP #" required width="sm" error={errors[getErrorKey('zipNumber')]}>
-                          <Input
-                            type="text"
-                            value={material.zipNumber || ''}
-                            onChange={(e) => handleChange(materialIndex, 'zipNumber', e.target.value)}
-                            placeholder="3 or 5 (Common sizes)"
-                            aria-invalid={hasError('zipNumber')}
-                          />
-                        </Field>
-                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('zipType')]}>
-                          <SearchableDropdown
-                            value={material.zipType || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'zipType', selectedValue)}
-                            options={['Concealed (Invisible)', 'Open (Separating)', 'Closed-End (Non-Separating)']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('zipType') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="BRAND" required width="sm" error={errors[getErrorKey('brand')]}>
-                          <SearchableDropdown
-                            value={material.brand || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'brand', selectedValue)}
-                            options={['YKK', 'RIRI', 'SBS', 'Unbranded']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('brand') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="TEETH" required width="sm" error={errors[getErrorKey('teeth')]}>
-                          <SearchableDropdown
-                            value={material.teeth || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'teeth', selectedValue)}
-                            options={['Coil (Nylon/Polyester)', 'Plastic (Molded Vislon)', 'Metal (Brass, Aluminium)']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('teeth') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="PULLER" required width="sm" error={errors[getErrorKey('puller')]}>
-                          <SearchableDropdown
-                            value={material.puller || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'puller', selectedValue)}
-                            options={['Metal', 'DTM (Dyed-to-Match Plastic)', 'Custom Logo', 'Ring']}
-                            placeholder="Select or type Puller"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('puller') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="PULLER TYPE" required width="sm" error={errors[getErrorKey('pullerType')]}>
-                          <SearchableDropdown
-                            value={material.pullerType || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'pullerType', selectedValue)}
-                            options={['Lockable (Auto-lock for secure closure)', 'Non-Lockable (Free-gliding)', 'Semi-']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('pullerType') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-
-                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('testingRequirement')]}>
-                          <div className="flex items-center gap-3">
-                            <div className="flex-1">
-                              <TestingRequirementsInput
-                                value={Array.isArray(material.testingRequirement) ? material.testingRequirement : []}
-                                onChange={(arr) => handleChange(materialIndex, 'testingRequirement', arr)}
-                                options={['Slider Durability (Cycling test)', 'Lateral Strength (Teeth-pulling strength)', 'Puller']}
-                                placeholder="Select testing requirements"
-                                className={hasError('testingRequirement') ? 'border-red-600' : ''}
-                              />
-                            </div>
-                            <input
-                              type="file"
-                              onChange={(e) => handleChange(materialIndex, 'testingRequirementFile', e.target.files[0])}
-                              className="hidden"
-                              id={`upload-zippers-${materialIndex}`}
-                              accept="image/*"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="h-11"
-                              onClick={() => document.getElementById(`upload-zippers-${materialIndex}`)?.click()}
-                            >
-                              {material.testingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                            </Button>
-                          </div>
-                        </Field>
-
-                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('length')]}>
-                          <SearchableDropdown
-                            value={material.length || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'length', selectedValue)}
-                            options={['Specific Length (e.g', '20 cm', '7 inches', '500 mm)']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('length') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="UNIT" required width="sm" error={errors[getErrorKey('unitAdditional')]}>
-                          <SearchableDropdown
-                            value={material.unitAdditional || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'unitAdditional', selectedValue)}
-                            options={['CM', 'KGS']}
-                            placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('unitAdditional') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
-                          />
-                        </Field>
-                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('surplus')]}>
-                          <PercentInput
-                            value={material.surplus || ''}
-                            onChange={(e) => handleChange(materialIndex, 'surplus', e.target.value)}
-                            error={hasError('surplus')}
-                          />
-                        </Field>
-                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('approval')]}>
-                          <SearchableDropdown
-                            value={material.approval || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'approval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP']}
-                            placeholder="Select or type"
-                            className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('approval') ? 'border-red-600' : ''}`}
-                          />
-                        </Field>
-                        <Field label="REMARKS" required width="md" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('remarks')]}>
-                          <Input
-                            type="text"
-                            value={material.remarks || ''}
-                            onChange={(e) => handleChange(materialIndex, 'remarks', e.target.value)}
-                            placeholder="Required for industrial wash, Must match fabric composition, Specific"
-                            aria-invalid={hasError('remarks')}
+                            value={material.velcroRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'velcroRemarks', e.target.value)}
+                            placeholder="Pack Hook & Loop separately, Non-abrasive loop for skin"
                           />
                         </Field>
                       </div>
-
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
-                        <Button
-                          type="button"
-                          variant={material.showZippersAdvancedSpec ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => handleChange(materialIndex, 'showZippersAdvancedSpec', !material.showZippersAdvancedSpec)}
-                        >
-                          {material.showZippersAdvancedSpec ? '− Advance Spec' : '+ Advance Spec'}
-                        </Button>
-                      </div>
-                      {material.showZippersAdvancedSpec && (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                          <Field label="SLIDER TYPE" width="sm">
-                            <SearchableDropdown
-                              value={material.zipSliderType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'zipSliderType', selectedValue)}
-                              options={['Auto-lock', 'Non-lock', 'Reverse lock', 'Two-way']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="FINISH / COATING" width="sm">
-                            <SearchableDropdown
-                              value={material.zipFinish || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'zipFinish', selectedValue)}
-                              options={['Nickel', 'Brass', 'Antique', 'Black Oxide', 'DTM (Puller)']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="LENGTH TOLERANCE" width="sm">
-                            <Input
-                              type="text"
-                              value={material.zipLengthTolerance || ''}
-                              onChange={(e) => handleChange(materialIndex, 'zipLengthTolerance', e.target.value)}
-                              placeholder="e.g., ±3mm, ±5mm"
-                            />
-                          </Field>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* VELCRO - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'VELCRO' && (
-                    <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.velcroQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'velcroQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
-                            <input
-                              type="text"
-                              value={material.velcroQtyType === 'Yardage (cns per pc)' ? (material.velcroYardagePerPc || '') : material.velcroQtyType === 'Kgs (cns per pc)' ? (material.velcroKgsPerPc || '') : ''}
-                              onChange={(e) => {
-                                if (material.velcroQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'velcroYardagePerPc', e.target.value);
-                                } else if (material.velcroQtyType === 'Kgs (cns per pc)') {
-                                  handleChange(materialIndex, 'velcroKgsPerPc', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.velcroQtyType}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.velcroTestingRequirements) ? material.velcroTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.velcroTestingRequirements) ? material.velcroTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'velcroTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`velcro-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Tensile Strength', 'Colour Fastness', 'Abrasion Resistance', 'Flammability', 'REACH/OEKO-TEX'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.velcroTestingRequirements) ? material.velcroTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'velcroTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Tensile Strength', 'Colour Fastness', 'Abrasion Resistance', 'Flammability', 'REACH/OEKO-TEX']}
-                                placeholder={(Array.isArray(material.velcroTestingRequirements) && material.velcroTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.velcroTestingRequirements) ? material.velcroTestingRequirements : [];
-                                      const options = ['Tensile Strength', 'Colour Fastness', 'Abrasion Resistance', 'Flammability', 'REACH/OEKO-TEX'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'velcroTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Tensile Strength', 'Colour Fastness', 'Abrasion Resistance', 'Flammability', 'REACH/OEKO-TEX'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.velcroTestingRequirements) ? material.velcroTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'velcroTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                              </div>
-                                </div>
-                            </div>
-                        {/* UPLOAD button for testing requirements */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'velcroTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-velcro-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-velcro-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.velcroTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.velcroSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'velcroSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 2-5%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
-                          value={material.velcroWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'velcroWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 2-5%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.velcroApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'velcroApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.velcroRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'velcroRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Pack Hook & Loop separately, Non-abrasive loop for skin"
-                        />
-                      </div>
-
                       {/* VELCRO - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         {/* Show/Hide Advance Spec Button */}
@@ -1695,230 +340,151 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* RIVETS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'RIVETS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.rivetTestingRequirements) ? material.rivetTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.rivetTestingRequirements) ? material.rivetTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'rivetTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`rivet-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('rivetType')]}> 
+                          <SearchableDropdown
+                            value={material.rivetType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'rivetType', selectedValue)}
+                            options={['Double Cap', 'Single Cap', 'Tubular', 'Rapid', 'Decorative']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('rivetType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('rivetMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.rivetMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'rivetMaterial', selectedValue)}
+                            options={['Brass', 'Steel', 'Aluminum', 'Zinc Alloy']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('rivetMaterial'))}
+                          />
+                        </Field>
+                        <Field label="CAP SIZE" required width="sm" error={errors[getErrorKey('rivetCapSize')]}> 
+                          <Input
+                            type="text"
+                            value={material.rivetCapSize || ''}
+                            onChange={(e) => handleChange(materialIndex, 'rivetCapSize', e.target.value)}
+                            placeholder="e.g., 8mm, 10mm"
+                            aria-invalid={hasError('rivetCapSize')}
+                          />
+                        </Field>
+                        <Field label="POST HEIGHT" required width="sm" error={errors[getErrorKey('rivetPostHeight')]}> 
+                          <Input
+                            type="text"
+                            value={material.rivetPostHeight || ''}
+                            onChange={(e) => handleChange(materialIndex, 'rivetPostHeight', e.target.value)}
+                            placeholder="e.g., 6mm, 8mm"
+                            aria-invalid={hasError('rivetPostHeight')}
+                          />
+                        </Field>
+                        <Field label="FINISH/PLATING" required width="sm" error={errors[getErrorKey('rivetFinishPlating')]}> 
+                          <SearchableDropdown
+                            value={material.rivetFinishPlating || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'rivetFinishPlating', selectedValue)}
+                            options={['Nickel', 'Copper', 'Antique Brass', 'Gunmetal', 'Black Oxide', 'Matte', 'Shiny']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('rivetFinishPlating'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('rivetPlacement')]}> 
+                          <Input
+                            type="text"
+                            value={material.rivetPlacement || ''}
+                            onChange={(e) => handleChange(materialIndex, 'rivetPlacement', e.target.value)}
+                            placeholder="Enter placement"
+                            aria-invalid={hasError('rivetPlacement')}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'rivetPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-rivet-placement-' + materialIndex}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-rivet-placement-' + materialIndex)?.click()}
                             >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Needle Detection', 'Pull Strength (90N)', 'Corrosion (Salt Spray)'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.rivetTestingRequirements) ? material.rivetTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'rivetTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
+                              {material.rivetPlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('rivetTestingRequirements')]}> 
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.rivetTestingRequirements) ? material.rivetTestingRequirements : (material.rivetTestingRequirements ? [material.rivetTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'rivetTestingRequirements', arr)}
                                 options={['Needle Detection', 'Pull Strength (90N)', 'Corrosion (Salt Spray)']}
-                                placeholder={(Array.isArray(material.rivetTestingRequirements) && material.rivetTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.rivetTestingRequirements) ? material.rivetTestingRequirements : [];
-                                      const options = ['Needle Detection', 'Pull Strength (90N)', 'Corrosion (Salt Spray)'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'rivetTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Needle Detection', 'Pull Strength (90N)', 'Corrosion (Salt Spray)'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.rivetTestingRequirements) ? material.rivetTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'rivetTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
+                                placeholder="Select testing requirements"
+                                className={hasError('rivetTestingRequirements') ? 'border-red-600' : ''}
                               />
-                              </div>
-                                </div>
                             </div>
-                        {/* UPLOAD button for testing requirements */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'rivetTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-rivet-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-rivet-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.rivetTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'rivetTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-rivet-testing-' + materialIndex}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-rivet-testing-' + materialIndex)?.click()}
+                            >
+                              {material.rivetTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="QTY" required width="sm" error={errors[getErrorKey('rivetQty')]}> 
+                          <Input
+                            type="text"
+                            value={material.rivetQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'rivetQty', e.target.value)}
+                            placeholder="PCS"
+                            aria-invalid={hasError('rivetQty')}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('rivetSurplus')]}> 
+                          <PercentInput
+                            value={material.rivetSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'rivetSurplus', e.target.value)}
+                            error={hasError('rivetSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('rivetWastage')]}> 
+                          <PercentInput
+                            value={material.rivetWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'rivetWastage', e.target.value)}
+                            error={hasError('rivetWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('rivetApproval')]}> 
+                          <SearchableDropdown
+                            value={material.rivetApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'rivetApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('rivetApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.rivetRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'rivetRemarks', e.target.value)}
+                            placeholder="TEXT"
+                          />
+                        </Field>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.rivetQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'rivetQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="PCS"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.rivetSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'rivetSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
-                          value={material.rivetWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'rivetWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.rivetApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'rivetApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.rivetRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'rivetRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="TEXT"
-                        />
-                      </div>
-
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <button
@@ -1973,83 +539,231 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* NIWAR-WEBBING - Complete fields matching table exactly */}
                   {material.trimAccessory === 'NIWAR-WEBBING' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.niwarQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'niwarQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('niwarType')]}
+                        >
+                          <SearchableDropdown
+                            value={material.niwarType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'niwarType', selectedValue)}
+                            options={['Woven (Twill, Plain, Herringbone)', 'Knitted', 'Non-Woven', 'Binding Tape', 'Grosgrain']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('niwarType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('niwarMaterial')]}
+                        >
+                          <SearchableDropdown
+                            value={material.niwarMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'niwarMaterial', selectedValue)}
+                            options={['Cotton', 'Polyester', 'Polypropylene (PP)', 'Nylon', 'Blends', 'Jute']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('niwarMaterial'))}
+                          />
+                        </Field>
+                        <Field label="NO OF COLOURS" required width="sm" error={errors[getErrorKey('niwarColour')]}
+                        >
+                          <Input
+                            type="number"
+                            min="0"
+                            value={material.niwarColour || ''}
+                            onChange={(e) => {
+                              const nextValue = e.target.value;
+                              handleChange(materialIndex, 'niwarColour', nextValue);
+                              trimFileArrayToCount('niwarColorReference', toCount(nextValue));
+                            }}
+                            placeholder="Enter number of colours"
+                            aria-invalid={hasError('niwarColour')}
+                          />
+                        </Field>
+                        {toCount(material.niwarColour) > 0 && (
+                          <Field label="COLOR REFS" className="col-span-1 md:col-span-2 lg:col-span-5 w-full">
+                            <div className="w-full grid [grid-template-columns:repeat(auto-fit,minmax(160px,160px))] gap-3">
+                              {Array.from({ length: toCount(material.niwarColour) }).map((_, index) => {
+                                const uploadId = 'upload-niwar-color-' + materialIndex + '-' + index;
+                                const file = getFileArray('niwarColorReference')[index];
+                                return (
+                                  <div key={uploadId} className="flex flex-col min-w-0">
+                                    <input
+                                      type="file"
+                                      onChange={(e) => updateFileArrayAtIndex('niwarColorReference', index, e.target.files[0])}
+                                      className="hidden"
+                                      id={uploadId}
+                                      accept="image/*"
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-11 w-full px-3 whitespace-nowrap"
+                                      onClick={() => document.getElementById(uploadId)?.click()}
+                                    >
+                                      {file ? 'UPLOADED COLOR ' + (index + 1) : 'COLOR ' + (index + 1)}
+                                    </Button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </Field>
+                        )}
+                        <Field label="WEAVE PATTERN" required width="sm" error={errors[getErrorKey('niwarWeavePattern')]}
+                        >
+                          <SearchableDropdown
+                            value={material.niwarWeavePattern || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'niwarWeavePattern', selectedValue)}
+                            options={['Plain', 'Twill', 'Herringbone', 'Seatbelt-style', 'Tubular']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('niwarWeavePattern'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('niwarPlacement')]}
+                        >
+                          <Input
+                            type="text"
+                            value={material.niwarPlacement || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarPlacement', e.target.value)}
+                            placeholder="PLACEMENT"
+                            aria-invalid={hasError('niwarPlacement')}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
                             <input
-                              type="text"
-                              value={material.niwarQtyType === 'Yardage (cns per pc)' ? (material.niwarQtyYardage || '') : material.niwarQtyType === 'Kgs (cns per pc)' ? (material.niwarQtyKgs || '') : ''}
-                              onChange={(e) => {
-                                if (material.niwarQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'niwarQtyYardage', e.target.value);
-                                } else if (material.niwarQtyType === 'Kgs (cns per pc)') {
-                                  handleChange(materialIndex, 'niwarQtyKgs', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.niwarQtyType}
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'niwarPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-niwar-placement-' + materialIndex}
+                              accept="image/*"
                             />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-niwar-placement-' + materialIndex)?.click()}
+                            >
+                              {material.niwarPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                        </div>
+                        </Field>
+                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('niwarTestingRequirements')]}
+                        >
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.niwarTestingRequirements) ? material.niwarTestingRequirements : (material.niwarTestingRequirements ? [material.niwarTestingRequirements] : [])}
+                            onChange={(arr) => handleChange(materialIndex, 'niwarTestingRequirements', arr)}
+                            options={['Tensile Strength', 'Colour Fastness', 'Abrasion Resistance', 'Flammability', 'REACH/OEKO-TEX']}
+                            placeholder="Select testing requirements"
+                            className={hasError('niwarTestingRequirements') ? 'border-red-600' : ''}
+                          />
+                        </Field>
+                        <Field label="GSM" required width="sm" error={errors[getErrorKey('niwarGsm')]}
+                        >
+                          <Input
+                            type="text"
+                            value={material.niwarGsm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarGsm', e.target.value)}
+                            placeholder="GSM"
+                            aria-invalid={hasError('niwarGsm')}
+                          />
+                        </Field>
+                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('niwarLengthCm')]}
+                        >
+                          <Input
+                            type="text"
+                            value={material.niwarLengthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarLengthCm', e.target.value)}
+                            placeholder="LENGTH"
+                            aria-invalid={hasError('niwarLengthCm')}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('niwarWidthCm')]}
+                        >
+                          <Input
+                            type="text"
+                            value={material.niwarWidthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarWidthCm', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('niwarWidthCm')}
+                          />
+                        </Field>
+                        <Field label="YARDAGE (CNS/PC)" required width="sm" error={errors[getErrorKey('niwarYardageCns')]}
+                        >
+                          <Input
+                            type="text"
+                            value={material.niwarYardageCns || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarYardageCns', e.target.value)}
+                            placeholder="Yardage (cns per pc)"
+                            aria-invalid={hasError('niwarYardageCns')}
+                          />
+                        </Field>
+                        <Field label="KGS (CNS/PC)" required width="sm" error={errors[getErrorKey('niwarKgsCns')]}
+                        >
+                          <Input
+                            type="text"
+                            value={material.niwarKgsCns || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarKgsCns', e.target.value)}
+                            placeholder="Kgs (cns per pc)"
+                            aria-invalid={hasError('niwarKgsCns')}
+                          />
+                        </Field>
+                        <Field label="QTY TYPE" width="sm">
+                          <SearchableDropdown
+                            value={material.niwarQtyType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'niwarQtyType', selectedValue)}
+                            options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
+                            placeholder="Select type"
+                            className={dropdownClass(false)}
+                          />
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.niwarQtyType === 'Yardage (cns per pc)' ? (material.niwarQtyYardage || '') : material.niwarQtyType === 'Kgs (cns per pc)' ? (material.niwarQtyKgs || '') : ''}
+                            onChange={(e) => {
+                              if (material.niwarQtyType === 'Yardage (cns per pc)') {
+                                handleChange(materialIndex, 'niwarQtyYardage', e.target.value);
+                              } else if (material.niwarQtyType === 'Kgs (cns per pc)') {
+                                handleChange(materialIndex, 'niwarQtyKgs', e.target.value);
+                              }
+                            }}
+                            placeholder="Enter value"
+                            disabled={!material.niwarQtyType}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('niwarSurplus')]}
+                        >
+                          <PercentInput
+                            value={material.niwarSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarSurplus', e.target.value)}
+                            error={hasError('niwarSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('niwarWastage')]}
+                        >
+                          <PercentInput
+                            value={material.niwarWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarWastage', e.target.value)}
+                            error={hasError('niwarWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('niwarApproval')]}
+                        >
+                          <SearchableDropdown
+                            value={material.niwarApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'niwarApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('niwarApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.niwarRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'niwarRemarks', e.target.value)}
+                            placeholder="Seatbelt-style weave, 1200N minimum strength"
+                          />
+                        </Field>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.niwarSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'niwarSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.niwarWastage || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'niwarWastage', selectedValue)}
-                          options={['Handle', 'Strap', 'Binding', 'Belt Loop']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.niwarApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'niwarApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.niwarRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'niwarRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Seatbelt-style weave, 1200N minimum strength"
-                        />
-                      </div>
-                      
                       {/* NIWAR-WEBBING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         <button
@@ -2139,83 +853,173 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* LACE - Complete fields matching table exactly */}
                   {material.trimAccessory === 'LACE' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.laceQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'laceQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('laceType')]}> 
+                          <SearchableDropdown
+                            value={material.laceType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'laceType', selectedValue)}
+                            options={['Trim Lace', 'Stretch Lace', 'Leavers Lace', 'Embroidery Lace', 'Crochet Lace']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('laceType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('laceMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.laceMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'laceMaterial', selectedValue)}
+                            options={['Cotton', 'Polyester', 'Nylon', 'Rayon', 'Blends']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('laceMaterial'))}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('laceWidth')]}> 
+                          <Input
+                            type="text"
+                            value={material.laceWidth || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceWidth', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('laceWidth')}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('laceColour')]}> 
+                          <SearchableDropdown
+                            value={material.laceColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'laceColour', selectedValue)}
+                            options={['DTM', 'White', 'Black', 'Natural', 'Pantone TPX/TCX']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('laceColour'))}
+                          />
+                        </Field>
+                        <Field label="COLOR REF" required width="sm" error={errors[getErrorKey('laceColorReference')]}> 
+                          <div className="flex items-center gap-3">
                             <input
-                              type="text"
-                              value={material.laceQtyType === 'Yardage (cns per pc)' ? (material.laceQtyYardage || '') : material.laceQtyType === 'Kgs (cns per pc)' ? (material.laceQtyKgs || '') : ''}
-                              onChange={(e) => {
-                                if (material.laceQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'laceQtyYardage', e.target.value);
-                                } else if (material.laceQtyType === 'Kgs (cns per pc)') {
-                                  handleChange(materialIndex, 'laceQtyKgs', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.laceQtyType}
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'laceColorReference', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-lace-color-' + materialIndex}
+                              accept="image/*"
                             />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-lace-color-' + materialIndex)?.click()}
+                            >
+                              {material.laceColorReference ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                        </div>
+                        </Field>
+                        <Field label="DESIGN REF" required width="sm" error={errors[getErrorKey('laceDesignRef')]}> 
+                          <Input
+                            type="text"
+                            value={material.laceDesignRef || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceDesignRef', e.target.value)}
+                            placeholder="Design ref"
+                            aria-invalid={hasError('laceDesignRef')}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('lacePlacement')]}> 
+                          <Input
+                            type="text"
+                            value={material.lacePlacement || ''}
+                            onChange={(e) => handleChange(materialIndex, 'lacePlacement', e.target.value)}
+                            placeholder="PLACEMENT"
+                            aria-invalid={hasError('lacePlacement')}
+                          />
+                        </Field>
+                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('laceTestingRequirements')]}> 
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.laceTestingRequirements) ? material.laceTestingRequirements : (material.laceTestingRequirements ? [material.laceTestingRequirements] : [])}
+                            onChange={(arr) => handleChange(materialIndex, 'laceTestingRequirements', arr)}
+                            options={['Colour Fastness', 'Stretch Recovery', 'Dimensional Stability', 'Abrasion']}
+                            placeholder="Select testing requirements"
+                            className={hasError('laceTestingRequirements') ? 'border-red-600' : ''}
+                          />
+                        </Field>
+                        <Field label="GSM" required width="sm" error={errors[getErrorKey('laceGsm')]}> 
+                          <Input
+                            type="text"
+                            value={material.laceGsm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceGsm', e.target.value)}
+                            placeholder="GSM"
+                            aria-invalid={hasError('laceGsm')}
+                          />
+                        </Field>
+                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('laceLengthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.laceLengthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceLengthCm', e.target.value)}
+                            placeholder="LENGTH"
+                            aria-invalid={hasError('laceLengthCm')}
+                          />
+                        </Field>
+                        <Field label="WIDTH CM" required width="sm" error={errors[getErrorKey('laceWidthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.laceWidthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceWidthCm', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('laceWidthCm')}
+                          />
+                        </Field>
+                        <Field label="QTY TYPE" width="sm">
+                          <SearchableDropdown
+                            value={material.laceQtyType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'laceQtyType', selectedValue)}
+                            options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
+                            placeholder="Select type"
+                            className={dropdownClass(false)}
+                          />
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.laceQtyType === 'Yardage (cns per pc)' ? (material.laceQtyYardage || '') : material.laceQtyType === 'Kgs (cns per pc)' ? (material.laceQtyKgs || '') : ''}
+                            onChange={(e) => {
+                              if (material.laceQtyType === 'Yardage (cns per pc)') {
+                                handleChange(materialIndex, 'laceQtyYardage', e.target.value);
+                              } else if (material.laceQtyType === 'Kgs (cns per pc)') {
+                                handleChange(materialIndex, 'laceQtyKgs', e.target.value);
+                              }
+                            }}
+                            placeholder="Enter value"
+                            disabled={!material.laceQtyType}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('laceSurplus')]}> 
+                          <PercentInput
+                            value={material.laceSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceSurplus', e.target.value)}
+                            error={hasError('laceSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('laceWastage')]}> 
+                          <PercentInput
+                            value={material.laceWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceWastage', e.target.value)}
+                            error={hasError('laceWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('laceApproval')]}> 
+                          <SearchableDropdown
+                            value={material.laceApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'laceApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('laceApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.laceRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'laceRemarks', e.target.value)}
+                            placeholder="Continuous pattern, No visible knots"
+                          />
+                        </Field>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.laceSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'laceSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%age"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.laceWastage || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'laceWastage', selectedValue)}
-                          options={['Neckline', 'Hem', 'Sleeve', 'Overlay', 'Trim']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.laceApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'laceApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.laceRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'laceRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Continuous pattern, No visible knots"
-                        />
-                      </div>
-                      
                       {/* LACE - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         <button
@@ -2294,333 +1098,227 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* FELT Fields */}
                   {material.trimAccessory === 'FELT' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('feltType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.feltType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'feltType', selectedValue)}
-                          options={['Pressed Wool', 'Needle-Punched', 'Synthetic (Acrylic, Polyester, PP)', 'Non-Woven', 'Eco Felt']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('feltType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('feltType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('feltType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('feltMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.feltMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'feltMaterial', selectedValue)}
-                          options={['100% Wool', '100% Polyester', 'Wool/Rayon Blend', 'Acrylic', 'Recycled PET']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('feltMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('feltMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('feltMaterial')]}</span>}
-                      </div>
-                      <div className="flex items-end gap-4">
-                        <div className="flex flex-col" style={{ flex: '1 1 70%', minWidth: '300px' }}>
-                          <label className={`text-sm font-semibold mb-2 ${hasError('feltColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('feltType')]}> 
+                          <SearchableDropdown
+                            value={material.feltType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'feltType', selectedValue)}
+                            options={['Pressed Wool', 'Needle-Punched', 'Synthetic (Acrylic, Polyester, PP)', 'Non-Woven', 'Eco Felt']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('feltType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('feltMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.feltMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'feltMaterial', selectedValue)}
+                            options={['100% Wool', '100% Polyester', 'Wool/Rayon Blend', 'Acrylic', 'Recycled PET']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('feltMaterial'))}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('feltColour')]}> 
                           <SearchableDropdown
                             value={material.feltColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'feltColour', selectedValue)}
                             options={['Standard Colours', 'Pantone TPX/TCX', 'Heathered']}
                             placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('feltColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px', width: '100%' }}
-                        />
-                        {hasError('feltColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('feltColour')]}</span>}
-                      </div>
-                        <div className="flex flex-col" style={{ flex: '0 0 auto' }}>
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'feltColorReference', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-felt-color-${materialIndex}`}
-                            accept="image/*"
+                            className={dropdownClass(hasError('feltColour'))}
                           />
-                          <label
-                            htmlFor={`upload-felt-color-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('feltColorReference') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.feltColorReference ? 'UPLOADED' : 'UPLOAD COLOUR'}
-                          </label>
-                      </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">GSM</label>
+                        </Field>
+                        <Field label="COLOR REF" required width="sm" error={errors[getErrorKey('feltColorReference')]}> 
+                          <div className="flex items-center gap-3">
                             <input
-                              type="text"
-                              value={material.feltGsm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'feltGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="GSM"
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'feltColorReference', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-felt-color-' + materialIndex}
+                              accept="image/*"
                             />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-felt-color-' + materialIndex)?.click()}
+                            >
+                              {material.feltColorReference ? 'UPLOADED' : 'UPLOAD COLOUR'}
+                            </Button>
                           </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                            <input
-                              type="text"
-                              value={material.feltLengthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'feltLengthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="LENGTH"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                            <input
-                              type="text"
-                              value={material.feltWidthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'feltWidthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="WIDTH"
-                            />
-                          </div>
-                        </div>
+                        </Field>
+                        <Field label="GSM" required width="sm" error={errors[getErrorKey('feltGsm')]}> 
+                          <Input
+                            type="text"
+                            value={material.feltGsm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltGsm', e.target.value)}
+                            placeholder="GSM"
+                            aria-invalid={hasError('feltGsm')}
+                          />
+                        </Field>
+                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('feltLengthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.feltLengthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltLengthCm', e.target.value)}
+                            placeholder="LENGTH"
+                            aria-invalid={hasError('feltLengthCm')}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('feltWidthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.feltWidthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltWidthCm', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('feltWidthCm')}
+                          />
+                        </Field>
                       </div>
                     </>
                   )}
-
                   {/* FELT - Complete fields matching table exactly */}
                   {material.trimAccessory === 'FELT' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.feltQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'feltQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('feltType')]}> 
+                          <SearchableDropdown
+                            value={material.feltType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'feltType', selectedValue)}
+                            options={['Needle Felt', 'Pressed Felt', 'Wool Felt', 'Synthetic Felt']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('feltType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('feltMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.feltMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'feltMaterial', selectedValue)}
+                            options={['Wool', 'Polyester', 'Rayon', 'Blends']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('feltMaterial'))}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('feltColour')]}> 
+                          <SearchableDropdown
+                            value={material.feltColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'feltColour', selectedValue)}
+                            options={['DTM', 'White', 'Black', 'Natural', 'Pantone TPX/TCX']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('feltColour'))}
+                          />
+                        </Field>
+                        <Field label="COLOR REF" required width="sm" error={errors[getErrorKey('feltColorReference')]}> 
+                          <div className="flex items-center gap-3">
                             <input
-                              type="text"
-                              value={material.feltQtyType === 'Yardage (cns per pc)' ? (material.feltYardage || '') : material.feltQtyType === 'Kgs (cns per pc)' ? (material.feltKgs || '') : ''}
-                              onChange={(e) => {
-                                if (material.feltQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'feltYardage', e.target.value);
-                                } else if (material.feltQtyType === 'Kgs (cns per pc)') {
-                                  handleChange(materialIndex, 'feltKgs', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.feltQtyType}
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'feltColorReference', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-felt-color-' + materialIndex}
+                              accept="image/*"
                             />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.feltTestingRequirements) ? material.feltTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.feltTestingRequirements) ? material.feltTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'feltTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`felt-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-felt-color-' + materialIndex)?.click()}
                             >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Flammability', 'Pilling', 'Colour Fastness', 'Tensile', 'Compression'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.feltTestingRequirements) ? material.feltTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'feltTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Flammability', 'Pilling', 'Colour Fastness', 'Tensile', 'Compression']}
-                                placeholder={(Array.isArray(material.feltTestingRequirements) && material.feltTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.feltTestingRequirements) ? material.feltTestingRequirements : [];
-                                      const options = ['Flammability', 'Pilling', 'Colour Fastness', 'Tensile', 'Compression'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'feltTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Flammability', 'Pilling', 'Colour Fastness', 'Tensile', 'Compression'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.feltTestingRequirements) ? material.feltTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'feltTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                            </div>
+                              {material.feltColorReference ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                        </div>
+                        </Field>
+                        <Field label="GSM" required width="sm" error={errors[getErrorKey('feltGsm')]}> 
+                          <Input
+                            type="text"
+                            value={material.feltGsm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltGsm', e.target.value)}
+                            placeholder="GSM"
+                            aria-invalid={hasError('feltGsm')}
+                          />
+                        </Field>
+                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('feltLengthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.feltLengthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltLengthCm', e.target.value)}
+                            placeholder="LENGTH"
+                            aria-invalid={hasError('feltLengthCm')}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('feltWidthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.feltWidthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltWidthCm', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('feltWidthCm')}
+                          />
+                        </Field>
+                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('feltTestingRequirements')]}> 
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.feltTestingRequirements) ? material.feltTestingRequirements : (material.feltTestingRequirements ? [material.feltTestingRequirements] : [])}
+                            onChange={(arr) => handleChange(materialIndex, 'feltTestingRequirements', arr)}
+                            options={['Flammability', 'Dimensional Stability', 'Colour Fastness', 'Abrasion']}
+                            placeholder="Select testing requirements"
+                            className={hasError('feltTestingRequirements') ? 'border-red-600' : ''}
+                          />
+                        </Field>
+                        <Field label="QTY TYPE" width="sm">
+                          <SearchableDropdown
+                            value={material.feltQtyType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'feltQtyType', selectedValue)}
+                            options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
+                            placeholder="Select type"
+                            className={dropdownClass(false)}
+                          />
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.feltQtyType === 'Yardage (cns per pc)' ? (material.feltYardage || '') : material.feltQtyType === 'Kgs (cns per pc)' ? (material.feltKgs || '') : ''}
+                            onChange={(e) => {
+                              if (material.feltQtyType === 'Yardage (cns per pc)') {
+                                handleChange(materialIndex, 'feltYardage', e.target.value);
+                              } else if (material.feltQtyType === 'Kgs (cns per pc)') {
+                                handleChange(materialIndex, 'feltKgs', e.target.value);
+                              }
+                            }}
+                            placeholder="Enter value"
+                            disabled={!material.feltQtyType}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('feltSurplus')]}> 
+                          <PercentInput
+                            value={material.feltSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltSurplus', e.target.value)}
+                            error={hasError('feltSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('feltWastage')]}> 
+                          <PercentInput
+                            value={material.feltWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltWastage', e.target.value)}
+                            error={hasError('feltWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('feltApproval')]}> 
+                          <SearchableDropdown
+                            value={material.feltApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'feltApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('feltApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.feltRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'feltRemarks', e.target.value)}
+                            placeholder="Non-Toxic, Anti-Fraying, Heat press suitable"
+                          />
+                        </Field>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                                                  type="text"
-                          value={material.feltSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'feltSurplus', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 5%"
-                                                />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
-                          value={material.feltWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'feltWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 5%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.feltApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'feltApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.feltRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'feltRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Non-Toxic, Anti-Fraying, Heat press suitable"
-                        />
-                      </div>
-
                       {/* FELT - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         {/* Show/Hide Advance Spec Button */}
@@ -2706,360 +1404,174 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     </>
                   )}
 
-                  {/* INTERLINING Fields */}
-                  {material.trimAccessory === 'INTERLINING' && (
+                  {/* INTERLINING(FUSING) Fields */}
+                  {material.trimAccessory === 'INTERLINING(FUSING)' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('interliningType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.interliningType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'interliningType', selectedValue)}
-                          options={['Woven', 'Non-Woven', 'Knit', 'Fusible (adhesive)', 'Non-Fusible (sew-in)', 'Weft Insert', 'Bi-Stretch']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('interliningType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('interliningType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('interliningType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('interliningMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.interliningMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'interliningMaterial', selectedValue)}
-                          options={['Polyester', 'Cotton', 'Cellulose (Rayon)', 'Polyamide', 'Blends']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('interliningMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('interliningMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('interliningMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('interliningAdhesiveType') ? 'text-red-600' : 'text-gray-700'}`}>ADHESIVE TYPE *</label>
-                        <SearchableDropdown
-                          value={material.interliningAdhesiveType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'interliningAdhesiveType', selectedValue)}
-                          options={['PA (Polyamide)', 'LDPE', 'PES (Polyester)', 'Double Dot', 'Scatter Coat', 'Paste']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('interliningAdhesiveType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('interliningAdhesiveType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('interliningAdhesiveType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('interliningColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                        <SearchableDropdown
-                          value={material.interliningColour || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'interliningColour', selectedValue)}
-                          options={['White', 'Black', 'Grey', 'Charcoal', 'DTM']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('interliningColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('interliningColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('interliningColour')]}</span>}
-                      </div>
-                      <div className="flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('interliningPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <input
-                          type="text"
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('interliningType')]}> 
+                          <SearchableDropdown
+                            value={material.interliningType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'interliningType', selectedValue)}
+                            options={['Woven', 'Non-Woven', 'Knit', 'Fusible (adhesive)', 'Non-Fusible (sew-in)', 'Weft Insert', 'Bi-Stretch']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('interliningType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('interliningMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.interliningMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'interliningMaterial', selectedValue)}
+                            options={['Polyester', 'Cotton', 'Cellulose (Rayon)', 'Polyamide', 'Blends']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('interliningMaterial'))}
+                          />
+                        </Field>
+                        <Field label="ADHESIVE TYPE" required width="sm" error={errors[getErrorKey('interliningAdhesiveType')]}> 
+                          <SearchableDropdown
+                            value={material.interliningAdhesiveType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'interliningAdhesiveType', selectedValue)}
+                            options={['PA (Polyamide)', 'LDPE', 'PES (Polyester)', 'Double Dot', 'Scatter Coat', 'Paste']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('interliningAdhesiveType'))}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('interliningColour')]}> 
+                          <SearchableDropdown
+                            value={material.interliningColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'interliningColour', selectedValue)}
+                            options={['White', 'Black', 'Grey', 'Charcoal', 'DTM']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('interliningColour'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('interliningPlacement')]}> 
+                          <Input
+                            type="text"
                             value={material.interliningPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'interliningPlacement', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('interliningPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
-                        />
-                        {hasError('interliningPlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('interliningPlacement')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                        <input
-                          type="file"
-                            onChange={(e) => handleChange(materialIndex, 'interliningPlacementReferenceImage', e.target.files[0])}
-                          className="hidden"
-                            id={`upload-interlining-placement-${materialIndex}`}
-                            accept="image/*"
-                        />
-                        <label
-                            htmlFor={`upload-interlining-placement-${materialIndex}`}
-                          className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('interliningPlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                        >
-                            {material.interliningPlacementReferenceImage ? 'UPLOADED' : 'REF IMAGE'}
-                </label>
-                      </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">GSM</label>
+                            aria-invalid={hasError('interliningPlacement')}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
                             <input
-                              type="text"
-                              value={material.interliningGsm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'interliningGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="GSM"
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'interliningPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-interlining-placement-' + materialIndex}
+                              accept="image/*"
                             />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-interlining-placement-' + materialIndex)?.click()}
+                            >
+                              {material.interliningPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                            <input
-                              type="text"
-                              value={material.interliningLength || ''}
-                              onChange={(e) => handleChange(materialIndex, 'interliningLength', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="LENGTH"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                            <input
-                              type="text"
-                              value={material.interliningWidth || ''}
-                              onChange={(e) => handleChange(materialIndex, 'interliningWidth', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="WIDTH"
-                            />
-                          </div>
-                        </div>
+                        </Field>
+                        <Field label="GSM" required width="sm" error={errors[getErrorKey('interliningGsm')]}> 
+                          <Input
+                            type="text"
+                            value={material.interliningGsm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'interliningGsm', e.target.value)}
+                            placeholder="GSM"
+                            aria-invalid={hasError('interliningGsm')}
+                          />
+                        </Field>
+                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('interliningLength')]}> 
+                          <Input
+                            type="text"
+                            value={material.interliningLength || ''}
+                            onChange={(e) => handleChange(materialIndex, 'interliningLength', e.target.value)}
+                            placeholder="LENGTH"
+                            aria-invalid={hasError('interliningLength')}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('interliningWidth')]}> 
+                          <Input
+                            type="text"
+                            value={material.interliningWidth || ''}
+                            onChange={(e) => handleChange(materialIndex, 'interliningWidth', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('interliningWidth')}
+                          />
+                        </Field>
                       </div>
                     </>
                   )}
-
-                  {/* INTERLINING - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'INTERLINING' && (
+                  {/* INTERLINING(FUSING) - Complete fields matching table exactly */}
+                  {material.trimAccessory === 'INTERLINING(FUSING)' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.interliningQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'interliningQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
-                            <input
-                              type="text"
-                              value={material.interliningQtyType === 'Yardage (cns per pc)' ? (material.interliningYardage || '') : material.interliningQtyType === 'Kgs (cns per pc)' ? (material.interliningKgs || '') : ''}
-                              onChange={(e) => {
-                                if (material.interliningQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'interliningYardage', e.target.value);
-                                } else if (material.interliningQtyType === 'Kgs (cns per pc)') {
-                                  handleChange(materialIndex, 'interliningKgs', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.interliningQtyType}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.interliningTestingRequirements) ? material.interliningTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.interliningTestingRequirements) ? material.interliningTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'interliningTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`interlining-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.interliningTestingRequirements) ? material.interliningTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'interliningTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through']}
-                                placeholder={(Array.isArray(material.interliningTestingRequirements) && material.interliningTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.interliningTestingRequirements) ? material.interliningTestingRequirements : [];
-                                      const options = ['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'interliningTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.interliningTestingRequirements) ? material.interliningTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'interliningTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                          <input
-                            type="text"
-                          value={material.interliningSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'interliningSurplus', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 2-5%"
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('interliningTestingRequirements')]}> 
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.interliningTestingRequirements) ? material.interliningTestingRequirements : (material.interliningTestingRequirements ? [material.interliningTestingRequirements] : [])}
+                            onChange={(arr) => handleChange(materialIndex, 'interliningTestingRequirements', arr)}
+                            options={['Bond Strength', 'Residual Shrinkage', 'Wash Resistance', 'Strike-Through']}
+                            placeholder="Select testing requirements"
+                            className={hasError('interliningTestingRequirements') ? 'border-red-600' : ''}
                           />
-                        </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.interliningWastage || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'interliningWastage', selectedValue)}
-                          options={['Collar', 'Cuff', 'Placket', 'Waistband', 'Facing', 'Full Front']}
-                          placeholder="Select or type Wastage %"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                        </Field>
+                        <Field label="QTY TYPE" width="sm">
+                          <SearchableDropdown
+                            value={material.interliningQtyType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'interliningQtyType', selectedValue)}
+                            options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
+                            placeholder="Select type"
+                            className={dropdownClass(false)}
+                          />
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.interliningQtyType === 'Yardage (cns per pc)' ? (material.interliningYardage || '') : material.interliningQtyType === 'Kgs (cns per pc)' ? (material.interliningKgs || '') : ''}
+                            onChange={(e) => {
+                              if (material.interliningQtyType === 'Yardage (cns per pc)') {
+                                handleChange(materialIndex, 'interliningYardage', e.target.value);
+                              } else if (material.interliningQtyType === 'Kgs (cns per pc)') {
+                                handleChange(materialIndex, 'interliningKgs', e.target.value);
+                              }
+                            }}
+                            placeholder="Enter value"
+                            disabled={!material.interliningQtyType}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('interliningSurplus')]}> 
+                          <PercentInput
+                            value={material.interliningSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'interliningSurplus', e.target.value)}
+                            error={hasError('interliningSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('interliningWastage')]}> 
+                          <PercentInput
+                            value={material.interliningWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'interliningWastage', e.target.value)}
+                            error={hasError('interliningWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('interliningApproval')]}> 
+                          <SearchableDropdown
+                            value={material.interliningApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'interliningApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('interliningApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.interliningRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'interliningRemarks', e.target.value)}
+                            placeholder="Hand feel required, Low shrinkage, Shell compatible"
+                          />
+                        </Field>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.interliningApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'interliningApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.interliningRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'interliningRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Hand feel required, Low shrinkage, Shell compatible"
-                        />
-                      </div>
-
                       {/* INTERLINING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         {/* Show/Hide Advance Spec Button */}
@@ -3118,7 +1630,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                               />
                             </div>
                             <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">FUSING SPEC</label>
+                              <label className="text-sm font-semibold text-gray-700 mb-2">INTERLINING(FUSING) SPEC</label>
                               <SearchableDropdown
                                 value={material.interliningFusingSpec || ''}
                                 onChange={(selectedValue) => handleChange(materialIndex, 'interliningFusingSpec', selectedValue)}
@@ -3148,329 +1660,111 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* HOOKS & EYES Fields - Complete implementation based on image data */}
                   {material.trimAccessory === 'HOOKS-EYES' && (
                     <>
-                      {/* TYPE */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('hookEyeType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.hookEyeType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeType', selectedValue)}
-                          options={['Standard Hook & Eye', 'Trouser Hook & Bar', 'Skirt Hook & Bar', 'Bra Hook', 'Fur Hook', 'Covered']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('hookEyeType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('hookEyeType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('hookEyeType')]}</span>}
-                      </div>
-
-                      {/* MATERIAL */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('hookEyeMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.hookEyeMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeMaterial', selectedValue)}
-                          options={['Metal (Brass, Stainless Steel, Nickel-Free)', 'Nylon (lingerie)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('hookEyeMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('hookEyeMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('hookEyeMaterial')]}</span>}
-                      </div>
-
-                      {/* SIZE */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('hookEyeSize') ? 'text-red-600' : 'text-gray-700'}`}>SIZE SPEC *</label>
-                        <SearchableDropdown
-                          value={material.hookEyeSize || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeSize', selectedValue)}
-                          options={['Small', 'Medium', 'Large', 'Length of Hook/Bar (mm)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('hookEyeSize') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('hookEyeSize') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('hookEyeSize')]}</span>}
-                      </div>
-
-
-                      {/* COLOUR/FINISH */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('hookEyeColourFinish') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR/FINISH *</label>
-                        <SearchableDropdown
-                          value={material.hookEyeColourFinish || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeColourFinish', selectedValue)}
-                          options={['Black', 'Silver', 'Antique Brass', 'Thread Covered (DTM)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('hookEyeColourFinish') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('hookEyeColourFinish') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('hookEyeColourFinish')]}</span>}
-                      </div>
-
-                      {/* FINISH TYPE */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('hookEyeFinishType') ? 'text-red-600' : 'text-gray-700'}`}>FINISH TYPE *</label>
-                        <SearchableDropdown
-                          value={material.hookEyeFinishType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeFinishType', selectedValue)}
-                          options={['Plating', 'Non-Pinching', 'Round Edge (comfort)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('hookEyeFinishType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('hookEyeFinishType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('hookEyeFinishType')]}</span>}
-                      </div>
-
-                      {/* PLACEMENT with UPLOAD REFERENCE IMAGE */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('hookEyePlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                          <input
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('hookEyeType')]}> 
+                          <SearchableDropdown
+                            value={material.hookEyeType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeType', selectedValue)}
+                            options={['Standard', 'Slider', 'Flat', 'Lingerie', 'Coat', 'Pants', 'Bra', 'Custom']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('hookEyeType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('hookEyeMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.hookEyeMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeMaterial', selectedValue)}
+                            options={['Metal (Steel)', 'Brass', 'Nylon Coated', 'Stainless Steel']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('hookEyeMaterial'))}
+                          />
+                        </Field>
+                        <Field label="SIZE" required width="sm" error={errors[getErrorKey('hookEyeSize')]}> 
+                          <Input
+                            type="text"
+                            value={material.hookEyeSize || ''}
+                            onChange={(e) => handleChange(materialIndex, 'hookEyeSize', e.target.value)}
+                            placeholder="MM"
+                            aria-invalid={hasError('hookEyeSize')}
+                          />
+                        </Field>
+                        <Field label="COLOUR FINISH" required width="sm" error={errors[getErrorKey('hookEyeColourFinish')]}> 
+                          <SearchableDropdown
+                            value={material.hookEyeColourFinish || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeColourFinish', selectedValue)}
+                            options={['Nickel', 'Black', 'Antique Brass', 'Gunmetal', 'Matte']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('hookEyeColourFinish'))}
+                          />
+                        </Field>
+                        <Field label="FINISH TYPE" required width="sm" error={errors[getErrorKey('hookEyeFinishType')]}> 
+                          <SearchableDropdown
+                            value={material.hookEyeFinishType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeFinishType', selectedValue)}
+                            options={['Polished', 'Matte', 'Coated', 'Plated']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('hookEyeFinishType'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('hookEyePlacement')]}> 
+                          <Input
                             type="text"
                             value={material.hookEyePlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'hookEyePlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('hookEyePlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="TEXT"
+                            placeholder="Text"
+                            aria-invalid={hasError('hookEyePlacement')}
                           />
-                          {hasError('hookEyePlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('hookEyePlacement')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD REFERENCE IMAGE</label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleChange(materialIndex, 'hookEyeReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-hooks-reference-${materialIndex}`}
+                        </Field>
+                        <Field label="QTY" required width="sm" error={errors[getErrorKey('hookEyeQty')]}> 
+                          <Input
+                            type="text"
+                            value={material.hookEyeQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'hookEyeQty', e.target.value)}
+                            placeholder="PCS"
+                            aria-invalid={hasError('hookEyeQty')}
                           />
-                          <label
-                            htmlFor={`upload-hooks-reference-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('hookEyeReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '140px' }}
-                          >
-                            {material.hookEyeReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
-                        </div>
+                        </Field>
+                        <Field label="TESTING REQ." required width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('hookEyeTestingRequirements')]}> 
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.hookEyeTestingRequirements) ? material.hookEyeTestingRequirements : (material.hookEyeTestingRequirements ? [material.hookEyeTestingRequirements] : [])}
+                            onChange={(arr) => handleChange(materialIndex, 'hookEyeTestingRequirements', arr)}
+                            options={['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness']}
+                            placeholder="Select testing requirements"
+                            className={hasError('hookEyeTestingRequirements') ? 'border-red-600' : ''}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('hookEyeSurplus')]}> 
+                          <PercentInput
+                            value={material.hookEyeSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'hookEyeSurplus', e.target.value)}
+                            error={hasError('hookEyeSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('hookEyeWastage')]}> 
+                          <PercentInput
+                            value={material.hookEyeWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'hookEyeWastage', e.target.value)}
+                            error={hasError('hookEyeWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('hookEyeApproval')]}> 
+                          <SearchableDropdown
+                            value={material.hookEyeApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('hookEyeApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.hookEyeRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'hookEyeRemarks', e.target.value)}
+                            placeholder="Flat bar, Prevent accidental release"
+                          />
+                        </Field>
                       </div>
-
-                      {/* QTY */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.hookEyeQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'hookEyeQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="PAIR PER PC"
-                        />
-                      </div>
-
-                      {/* TESTING REQUIREMENTS */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.hookEyeTestingRequirements) ? material.hookEyeTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.hookEyeTestingRequirements) ? material.hookEyeTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'hookEyeTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`hookeye-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.hookEyeTestingRequirements) ? material.hookEyeTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'hookEyeTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness']}
-                                placeholder={(Array.isArray(material.hookEyeTestingRequirements) && material.hookEyeTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.hookEyeTestingRequirements) ? material.hookEyeTestingRequirements : [];
-                                      const options = ['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'hookEyeTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Holding Power', 'Corrosion', 'Needle Detection', 'Edge Smoothness'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.hookEyeTestingRequirements) ? material.hookEyeTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'hookEyeTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* SURPLUS %} */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.hookEyeSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'hookEyeSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 3-5%)"
-                        />
-                      </div>
-
-                      {/* WASTAGE %} */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
-                          value={material.hookEyeWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'hookEyeWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., Waistband, Neckline, Bra Back, Side Closure)"
-
-                        />
-                      </div>
-
-                      {/* APPROVAL */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.hookEyeApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-
-                      {/* REMARKS */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.hookEyeRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'hookEyeRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '80px' }}
-                          rows="3"
-                          placeholder="Flat bar, Prevent accidental release"
-                        />
-                      </div>
-
                       {/* ADVANCE SPEC Button */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex justify-start mt-4">
                         <button
@@ -3533,7 +1827,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* BUCKLES — Field, Input, PercentInput, TestingRequirementsInput, Button, shadcn tokens */}
                   {material.trimAccessory === 'BUCKLES' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-4">
                         <Field label="TYPE" required width="sm" error={errors[getErrorKey('bucklesType')]}>
                           <SearchableDropdown
                             value={material.bucklesType || ''}
@@ -3543,7 +1837,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('bucklesType') ? 'border-red-600' : ''}`}
                           />
                         </Field>
-                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('bucklesMaterial')]}>
+                        <Field label="MATERIAL DESC." required width="sm" error={errors[getErrorKey('bucklesMaterial')]}>
                           <SearchableDropdown
                             value={material.bucklesMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'bucklesMaterial', selectedValue)}
@@ -3699,393 +1993,165 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* SHOULDER PADS / CUPS Fields - Complete implementation based on image data */}
                   {material.trimAccessory === 'SHOULDER PADS' && (
                     <>
-                      {/* TYPE */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadType', selectedValue)}
-                          options={['Set-In Pad', 'Raglan Pad', 'Sleeve Head Roll', 'Bra Cup', 'Push-Up Pad', 'Removable Insert']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('shoulderPadType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadType')]}</span>}
-                      </div>
-
-                      {/* MATERIAL */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadMaterial', selectedValue)}
-                          options={['Foam (Polyurethane)', 'Synthetic Fiber', 'Felt', 'Cotton Wadding']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('shoulderPadMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadMaterial')]}</span>}
-                      </div>
-
-                      {/* SIZE */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadSize') ? 'text-red-600' : 'text-gray-700'}`}>SIZE SPEC *</label>
-                        <input
-                          type="text"
-                          value={material.shoulderPadSize || ''}
-                          onChange={(e) => handleChange(materialIndex, 'shoulderPadSize', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadSize') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Dimensions (LxWxThickness) / Cup Size (A, B, C, D) CM"
-                        />
-                        {hasError('shoulderPadSize') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadSize')]}</span>}
-                      </div>
-
-                      {/* THICKNESS */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadThickness') ? 'text-red-600' : 'text-gray-700'}`}>THICKNESS *</label>
-                        <input
-                          type="text"
-                          value={material.shoulderPadThickness || ''}
-                          onChange={(e) => handleChange(materialIndex, 'shoulderPadThickness', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadThickness') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="At center/edge (e.g., 5mm center, 3mm edge) CM"
-                        />
-                        {hasError('shoulderPadThickness') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadThickness')]}</span>}
-                      </div>
-
-                      {/* SHAPE */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadShape') ? 'text-red-600' : 'text-gray-700'}`}>SHAPE *</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadShape || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadShape', selectedValue)}
-                          options={['Crescent', 'Triangular', 'Oval', 'Round', 'Custom Molded']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadShape') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('shoulderPadShape') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadShape')]}</span>}
-                      </div>
-
-                      {/* COVERING */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadCovering') ? 'text-red-600' : 'text-gray-700'}`}>COVERING *</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadCovering || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadCovering', selectedValue)}
-                          options={['Covered (knit/non-woven)', 'Uncovered (raw)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadCovering') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('shoulderPadCovering') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadCovering')]}</span>}
-                      </div>
-
-                      {/* COVERING COLOUR */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadCoveringColour') ? 'text-red-600' : 'text-gray-700'}`}>COVERING COLOUR *</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadCoveringColour || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadCoveringColour', selectedValue)}
-                          options={['White', 'Black', 'DTM', 'Nude']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadCoveringColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('shoulderPadCoveringColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadCoveringColour')]}</span>}
-                      </div>
-
-                      {/* ATTACHMENT */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadAttachment') ? 'text-red-600' : 'text-gray-700'}`}>ATTACHMENT *</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadAttachment || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadAttachment', selectedValue)}
-                          options={['Sew-In', 'Fusible (adhesive)', 'Removable (pocket)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('shoulderPadAttachment') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('shoulderPadAttachment') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('shoulderPadAttachment')]}</span>}
-                      </div>
-
-
-                      {/* DENSITY */}
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('shoulderPadDensity') ? 'text-red-600' : 'text-gray-700'}`}>DENSITY *</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadDensity || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadDensity', selectedValue)}
-                          options={['Soft', 'Medium', 'Firm']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-
-                      {/* PLACEMENT with UPLOAD REFERENCE IMAGE */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('shoulderPadType')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadType', selectedValue)}
+                            options={['Set-In Pad', 'Raglan Pad', 'Sleeve Head Roll', 'Bra Cup', 'Push-Up Pad', 'Removable Insert']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('shoulderPadMaterial')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadMaterial', selectedValue)}
+                            options={['Foam (Polyurethane)', 'Synthetic Fiber', 'Felt', 'Cotton Wadding']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadMaterial'))}
+                          />
+                        </Field>
+                        <Field label="SIZE SPEC" required width="sm" error={errors[getErrorKey('shoulderPadSize')]}>
+                          <Input
+                            type="text"
+                            value={material.shoulderPadSize || ''}
+                            onChange={(e) => handleChange(materialIndex, 'shoulderPadSize', e.target.value)}
+                            placeholder="Dimensions (LxWxThickness) / Cup Size (A, B, C, D) CM"
+                            aria-invalid={hasError('shoulderPadSize')}
+                          />
+                        </Field>
+                        <Field label="THICKNESS" required width="sm" error={errors[getErrorKey('shoulderPadThickness')]}>
+                          <Input
+                            type="text"
+                            value={material.shoulderPadThickness || ''}
+                            onChange={(e) => handleChange(materialIndex, 'shoulderPadThickness', e.target.value)}
+                            placeholder="At center/edge (e.g., 5mm center, 3mm edge) CM"
+                            aria-invalid={hasError('shoulderPadThickness')}
+                          />
+                        </Field>
+                        <Field label="SHAPE" required width="sm" error={errors[getErrorKey('shoulderPadShape')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadShape || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadShape', selectedValue)}
+                            options={['Crescent', 'Triangular', 'Oval', 'Round', 'Custom Molded']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadShape'))}
+                          />
+                        </Field>
+                        <Field label="COVERING" required width="sm" error={errors[getErrorKey('shoulderPadCovering')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadCovering || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadCovering', selectedValue)}
+                            options={['Covered (knit/non-woven)', 'Uncovered (raw)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadCovering'))}
+                          />
+                        </Field>
+                        <Field label="COVERING COLOUR" required width="sm" error={errors[getErrorKey('shoulderPadCoveringColour')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadCoveringColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadCoveringColour', selectedValue)}
+                            options={['White', 'Black', 'DTM', 'Nude']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadCoveringColour'))}
+                          />
+                        </Field>
+                        <Field label="ATTACHMENT" required width="sm" error={errors[getErrorKey('shoulderPadAttachment')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadAttachment || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadAttachment', selectedValue)}
+                            options={['Sew-In', 'Fusible (adhesive)', 'Removable (pocket)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadAttachment'))}
+                          />
+                        </Field>
+                        <Field label="DENSITY" required width="sm" error={errors[getErrorKey('shoulderPadDensity')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadDensity || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadDensity', selectedValue)}
+                            options={['Soft', 'Medium', 'Firm']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadDensity'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('shoulderPadPlacement')]}>
+                          <Input
                             type="text"
                             value={material.shoulderPadPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'shoulderPadPlacement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="TEXT"
+                            aria-invalid={hasError('shoulderPadPlacement')}
                           />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">UPLOAD REFERENCE IMAGE</label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleChange(materialIndex, 'shoulderPadReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-reference-image-${materialIndex}`}
-                          />
-                          <label
-                            htmlFor={`upload-reference-image-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '140px' }}
-                          >
-                            {material.shoulderPadReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* TESTING REQUIREMENT */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.shoulderPadTestingRequirements) ? material.shoulderPadTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.shoulderPadTestingRequirements) ? material.shoulderPadTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'shoulderPadTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`shoulderpad-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
+                        </Field>
+                        <Field label="REF IMAGE" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleChange(materialIndex, 'shoulderPadReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-reference-image-${materialIndex}`}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-reference-image-${materialIndex}`)?.click()}
                             >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Wash Resistance', 'Flammability', 'Hypoallergenic'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.shoulderPadTestingRequirements) ? material.shoulderPadTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'shoulderPadTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Wash Resistance', 'Flammability', 'Hypoallergenic']}
-                                placeholder={(Array.isArray(material.shoulderPadTestingRequirements) && material.shoulderPadTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.shoulderPadTestingRequirements) ? material.shoulderPadTestingRequirements : [];
-                                      const options = ['Wash Resistance', 'Flammability', 'Hypoallergenic'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'shoulderPadTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Wash Resistance', 'Flammability', 'Hypoallergenic'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.shoulderPadTestingRequirements) ? material.shoulderPadTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'shoulderPadTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                            </div>
+                              {material.shoulderPadReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                        </div>
-                      </div>
-
-                      {/* MULTISELECT - Empty field as per image */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">MULTISELECT</label>
-                        <input
-                          type="text"
-                          value={material.shoulderPadMultiselect || ''}
-                          onChange={(e) => handleChange(materialIndex, 'shoulderPadMultiselect', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder=""
-                        />
-                      </div>
-
-                      {/* QTY */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.shoulderPadQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'shoulderPadQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pairs"
-                        />
-                      </div>
-
-                      {/* SURPLUS %} */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.shoulderPadSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'shoulderPadSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
-                        />
-                      </div>
-
-                      {/* WASTAGE %} */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
-                          value={material.shoulderPadWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'shoulderPadWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE"
-                        />
-                      </div>
-
-                      {/* APPROVAL */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.shoulderPadApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-
-                      {/* REMARKS */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.shoulderPadRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'shoulderPadRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '80px' }}
-                          rows="3"
-                          placeholder="Lightweight, Resilient, Hold shape after steam"
-                        />
+                        </Field>
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.shoulderPadTestingRequirements) ? material.shoulderPadTestingRequirements : (material.shoulderPadTestingRequirements ? [material.shoulderPadTestingRequirements] : [])}
+                            onChange={(arr) => handleChange(materialIndex, 'shoulderPadTestingRequirements', arr)}
+                            options={['Wash Resistance', 'Flammability', 'Hypoallergenic']}
+                            placeholder="Select testing requirements"
+                          />
+                        </Field>
+                        <Field label="QTY" required width="sm" error={errors[getErrorKey('shoulderPadQty')]}>
+                          <Input
+                            type="text"
+                            value={material.shoulderPadQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'shoulderPadQty', e.target.value)}
+                            placeholder="Pairs"
+                            aria-invalid={hasError('shoulderPadQty')}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('shoulderPadSurplus')]}>
+                          <PercentInput
+                            value={material.shoulderPadSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'shoulderPadSurplus', e.target.value)}
+                            error={hasError('shoulderPadSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('shoulderPadWastage')]}>
+                          <PercentInput
+                            value={material.shoulderPadWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'shoulderPadWastage', e.target.value)}
+                            error={hasError('shoulderPadWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('shoulderPadApproval')]}>
+                          <SearchableDropdown
+                            value={material.shoulderPadApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('shoulderPadApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.shoulderPadRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'shoulderPadRemarks', e.target.value)}
+                            placeholder="Lightweight, Resilient, Hold shape after steam"
+                          />
+                        </Field>
                       </div>
                     </>
                   )}
@@ -4093,422 +2159,165 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* RIBBING Fields */}
                   {material.trimAccessory === 'RIBBING' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ribbingType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.ribbingType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ribbingType', selectedValue)}
-                          options={['1x1 Rib', '2x2 Rib', 'Interlock', 'Jersey']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ribbingType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('ribbingType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ribbingType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ribbingMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.ribbingMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ribbingMaterial', selectedValue)}
-                          options={['Cotton', 'Polyester', 'Spandex', 'Blend']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ribbingMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('ribbingMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ribbingMaterial')]}</span>}
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('ribbingColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('ribbingType')]}>
                           <SearchableDropdown
-                            value={material.ribbingColour || ''}
-                            onChange={(selectedValue) => handleChange(materialIndex, 'ribbingColour', selectedValue)}
-                            options={['DTM', 'White', 'Black', 'Natural', 'Pantone TPX/TCX']}
+                            value={material.ribbingType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ribbingType', selectedValue)}
+                            options={['1x1 Rib', '2x2 Rib', 'Interlock', 'Jersey']}
                             placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ribbingColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                            className={dropdownClass(hasError('ribbingType'))}
                           />
-                          {hasError('ribbingColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ribbingColour')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'ribbingColorReference', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-ribbing-color-${materialIndex}`}
-                            accept="image/*"
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('ribbingMaterial')]}>
+                          <SearchableDropdown
+                            value={material.ribbingMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ribbingMaterial', selectedValue)}
+                            options={['Cotton', 'Polyester', 'Spandex', 'Blend']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('ribbingMaterial'))}
                           />
-                          <label
-                            htmlFor={`upload-ribbing-color-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('ribbingColorReference') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.ribbingColorReference ? 'UPLOADED' : 'UPLOAD COLOR REFERENCE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('ribbingPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                          <input
+                        </Field>
+                        <Field label="NO OF COLOURS" required width="sm" error={errors[getErrorKey('ribbingColour')]}>
+                          <Input
+                            type="number"
+                            min="0"
+                            value={material.ribbingColour || ''}
+                            onChange={(e) => {
+                              const nextValue = e.target.value;
+                              handleChange(materialIndex, 'ribbingColour', nextValue);
+                              trimFileArrayToCount('ribbingColorReference', toCount(nextValue));
+                            }}
+                            placeholder="Enter number of colours"
+                            aria-invalid={hasError('ribbingColour')}
+                          />
+                        </Field>
+                        {toCount(material.ribbingColour) > 0 && (
+                          <Field label="COLOR REFS" className="col-span-1 md:col-span-2 lg:col-span-5 w-full">
+                            <div className="w-full grid [grid-template-columns:repeat(auto-fit,minmax(160px,160px))] gap-3">
+                              {Array.from({ length: toCount(material.ribbingColour) }).map((_, index) => {
+                                const uploadId = 'upload-ribbing-color-' + materialIndex + '-' + index;
+                                const file = getFileArray('ribbingColorReference')[index];
+                                return (
+                                  <div key={uploadId} className="flex flex-col min-w-0">
+                                    <input
+                                      type="file"
+                                      onChange={(e) => updateFileArrayAtIndex('ribbingColorReference', index, e.target.files[0])}
+                                      className="hidden"
+                                      id={uploadId}
+                                      accept="image/*"
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-11 w-full px-3 whitespace-nowrap"
+                                      onClick={() => document.getElementById(uploadId)?.click()}
+                                    >
+                                      {file ? 'UPLOADED COLOR ' + (index + 1) : 'COLOR ' + (index + 1)}
+                                    </Button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </Field>
+                        )}
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('ribbingPlacement')]}>
+                          <Input
                             type="text"
                             value={material.ribbingPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'ribbingPlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ribbingPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="PLACEMENT"
+                            aria-invalid={hasError('ribbingPlacement')}
                           />
-                          {hasError('ribbingPlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ribbingPlacement')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'ribbingPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-ribbing-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-ribbing-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('ribbingPlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.ribbingPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.ribbingTestingRequirements) ? material.ribbingTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.ribbingTestingRequirements) ? material.ribbingTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'ribbingTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`ribbing-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'ribbingPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-ribbing-placement-' + materialIndex}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-ribbing-placement-' + materialIndex)?.click()}
                             >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.ribbingTestingRequirements) ? material.ribbingTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'ribbingTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage']}
-                                placeholder={(Array.isArray(material.ribbingTestingRequirements) && material.ribbingTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.ribbingTestingRequirements) ? material.ribbingTestingRequirements : [];
-                                      const options = ['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'ribbingTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Tensile Test', 'Colour Fastness', 'Abrasion Resistance', 'Shrinkage'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.ribbingTestingRequirements) ? material.ribbingTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'ribbingTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                              </div>
-                                </div>
-                            </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'ribbingTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-ribbing-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-ribbing-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.ribbingTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">GSM</label>
-                            <input
-                              type="text"
-                              value={material.ribbingGsm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'ribbingGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="GSM"
-                            />
+                              {material.ribbingPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">FORM</label>
-                            <SearchableDropdown
-                              value={material.ribbingForm || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'ribbingForm', selectedValue)}
-                              options={['Tubular', 'Roll']}
-                              placeholder="Select form"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                        </div>
-                        {material.ribbingForm === 'Tubular' && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ marginTop: '16px' }}>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                              <input
-                                type="text"
-                                value={material.ribbingLength || ''}
-                                onChange={(e) => handleChange(materialIndex, 'ribbingLength', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                                placeholder="LENGTH"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">DIA</label>
-                              <input
-                                type="text"
-                                value={material.ribbingDia || ''}
-                                onChange={(e) => handleChange(materialIndex, 'ribbingDia', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                                placeholder="DIA"
-                              />
-                            </div>
-                          </div>
-                        )}
-                        {material.ribbingForm === 'Roll' && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ marginTop: '16px' }}>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                              <input
-                                type="text"
-                                value={material.ribbingLength || ''}
-                                onChange={(e) => handleChange(materialIndex, 'ribbingLength', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                                placeholder="LENGTH"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                              <input
-                                type="text"
-                                value={material.ribbingWidth || ''}
-                                onChange={(e) => handleChange(materialIndex, 'ribbingWidth', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                                placeholder="WIDTH"
-                              />
-                            </div>
-                          </div>
-                        )}
+                        </Field>
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.ribbingTestingRequirements) ? material.ribbingTestingRequirements : (material.ribbingTestingRequirements ? [material.ribbingTestingRequirements] : [])}
+                            onChange={(arr) => handleChange(materialIndex, 'ribbingTestingRequirements', arr)}
+                            options={['Recovery', 'Dimensional Stability', 'Colorfastness', 'Abrasion']}
+                            placeholder="Select testing requirements"
+                          />
+                        </Field>
+                        <Field label="QTY TYPE" width="sm">
+                          <SearchableDropdown
+                            value={material.ribbingQtyType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ribbingQtyType', selectedValue)}
+                            options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
+                            placeholder="Select type"
+                            className={dropdownClass(false)}
+                          />
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.ribbingQtyType === 'Yardage (cns per pc)' ? (material.ribbingQtyYardage || '') : material.ribbingQtyType === 'Kgs (cns per pc)' ? (material.ribbingQtyKgs || '') : ''}
+                            onChange={(e) => {
+                              if (material.ribbingQtyType === 'Yardage (cns per pc)') {
+                                handleChange(materialIndex, 'ribbingQtyYardage', e.target.value);
+                              } else if (material.ribbingQtyType === 'Kgs (cns per pc)') {
+                                handleChange(materialIndex, 'ribbingQtyKgs', e.target.value);
+                              }
+                            }}
+                            placeholder="Enter value"
+                            disabled={!material.ribbingQtyType}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('ribbingSurplus')]}
+                        >
+                          <PercentInput
+                            value={material.ribbingSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ribbingSurplus', e.target.value)}
+                            error={hasError('ribbingSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('ribbingWastage')]}
+                        >
+                          <PercentInput
+                            value={material.ribbingWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ribbingWastage', e.target.value)}
+                            error={hasError('ribbingWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('ribbingApproval')]}
+                        >
+                          <SearchableDropdown
+                            value={material.ribbingApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ribbingApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('ribbingApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.ribbingRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ribbingRemarks', e.target.value)}
+                            placeholder="Anti-curl on cut edge, 5% Lycra minimum"
+                          />
+                        </Field>
                       </div>
-                    </>
-                  )}
-
-                  {/* RIBBING - Complete fields matching table exactly */}
-                  {material.trimAccessory === 'RIBBING' && (
-                    <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.ribbingQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'ribbingQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
-                            <input
-                              type="text"
-                              value={material.ribbingQtyType === 'Yardage (cns per pc)' ? (material.ribbingQtyYardage || '') : material.ribbingQtyType === 'Kgs (cns per pc)' ? (material.ribbingQtyKgs || '') : ''}
-                              onChange={(e) => {
-                                if (material.ribbingQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'ribbingQtyYardage', e.target.value);
-                                } else if (material.ribbingQtyType === 'Kgs (cns per pc)') {
-                                  handleChange(materialIndex, 'ribbingQtyKgs', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.ribbingQtyType}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.ribbingSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'ribbingSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%AGE (e.g., 2-5%)"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.ribbingWastage || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ribbingWastage', selectedValue)}
-                          options={['Collar', 'Cuff', 'Waistband', 'Hem Band']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.ribbingApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ribbingApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.ribbingRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'ribbingRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Anti-curl on cut edge, 5% Lycra minimum"
-                        />
-                      </div>
-                      
                       {/* RIBBING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         <button
@@ -4762,324 +2571,158 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* SEAM TAPE Fields */}
                   {material.trimAccessory === 'SEAM TAPE' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('seamTapeType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.seamTapeType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeType', selectedValue)}
-                          options={['2-Layer (PU/PVC)', '3-Layer (Tri-laminate)', 'Adhesive Film', 'Elastic Tape', 'Hot Melt Seam Tape', 'PU Seam Tape', 'TPU Tape', 'Reflective Seam Tape', 'Reinforcement Tape', 'Edge Binding Tape', 'Waterproof Sealing', 'Stretch Seam Support', 'Edge Stabilization', 'Hem Tape', 'Shoulder Tape']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('seamTapeType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('seamTapeType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('seamTapeType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('seamTapeMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.seamTapeMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeMaterial', selectedValue)}
-                          options={['TPU (Thermoplastic Polyurethane)', 'PEVA', 'PU', 'Nylon Backing']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('seamTapeMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('seamTapeMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('seamTapeMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('seamTapeWidth') ? 'text-red-600' : 'text-gray-700'}`}>WIDTH *</label>
-                        <SearchableDropdown
-                          value={material.seamTapeWidth || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeWidth', selectedValue)}
-                          options={['16mm', '20mm', '22mm', '25mm', '30mm']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('seamTapeWidth') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('seamTapeWidth') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('seamTapeWidth')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('seamTapeColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                        <SearchableDropdown
-                          value={material.seamTapeColour || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeColour', selectedValue)}
-                          options={['Clear/Transparent', 'Black', 'DTM (rare)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('seamTapeColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('seamTapeColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('seamTapeColour')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('seamTapeAdhesiveType') ? 'text-red-600' : 'text-gray-700'}`}>ADHESIVE TYPE *</label>
-                        <SearchableDropdown
-                          value={material.seamTapeAdhesiveType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeAdhesiveType', selectedValue)}
-                          options={['Heat Activated', 'Low Melting Point', 'High Bond']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('seamTapeAdhesiveType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('seamTapeAdhesiveType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('seamTapeAdhesiveType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('seamTapePlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <div className="flex items-end gap-4">
-                        <input
-                          type="text"
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('seamTapeType')]}> 
+                          <SearchableDropdown
+                            value={material.seamTapeType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeType', selectedValue)}
+                            options={['2-Layer (PU/PVC)', '3-Layer (Tri-laminate)', 'Adhesive Film', 'Elastic Tape', 'Hot Melt Seam Tape', 'PU Seam Tape', 'TPU Tape', 'Reflective Seam Tape', 'Reinforcement Tape', 'Edge Binding Tape', 'Waterproof Sealing', 'Stretch Seam Support', 'Edge Stabilization', 'Hem Tape', 'Shoulder Tape']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('seamTapeType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('seamTapeMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.seamTapeMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeMaterial', selectedValue)}
+                            options={['TPU (Thermoplastic Polyurethane)', 'PEVA', 'PU', 'Nylon Backing']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('seamTapeMaterial'))}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('seamTapeWidth')]}> 
+                          <SearchableDropdown
+                            value={material.seamTapeWidth || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeWidth', selectedValue)}
+                            options={['16mm', '20mm', '22mm', '25mm', '30mm']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('seamTapeWidth'))}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('seamTapeColour')]}> 
+                          <SearchableDropdown
+                            value={material.seamTapeColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeColour', selectedValue)}
+                            options={['Clear/Transparent', 'Black', 'DTM (rare)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('seamTapeColour'))}
+                          />
+                        </Field>
+                        <Field label="ADHESIVE TYPE" required width="sm" error={errors[getErrorKey('seamTapeAdhesiveType')]}> 
+                          <SearchableDropdown
+                            value={material.seamTapeAdhesiveType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeAdhesiveType', selectedValue)}
+                            options={['Heat Activated', 'Low Melting Point', 'High Bond']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('seamTapeAdhesiveType'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('seamTapePlacement')]}> 
+                          <Input
+                            type="text"
                             value={material.seamTapePlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'seamTapePlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${hasError('seamTapePlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Enter placement"
+                            aria-invalid={hasError('seamTapePlacement')}
                           />
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'seamTapePlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-seam-tape-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-seam-tape-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('seamTapePlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.seamTapePlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
-                          </label>
-                        </div>
-                        {hasError('seamTapePlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('seamTapePlacement')]}</span>}
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'seamTapePlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-seam-tape-placement-' + materialIndex}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-seam-tape-placement-' + materialIndex)?.click()}
+                            >
+                              {material.seamTapePlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
+                            </Button>
+                          </div>
+                        </Field>
                       </div>
                     </>
                   )}
-
                   {/* SEAM TAPE - Complete fields matching table exactly */}
                   {material.trimAccessory === 'SEAM TAPE' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.seamTapeTestingRequirements) ? material.seamTapeTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.seamTapeTestingRequirements) ? material.seamTapeTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'seamTapeTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`seamtape-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Hydrostatic Head', 'Wash Resistance', 'Adhesion/Peel Test'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.seamTapeTestingRequirements) ? material.seamTapeTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'seamTapeTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('seamTapeTestingRequirements')]}> 
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.seamTapeTestingRequirements) ? material.seamTapeTestingRequirements : (material.seamTapeTestingRequirements ? [material.seamTapeTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'seamTapeTestingRequirements', arr)}
                                 options={['Hydrostatic Head', 'Wash Resistance', 'Adhesion/Peel Test']}
-                                placeholder={(Array.isArray(material.seamTapeTestingRequirements) && material.seamTapeTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.seamTapeTestingRequirements) ? material.seamTapeTestingRequirements : [];
-                                      const options = ['Hydrostatic Head', 'Wash Resistance', 'Adhesion/Peel Test'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'seamTapeTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Hydrostatic Head', 'Wash Resistance', 'Adhesion/Peel Test'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.seamTapeTestingRequirements) ? material.seamTapeTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'seamTapeTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
+                                placeholder="Select testing requirements"
+                                className={hasError('seamTapeTestingRequirements') ? 'border-red-600' : ''}
                               />
-                              </div>
-                                </div>
                             </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'seamTapeTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-seam-tape-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-seam-tape-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.seamTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'seamTapeTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-seam-tape-testing-' + materialIndex}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-seam-tape-testing-' + materialIndex)?.click()}
+                            >
+                              {material.seamTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="QTY" required width="sm" error={errors[getErrorKey('seamTapeQty')]}> 
+                          <Input
+                            type="text"
+                            value={material.seamTapeQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'seamTapeQty', e.target.value)}
+                            placeholder="Meters"
+                            aria-invalid={hasError('seamTapeQty')}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('seamTapeSurplus')]}> 
+                          <PercentInput
+                            value={material.seamTapeSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'seamTapeSurplus', e.target.value)}
+                            error={hasError('seamTapeSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('seamTapeWastage')]}> 
+                          <PercentInput
+                            value={material.seamTapeWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'seamTapeWastage', e.target.value)}
+                            error={hasError('seamTapeWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('seamTapeApproval')]}> 
+                          <SearchableDropdown
+                            value={material.seamTapeApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('seamTapeApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.seamTapeRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'seamTapeRemarks', e.target.value)}
+                            placeholder="Matte exterior, Specific hot-air welding machine"
+                          />
+                        </Field>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.seamTapeQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'seamTapeQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Meters"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.seamTapeSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'seamTapeSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="5-10%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.seamTapeWastage || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeWastage', selectedValue)}
-                          options={['5-10%', 'All Seams', 'Critical Seams', 'Shoulder', 'Armhole']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.seamTapeApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Technical Data Sheet']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.seamTapeRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'seamTapeRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Matte exterior, Specific hot-air welding machine"
-                        />
-                      </div>
-
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <button
@@ -5145,371 +2788,191 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* REFLECTIVE TAPES Fields */}
                   {material.trimAccessory === 'REFLECTIVE TAPES' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('reflectiveTapeType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.reflectiveTapeType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeType', selectedValue)}
-                          options={['Sew-on Tape', 'Heat Transfer Film', 'Piping', 'Segmented/Perforated', 'Stretch Reflective']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('reflectiveTapeType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('reflectiveTapeType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('reflectiveTapeType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('reflectiveTapeMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.reflectiveTapeMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeMaterial', selectedValue)}
-                          options={['Glass Bead Technology', 'Micro-Prismatic Vinyl (higher)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('reflectiveTapeMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('reflectiveTapeMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('reflectiveTapeMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('reflectiveTapeColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                        <SearchableDropdown
-                          value={material.reflectiveTapeColour || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeColour', selectedValue)}
-                          options={['Silver/Grey', 'Fluorescent Yellow/Lime', 'Fluorescent Orange', 'Coloured']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('reflectiveTapeColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('reflectiveTapeColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('reflectiveTapeColour')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('reflectiveTapeBaseFabric') ? 'text-red-600' : 'text-gray-700'}`}>BASE FABRIC *</label>
-                        <SearchableDropdown
-                          value={material.reflectiveTapeBaseFabric || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeBaseFabric', selectedValue)}
-                          options={['Polyester', 'Cotton', 'FR (flame retardant)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('reflectiveTapeBaseFabric') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('reflectiveTapeBaseFabric') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('reflectiveTapeBaseFabric')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('reflectiveTapePlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <div className="flex items-end gap-4">
-                        <input
-                          type="text"
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('reflectiveTapeType')]}> 
+                          <SearchableDropdown
+                            value={material.reflectiveTapeType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeType', selectedValue)}
+                            options={['Sew-on Tape', 'Heat Transfer Film', 'Piping', 'Segmented/Perforated', 'Stretch Reflective']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('reflectiveTapeType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('reflectiveTapeMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.reflectiveTapeMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeMaterial', selectedValue)}
+                            options={['Glass Bead Technology', 'Micro-Prismatic Vinyl (higher)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('reflectiveTapeMaterial'))}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('reflectiveTapeColour')]}> 
+                          <SearchableDropdown
+                            value={material.reflectiveTapeColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeColour', selectedValue)}
+                            options={['Silver/Grey', 'Fluorescent Yellow/Lime', 'Fluorescent Orange', 'Coloured']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('reflectiveTapeColour'))}
+                          />
+                        </Field>
+                        <Field label="BASE FABRIC" required width="sm" error={errors[getErrorKey('reflectiveTapeBaseFabric')]}> 
+                          <SearchableDropdown
+                            value={material.reflectiveTapeBaseFabric || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeBaseFabric', selectedValue)}
+                            options={['Polyester', 'Cotton', 'FR (flame retardant)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('reflectiveTapeBaseFabric'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('reflectiveTapePlacement')]}> 
+                          <Input
+                            type="text"
                             value={material.reflectiveTapePlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'reflectiveTapePlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${hasError('reflectiveTapePlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Enter placement"
+                            aria-invalid={hasError('reflectiveTapePlacement')}
                           />
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapePlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-reflective-tape-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-reflective-tape-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('reflectiveTapePlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.reflectiveTapePlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
-                          </label>
-                      </div>
-                      {hasError('reflectiveTapePlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('reflectiveTapePlacement')]}</span>}
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'reflectiveTapePlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-reflective-tape-placement-' + materialIndex}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-reflective-tape-placement-' + materialIndex)?.click()}
+                            >
+                              {material.reflectiveTapePlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
+                            </Button>
+                          </div>
+                        </Field>
                       </div>
                     </>
                   )}
-
                   {/* REFLECTIVE TAPES - Complete fields matching table exactly */}
                   {material.trimAccessory === 'REFLECTIVE TAPES' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.reflectiveTapeTestingRequirements) ? material.reflectiveTapeTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.reflectiveTapeTestingRequirements) ? material.reflectiveTapeTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'reflectiveTapeTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`reflective-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.reflectiveTapeTestingRequirements) ? material.reflectiveTapeTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'reflectiveTapeTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance']}
-                                placeholder={(Array.isArray(material.reflectiveTapeTestingRequirements) && material.reflectiveTapeTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.reflectiveTapeTestingRequirements) ? material.reflectiveTapeTestingRequirements : [];
-                                      const options = ['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'reflectiveTapeTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Retro-reflection Test', 'Wash Cycling', 'Abrasion Resistance'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.reflectiveTapeTestingRequirements) ? material.reflectiveTapeTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'reflectiveTapeTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5" error={errors[getErrorKey('reflectiveTapeTestingRequirements')]}> 
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.reflectiveTapeTestingRequirements) ? material.reflectiveTapeTestingRequirements : (material.reflectiveTapeTestingRequirements ? [material.reflectiveTapeTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'reflectiveTapeTestingRequirements', arr)}
+                                options={['Reflectivity', 'Abrasion', 'Wash Durability', 'Colour Fastness']}
+                                placeholder="Select testing requirements"
+                                className={hasError('reflectiveTapeTestingRequirements') ? 'border-red-600' : ''}
                               />
-                              </div>
-                                </div>
                             </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'reflectiveTapeTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-reflective-tape-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-reflective-tape-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.reflectiveTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SIZE SPEC</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">GSM</label>
                             <input
-                              type="text"
-                              value={material.reflectiveTapeGsm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'reflectiveTapeGsm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="GSM"
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'reflectiveTapeTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={'upload-reflective-tape-testing-' + materialIndex}
+                              accept="image/*"
                             />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById('upload-reflective-tape-testing-' + materialIndex)?.click()}
+                            >
+                              {material.reflectiveTapeTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
                           </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">LENGTH</label>
-                            <input
-                              type="text"
-                              value={material.reflectiveTapeLengthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'reflectiveTapeLengthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="LENGTH"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
-                            <input
-                              type="text"
-                              value={material.reflectiveTapeWidthCm || ''}
-                              onChange={(e) => handleChange(materialIndex, 'reflectiveTapeWidthCm', e.target.value)}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="WIDTH"
-                            />
-                          </div>
-                        </div>
+                        </Field>
+                        <Field label="GSM" required width="sm" error={errors[getErrorKey('reflectiveTapeGsm')]}> 
+                          <Input
+                            type="text"
+                            value={material.reflectiveTapeGsm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapeGsm', e.target.value)}
+                            placeholder="GSM"
+                            aria-invalid={hasError('reflectiveTapeGsm')}
+                          />
+                        </Field>
+                        <Field label="LENGTH" required width="sm" error={errors[getErrorKey('reflectiveTapeLengthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.reflectiveTapeLengthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapeLengthCm', e.target.value)}
+                            placeholder="LENGTH"
+                            aria-invalid={hasError('reflectiveTapeLengthCm')}
+                          />
+                        </Field>
+                        <Field label="WIDTH" required width="sm" error={errors[getErrorKey('reflectiveTapeWidthCm')]}> 
+                          <Input
+                            type="text"
+                            value={material.reflectiveTapeWidthCm || ''}
+                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapeWidthCm', e.target.value)}
+                            placeholder="WIDTH"
+                            aria-invalid={hasError('reflectiveTapeWidthCm')}
+                          />
+                        </Field>
+                        <Field label="QTY TYPE" width="sm">
+                          <SearchableDropdown
+                            value={material.reflectiveTapeQtyType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeQtyType', selectedValue)}
+                            options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
+                            placeholder="Select type"
+                            className={dropdownClass(false)}
+                          />
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.reflectiveTapeQtyType === 'Yardage (cns per pc)' ? (material.reflectiveTapeYardage || '') : material.reflectiveTapeQtyType === 'Kgs (cns per pc)' ? (material.reflectiveTapeKgs || '') : ''}
+                            onChange={(e) => {
+                              if (material.reflectiveTapeQtyType === 'Yardage (cns per pc)') {
+                                handleChange(materialIndex, 'reflectiveTapeYardage', e.target.value);
+                              } else if (material.reflectiveTapeQtyType === 'Kgs (cns per pc)') {
+                                handleChange(materialIndex, 'reflectiveTapeKgs', e.target.value);
+                              }
+                            }}
+                            placeholder="Enter value"
+                            disabled={!material.reflectiveTapeQtyType}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" required width="sm" error={errors[getErrorKey('reflectiveTapeSurplus')]}> 
+                          <PercentInput
+                            value={material.reflectiveTapeSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapeSurplus', e.target.value)}
+                            error={hasError('reflectiveTapeSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" required width="sm" error={errors[getErrorKey('reflectiveTapeWastage')]}> 
+                          <PercentInput
+                            value={material.reflectiveTapeWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapeWastage', e.target.value)}
+                            error={hasError('reflectiveTapeWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" required width="sm" error={errors[getErrorKey('reflectiveTapeApproval')]}> 
+                          <SearchableDropdown
+                            value={material.reflectiveTapeApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'IPP', 'Compliance Certificate']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('reflectiveTapeApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.reflectiveTapeRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'reflectiveTapeRemarks', e.target.value)}
+                            placeholder="Industrial launder compatible, No peel or crack"
+                          />
+                        </Field>
                       </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.reflectiveTapeQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
-                            <input
-                              type="text"
-                              value={material.reflectiveTapeQtyType === 'Yardage (cns per pc)' ? (material.reflectiveTapeYardage || '') : material.reflectiveTapeQtyType === 'Kgs (cns per pc)' ? (material.reflectiveTapeKgs || '') : ''}
-                              onChange={(e) => {
-                                if (material.reflectiveTapeQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'reflectiveTapeYardage', e.target.value);
-                                } else if (material.reflectiveTapeQtyType === 'Kgs (cns per pc)') {
-                                  handleChange(materialIndex, 'reflectiveTapeKgs', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.reflectiveTapeQtyType}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.reflectiveTapeSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'reflectiveTapeSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="5-10%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
-                          value={material.reflectiveTapeWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'reflectiveTapeWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="5-10%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.reflectiveTapeApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Compliance Certificate']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.reflectiveTapeRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'reflectiveTapeRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Industrial launder compatible, No peel or crack"
-                        />
-                      </div>
-
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <button
@@ -5575,334 +3038,161 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* FR-TRIMS Fields */}
                   {material.trimAccessory === 'FIRE RETARDANT (FR) TRIMS' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('frTrimsType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.frTrimsType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsType', selectedValue)}
-                          options={['FR Thread', 'FR Elastic', 'FR Zippers', 'FR Interlining', 'FR Velcro', 'FR Reflective', 'FR Labels', 'FR Webbing']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('frTrimsType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('frTrimsType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('frTrimsType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('frTrimsMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.frTrimsMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsMaterial', selectedValue)}
-                          options={['Aramid (Nomex/Kevlar)', 'Modacrylic', 'Treated Polyester', 'Treated Cotton', 'FR Nylon']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('frTrimsMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('frTrimsMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('frTrimsMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('frTrimsCompliance') ? 'text-red-600' : 'text-gray-700'}`}>COMPLIANCE *</label>
-                        <SearchableDropdown
-                          value={material.frTrimsCompliance || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsCompliance', selectedValue)}
-                          options={['NFPA 2112', 'EN ISO 11612', 'BS 5852', 'NFPA 70E', 'EN 469']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('frTrimsCompliance') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('frTrimsCompliance') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('frTrimsCompliance')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('frTrimsColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                        <SearchableDropdown
-                          value={material.frTrimsColour || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsColour', selectedValue)}
-                          options={[]}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('frTrimsColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('frTrimsColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('frTrimsColour')]}</span>}
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.frTrimsTestingRequirements) ? material.frTrimsTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.frTrimsTestingRequirements) ? material.frTrimsTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'frTrimsTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`frtrim-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Vertical Flame Test', 'LOI', 'Wash Durability (re-test after wash)'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.frTrimsTestingRequirements) ? material.frTrimsTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'frTrimsTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
-                                options={['Vertical Flame Test', 'LOI', 'Wash Durability (re-test after wash)']}
-                                placeholder={(Array.isArray(material.frTrimsTestingRequirements) && material.frTrimsTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.frTrimsTestingRequirements) ? material.frTrimsTestingRequirements : [];
-                                      const options = ['Vertical Flame Test', 'LOI', 'Wash Durability (re-test after wash)'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'frTrimsTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Vertical Flame Test', 'LOI', 'Wash Durability (re-test after wash)'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.frTrimsTestingRequirements) ? material.frTrimsTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'frTrimsTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
-                              />
-                              </div>
-                                </div>
-                            </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'frTrimsTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-fr-trims-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-fr-trims-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.frTrimsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">PLACEMENT</label>
-                          <input
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('frTrimsType')]}> 
+                          <SearchableDropdown
+                            value={material.frTrimsType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsType', selectedValue)}
+                            options={['FR Thread', 'FR Elastic', 'FR Zippers', 'FR Interlining', 'FR Velcro', 'FR Reflective', 'FR Labels', 'FR Webbing']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('frTrimsType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('frTrimsMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.frTrimsMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsMaterial', selectedValue)}
+                            options={['Aramid (Nomex/Kevlar)', 'Modacrylic', 'Treated Polyester', 'Treated Cotton', 'FR Nylon']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('frTrimsMaterial'))}
+                          />
+                        </Field>
+                        <Field label="COMPLIANCE" required width="sm" error={errors[getErrorKey('frTrimsCompliance')]}> 
+                          <SearchableDropdown
+                            value={material.frTrimsCompliance || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsCompliance', selectedValue)}
+                            options={['NFPA 2112', 'EN ISO 11612', 'BS 5852', 'NFPA 70E', 'EN 469']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('frTrimsCompliance'))}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('frTrimsColour')]}> 
+                          <SearchableDropdown
+                            value={material.frTrimsColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsColour', selectedValue)}
+                            options={[]}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('frTrimsColour'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" width="sm">
+                          <Input
                             type="text"
                             value={material.frTrimsPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'frTrimsPlacement', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="TEXT"
                           />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'frTrimsPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-fr-trims-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-fr-trims-placement-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.frTrimsPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD REFERENCE IMAGE'}
-                          </label>
-                        </div>
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'frTrimsPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-fr-trims-placement-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-fr-trims-placement-${materialIndex}`)?.click()}
+                            >
+                              {material.frTrimsPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.frTrimsTestingRequirements) ? material.frTrimsTestingRequirements : (material.frTrimsTestingRequirements ? [material.frTrimsTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'frTrimsTestingRequirements', arr)}
+                                options={['Vertical Flame Test', 'LOI', 'Wash Durability (re-test after wash)']}
+                                placeholder="Select testing requirements"
+                              />
+                            </div>
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'frTrimsTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-fr-trims-testing-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-fr-trims-testing-${materialIndex}`)?.click()}
+                            >
+                              {material.frTrimsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
                       </div>
                     </>
                   )}
-
                   {/* FR-TRIMS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'FIRE RETARDANT (FR) TRIMS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <div className="flex gap-4">
-                          <div className="flex flex-col" style={{ flex: '0 0 250px' }}>
-                            <SearchableDropdown
-                              value={material.frTrimsQtyType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsQtyType', selectedValue)}
-                              options={['Yardage (cns per pc)', 'Pieces']}
-                              placeholder="Select type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                          <div className="flex flex-col" style={{ flex: '1' }}>
-                            <input
-                              type="text"
-                              value={material.frTrimsQtyType === 'Yardage (cns per pc)' ? (material.frTrimsQtyYardage || '') : material.frTrimsQtyType === 'Pieces' ? (material.frTrimsQtyPieces || '') : ''}
-                              onChange={(e) => {
-                                if (material.frTrimsQtyType === 'Yardage (cns per pc)') {
-                                  handleChange(materialIndex, 'frTrimsQtyYardage', e.target.value);
-                                } else if (material.frTrimsQtyType === 'Pieces') {
-                                  handleChange(materialIndex, 'frTrimsQtyPieces', e.target.value);
-                                }
-                              }}
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                              placeholder="Enter value"
-                              disabled={!material.frTrimsQtyType}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.frTrimsSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'frTrimsSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="%age"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.frTrimsWastage || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsWastage', selectedValue)}
-                          options={['All Components', 'Specific Areas']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.frTrimsApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Certification Report']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.frTrimsRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'frTrimsRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Inherently FR (not treated), Aramid fiber compatible"
-                        />
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="QTY TYPE" width="sm">
+                          <SearchableDropdown
+                            value={material.frTrimsQtyType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsQtyType', selectedValue)}
+                            options={['Yardage (cns per pc)', 'Pieces']}
+                            placeholder="Select type"
+                            className={dropdownClass(false)}
+                          />
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.frTrimsQtyType === 'Yardage (cns per pc)' ? (material.frTrimsQtyYardage || '') : material.frTrimsQtyType === 'Pieces' ? (material.frTrimsQtyPieces || '') : ''}
+                            onChange={(e) => {
+                              if (material.frTrimsQtyType === 'Yardage (cns per pc)') {
+                                handleChange(materialIndex, 'frTrimsQtyYardage', e.target.value);
+                              } else if (material.frTrimsQtyType === 'Pieces') {
+                                handleChange(materialIndex, 'frTrimsQtyPieces', e.target.value);
+                              }
+                            }}
+                            placeholder="Enter value"
+                            disabled={!material.frTrimsQtyType}
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" width="sm" error={errors[getErrorKey('frTrimsSurplus')]}> 
+                          <PercentInput
+                            value={material.frTrimsSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'frTrimsSurplus', e.target.value)}
+                            error={hasError('frTrimsSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" width="sm" error={errors[getErrorKey('frTrimsWastage')]}> 
+                          <PercentInput
+                            value={material.frTrimsWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'frTrimsWastage', e.target.value)}
+                            error={hasError('frTrimsWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" width="sm" error={errors[getErrorKey('frTrimsApproval')]}> 
+                          <SearchableDropdown
+                            value={material.frTrimsApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'IPP', 'Certification Report']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('frTrimsApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.frTrimsRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'frTrimsRemarks', e.target.value)}
+                            placeholder="Inherently FR (not treated), Aramid fiber compatible"
+                          />
+                        </Field>
                       </div>
                       
                       {/* FR-TRIMS - Advance Spec Button and Fields */}
@@ -5993,96 +3283,81 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* CORD RING Fields */}
                   {material.trimAccessory === 'CORD STOPS' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('cordStopType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.cordStopType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'cordStopType', selectedValue)}
-                          options={['Single Hole', 'Double Hole', 'Barrel Lock', 'Toggle', 'Spring Loaded', 'Squeeze Release', 'Ball Lock']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('cordStopType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('cordStopType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('cordStopType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('cordStopMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.cordStopMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'cordStopMaterial', selectedValue)}
-                          options={['Plastic (Acetal/POM)', 'Plastic (Nylon)', 'Plastic (ABS)', 'Metal (Zinc Alloy)', 'Metal (Brass)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('cordStopMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('cordStopMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('cordStopMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('cordStopSize') ? 'text-red-600' : 'text-gray-700'}`}>SIZE SPEC *</label>
-                        <SearchableDropdown
-                          value={material.cordStopSize || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'cordStopSize', selectedValue)}
-                          options={['3mm', '4mm', '5mm', '6mm']}
-                          placeholder="Select or type (Cord Diameter fit)"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('cordStopSize') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('cordStopSize') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('cordStopSize')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('cordStopColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                        <SearchableDropdown
-                          value={material.cordStopColour || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'cordStopColour', selectedValue)}
-                          options={['DTM', 'Black', 'Clear', 'Plating (metal)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('cordStopColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('cordStopColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('cordStopColour')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('cordStopLockingMechanism') ? 'text-red-600' : 'text-gray-700'}`}>LOCKING MECHANISM *</label>
-                        <SearchableDropdown
-                          value={material.cordStopLockingMechanism || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'cordStopLockingMechanism', selectedValue)}
-                          options={['Spring Tension (force to depress)', 'Grip Type']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('cordStopLockingMechanism') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('cordStopLockingMechanism') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('cordStopLockingMechanism')]}</span>}
-                      </div>
-                      <div className="flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('cordStopPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <input
-                          type="text"
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('cordStopType')]}>
+                          <SearchableDropdown
+                            value={material.cordStopType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'cordStopType', selectedValue)}
+                            options={['Single Hole', 'Double Hole', 'Barrel Lock', 'Toggle', 'Spring Loaded', 'Squeeze Release', 'Ball Lock']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('cordStopType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('cordStopMaterial')]}>
+                          <SearchableDropdown
+                            value={material.cordStopMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'cordStopMaterial', selectedValue)}
+                            options={['Plastic (Acetal/POM)', 'Plastic (Nylon)', 'Plastic (ABS)', 'Metal (Zinc Alloy)', 'Metal (Brass)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('cordStopMaterial'))}
+                          />
+                        </Field>
+                        <Field label="SIZE SPEC" required width="sm" error={errors[getErrorKey('cordStopSize')]}>
+                          <SearchableDropdown
+                            value={material.cordStopSize || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'cordStopSize', selectedValue)}
+                            options={['3mm', '4mm', '5mm', '6mm']}
+                            placeholder="Select or type (Cord Diameter fit)"
+                            className={dropdownClass(hasError('cordStopSize'))}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('cordStopColour')]}>
+                          <SearchableDropdown
+                            value={material.cordStopColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'cordStopColour', selectedValue)}
+                            options={['DTM', 'Black', 'Clear', 'Plating (metal)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('cordStopColour'))}
+                          />
+                        </Field>
+                        <Field label="LOCKING MECHANISM" required width="sm" error={errors[getErrorKey('cordStopLockingMechanism')]}>
+                          <SearchableDropdown
+                            value={material.cordStopLockingMechanism || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'cordStopLockingMechanism', selectedValue)}
+                            options={['Spring Tension (force to depress)', 'Grip Type']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('cordStopLockingMechanism'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('cordStopPlacement')]}>
+                          <Input
+                            type="text"
                             value={material.cordStopPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'cordStopPlacement', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('cordStopPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
+                            aria-invalid={hasError('cordStopPlacement')}
                           />
-                          {hasError('cordStopPlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('cordStopPlacement')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-cord-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-cord-placement-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm  cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
-                          </label>
-                        </div>
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-cord-placement-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-cord-placement-${materialIndex}`)?.click()}
+                            >
+                              {material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
                       </div>
                     </>
                   )}
@@ -6090,229 +3365,74 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* CORD RING - Complete fields matching table exactly */}
                   {material.trimAccessory === 'CORD STOPS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.cordStopTestingRequirements) ? material.cordStopTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.cordStopTestingRequirements) ? material.cordStopTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'cordStopTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`cordstop-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.cordStopTestingRequirements) ? material.cordStopTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'cordStopTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.cordStopTestingRequirements) ? material.cordStopTestingRequirements : (material.cordStopTestingRequirements ? [material.cordStopTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'cordStopTestingRequirements', arr)}
                                 options={['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic']}
-                                placeholder={(Array.isArray(material.cordStopTestingRequirements) && material.cordStopTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.cordStopTestingRequirements) ? material.cordStopTestingRequirements : [];
-                                      const options = ['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'cordStopTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Locking Strength', 'UV Resistance', 'Cold Weather', 'Non-Toxic'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.cordStopTestingRequirements) ? material.cordStopTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'cordStopTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
+                                placeholder="Select testing requirements"
                               />
-                              </div>
-                                </div>
                             </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-cord-placement-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-cord-placement-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                                                  type="text"
-                          value={material.cordStopQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'cordStopQty', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Unit: Pieces"
-                                                />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.cordStopSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'cordStopSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 3-5%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                          <input
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'cordStopPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-cord-placement-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-cord-placement-${materialIndex}`)?.click()}
+                            >
+                              {material.cordStopPlacementReferenceImage ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
                             type="text"
-                          value={material.cordStopWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'cordStopWastage', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 3-5%"
+                            value={material.cordStopQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'cordStopQty', e.target.value)}
+                            placeholder="Unit: Pieces"
                           />
-                        </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
-                          value={material.cordStopApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'cordStopApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Functionality Approval']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.cordStopRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'cordStopRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Ergonomic grip, No snagging on cord opening"
-                        />
+                        </Field>
+                        <Field label="SURPLUS %" width="sm" error={errors[getErrorKey('cordStopSurplus')]}>
+                          <PercentInput
+                            value={material.cordStopSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'cordStopSurplus', e.target.value)}
+                            error={hasError('cordStopSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" width="sm" error={errors[getErrorKey('cordStopWastage')]}>
+                          <PercentInput
+                            value={material.cordStopWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'cordStopWastage', e.target.value)}
+                            error={hasError('cordStopWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" width="sm" error={errors[getErrorKey('cordStopApproval')]}>
+                          <SearchableDropdown
+                            value={material.cordStopApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'cordStopApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'IPP', 'Functionality Approval']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('cordStopApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.cordStopRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'cordStopRemarks', e.target.value)}
+                            placeholder="Ergonomic grip, No snagging on cord opening"
+                          />
+                        </Field>
                       </div>
 
                       {/* CORD RING - Advance Spec Button and Fields */}
@@ -6381,93 +3501,81 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* RINGS-LOOPS Fields */}
                   {material.trimAccessory === 'RINGS-LOOPS' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ringsLoopsType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.ringsLoopsType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsType', selectedValue)}
-                          options={['D-Ring (Welded/Non-Welded)', 'O-Ring', 'Square Ring', 'Loop Fastener', 'Rectangular Ring']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ringsLoopsType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('ringsLoopsType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ringsLoopsType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ringsLoopsMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.ringsLoopsMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsMaterial', selectedValue)}
-                          options={['Metal (Stainless Steel, Brass, Zinc Alloy)', 'Plastic (Acetal, Nylon)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ringsLoopsMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('ringsLoopsMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ringsLoopsMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ringsLoopsSize') ? 'text-red-600' : 'text-gray-700'}`}>SIZE SPEC *</label>
-                        <input
-                          type="text"
-                          value={material.ringsLoopsSize || ''}
-                          onChange={(e) => handleChange(materialIndex, 'ringsLoopsSize', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ringsLoopsSize') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Inner Diameter or Webbing Width (25mm, 38mm, 50mm, 1 inch, 1.5 inch)"
-                        />
-                        {hasError('ringsLoopsSize') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ringsLoopsSize')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ringsLoopsThicknessGauge') ? 'text-red-600' : 'text-gray-700'}`}>THICKNESS/GAUGE *</label>
-                        <SearchableDropdown
-                          value={material.ringsLoopsThicknessGauge || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsThicknessGauge', selectedValue)}
-                          options={['Wire Diameter (metal)', 'Material Gauge']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ringsLoopsThicknessGauge') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('ringsLoopsThicknessGauge') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ringsLoopsThicknessGauge')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ringsLoopsFinishPlating') ? 'text-red-600' : 'text-gray-700'}`}>FINISH/PLATING *</label>
-                        <SearchableDropdown
-                          value={material.ringsLoopsFinishPlating || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsFinishPlating', selectedValue)}
-                          options={['Nickel', 'Black Oxide', 'Antique Brass', 'Matte (plastic)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('ringsLoopsFinishPlating') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('ringsLoopsFinishPlating') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ringsLoopsFinishPlating')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('ringsLoopsPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <div className="flex items-end gap-4">
-                        <input
-                          type="text"
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('ringsLoopsType')]}> 
+                          <SearchableDropdown
+                            value={material.ringsLoopsType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsType', selectedValue)}
+                            options={['D-Ring (Welded/Non-Welded)', 'O-Ring', 'Square Ring', 'Loop Fastener', 'Rectangular Ring']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('ringsLoopsType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('ringsLoopsMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.ringsLoopsMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsMaterial', selectedValue)}
+                            options={['Metal (Stainless Steel, Brass, Zinc Alloy)', 'Plastic (Acetal, Nylon)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('ringsLoopsMaterial'))}
+                          />
+                        </Field>
+                        <Field label="SIZE SPEC" required width="sm" error={errors[getErrorKey('ringsLoopsSize')]}> 
+                          <Input
+                            type="text"
+                            value={material.ringsLoopsSize || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ringsLoopsSize', e.target.value)}
+                            placeholder="Inner Diameter or Webbing Width (25mm, 38mm, 50mm, 1 inch, 1.5 inch)"
+                            aria-invalid={hasError('ringsLoopsSize')}
+                          />
+                        </Field>
+                        <Field label="THICKNESS/GAUGE" required width="sm" error={errors[getErrorKey('ringsLoopsThicknessGauge')]}> 
+                          <SearchableDropdown
+                            value={material.ringsLoopsThicknessGauge || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsThicknessGauge', selectedValue)}
+                            options={['Wire Diameter (metal)', 'Material Gauge']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('ringsLoopsThicknessGauge'))}
+                          />
+                        </Field>
+                        <Field label="FINISH/PLATING" required width="sm" error={errors[getErrorKey('ringsLoopsFinishPlating')]}> 
+                          <SearchableDropdown
+                            value={material.ringsLoopsFinishPlating || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsFinishPlating', selectedValue)}
+                            options={['Nickel', 'Black Oxide', 'Antique Brass', 'Matte (plastic)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('ringsLoopsFinishPlating'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('ringsLoopsPlacement')]}> 
+                          <Input
+                            type="text"
                             value={material.ringsLoopsPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'ringsLoopsPlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${hasError('ringsLoopsPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Enter placement"
-                        />
-                        <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'ringsLoopsPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-rings-loops-placement-${materialIndex}`}
-                            accept="image/*"
+                            aria-invalid={hasError('ringsLoopsPlacement')}
                           />
-                          <label
-                            htmlFor={`upload-rings-loops-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('ringsLoopsPlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.ringsLoopsPlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
-                          </label>
-                        </div>
-                        {hasError('ringsLoopsPlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('ringsLoopsPlacement')]}</span>}
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'ringsLoopsPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-rings-loops-placement-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-rings-loops-placement-${materialIndex}`)?.click()}
+                            >
+                              {material.ringsLoopsPlacementReferenceImage ? 'UPLOADED' : 'IMAGE REF'}
+                            </Button>
+                          </div>
+                        </Field>
                       </div>
                     </>
                   )}
@@ -6475,228 +3583,74 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* RINGS-LOOPS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'RINGS-LOOPS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.ringsLoopsTestingRequirements) ? material.ringsLoopsTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.ringsLoopsTestingRequirements) ? material.ringsLoopsTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'ringsLoopsTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`ringsloops-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Tensile Strength', 'Corrosion (Salt Spray)', 'Weld Integrity'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.ringsLoopsTestingRequirements) ? material.ringsLoopsTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'ringsLoopsTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.ringsLoopsTestingRequirements) ? material.ringsLoopsTestingRequirements : (material.ringsLoopsTestingRequirements ? [material.ringsLoopsTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'ringsLoopsTestingRequirements', arr)}
                                 options={['Tensile Strength', 'Corrosion (Salt Spray)', 'Weld Integrity']}
-                                placeholder={(Array.isArray(material.ringsLoopsTestingRequirements) && material.ringsLoopsTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.ringsLoopsTestingRequirements) ? material.ringsLoopsTestingRequirements : [];
-                                      const options = ['Tensile Strength', 'Corrosion (Salt Spray)', 'Weld Integrity'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'ringsLoopsTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Tensile Strength', 'Corrosion (Salt Spray)', 'Weld Integrity'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.ringsLoopsTestingRequirements) ? material.ringsLoopsTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'ringsLoopsTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
+                                placeholder="Select testing requirements"
                               />
-                              </div>
-                                </div>
                             </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'ringsLoopsTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-rings-loops-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-rings-loops-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.ringsLoopsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.ringsLoopsQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'ringsLoopsQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pieces"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.ringsLoopsSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'ringsLoopsSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="2-5%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                          <input
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'ringsLoopsTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-rings-loops-testing-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-rings-loops-testing-${materialIndex}`)?.click()}
+                            >
+                              {material.ringsLoopsTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
                             type="text"
-                          value={material.ringsLoopsWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'ringsLoopsWastage', e.target.value)}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="2-5%"
+                            value={material.ringsLoopsQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ringsLoopsQty', e.target.value)}
+                            placeholder="Pieces"
                           />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.ringsLoopsApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Load Test Certificate']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.ringsLoopsRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'ringsLoopsRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Non-magnetic (military), Smooth burr-free edges"
-                        />
+                        </Field>
+                        <Field label="SURPLUS %" width="sm" error={errors[getErrorKey('ringsLoopsSurplus')]}> 
+                          <PercentInput
+                            value={material.ringsLoopsSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ringsLoopsSurplus', e.target.value)}
+                            error={hasError('ringsLoopsSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" width="sm" error={errors[getErrorKey('ringsLoopsWastage')]}> 
+                          <PercentInput
+                            value={material.ringsLoopsWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ringsLoopsWastage', e.target.value)}
+                            error={hasError('ringsLoopsWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" width="sm" error={errors[getErrorKey('ringsLoopsApproval')]}> 
+                          <SearchableDropdown
+                            value={material.ringsLoopsApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'IPP', 'Load Test Certificate']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('ringsLoopsApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.ringsLoopsRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'ringsLoopsRemarks', e.target.value)}
+                            placeholder="Non-magnetic (military), Smooth burr-free edges"
+                          />
+                        </Field>
                       </div>
 
                       {/* ADVANCE SPEC Section */}
@@ -6763,92 +3717,81 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* PIN-BARBS Fields */}
                   {material.trimAccessory === 'PIN-BARBS' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('pinBarbType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.pinBarbType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbType', selectedValue)}
-                          options={['Safety Pin', 'Straight Pin', 'Tagging Barb (plastic fastener)', 'Loop Pin', 'Ball Head Pin']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('pinBarbType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('pinBarbType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('pinBarbType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('pinBarbMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.pinBarbMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbMaterial', selectedValue)}
-                          options={['Plastic (Polypropylene)', 'Metal (Brass, Steel)', 'Stainless Steel']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('pinBarbMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('pinBarbMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('pinBarbMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('pinBarbSize') ? 'text-red-600' : 'text-gray-700'}`}>SIZE SPEC *</label>
-                        <input
-                          type="text"
-                          value={material.pinBarbSize || ''}
-                          onChange={(e) => handleChange(materialIndex, 'pinBarbSize', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('pinBarbSize') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Length (25mm, 50mm, 1 inch), Needle Gauge (straight pins)"
-                        />
-                        {hasError('pinBarbSize') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('pinBarbSize')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('pinBarbColour') ? 'text-red-600' : 'text-gray-700'}`}>COLOUR *</label>
-                        <SearchableDropdown
-                          value={material.pinBarbColour || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbColour', selectedValue)}
-                          options={['Clear', 'Black', 'White', 'Plated (metal)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('pinBarbColour') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('pinBarbColour') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('pinBarbColour')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('pinBarbHeadType') ? 'text-red-600' : 'text-gray-700'}`}>HEAD TYPE *</label>
-                        <SearchableDropdown
-                          value={material.pinBarbHeadType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbHeadType', selectedValue)}
-                          options={['Pear Head', 'T-Bar', 'Smooth', 'Ball Head', 'Flat Head']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('pinBarbHeadType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('pinBarbHeadType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('pinBarbHeadType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('pinBarbPlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <div className="flex items-end gap-4">
-                          <input
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('pinBarbType')]}> 
+                          <SearchableDropdown
+                            value={material.pinBarbType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbType', selectedValue)}
+                            options={['Safety Pin', 'Straight Pin', 'Tagging Barb (plastic fastener)', 'Loop Pin', 'Ball Head Pin']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('pinBarbType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('pinBarbMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.pinBarbMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbMaterial', selectedValue)}
+                            options={['Plastic (Polypropylene)', 'Metal (Brass, Steel)', 'Stainless Steel']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('pinBarbMaterial'))}
+                          />
+                        </Field>
+                        <Field label="SIZE SPEC" required width="sm" error={errors[getErrorKey('pinBarbSize')]}> 
+                          <Input
+                            type="text"
+                            value={material.pinBarbSize || ''}
+                            onChange={(e) => handleChange(materialIndex, 'pinBarbSize', e.target.value)}
+                            placeholder="Length (25mm, 50mm, 1 inch), Needle Gauge (straight pins)"
+                            aria-invalid={hasError('pinBarbSize')}
+                          />
+                        </Field>
+                        <Field label="COLOUR" required width="sm" error={errors[getErrorKey('pinBarbColour')]}> 
+                          <SearchableDropdown
+                            value={material.pinBarbColour || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbColour', selectedValue)}
+                            options={['Clear', 'Black', 'White', 'Plated (metal)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('pinBarbColour'))}
+                          />
+                        </Field>
+                        <Field label="HEAD TYPE" required width="sm" error={errors[getErrorKey('pinBarbHeadType')]}> 
+                          <SearchableDropdown
+                            value={material.pinBarbHeadType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbHeadType', selectedValue)}
+                            options={['Pear Head', 'T-Bar', 'Smooth', 'Ball Head', 'Flat Head']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('pinBarbHeadType'))}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('pinBarbPlacement')]}> 
+                          <Input
                             type="text"
                             value={material.pinBarbPlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'pinBarbPlacement', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none flex-1 ${hasError('pinBarbPlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Enter placement"
+                            aria-invalid={hasError('pinBarbPlacement')}
                           />
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'pinBarbPlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-pin-barb-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-pin-barb-placement-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '100px' }}
-                          >
-                            {material.pinBarbPlacementReferenceImage ? 'UPLOADED' : 'IMAGE'}
-                          </label>
-                        </div>
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'pinBarbPlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-pin-barb-placement-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-pin-barb-placement-${materialIndex}`)?.click()}
+                            >
+                              {material.pinBarbPlacementReferenceImage ? 'UPLOADED' : 'IMAGE'}
+                            </Button>
+                          </div>
+                        </Field>
                       </div>
                     </>
                   )}
@@ -6856,228 +3799,74 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* PIN-BARBS - Complete fields matching table exactly */}
                   {material.trimAccessory === 'PIN-BARBS' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.pinBarbTestingRequirements) ? material.pinBarbTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.pinBarbTestingRequirements) ? material.pinBarbTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'pinBarbTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`pinbarb-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Needle Sharpness', 'Non-Rusting', 'Metal Detection (ferrous)'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.pinBarbTestingRequirements) ? material.pinBarbTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'pinBarbTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.pinBarbTestingRequirements) ? material.pinBarbTestingRequirements : (material.pinBarbTestingRequirements ? [material.pinBarbTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'pinBarbTestingRequirements', arr)}
                                 options={['Needle Sharpness', 'Non-Rusting', 'Metal Detection (ferrous)']}
-                                placeholder={(Array.isArray(material.pinBarbTestingRequirements) && material.pinBarbTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.pinBarbTestingRequirements) ? material.pinBarbTestingRequirements : [];
-                                      const options = ['Needle Sharpness', 'Non-Rusting', 'Metal Detection (ferrous)'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'pinBarbTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Needle Sharpness', 'Non-Rusting', 'Metal Detection (ferrous)'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.pinBarbTestingRequirements) ? material.pinBarbTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'pinBarbTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
+                                placeholder="Select testing requirements"
                               />
-                              </div>
-                                </div>
                             </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'pinBarbTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-pin-barb-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-pin-barb-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.pinBarbTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.pinBarbQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'pinBarbQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="PAIR PER PC"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                                                  type="text"
-                          value={material.pinBarbSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'pinBarbSurplus', e.target.value)}
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="10%"
-                                                />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <input
-                          type="text"
-                          value={material.pinBarbWastage || ''}
-                          onChange={(e) => handleChange(materialIndex, 'pinBarbWastage', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="10%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.pinBarbApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.pinBarbRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'pinBarbRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="Non-marking on delicate fabrics, Standard magazine cartridges"
-                        />
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'pinBarbTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-pin-barb-testing-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-pin-barb-testing-${materialIndex}`)?.click()}
+                            >
+                              {material.pinBarbTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.pinBarbQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'pinBarbQty', e.target.value)}
+                            placeholder="PAIR PER PC"
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" width="sm" error={errors[getErrorKey('pinBarbSurplus')]}> 
+                          <PercentInput
+                            value={material.pinBarbSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'pinBarbSurplus', e.target.value)}
+                            error={hasError('pinBarbSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" width="sm" error={errors[getErrorKey('pinBarbWastage')]}> 
+                          <PercentInput
+                            value={material.pinBarbWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'pinBarbWastage', e.target.value)}
+                            error={hasError('pinBarbWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" width="sm" error={errors[getErrorKey('pinBarbApproval')]}> 
+                          <SearchableDropdown
+                            value={material.pinBarbApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('pinBarbApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.pinBarbRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'pinBarbRemarks', e.target.value)}
+                            placeholder="Non-marking on delicate fabrics, Standard magazine cartridges"
+                          />
+                        </Field>
                       </div>
 
                       {/* ADVANCE SPEC Section */}
@@ -7145,84 +3934,63 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* MAGNETIC CLOSURE Fields */}
                   {material.trimAccessory === 'MAGNETIC CLOSURE' && (
                     <>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('magneticClosureType') ? 'text-red-600' : 'text-gray-700'}`}>TYPE *</label>
-                        <SearchableDropdown
-                          value={material.magneticClosureType || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureType', selectedValue)}
-                          options={['Sew-In Magnet (encased)', 'Clasp Magnet (metal body)', 'Snap Magnet', 'Hidden Magnet', 'Magnetic Button']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('magneticClosureType') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('magneticClosureType') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('magneticClosureType')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('magneticClosureMaterial') ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL *</label>
-                        <SearchableDropdown
-                          value={material.magneticClosureMaterial || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureMaterial', selectedValue)}
-                          options={['Neodymium (strongest)', 'Ferrite', 'Encasing (PVC)', 'Encasing (Stainless Steel)', 'Encasing (Fabric)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('magneticClosureMaterial') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('magneticClosureMaterial') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('magneticClosureMaterial')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('magneticClosureSize') ? 'text-red-600' : 'text-gray-700'}`}>SIZE SPEC *</label>
-                        <input
-                          type="text"
-                          value={material.magneticClosureSize || ''}
-                          onChange={(e) => handleChange(materialIndex, 'magneticClosureSize', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('magneticClosureSize') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="CM (e.g., 10mm, 14mm, 18mm, 20mm, Thickness)"
-                        />
-                        {hasError('magneticClosureSize') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('magneticClosureSize')]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className={`text-sm font-semibold mb-2 ${hasError('magneticClosureStrength') ? 'text-red-600' : 'text-gray-700'}`}>STRENGTH *</label>
-                        <SearchableDropdown
-                          value={material.magneticClosureStrength || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureStrength', selectedValue)}
-                          options={['Pull Force (Newtons)', 'Pull Force (Kilograms)']}
-                          placeholder="Select or type"
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('magneticClosureStrength') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                        {hasError('magneticClosureStrength') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('magneticClosureStrength')]}</span>}
-                      </div>
-                      <div className="flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className={`text-sm font-semibold mb-2 ${hasError('magneticClosurePlacement') ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT *</label>
-                        <input
-                          type="text"
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TYPE" required width="sm" error={errors[getErrorKey('magneticClosureType')]}> 
+                          <SearchableDropdown
+                            value={material.magneticClosureType || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureType', selectedValue)}
+                            options={['Sew-In Magnet (encased)', 'Clasp Magnet (metal body)', 'Snap Magnet', 'Hidden Magnet', 'Magnetic Button']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('magneticClosureType'))}
+                          />
+                        </Field>
+                        <Field label="MATERIAL" required width="sm" error={errors[getErrorKey('magneticClosureMaterial')]}> 
+                          <SearchableDropdown
+                            value={material.magneticClosureMaterial || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureMaterial', selectedValue)}
+                            options={['Neodymium (strongest)', 'Ferrite', 'Encasing (PVC)', 'Encasing (Stainless Steel)', 'Encasing (Fabric)']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('magneticClosureMaterial'))}
+                          />
+                        </Field>
+                        <Field label="SIZE SPEC" required width="sm" error={errors[getErrorKey('magneticClosureSize')]}> 
+                          <Input
+                            type="text"
+                            value={material.magneticClosureSize || ''}
+                            onChange={(e) => handleChange(materialIndex, 'magneticClosureSize', e.target.value)}
+                            placeholder="CM (e.g., 10mm, 14mm, 18mm, 20mm, Thickness)"
+                            aria-invalid={hasError('magneticClosureSize')}
+                          />
+                        </Field>
+                        <Field label="PLACEMENT" required width="sm" error={errors[getErrorKey('magneticClosurePlacement')]}> 
+                          <Input
+                            type="text"
                             value={material.magneticClosurePlacement || ''}
                             onChange={(e) => handleChange(materialIndex, 'magneticClosurePlacement', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${hasError('magneticClosurePlacement') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
+                            aria-invalid={hasError('magneticClosurePlacement')}
                           />
-                          {hasError('magneticClosurePlacement') && <span className="text-red-600 text-xs mt-1">{errors[getErrorKey('magneticClosurePlacement')]}</span>}
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                          <input
-                            type="file"
-                            onChange={(e) => handleChange(materialIndex, 'magneticClosurePlacementReferenceImage', e.target.files[0])}
-                            className="hidden"
-                            id={`upload-magnetic-placement-${materialIndex}`}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`upload-magnetic-placement-${materialIndex}`}
-                            className={`border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 hover:bg-gray-50 ${hasError('magneticClosurePlacementReferenceImage') ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                          >
-                            {material.magneticClosurePlacementReferenceImage ? 'UPLOADED' : 'REF IMAGE'}
-                          </label>
-                        </div>
+                        </Field>
+                        <Field label="PLACEMENT REF" width="sm">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'magneticClosurePlacementReferenceImage', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-magnetic-placement-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-magnetic-placement-${materialIndex}`)?.click()}
+                            >
+                              {material.magneticClosurePlacementReferenceImage ? 'UPLOADED' : 'REF IMAGE'}
+                            </Button>
+                          </div>
+                        </Field>
                       </div>
                     </>
                   )}
@@ -7230,228 +3998,74 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* MAGNETIC CLOSURE - Complete fields matching table exactly */}
                   {material.trimAccessory === 'MAGNETIC CLOSURE' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus-within:border-indigo-500 focus-within:outline-none"
-                            style={{ 
-                              padding: '8px 12px',
-                              minHeight: '44px',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                              alignItems: 'center',
-                              cursor: 'text'
-                            }}
-                          >
-                            {/* Selected chips */}
-                            {(Array.isArray(material.magneticClosureTestingRequirements) ? material.magneticClosureTestingRequirements : []).map((req, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium"
-                                style={{
-                                  backgroundColor: '#e0e7ff',
-                                  color: '#4338ca',
-                                  border: '1px solid #c7d2fe'
-                                }}
-                              >
-                                {req}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const current = Array.isArray(material.magneticClosureTestingRequirements) ? material.magneticClosureTestingRequirements : [];
-                                    const updated = current.filter((_, i) => i !== index);
-                                    handleChange(materialIndex, 'magneticClosureTestingRequirements', updated);
-                                  }}
-                                  style={{
-                                    marginLeft: '4px',
-                                    cursor: 'pointer',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#4338ca',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px',
-                                    lineHeight: '1',
-                                    padding: 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '16px',
-                                    height: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {/* Dropdown for selecting new options */}
-                            <div 
-                              id={`magnetic-testing-wrapper-${materialIndex}`}
-                              style={{ flex: 1, minWidth: '200px' }}
-                            >
-                              <SearchableDropdown
-                                value=""
-                                strictMode={false}
-                                onChange={(selectedValue) => {
-                                  const options = ['Pull Force Test', 'Corrosion', 'Needle Detection (if shielded)'];
-                                  if (selectedValue && options.includes(selectedValue)) {
-                                    const current = Array.isArray(material.magneticClosureTestingRequirements) ? material.magneticClosureTestingRequirements : [];
-                                    if (!current.includes(selectedValue)) {
-                                      const updated = [...current, selectedValue];
-                                      handleChange(materialIndex, 'magneticClosureTestingRequirements', updated);
-                                    }
-                                  }
-                                }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                        <Field label="TESTING REQ." width="sm" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <TestingRequirementsInput
+                                value={Array.isArray(material.magneticClosureTestingRequirements) ? material.magneticClosureTestingRequirements : (material.magneticClosureTestingRequirements ? [material.magneticClosureTestingRequirements] : [])}
+                                onChange={(arr) => handleChange(materialIndex, 'magneticClosureTestingRequirements', arr)}
                                 options={['Pull Force Test', 'Corrosion', 'Needle Detection (if shielded)']}
-                                placeholder={(Array.isArray(material.magneticClosureTestingRequirements) && material.magneticClosureTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
-                                className="border-0 outline-none"
-                                style={{ 
-                                  padding: '4px 0', 
-                                  height: 'auto', 
-                                  minHeight: '32px',
-                                  backgroundColor: 'transparent', 
-                                  boxShadow: 'none',
-                                  border: 'none',
-                                  borderWidth: '0',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => {
-                                  const input = e.target;
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#667eea';
-                                    container.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                  }
-                                  const handleKeyDown = (keyEvent) => {
-                                    if (keyEvent.key === 'Enter' && input.value && input.value.trim()) {
-                                      keyEvent.preventDefault();
-                                      keyEvent.stopPropagation();
-                                      const newValue = input.value.trim();
-                                      const current = Array.isArray(material.magneticClosureTestingRequirements) ? material.magneticClosureTestingRequirements : [];
-                                      const options = ['Pull Force Test', 'Corrosion', 'Needle Detection (if shielded)'];
-                                      if (!current.includes(newValue)) {
-                                        if (!options.includes(newValue)) {
-                                          const updated = [...current, newValue];
-                                          handleChange(materialIndex, 'magneticClosureTestingRequirements', updated);
-                                        }
-                                        input.value = '';
-                                        input.blur();
-                                      }
-                                    }
-                                  };
-                                  input.addEventListener('keydown', handleKeyDown);
-                                  input._enterHandler = handleKeyDown;
-                                }}
-                                onBlur={(e) => {
-                                  const input = e.target;
-                                  if (input._enterHandler) {
-                                    input.removeEventListener('keydown', input._enterHandler);
-                                    input._enterHandler = null;
-                                  }
-                                  input.style.border = 'none';
-                                  input.style.borderWidth = '0';
-                                  input.style.outline = 'none';
-                                  input.style.boxShadow = 'none';
-                                  const container = input.closest('[class*="border-2"]');
-                                  if (container) {
-                                    container.style.borderColor = '#e5e7eb';
-                                    container.style.boxShadow = 'none';
-                                  }
-                                  if (input.value && input.value.trim()) {
-                                    const typedValue = input.value.trim();
-                                    const options = ['Pull Force Test', 'Corrosion', 'Needle Detection (if shielded)'];
-                                    if (!options.includes(typedValue)) {
-                                      const current = Array.isArray(material.magneticClosureTestingRequirements) ? material.magneticClosureTestingRequirements : [];
-                                      if (!current.includes(typedValue)) {
-                                        const updated = [...current, typedValue];
-                                        handleChange(materialIndex, 'magneticClosureTestingRequirements', updated);
-                                      }
-                                    }
-                                    input.value = '';
-                                  }
-                                }}
+                                placeholder="Select testing requirements"
                               />
-                              </div>
-                                </div>
                             </div>
-                        {/* UPLOAD button */}
-                        <div className="flex flex-col" style={{ marginTop: '12px' }}>
-                              <input
-                                type="file"
-                                onChange={(e) => handleChange(materialIndex, 'magneticClosureTestingRequirementFile', e.target.files[0])}
-                                className="hidden"
-                                id={`upload-magnetic-testing-${materialIndex}`}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`upload-magnetic-testing-${materialIndex}`}
-                            className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                            style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px', width: 'fit-content' }}
-                              >
-                            {material.magneticClosureTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
-                              </label>
-                        </div>
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
-                        <input
-                          type="text"
-                          value={material.magneticClosureQty || ''}
-                          onChange={(e) => handleChange(materialIndex, 'magneticClosureQty', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pairs (Male/Female set) PER PC"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <input
-                          type="text"
-                          value={material.magneticClosureSurplus || ''}
-                          onChange={(e) => handleChange(materialIndex, 'magneticClosureSurplus', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="e.g., 3-5%"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-                        <SearchableDropdown
-                          value={material.magneticClosureWastage || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureWastage', selectedValue)}
-                          options={['Flap', 'Hidden Closure', 'Decorative', 'Removable']}
-                          placeholder="Select or type Wastage %"
-                                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                                  style={{ padding: '10px 14px', height: '44px' }}
-                                                />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                                                <SearchableDropdown
-                          value={material.magneticClosureApproval || ''}
-                          onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Magnet Strength Check']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
-                        <textarea
-                          value={material.magneticClosureRemarks || ''}
-                          onChange={(e) => handleChange(materialIndex, 'magneticClosureRemarks', e.target.value)}
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', minHeight: '44px' }}
-                          rows="1"
-                          placeholder="RF-shielded if near RFID, Care label warn about pacemakers"
-                        />
+                            <input
+                              type="file"
+                              onChange={(e) => handleChange(materialIndex, 'magneticClosureTestingRequirementFile', e.target.files[0])}
+                              className="hidden"
+                              id={`upload-magnetic-testing-${materialIndex}`}
+                              accept="image/*"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-11"
+                              onClick={() => document.getElementById(`upload-magnetic-testing-${materialIndex}`)?.click()}
+                            >
+                              {material.magneticClosureTestingRequirementFile ? 'UPLOADED' : 'UPLOAD'}
+                            </Button>
+                          </div>
+                        </Field>
+                        <Field label="QTY" width="sm">
+                          <Input
+                            type="text"
+                            value={material.magneticClosureQty || ''}
+                            onChange={(e) => handleChange(materialIndex, 'magneticClosureQty', e.target.value)}
+                            placeholder="Pairs (Male/Female set) PER PC"
+                          />
+                        </Field>
+                        <Field label="SURPLUS %" width="sm" error={errors[getErrorKey('magneticClosureSurplus')]}> 
+                          <PercentInput
+                            value={material.magneticClosureSurplus || ''}
+                            onChange={(e) => handleChange(materialIndex, 'magneticClosureSurplus', e.target.value)}
+                            error={hasError('magneticClosureSurplus')}
+                          />
+                        </Field>
+                        <Field label="WASTAGE %" width="sm" error={errors[getErrorKey('magneticClosureWastage')]}> 
+                          <PercentInput
+                            value={material.magneticClosureWastage || ''}
+                            onChange={(e) => handleChange(materialIndex, 'magneticClosureWastage', e.target.value)}
+                            error={hasError('magneticClosureWastage')}
+                          />
+                        </Field>
+                        <Field label="APPROVAL" width="sm" error={errors[getErrorKey('magneticClosureApproval')]}> 
+                          <SearchableDropdown
+                            value={material.magneticClosureApproval || ''}
+                            onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureApproval', selectedValue)}
+                            options={["BUYER'S", 'INITIAL', 'IPP', 'Magnet Strength Check']}
+                            placeholder="Select or type"
+                            className={dropdownClass(hasError('magneticClosureApproval'))}
+                          />
+                        </Field>
+                        <Field label="REMARKS" width="md" className="col-span-1 md:col-span-2 lg:col-span-5">
+                          <Input
+                            type="text"
+                            value={material.magneticClosureRemarks || ''}
+                            onChange={(e) => handleChange(materialIndex, 'magneticClosureRemarks', e.target.value)}
+                            placeholder="RF-shielded if near RFID, Care label warn about pacemakers"
+                          />
+                        </Field>
                       </div>
 
                       {/* MAGNETIC CLOSURE - Advance Spec Button and Fields */}
@@ -7481,6 +4095,17 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         {/* Advanced Spec Fields */}
                         {material.showMagneticClosureAdvancedSpec && (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
+                              <SearchableDropdown
+                                value={material.magneticClosureStrength || ''}
+                                onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureStrength', selectedValue)}
+                                options={['Pull Force (Newtons)', 'Pull Force (Kilograms)']}
+                                placeholder="Select or type"
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              />
+                            </div>
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">POLARITY</label>
                               <SearchableDropdown
