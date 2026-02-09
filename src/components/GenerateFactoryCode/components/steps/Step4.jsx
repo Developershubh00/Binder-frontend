@@ -452,7 +452,7 @@ const Step4 = ({
                     <SearchableDropdown
                       value={material.workOrder || ''}
                       onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'workOrder', selectedValue)}
-                      options={['Sewing', 'DYEING', 'WEAVING', 'PRINTING', 'CUTTING']}
+                      options={["WEAVING", "TUFTING", "QUILTING", "PRINTING", "KNITTING", "EMBROIDERY", "DYEING", "BRAIDING", "CARPET", "CUTTING" , "SEWING" , "FRINGE/TASSELS"]}
                       placeholder="Select or type Work Order"
                       className={errors[`artworkMaterial_${actualIndex}_workOrder`] 
                         ? 'border-red-600' 
