@@ -1572,7 +1572,7 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.trimAccessory || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'trimAccessory', selectedValue)}
-                          options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
+                          options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING(FUSING)', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
                           placeholder="Select or type Trim/Accessory"
                           style={{ width: '280px' }}
                           className={errors[`rawMaterial_${actualIndex}_trimAccessory`] ? 'border-red-600' : ''}

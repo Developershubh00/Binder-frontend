@@ -187,7 +187,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
       'feltKgs': { when: 'feltQtyType', equals: 'KGS' }
     }
   },
-  'INTERLINING': {
+  'INTERLINING(FUSING)': {
     required: ['interliningType', 'interliningMaterial', 'interliningAdhesiveType', 'interliningColour', 'interliningPlacement', 'interliningGsm', 'interliningLength', 'interliningWidth', 'interliningSurplus', 'interliningWastage', 'interliningApproval', 'interliningRemarks'],
     advanced: ['interliningDotDensity', 'interliningStretch', 'interliningFusingSpec', 'interliningHandFeel'],
     conditional: {
@@ -252,8 +252,8 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     advanced: ['pinBarbTensileStrength', 'pinBarbApplication', 'pinBarbMagazineCartridge']
   },
   'MAGNETIC CLOSURE': {
-    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosureStrength', 'magneticClosurePlacement', 'magneticClosureTestingRequirements', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval', 'magneticClosureRemarks'],
-    advanced: ['magneticClosurePolarity', 'magneticClosureApplication', 'magneticClosureEncasing', 'magneticClosureShielding']
+    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosurePlacement', 'magneticClosureTestingRequirements', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval', 'magneticClosureRemarks'],
+    advanced: ['magneticClosureStrength', 'magneticClosurePolarity', 'magneticClosureApplication', 'magneticClosureEncasing', 'magneticClosureShielding']
   }
 };
 
