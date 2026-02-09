@@ -597,7 +597,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                                       className="h-11 w-full px-3 whitespace-nowrap"
                                       onClick={() => document.getElementById(uploadId)?.click()}
                                     >
-                                      {file ? 'UPLOADED ' + (index + 1) : 'UPLOAD ' + (index + 1)}
+                                      {file ? 'UPLOADED COLOR ' + (index + 1) : 'COLOR ' + (index + 1)}
                                     </Button>
                                   </div>
                                 );
@@ -1827,7 +1827,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {/* BUCKLES — Field, Input, PercentInput, TestingRequirementsInput, Button, shadcn tokens */}
                   {material.trimAccessory === 'BUCKLES' && (
                     <>
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-4">
                         <Field label="TYPE" required width="sm" error={errors[getErrorKey('bucklesType')]}>
                           <SearchableDropdown
                             value={material.bucklesType || ''}
@@ -1837,7 +1837,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             className={`border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none ${hasError('bucklesType') ? 'border-red-600' : ''}`}
                           />
                         </Field>
-                        <Field label="MATERIAL DESCRIPTION" required width="sm" error={errors[getErrorKey('bucklesMaterial')]}>
+                        <Field label="MATERIAL DESC." required width="sm" error={errors[getErrorKey('bucklesMaterial')]}>
                           <SearchableDropdown
                             value={material.bucklesMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'bucklesMaterial', selectedValue)}
@@ -2214,7 +2214,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                                       className="h-11 w-full px-3 whitespace-nowrap"
                                       onClick={() => document.getElementById(uploadId)?.click()}
                                     >
-                                      {file ? 'UPLOADED ' + (index + 1) : 'UPLOAD ' + (index + 1)}
+                                      {file ? 'UPLOADED COLOR ' + (index + 1) : 'COLOR ' + (index + 1)}
                                     </Button>
                                   </div>
                                 );
