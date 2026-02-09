@@ -1608,7 +1608,7 @@ const Step2 = ({
                   
                   <div className="bg-card rounded-lg border border-border" style={{ padding: '1.25rem' }}>
                     {/* Table Selection Dropdown */}
-                    <Field label="SELECT FOAM TABLE" required width="sm" style={{ marginBottom: '1.5rem' }} error={errors[`rawMaterial_${actualIndex}_foamTableType`]}>
+                    <Field label="SELECT FOAM TYPE" required width="sm" style={{ marginBottom: '1.5rem' }} error={errors[`rawMaterial_${actualIndex}_foamTableType`]}>
                       <SearchableDropdown
                         value={material.foamTableType || ''}
                         onChange={(selectedValue) => {
