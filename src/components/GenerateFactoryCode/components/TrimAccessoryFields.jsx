@@ -4,6 +4,27 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
+import {
+  ZippersAdvancedSpec,
+  ButtonsAdvancedSpec,
+  VelcroAdvancedSpec,
+  RivetAdvancedSpec,
+  NiwarAdvancedSpec,
+  LaceAdvancedSpec,
+  FeltAdvancedSpec,
+  InterliningAdvancedSpec,
+  HookEyeAdvancedSpec,
+  BucklesAdvancedSpec,
+  RibbingAdvancedSpec,
+  CableTieAdvancedSpec,
+  SeamTapeAdvancedSpec,
+  ReflectiveTapeAdvancedSpec,
+  FrTrimsAdvancedSpec,
+  CordStopAdvancedSpec,
+  RingsLoopsAdvancedSpec,
+  PinBarbAdvancedSpec,
+  MagneticClosureAdvancedSpec
+} from './TrimAccessoryAdvancedSpecs';
 
 /**
  * TrimAccessoryFields Component
@@ -192,38 +213,16 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           size="sm"
                           onClick={() => handleChange(materialIndex, 'showZippersAdvancedSpec', !material.showZippersAdvancedSpec)}
                         >
-                          {material.showZippersAdvancedSpec ? '− Advance Spec' : '+ Advance Spec'}
+                          Advance Spec
                         </Button>
                       </div>
                       {material.showZippersAdvancedSpec && (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                          <Field label="SLIDER TYPE" width="sm">
-                            <SearchableDropdown
-                              value={material.zipSliderType || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'zipSliderType', selectedValue)}
-                              options={['Auto-lock', 'Non-lock', 'Reverse lock', 'Two-way']}
-                              placeholder="Select or type"
-                              className={dropdownClass(hasError('zipSliderType'))}
-                            />
-                          </Field>
-                          <Field label="FINISH / COATING" width="sm">
-                            <SearchableDropdown
-                              value={material.zipFinish || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'zipFinish', selectedValue)}
-                              options={['Nickel', 'Brass', 'Antique', 'Black Oxide', 'DTM (Puller)']}
-                              placeholder="Select or type"
-                              className={dropdownClass(hasError('zipFinish'))}
-                            />
-                          </Field>
-                          <Field label="LENGTH TOLERANCE" width="sm">
-                            <Input
-                              type="text"
-                              value={material.zipLengthTolerance || ''}
-                              onChange={(e) => handleChange(materialIndex, 'zipLengthTolerance', e.target.value)}
-                              placeholder="e.g., ±3mm, ±5mm"
-                            />
-                          </Field>
-                        </div>
+                        <ZippersAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
                       )}
                     </>
                   )}
@@ -403,39 +402,16 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           size="sm"
                           onClick={() => handleChange(materialIndex, 'showButtonsAdvancedSpec', !material.showButtonsAdvancedSpec)}
                         >
-                          {material.showButtonsAdvancedSpec ? '− Advance Spec' : '+ Advance Spec'}
+                          Advance Spec
                         </Button>
                       </div>
                       {material.showButtonsAdvancedSpec && (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                          <Field label="ATTACHMENT" width="sm">
-                            <SearchableDropdown
-                              value={material.buttonAttachment || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'buttonAttachment', selectedValue)}
-                              options={['Machine Sew', 'Hand Sew (Shank)', 'Pneumatic Press (Snaps)']}
-                              placeholder="Select or type"
-                              className={dropdownClass(hasError('buttonAttachment'))}
-                            />
-                          </Field>
-                          <Field label="FUNCTION" width="sm">
-                            <SearchableDropdown
-                              value={material.buttonFunction || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'buttonFunction', selectedValue)}
-                              options={['Functional (Closure)', 'Decorative', 'Dual Purpose']}
-                              placeholder="Select or type"
-                              className={dropdownClass(hasError('buttonFunction'))}
-                            />
-                          </Field>
-                          <Field label="LOGO" width="sm">
-                            <SearchableDropdown
-                              value={material.buttonLogo || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'buttonLogo', selectedValue)}
-                              options={['Plain', 'Embossed', 'Engraved', 'Laser Engraved', 'Custom']}
-                              placeholder="Select or type"
-                              className={dropdownClass(hasError('buttonLogo'))}
-                            />
-                          </Field>
-                        </div>
+                        <ButtonsAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
                       )}
                     </>
                   )}
@@ -616,109 +592,25 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* VELCRO - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        {/* Show/Hide Advance Spec Button */}
-                        <div style={{ marginBottom: '20px', width: '100%' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleChange(materialIndex, 'showVelcroAdvancedSpec', !material.showVelcroAdvancedSpec)}
-                            className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
-                            style={{
-                              backgroundColor: '#f3f4f6',
-                              borderColor: '#d1d5db',
-                              color: '#374151'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#e5e7eb';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f3f4f6';
-                            }}
-                          >
-                            {material.showVelcroAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
-                          </button>
-                        </div>
-                        
-                        {/* Advanced Spec Fields */}
-                        {material.showVelcroAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
-                            <div className="flex items-end gap-4">
-                              <div className="flex flex-col flex-1">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-                                <SearchableDropdown
-                                  value={material.velcroColour || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'velcroColour', selectedValue)}
-                                  options={['DTM', 'White', 'Black', 'Beige', 'Grey', 'Navy']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2" style={{ visibility: 'hidden' }}>UPLOAD</label>
-                                <input
-                                  type="file"
-                                  onChange={(e) => handleChange(materialIndex, 'velcroColorReference', e.target.files[0])}
-                                  className="hidden"
-                                  id={`upload-velcro-color-${materialIndex}`}
-                                  accept="image/*"
-                                />
-                                <label
-                                  htmlFor={`upload-velcro-color-${materialIndex}`}
-                                  className="border-2 rounded-lg text-sm font-medium cursor-pointer transition-all bg-white text-gray-900 border-[#e5e7eb] hover:bg-gray-50"
-                                  style={{ padding: '10px 16px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '150px' }}
-                                >
-                                  {material.velcroColorReference ? 'UPLOADED' : 'UPLOAD COLOR REFERENCE'}
-                                </label>
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">HOOK DENSITY</label>
-                              <SearchableDropdown
-                                value={material.velcroHookDensity || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'velcroHookDensity', selectedValue)}
-                                options={['Standard', 'High Density (stronger grip)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">LOOP TYPE</label>
-                              <SearchableDropdown
-                                value={material.velcroLoopType || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'velcroLoopType', selectedValue)}
-                                options={['Woven', 'Knitted', 'Non-woven']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">CYCLE LIFE</label>
-                              <SearchableDropdown
-                                value={material.velcroCycleLife || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'velcroCycleLife', selectedValue)}
-                                options={['Standard: 1,000+', 'Heavy Duty: 5,000+', 'Industrial: 10,000+']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">FLAME RETARDANT</label>
-                              <SearchableDropdown
-                                value={material.velcroFlameRetardant || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'velcroFlameRetardant', selectedValue)}
-                                options={['Standard', 'FR Treated', 'Inherently FR']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
+                          type="button"
+                          variant={material.showVelcroAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleChange(materialIndex, 'showVelcroAdvancedSpec', !material.showVelcroAdvancedSpec)}
+                        >
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showVelcroAdvancedSpec && (
+                        <VelcroAdvancedSpec
+                          material={material}
+                          materialIndex={materialIndex}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -871,53 +763,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* ADVANCE SPEC Section */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showRivetAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showRivetAdvancedSpec', !material.showRivetAdvancedSpec)}
-                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
-                          style={{
-                            backgroundColor: '#f3f4f6',
-                            borderColor: '#d1d5db',
-                            color: '#374151',
-                            marginBottom: '16px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#e5e7eb';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f3f4f6';
-                          }}
                         >
-                          {material.showRivetAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
-                        </button>
-                        {material.showRivetAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">LOGO</label>
-                              <SearchableDropdown
-                                value={material.rivetLogo || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'rivetLogo', selectedValue)}
-                                options={['Plain', 'Embossed', 'Custom', 'Laser Engraved']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">SETTING</label>
-                              <SearchableDropdown
-                                value={material.rivetSetting || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'rivetSetting', selectedValue)}
-                                options={['Machine Applied (specific die)', 'Hand Press']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showRivetAdvancedSpec && (
+                        <RivetAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -1150,88 +1013,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* NIWAR-WEBBING - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showNiwarAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showNiwarAdvancedSpec', !material.showNiwarAdvancedSpec)}
-                          style={{
-                            backgroundColor: material.showNiwarAdvancedSpec ? '#667eea' : '#ffffff',
-                            borderColor: material.showNiwarAdvancedSpec ? '#667eea' : '#e5e7eb',
-                            color: material.showNiwarAdvancedSpec ? '#ffffff' : '#374151',
-                            border: '2px solid',
-                            borderRadius: '8px',
-                            padding: '10px 20px',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            width: '100%',
-                            transition: 'all 0.2s',
-                            boxShadow: material.showNiwarAdvancedSpec ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!material.showNiwarAdvancedSpec) {
-                              e.target.style.backgroundColor = '#f9fafb';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!material.showNiwarAdvancedSpec) {
-                              e.target.style.backgroundColor = '#ffffff';
-                            }
-                          }}
                         >
-                          {material.showNiwarAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
-                        </button>
-                        {material.showNiwarAdvancedSpec && (
-                          <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
-                                <SearchableDropdown
-                                  value={material.niwarThickness || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'niwarThickness', selectedValue)}
-                                  options={['Thin', 'Medium', 'Heavy-duty (1mm, 1.5mm, 2mm)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                                <SearchableDropdown
-                                  value={material.niwarFinish || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'niwarFinish', selectedValue)}
-                                  options={['Soft', 'Stiff', 'Water Repellent', 'UV Resistant', 'Fire Retardant']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">TENSILE STRENGTH</label>
-                                <input
-                                  type="text"
-                                  value={material.niwarTensileStrength || ''}
-                                  onChange={(e) => handleChange(materialIndex, 'niwarTensileStrength', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                  placeholder="Breaking Strength (N) or Kg"
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">EDGE TYPE</label>
-                                <SearchableDropdown
-                                  value={material.niwarEdgeType || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'niwarEdgeType', selectedValue)}
-                                  options={['Selvage', 'Cut & Sealed', 'Bound Edge']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showNiwarAdvancedSpec && (
+                        <NiwarAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -1406,77 +1205,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* LACE - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showLaceAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showLaceAdvancedSpec', !material.showLaceAdvancedSpec)}
-                          style={{
-                            backgroundColor: material.showLaceAdvancedSpec ? '#667eea' : '#ffffff',
-                            borderColor: material.showLaceAdvancedSpec ? '#667eea' : '#e5e7eb',
-                            color: material.showLaceAdvancedSpec ? '#ffffff' : '#374151',
-                            border: '2px solid',
-                            borderRadius: '8px',
-                            padding: '10px 20px',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            width: '100%',
-                            transition: 'all 0.2s',
-                            boxShadow: material.showLaceAdvancedSpec ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!material.showLaceAdvancedSpec) {
-                              e.target.style.backgroundColor = '#f9fafb';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!material.showLaceAdvancedSpec) {
-                              e.target.style.backgroundColor = '#ffffff';
-                            }
-                          }}
                         >
-                          {material.showLaceAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
-                        </button>
-                        {material.showLaceAdvancedSpec && (
-                          <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">FINISHING</label>
-                                <SearchableDropdown
-                                  value={material.laceFinishing || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'laceFinishing', selectedValue)}
-                                  options={['Starch (Stiff)', 'Soft', 'Mercerized', 'Scalloped Edge', 'Eyelash Edge']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">STRETCH</label>
-                                <SearchableDropdown
-                                  value={material.laceStretch || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'laceStretch', selectedValue)}
-                                  options={['Non-Stretch', '2-Way Stretch', '4-Way Stretch']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">PATTERN TYPE</label>
-                                <SearchableDropdown
-                                  value={material.lacePatternType || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'lacePatternType', selectedValue)}
-                                  options={['Floral', 'Geometric', 'Abstract', 'Traditional', 'Scallop']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showLaceAdvancedSpec && (
+                        <LaceAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -1705,87 +1451,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* FELT - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        {/* Show/Hide Advance Spec Button */}
-                        <div style={{ marginBottom: '20px', width: '100%' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleChange(materialIndex, 'showFeltAdvancedSpec', !material.showFeltAdvancedSpec)}
-                            className="border-2 rounded-lg text-sm font-medium transition-all"
-                            style={{
-                              padding: '10px 20px',
-                              height: '44px',
-                              backgroundColor: material.showFeltAdvancedSpec ? '#667eea' : '#ffffff',
-                              borderColor: material.showFeltAdvancedSpec ? '#667eea' : '#e5e7eb',
-                              color: material.showFeltAdvancedSpec ? '#ffffff' : '#374151'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!material.showFeltAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#f9fafb';
-                                e.currentTarget.style.borderColor = '#d1d5db';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!material.showFeltAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#ffffff';
-                                e.currentTarget.style.borderColor = '#e5e7eb';
-                              }
-                            }}
-                          >
-                            ADVANCE SPEC
-                          </button>
-                        </div>
-                        
-                        {/* Advanced Spec Fields */}
-                        {material.showFeltAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
-              <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS</label>
-                              <SearchableDropdown
-                                value={material.feltThickness || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'feltThickness', selectedValue)}
-                                options={['1mm', '2mm', '3mm', '5mm', '1/8 inch', '1/4 inch']}
-                                placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
+                          type="button"
+                          variant={material.showFeltAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleChange(materialIndex, 'showFeltAdvancedSpec', !material.showFeltAdvancedSpec)}
+                        >
+                          Advance Spec
+                        </Button>
+                      </div>
+                      {material.showFeltAdvancedSpec && (
+                        <FeltAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
                         />
-                      </div>
-                      <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">FINISH/FORM</label>
-                              <SearchableDropdown
-                                value={material.feltFinishForm || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'feltFinishForm', selectedValue)}
-                                options={['Rolls', 'Sheets', 'Die-Cut Shapes', 'Adhesive Backed', 'Plain']}
-                                placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                              <SearchableDropdown
-                                value={material.feltApplication || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'feltApplication', selectedValue)}
-                                options={['Padding', 'Interlining', 'Craft', 'Insulation', 'Acoustic']}
-                                placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">STIFFNESS</label>
-                                                <SearchableDropdown
-                                value={material.feltStiffness || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'feltStiffness', selectedValue)}
-                                options={['Soft', 'Medium', 'Stiff', 'Extra Stiff']}
-                          placeholder="Select or type"
-                          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
-                      </div>
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </>
                   )}
 
@@ -1958,87 +1641,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* INTERLINING - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        {/* Show/Hide Advance Spec Button */}
-                        <div style={{ marginBottom: '20px', width: '100%' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleChange(materialIndex, 'showInterliningAdvancedSpec', !material.showInterliningAdvancedSpec)}
-                            className="border-2 rounded-lg text-sm font-medium transition-all"
-                            style={{
-                              padding: '10px 20px',
-                              height: '44px',
-                              backgroundColor: material.showInterliningAdvancedSpec ? '#667eea' : '#ffffff',
-                              borderColor: material.showInterliningAdvancedSpec ? '#667eea' : '#e5e7eb',
-                              color: material.showInterliningAdvancedSpec ? '#ffffff' : '#374151'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!material.showInterliningAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#f9fafb';
-                                e.currentTarget.style.borderColor = '#d1d5db';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!material.showInterliningAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#ffffff';
-                                e.currentTarget.style.borderColor = '#e5e7eb';
-                              }
-                            }}
-                          >
-                            ADVANCE SPEC
-                          </button>
-                        </div>
-                        
-                        {/* Advanced Spec Fields */}
-                        {material.showInterliningAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">DOT DENSITY</label>
-                              <SearchableDropdown
-                                value={material.interliningDotDensity || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'interliningDotDensity', selectedValue)}
-                                options={['Light', 'Medium', 'Heavy (affects bond & hand)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">STRETCH</label>
-                              <SearchableDropdown
-                                value={material.interliningStretch || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'interliningStretch', selectedValue)}
-                                options={['Non-Stretch', 'Warp Stretch', 'Bi-Stretch (2-way)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">INTERLINING(FUSING) SPEC</label>
-                              <SearchableDropdown
-                                value={material.interliningFusingSpec || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'interliningFusingSpec', selectedValue)}
-                                options={['Temperature (±5°C)', 'Pressure (±0.5 Bar)', 'Time (±1 sec)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">HAND FEEL</label>
-                              <SearchableDropdown
-                                value={material.interliningHandFeel || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'interliningHandFeel', selectedValue)}
-                                options={['Soft', 'Medium', 'Crisp', 'Firm']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
+                          type="button"
+                          variant={material.showInterliningAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleChange(materialIndex, 'showInterliningAdvancedSpec', !material.showInterliningAdvancedSpec)}
+                        >
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showInterliningAdvancedSpec && (
+                        <InterliningAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -2151,60 +1771,25 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* ADVANCE SPEC Button */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex justify-start mt-4">
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.hookEyeAdvanceDataOpen ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'hookEyeAdvanceDataOpen', !material.hookEyeAdvanceDataOpen)}
-                          className="border rounded-md cursor-pointer text-sm font-medium transition-all"
-                          style={{
-                            backgroundColor: '#f3f4f6',
-                            borderColor: '#d1d5db',
-                            color: '#374151',
-                            padding: '10px 16px',
-                            marginBottom: '0'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#e5e7eb';
-                            e.currentTarget.style.transform = 'translateX(-2px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f3f4f6';
-                            e.currentTarget.style.transform = 'translateX(0)';
-                          }}
                         >
-                          {material.hookEyeAdvanceDataOpen ? 'HIDE ADVANCE SPEC' : 'ADVANCE SPEC'}
-                        </button>
+                          Advance Spec
+                        </Button>
                       </div>
 
                       {/* STRENGTH and APPLICATION - Only show when ADVANCE SPEC is open */}
                       {material.hookEyeAdvanceDataOpen && (
-                        <>
-                          {/* STRENGTH - From ADVANCE SPEC~UI */}
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
-                            <SearchableDropdown
-                              value={material.hookEyeStrength || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeStrength', selectedValue)}
-                              options={['Holding Power (force to pull apart)']}
-                              placeholder="Select or type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-
-                          {/* APPLICATION - From ADVANCE SPEC~UI */}
-                          <div className="flex flex-col">
-                            <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                            <SearchableDropdown
-                              value={material.hookEyeApplication || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeApplication', selectedValue)}
-                              options={['Waistband', 'Bra/Lingerie', 'Neckline', 'Fur Coat']}
-                              placeholder="Select or type"
-                              className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                              style={{ padding: '10px 14px', height: '44px' }}
-                            />
-                          </div>
-                        </>
+                        <HookEyeAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
                       )}
                     </>
                   )}
@@ -2337,39 +1922,16 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           size="sm"
                           onClick={() => handleChange(materialIndex, 'showBucklesAdvancedSpec', !material.showBucklesAdvancedSpec)}
                         >
-                          {material.showBucklesAdvancedSpec ? '− Advance Spec' : '+ Advance Spec'}
+                          Advance Spec
                         </Button>
                       </div>
                       {material.showBucklesAdvancedSpec && (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                          <Field label="FUNCTION" width="sm">
-                            <SearchableDropdown
-                              value={material.bucklesFunction || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'bucklesFunction', selectedValue)}
-                              options={['Load Bearing', 'Decorative', 'Quick Release', 'Adjustable', 'Auto-Lock', 'Swivel']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="TENSILE STRENGTH" width="sm">
-                            <SearchableDropdown
-                              value={material.bucklesTensileStrength || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'bucklesTensileStrength', selectedValue)}
-                              options={['Break Strength (100kg)', 'Break Strength (500N)', 'Light Duty (<50 kg)', 'Standard (50-150 kg)', 'Heavy Duty (150-500 kg)', 'Safety (>500 kg)']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="SAFETY" width="sm">
-                            <SearchableDropdown
-                              value={material.bucklesSafety || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'bucklesSafety', selectedValue)}
-                              options={['Standard', 'Child-Safe', 'Breakaway (safety release)']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                        </div>
+                        <BucklesAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
                       )}
                     </>
                   )}
@@ -2704,88 +2266,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* RIBBING - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showRibbingAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showRibbingAdvancedSpec', !material.showRibbingAdvancedSpec)}
-                          style={{
-                            backgroundColor: material.showRibbingAdvancedSpec ? '#667eea' : '#ffffff',
-                            borderColor: material.showRibbingAdvancedSpec ? '#667eea' : '#e5e7eb',
-                            color: material.showRibbingAdvancedSpec ? '#ffffff' : '#374151',
-                            border: '2px solid',
-                            borderRadius: '8px',
-                            padding: '10px 20px',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            width: '100%',
-                            transition: 'all 0.2s',
-                            boxShadow: material.showRibbingAdvancedSpec ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!material.showRibbingAdvancedSpec) {
-                              e.target.style.backgroundColor = '#f9fafb';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!material.showRibbingAdvancedSpec) {
-                              e.target.style.backgroundColor = '#ffffff';
-                            }
-                          }}
                         >
-                          {material.showRibbingAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
-                        </button>
-                        {material.showRibbingAdvancedSpec && (
-                          <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">STRETCH %</label>
-                                <SearchableDropdown
-                                  value={material.ribbingStretchPercent || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'ribbingStretchPercent', selectedValue)}
-                                  options={['Elongation (80% minimum)', 'Recovery %']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">CUTTING</label>
-                                <SearchableDropdown
-                                  value={material.ribbingCutting || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'ribbingCutting', selectedValue)}
-                                  options={['Cut Open (flat)', 'Tubular (continuous)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">SPANDEX CONTENT</label>
-                                <SearchableDropdown
-                                  value={material.ribbingSpandexContent || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'ribbingSpandexContent', selectedValue)}
-                                  options={['0%', '3%', '5%', '7%', '10%']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">ANTI-CURL</label>
-                                <SearchableDropdown
-                                  value={material.ribbingAntiCurl || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'ribbingAntiCurl', selectedValue)}
-                                  options={['Standard', 'Anti-Curl Treatment']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showRibbingAdvancedSpec && (
+                        <RibbingAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -2916,39 +2414,16 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           size="sm"
                           onClick={() => handleChange(materialIndex, 'showCableTieAdvancedSpec', !material.showCableTieAdvancedSpec)}
                         >
-                          {material.showCableTieAdvancedSpec ? '− Advance Spec' : '+ Advance Spec'}
+                          Advance Spec
                         </Button>
                       </div>
                       {material.showCableTieAdvancedSpec && (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                          <Field label="TENSILE STRENGTH" width="sm">
-                            <SearchableDropdown
-                              value={material.cableTieTensileStrength || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'cableTieTensileStrength', selectedValue)}
-                              options={['Holding Force (8kg)', 'Holding Force (18kg)', 'Holding Force (22kg)', 'Holding Force (55kg)']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="FINISH" width="sm">
-                            <SearchableDropdown
-                              value={material.cableTieFinish || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'cableTieFinish', selectedValue)}
-                              options={['Smooth Edge', 'Rounded Head']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                          <Field label="UV RESISTANCE" width="sm">
-                            <SearchableDropdown
-                              value={material.cableTieUvResistance || ''}
-                              onChange={(selectedValue) => handleChange(materialIndex, 'cableTieUvResistance', selectedValue)}
-                              options={['Standard (Indoor)', 'UV Stabilized (Outdoor)']}
-                              placeholder="Select or type"
-                              className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
-                            />
-                          </Field>
-                        </div>
+                        <CableTieAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
                       )}
                     </>
                   )}
@@ -3109,64 +2584,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* ADVANCE SPEC Section */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showSeamTapeAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showSeamTapeAdvancedSpec', !material.showSeamTapeAdvancedSpec)}
-                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
-                          style={{
-                            backgroundColor: '#f3f4f6',
-                            borderColor: '#d1d5db',
-                            color: '#374151',
-                            marginBottom: '16px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#e5e7eb';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f3f4f6';
-                          }}
                         >
-                          {material.showSeamTapeAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
-                        </button>
-                        {material.showSeamTapeAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION SPEC</label>
-                              <SearchableDropdown
-                                value={material.seamTapeApplicationSpec || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeApplicationSpec', selectedValue)}
-                                options={['Temperature (±5°C)', 'Speed (m/min)', 'Pressure (Bar)', 'Waterproof Sealing', 'Stretch Seam Support', 'Edge Stabilization', 'Hem Tape', 'Shoulder Tape']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">ELASTICITY</label>
-                              <SearchableDropdown
-                                value={material.seamTapeElasticity || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeElasticity', selectedValue)}
-                                options={['Stretch % (must match fabric)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">BREATHABILITY</label>
-                              <SearchableDropdown
-                                value={material.seamTapeBreathability || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeBreathability', selectedValue)}
-                                options={['Breathable (MVTR rating)', 'Non-Breathable']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showSeamTapeAdvancedSpec && (
+                        <SeamTapeAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -3359,64 +2794,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
                       {/* ADVANCE SPEC Section */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showReflectiveTapeAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showReflectiveTapeAdvancedSpec', !material.showReflectiveTapeAdvancedSpec)}
-                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
-                          style={{
-                            backgroundColor: '#f3f4f6',
-                            borderColor: '#d1d5db',
-                            color: '#374151',
-                            marginBottom: '16px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#e5e7eb';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f3f4f6';
-                          }}
                         >
-                          {material.showReflectiveTapeAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
-                        </button>
-                        {material.showReflectiveTapeAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
-                              <SearchableDropdown
-                                value={material.reflectiveTapeCertification || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeCertification', selectedValue)}
-                                options={['ISO 20471', 'ANSI/ISEA 107', 'EN 469', 'EN 1150']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">WASH DURABILITY</label>
-                              <SearchableDropdown
-                                value={material.reflectiveTapeWashDurability || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeWashDurability', selectedValue)}
-                                options={['Wash cycles maintaining reflectivity (25, 50, Industrial)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">REFLECTIVITY</label>
-                              <SearchableDropdown
-                                value={material.reflectiveTapeReflectivity || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeReflectivity', selectedValue)}
-                                options={['Retro-reflection Coefficient (cd/lux/m²) - Class 1, 2']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showReflectiveTapeAdvancedSpec && (
+                        <ReflectiveTapeAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -3581,88 +2976,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                       </div>
                       
                       {/* FR-TRIMS - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showFrTrimsAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showFrTrimsAdvancedSpec', !material.showFrTrimsAdvancedSpec)}
-                          style={{
-                            backgroundColor: material.showFrTrimsAdvancedSpec ? '#667eea' : '#ffffff',
-                            borderColor: material.showFrTrimsAdvancedSpec ? '#667eea' : '#e5e7eb',
-                            color: material.showFrTrimsAdvancedSpec ? '#ffffff' : '#374151',
-                            border: '2px solid',
-                            borderRadius: '8px',
-                            padding: '10px 20px',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            width: '100%',
-                            transition: 'all 0.2s',
-                            boxShadow: material.showFrTrimsAdvancedSpec ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!material.showFrTrimsAdvancedSpec) {
-                              e.target.style.backgroundColor = '#f9fafb';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!material.showFrTrimsAdvancedSpec) {
-                              e.target.style.backgroundColor = '#ffffff';
-                            }
-                          }}
                         >
-                          {material.showFrTrimsAdvancedSpec ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
-                        </button>
-                        {material.showFrTrimsAdvancedSpec && (
-                          <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">DURABILITY</label>
-                                <SearchableDropdown
-                                  value={material.frTrimsDurability || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsDurability', selectedValue)}
-                                  options={['Inherently FR (natural)', 'Treated FR (chemical, limited life)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">FR COMPONENTS</label>
-                                <SearchableDropdown
-                                  value={material.frTrimsFrComponents || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsFrComponents', selectedValue)}
-                                  options={['All components must be FR (teeth, tape, thread)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">LOI</label>
-                                <SearchableDropdown
-                                  value={material.frTrimsLoi || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsLoi', selectedValue)}
-                                  options={['Limiting Oxygen Index (>28% for self-extinguishing)']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700 mb-2">CHAR LENGTH</label>
-                                <SearchableDropdown
-                                  value={material.frTrimsCharLength || ''}
-                                  onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsCharLength', selectedValue)}
-                                  options={['Maximum char length in vertical flame test']}
-                                  placeholder="Select or type"
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                  style={{ padding: '10px 14px', height: '44px' }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showFrTrimsAdvancedSpec && (
+                        <FrTrimsAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>)}
 
                   {/* CORD RING Fields */}
@@ -3821,65 +3152,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                       </div>
 
                       {/* CORD RING - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        {/* Show/Hide Advance Spec Button */}
-                        <div style={{ marginBottom: '20px', width: '100%' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleChange(materialIndex, 'showCordStopAdvancedSpec', !material.showCordStopAdvancedSpec)}
-                            className="border-2 rounded-lg text-sm font-medium transition-all"
-                            style={{
-                              padding: '10px 20px',
-                              height: '44px',
-                              backgroundColor: material.showCordStopAdvancedSpec ? '#667eea' : '#ffffff',
-                              borderColor: material.showCordStopAdvancedSpec ? '#667eea' : '#e5e7eb',
-                              color: material.showCordStopAdvancedSpec ? '#ffffff' : '#374151'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!material.showCordStopAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#f9fafb';
-                                e.currentTarget.style.borderColor = '#d1d5db';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!material.showCordStopAdvancedSpec) {
-                                e.currentTarget.style.backgroundColor = '#ffffff';
-                                e.currentTarget.style.borderColor = '#e5e7eb';
-                              }
-                            }}
-                          >
-                            ADVANCE SPEC
-                          </button>
-                        </div>
-                        
-                        {/* Advanced Spec Fields */}
-                        {material.showCordStopAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
-                              <SearchableDropdown
-                                value={material.cordStopFunction || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'cordStopFunction', selectedValue)}
-                                options={['Adjustment', 'Decoration', "Safety Breakaway (children's wear)"]}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">BREAKAWAY</label>
-                              <SearchableDropdown
-                                value={material.cordStopBreakaway || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'cordStopBreakaway', selectedValue)}
-                                options={['Standard', 'Safety Breakaway (child safety)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
+                          type="button"
+                          variant={material.showCordStopAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleChange(materialIndex, 'showCordStopAdvancedSpec', !material.showCordStopAdvancedSpec)}
+                        >
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showCordStopAdvancedSpec && (
+                        <CordStopAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -4039,64 +3329,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                       </div>
 
                       {/* ADVANCE SPEC Section */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showRingsLoopsAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showRingsLoopsAdvancedSpec', !material.showRingsLoopsAdvancedSpec)}
-                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
-                          style={{
-                            backgroundColor: '#f3f4f6',
-                            borderColor: '#d1d5db',
-                            color: '#374151',
-                            marginBottom: '16px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#e5e7eb';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f3f4f6';
-                          }}
                         >
-                          {material.showRingsLoopsAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
-                        </button>
-                        {material.showRingsLoopsAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">LOAD RATING</label>
-                              <SearchableDropdown
-                                value={material.ringsLoopsLoadRating || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsLoadRating', selectedValue)}
-                                options={['Breaking Strength', 'Working Load Limit (WLL)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">WELDED</label>
-                              <SearchableDropdown
-                                value={material.ringsLoopsWelded || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsWelded', selectedValue)}
-                                options={['Welded (stronger)', 'Non-Welded (lighter)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                              <SearchableDropdown
-                                value={material.ringsLoopsApplication || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsApplication', selectedValue)}
-                                options={['Strap Attachment', 'Hanging Point', 'Decoration']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showRingsLoopsAdvancedSpec && (
+                        <RingsLoopsAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>)}
 
                   {/* PIN-BARBS Fields */}
@@ -4255,64 +3505,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                       </div>
 
                       {/* ADVANCE SPEC Section */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
-                        <button
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
                           type="button"
+                          variant={material.showPinBarbAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
                           onClick={() => handleChange(materialIndex, 'showPinBarbAdvancedSpec', !material.showPinBarbAdvancedSpec)}
-                          className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5 self-start"
-                          style={{
-                            backgroundColor: '#f3f4f6',
-                            borderColor: '#d1d5db',
-                            color: '#374151',
-                            marginBottom: '16px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#e5e7eb';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f3f4f6';
-                          }}
                         >
-                          {material.showPinBarbAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
-                        </button>
-                        {material.showPinBarbAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 mt-4">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">TENSILE STRENGTH</label>
-                              <SearchableDropdown
-                                value={material.pinBarbTensileStrength || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbTensileStrength', selectedValue)}
-                                options={['Holding Power (prevents tag removal)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                              <SearchableDropdown
-                                value={material.pinBarbApplication || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbApplication', selectedValue)}
-                                options={['Price Tagging', 'Securing Folds', 'Temporary Attachment', 'Sample Pinning']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">MAGAZINE/CARTRIDGE</label>
-                              <SearchableDropdown
-                                value={material.pinBarbMagazineCartridge || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbMagazineCartridge', selectedValue)}
-                                options={['Compatible magazine for tagging guns']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showPinBarbAdvancedSpec && (
+                        <PinBarbAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
 
@@ -4454,90 +3664,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                       </div>
 
                       {/* MAGNETIC CLOSURE - Advance Spec Button and Fields */}
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full" style={{ marginTop: '20px' }}>
-                        {/* Show/Hide Advance Spec Button */}
-                        <div style={{ marginBottom: '20px', width: '100%' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleChange(materialIndex, 'showMagneticClosureAdvancedSpec', !material.showMagneticClosureAdvancedSpec)}
-                            className="border px-4 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all hover:-translate-x-0.5"
-                            style={{
-                              backgroundColor: '#f3f4f6',
-                              borderColor: '#d1d5db',
-                              color: '#374151'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#e5e7eb';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f3f4f6';
-                            }}
-                          >
-                            {material.showMagneticClosureAdvancedSpec ? '− ADVANCE SPEC' : '+ ADVANCE SPEC'}
-                          </button>
-                        </div>
-                        
-                        {/* Advanced Spec Fields */}
-                        {material.showMagneticClosureAdvancedSpec && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:col-span-4 gap-x-5 gap-y-5">
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">STRENGTH</label>
-                              <SearchableDropdown
-                                value={material.magneticClosureStrength || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureStrength', selectedValue)}
-                                options={['Pull Force (Newtons)', 'Pull Force (Kilograms)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">POLARITY</label>
-                              <SearchableDropdown
-                                value={material.magneticClosurePolarity || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosurePolarity', selectedValue)}
-                                options={['North/South Orientation (must be consistent for mating pairs)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">APPLICATION</label>
-                              <SearchableDropdown
-                                value={material.magneticClosureApplication || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureApplication', selectedValue)}
-                                options={['Hidden Closure', 'Quick-Attach Flap', 'Bag Closure', 'Garment Closure']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">ENCASING</label>
-                              <SearchableDropdown
-                                value={material.magneticClosureEncasing || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureEncasing', selectedValue)}
-                                options={['PVC Covered', 'Fabric Covered', 'Metal Shell', 'Plastic Shell']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-sm font-semibold text-gray-700 mb-2">SHIELDING</label>
-                              <SearchableDropdown
-                                value={material.magneticClosureShielding || ''}
-                                onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureShielding', selectedValue)}
-                                options={['Standard', 'RF-Shielded (if near RFID)']}
-                                placeholder="Select or type"
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                                style={{ padding: '10px 14px', height: '44px' }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
+                        <Button
+                          type="button"
+                          variant={material.showMagneticClosureAdvancedSpec ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleChange(materialIndex, 'showMagneticClosureAdvancedSpec', !material.showMagneticClosureAdvancedSpec)}
+                        >
+                          Advance Spec
+                        </Button>
                       </div>
+                      {material.showMagneticClosureAdvancedSpec && (
+                        <MagneticClosureAdvancedSpec
+                          material={material}
+                          handleChange={(field, value) => handleChange(materialIndex, field, value)}
+                          dropdownClass={dropdownClass}
+                          hasError={hasError}
+                        />
+                      )}
                     </>
                   )}
                 </div>
