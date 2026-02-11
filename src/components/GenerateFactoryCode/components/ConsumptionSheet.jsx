@@ -342,7 +342,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
             </div>
           </div>
 
-          {/* ROW 6: WORK ORDERS */}
+          {/* WORK ORDERS */}
           <div className="bg-muted/5 px-6 py-5">
             <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Work Orders</span>
             <div className="px-3 pb-3">

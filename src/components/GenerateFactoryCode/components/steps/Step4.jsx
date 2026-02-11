@@ -387,7 +387,7 @@ const Step4 = ({
                   <SearchableDropdown
                     value={material.unit || ''}
                     onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'unit', selectedValue)}
-                    options={['CM', 'KGS']}
+                    options={['CM', 'KGS', 'PCS']}
                     placeholder="Select or type Unit"
                     className={errors[`artworkMaterial_${actualIndex}_unit`] 
                       ? 'border-red-600' 
@@ -520,7 +520,7 @@ const Step4 = ({
                     <SearchableDropdown
                       value={material.sizeUnit || ''}
                       onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'sizeUnit', selectedValue)}
-                      options={['CM', 'KGS']}
+                      options={['CM', 'KGS', 'PCS']}
                       placeholder="Select or type Unit"
                       style={{ width: '130px' }}
                     />
@@ -6740,6 +6740,5 @@ const Step4 = ({
 };
 
 export default Step4;
-
 
 

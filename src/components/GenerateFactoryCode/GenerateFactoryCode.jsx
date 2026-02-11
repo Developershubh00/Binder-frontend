@@ -2284,6 +2284,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleSaveStep3 = () => {
+    const step3Result = validateStep3();
+    if (!step3Result.isValid) {
+      setStep3SaveStatus('error');
+      setTimeout(() => setStep3SaveStatus('idle'), 3000);
+      showValidationErrorsPopup(step3Result.errors);
+      return;
+    }
     const componentName = step3SelectedComponentRef.current || '';
     if (!componentName?.trim()) {
       setStep3SaveStatus('error');
@@ -2446,15 +2453,26 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       if (!material.workOrder?.trim()) {
         newErrors[`consumptionMaterial_${materialIndex}_workOrder`] = 'Work Order is required';
       }
+
+      const trimType = material.trimAccessory?.toString().trim();
+      if (trimType) {
+        const trimSchema = TRIM_ACCESSORY_SCHEMAS[trimType];
+        if (trimSchema) {
+          const trimResult = validateMaterialAgainstSchema(material, trimSchema, `consumptionMaterial_${materialIndex}`);
+          Object.assign(newErrors, trimResult.errors);
+        }
+      } else if (material.materialType?.toString().trim() === 'Trim & Accessory') {
+        newErrors[`consumptionMaterial_${materialIndex}_trimAccessory`] = 'Trim/Accessory type is required';
+      }
     });
     
     setErrors(newErrors);
 
     if (!hasFilledMaterial) {
-      return true;
+      return { isValid: true, errors: newErrors };
     }
 
-    return Object.keys(newErrors).length === 0;
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
   };
 
   const handleConsumptionMaterialChange = (materialIndex, field, value) => {
@@ -2467,6 +2485,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       
       // If trimAccessory changes, clear all category-specific fields
       if (field === 'trimAccessory') {
+        // Clear validation errors for this material when switching trim type
+        setErrors((prev) => {
+          const next = { ...prev };
+          const prefix = `consumptionMaterial_${materialIndex}_`;
+          Object.keys(next).forEach((key) => {
+            if (key.startsWith(prefix)) delete next[key];
+          });
+          return next;
+        });
         const clearedMaterial = {
           ...currentMaterial,
           trimAccessory: value,
@@ -5228,14 +5255,16 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       ) : showConsumptionSheet ? (
         <>
           {/* Consumption Sheet View - Just the sheet, no extra header */}
-          <div className="mb-8 mx-auto" style={{ maxWidth: '1400px' }}>
+          <div className="mb-8 mx-auto" style={{ maxWidth: '1800px', width: '100%' }}>
             {/* Close Button */}
             <div className="flex justify-end mb-4">
               <Button type="button" onClick={() => setShowConsumptionSheet(false)} variant="default">
                 Close
               </Button>
             </div>
-            <ConsumptionSheet formData={formData} />
+            <div style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto', width: '100%' }}>
+              <ConsumptionSheet formData={formData} />
+            </div>
           </div>
         </>
       ) : (
@@ -5397,8 +5426,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       }}>
         <DialogContent
           showCloseButton={true}
-          className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white p-6"
-          style={{ padding: '18px' }}
+          className="max-h-[90vh] overflow-hidden flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white p-6"
+          style={{ padding: '18px', width: '50vw', maxWidth: '900px', minWidth: '700px' }}
         >
           <DialogHeader className="pb-5 pt-2 px-2 border-b border-border">
             <DialogTitle className="text-xl font-semibold text-foreground">
@@ -5406,84 +5435,12 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6 overflow-y-auto px-6 py-6" style={{ maxHeight: 'calc(90vh - 160px)' }}>
+          <div className="flex flex-col gap-6 overflow-y-auto px-6 py-6" style={{ maxHeight: 'calc(90vh - 160px)', overflowY: 'auto' }}>
             {/* Consumption Sheet */}
             <div className="rounded-xl border border-border overflow-hidden">
               <ConsumptionSheet formData={formData} />
             </div>
 
-            {/* All IPC codes */}
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">All IPC Codes</h4>
-              <div className="flex flex-wrap gap-3">
-                {formData.skus?.map((sku, idx) => {
-                  const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
-                  const items = [];
-                  if (baseIpc) items.push({ label: `SKU ${idx + 1}`, code: baseIpc });
-                  (sku.subproducts || []).forEach((sp, spIdx) => {
-                    items.push({ label: `SKU ${idx + 1} SP-${spIdx + 1}`, code: `${baseIpc}/SP-${spIdx + 1}` });
-                  });
-                  return items.map((item, i) => (
-                    <span
-                      key={`${idx}-${i}`}
-                      className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-mono font-semibold"
-                      style={{ backgroundColor: 'var(--muted)', color: 'var(--foreground)', border: '1px solid var(--border)' }}
-                    >
-                      {item.code}
-                    </span>
-                  ));
-                })}
-              </div>
-            </div>
-
-            {/* Shipping Group - assign products/subproducts to groups */}
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Shipping Group</h4>
-              <p className="text-sm text-muted-foreground mb-4">Assign each product and subproduct to a shipping group. Items in the same group ship together.</p>
-              <div className="space-y-4 rounded-xl border border-border p-5 bg-white">
-                {formData.skus?.map((sku, idx) => {
-                  const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
-                  const maxGroup = Math.max(1, ...Object.values(shippingGroups));
-                  return (
-                    <div key={idx} className="space-y-3">
-                      <div className="flex items-center gap-4 p-3 rounded-lg border border-border bg-muted/20">
-                        <span className="text-sm font-medium flex-1">{sku.sku || `Product ${idx + 1}`}</span>
-                        <span className="text-xs text-muted-foreground font-mono">{baseIpc}</span>
-                        <select
-                          value={shippingGroups[`${idx}-product`] ?? 1}
-                          onChange={(e) => setShippingGroups(prev => ({ ...prev, [`${idx}-product`]: parseInt(e.target.value) }))}
-                          className="rounded-md border border-border px-3 py-2 text-sm bg-white min-w-[100px]"
-                        >
-                          {Array.from({ length: maxGroup }, (_, i) => i + 1).map((g) => (
-                            <option key={g} value={g}>Group {g}</option>
-                          ))}
-                          <option value={maxGroup + 1}>+ New Group</option>
-                        </select>
-                      </div>
-                      {(sku.subproducts || []).map((sp, spIdx) => (
-                        <div
-                          key={spIdx}
-                          className="flex items-center gap-4 p-3 pl-8 rounded-lg border border-border bg-muted/10"
-                        >
-                          <span className="text-sm flex-1">{sp.subproduct || `Subproduct ${spIdx + 1}`}</span>
-                          <span className="text-xs text-muted-foreground font-mono">{baseIpc}/SP-{spIdx + 1}</span>
-                          <select
-                            value={shippingGroups[`${idx}-sp-${spIdx}`] ?? 1}
-                            onChange={(e) => setShippingGroups(prev => ({ ...prev, [`${idx}-sp-${spIdx}`]: parseInt(e.target.value) }))}
-                            className="rounded-md border border-border px-3 py-2 text-sm bg-white min-w-[100px]"
-                          >
-                            {Array.from({ length: maxGroup }, (_, i) => i + 1).map((g) => (
-                              <option key={g} value={g}>Group {g}</option>
-                            ))}
-                            <option value={maxGroup + 1}>+ New Group</option>
-                          </select>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           <div className="flex justify-end px-6 py-5 border-t border-border bg-white">

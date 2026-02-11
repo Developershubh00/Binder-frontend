@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
+import TrimAccessoryFields from '../TrimAccessoryFields';
 
 const Step3 = ({
   formData,
@@ -241,6 +242,15 @@ const Step3 = ({
 
               {/* Conditional fields based on trim/accessory type */}
               {material.trimAccessory && (
+                <TrimAccessoryFields
+                  material={material}
+                  materialIndex={materialIndex}
+                  handleChange={handleConsumptionMaterialChange}
+                  errors={errors}
+                  errorPrefix={`consumptionMaterial_${materialIndex}`}
+                />
+              )}
+              {false && material.trimAccessory && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
                   {/* ZIPPERS — foam-table pattern: Field sm/md/lg, Input, PercentInput, TestingRequirementsInput, Button, tokens */}
                   {material.trimAccessory === 'ZIPPERS' && (

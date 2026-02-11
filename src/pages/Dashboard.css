@@ -137,7 +137,7 @@
 .top-bar-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 0;
 }
 .user-info {
   display: flex;
@@ -168,6 +168,38 @@
 .user-role {
   font-size: 13px;
   color: var(--muted-foreground);
+}
+/* Top Bar Logout */
+.top-logout-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-left: 10px;
+  padding: 0;
+  height: 42px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--foreground);
+}
+.top-logout-btn:hover {
+  color: var(--destructive);
+}
+.top-logout-icon {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+}
+.top-logout-label {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
 }
 /* Content Wrapper */
 .content-wrapper {

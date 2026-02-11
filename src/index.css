@@ -280,6 +280,13 @@ button:focus-visible {
       height: 120px;
     }
   }
+
+  /* Field error styling for inputs */
+  .field-error [data-slot="input"],
+  .field-error textarea {
+    border-color: hsl(var(--destructive));
+    box-shadow: 0 0 0 3px hsl(var(--destructive) / 0.2);
+  }
 }
 
 /* Step-0: Minimal base styles - applies theme globally */

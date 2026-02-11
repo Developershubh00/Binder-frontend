@@ -145,7 +145,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       {/* DIMENSIONS for CARTON BOX */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
-                          DIMENSIONS{material.cartonBoxStiffenerRequired === 'YES' ? ' (L x W)' : ' (L x W x H)'}
+                          DIMENSIONS (L x W x H)
                         </label>
                         {(() => {
                           const legacy = parseTripletDimensions(material.cartonBoxDimensions);
@@ -155,7 +155,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           const isStiffenerYes = material.cartonBoxStiffenerRequired === 'YES';
                           return (
                             <div className="flex items-end gap-4">
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
+                              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 flex-1">
                                 <div className="flex flex-col">
                                   <label className="text-xs text-gray-600 mb-1">L</label>
                                   <input
@@ -178,51 +178,63 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                     placeholder="Width"
                                   />
                                 </div>
-                                {!isStiffenerYes ? (
-                                  <div className="flex flex-col">
-                                    <label className="text-xs text-gray-600 mb-1">H</label>
-                                    <input
-                                      type="text"
-                                      value={heightVal}
-                                      onChange={(e) => onChange('cartonBoxHeight', e.target.value)}
-                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
-                                      style={{ padding: '10px 14px', height: '44px' }}
-                                      placeholder="Height"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="flex flex-col">
-                                    <label className="text-xs text-gray-600 mb-1">UNIT</label>
-                                    <select
-                                      value={material.cartonBoxDimensionsUnit || 'CM'}
-                                      onChange={(e) => onChange('cartonBoxDimensionsUnit', e.target.value)}
-                                      className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
-                                      style={{ padding: '10px 14px', height: '44px', width: '100%' }}
-                                    >
-                                      <option value="CM">CM</option>
-                                      <option value="KGS">KGS</option>
-                                    </select>
-                                  </div>
-                                )}
-                              </div>
-                              {!isStiffenerYes && (
                                 <div className="flex flex-col">
-                                  <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
+                                  <label className="text-xs text-gray-600 mb-1">H</label>
+                                  <input
+                                    type="text"
+                                    value={heightVal}
+                                    onChange={(e) => onChange('cartonBoxHeight', e.target.value)}
+                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                    style={{ padding: '10px 14px', height: '44px' }}
+                                    placeholder="Height"
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <label className="text-xs text-gray-600 mb-1">UNIT</label>
                                   <select
                                     value={material.cartonBoxDimensionsUnit || 'CM'}
                                     onChange={(e) => onChange('cartonBoxDimensionsUnit', e.target.value)}
                                     className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
-                                    style={{ padding: '10px 14px', height: '44px', width: '120px' }}
+                                    style={{ padding: '10px 14px', height: '44px', width: '100%' }}
                                   >
                                     <option value="CM">CM</option>
                                     <option value="KGS">KGS</option>
                                   </select>
                                 </div>
-                              )}
+                              </div>
                             </div>
                           );
                         })()}
                       </div>
+                      {material.cartonBoxStiffenerRequired === 'YES' && (
+                        <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER SIZE (L x W)</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">L</label>
+                              <input
+                                type="text"
+                                value={material.cartonBoxStiffenerLength || ''}
+                                onChange={(e) => onChange('cartonBoxStiffenerLength', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Stiffener Length"
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">W</label>
+                              <input
+                                type="text"
+                                value={material.cartonBoxStiffenerWidth || ''}
+                                onChange={(e) => onChange('cartonBoxStiffenerWidth', e.target.value)}
+                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Stiffener Width"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {/* TESTING REQUIREMENTS - Multi-select with chips (SAME AS FIBER/FOAM) */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS <span className="text-red-500">*</span></label>

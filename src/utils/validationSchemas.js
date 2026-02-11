@@ -144,7 +144,7 @@ export const WORK_ORDER_SCHEMAS = {
 // ==================== TRIM & ACCESSORY SCHEMAS ====================
 export const TRIM_ACCESSORY_SCHEMAS = {
   'VELCRO': {
-    required: ['velcroPart', 'velcroType', 'velcroMaterial', 'velcroAttachment', 'velcroPlacement', 'velcroGsm', 'velcroLengthCm', 'velcroWidthCm', 'velcroYardageCns', 'velcroKgsCns', 'velcroQtyType', 'velcroSurplus', 'velcroWastage', 'velcroApproval', 'velcroRemarks'],
+    required: ['velcroPart', 'velcroType', 'velcroMaterial', 'velcroAttachment', 'velcroPlacement', 'velcroGsm', 'velcroLengthCm', 'velcroWidthCm', 'velcroYardageCns', 'velcroKgsCns', 'velcroQtyType', 'velcroSurplus', 'velcroWastage', 'velcroApproval'],
     advanced: ['velcroColour', 'velcroColorReference', 'velcroHookDensity', 'velcroLoopType', 'velcroCycleLife', 'velcroFlameRetardant'],
     conditional: {
       'velcroYardagePerPc': { when: 'velcroQtyType', equals: 'YARDAGE' },
@@ -152,15 +152,15 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'BUTTONS': {
-    required: ['buttonType', 'buttonMaterial', 'buttonSize', 'buttonLigne', 'buttonHoles', 'buttonFinishColour', 'buttonPlacement', 'buttonTestingRequirements', 'buttonQty', 'buttonSurplus', 'buttonWastage', 'buttonApproval', 'buttonRemarks', 'buttonColorReference'],
+    required: ['buttonType', 'buttonMaterial', 'buttonSize', 'buttonLigne', 'buttonHoles', 'buttonFinishColour', 'buttonPlacement', 'buttonTestingRequirements', 'buttonQty', 'buttonSurplus', 'buttonWastage', 'buttonApproval'],
     advanced: ['buttonAttachment', 'buttonFunction', 'buttonLogo']
   },
   'RIVETS': {
-    required: ['rivetType', 'rivetMaterial', 'rivetCapSize', 'rivetPostHeight', 'rivetFinishPlating', 'rivetPlacement', 'rivetTestingRequirements', 'rivetQty', 'rivetSurplus', 'rivetWastage', 'rivetApproval', 'rivetRemarks'],
+    required: ['rivetType', 'rivetMaterial', 'rivetCapSize', 'rivetPostHeight', 'rivetFinishPlating', 'rivetPlacement', 'rivetTestingRequirements', 'rivetQty', 'rivetSurplus', 'rivetWastage', 'rivetApproval'],
     advanced: ['rivetLogo', 'rivetSetting']
   },
   'NIWAR-WEBBING': {
-    required: ['niwarType', 'niwarMaterial', 'niwarColour', 'niwarColorReference', 'niwarWeavePattern', 'niwarPlacement', 'niwarTestingRequirements', 'niwarGsm', 'niwarLengthCm', 'niwarWidthCm', 'niwarYardageCns', 'niwarKgsCns', 'niwarQtyType', 'niwarSurplus', 'niwarWastage', 'niwarApproval', 'niwarRemarks'],
+    required: ['niwarType', 'niwarMaterial', 'niwarColour', 'niwarPlacement', 'niwarTestingRequirements', 'niwarGsm', 'niwarLengthCm', 'niwarWidthCm', 'niwarYardageCns', 'niwarKgsCns', 'niwarQtyType', 'niwarSurplus', 'niwarWastage', 'niwarApproval'],
     advanced: ['niwarThickness', 'niwarFinish', 'niwarTensileStrength', 'niwarEdgeType'],
     conditional: {
       'niwarQtyYardage': { when: 'niwarQtyType', equals: 'YARDAGE' },
@@ -168,19 +168,19 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'LACE': {
-    required: ['laceType', 'laceMaterial', 'laceWidth', 'laceColour', 'laceColorReference', 'laceDesignRef', 'lacePlacement', 'laceTestingRequirements', 'laceGsm', 'laceLengthCm', 'laceWidthCm', 'laceSurplus', 'laceWastage', 'laceApproval', 'laceRemarks'],
-    advanced: ['laceFinishing', 'laceStretch', 'lacePatternType'],
+    required: ['laceType', 'laceMaterial', 'laceColour', 'laceDesignRef', 'lacePlacement', 'laceTestingRequirements', 'laceGsm', 'laceLengthCm', 'laceWidthCm', 'laceSurplus', 'laceWastage', 'laceApproval'],
+    advanced: ['laceFinishing', 'laceStretch', 'lacePatternType', 'laceWidth'],
     conditional: {
       'laceQtyYardage': { when: 'laceQtyType', equals: 'YARDAGE' },
       'laceQtyKgs': { when: 'laceQtyType', equals: 'KGS' }
     }
   },
   'ZIPPERS': {
-    required: ['zipNumber', 'zipType', 'brand', 'teeth', 'puller', 'pullerType', 'testingRequirement', 'length', 'unitAdditional', 'surplus', 'approval', 'remarks'],
+    required: ['zipNumber', 'zipType', 'brand', 'teeth', 'puller', 'pullerType', 'testingRequirement', 'length', 'unitAdditional', 'surplus', 'approval'],
     advanced: ['zipSliderType', 'zipFinish', 'zipLengthTolerance']
   },
   'FELT': {
-    required: ['feltType', 'feltMaterial', 'feltColour', 'feltColorReference', 'feltGsm', 'feltLengthCm', 'feltWidthCm', 'feltTestingRequirements', 'feltSurplus', 'feltWastage', 'feltApproval', 'feltRemarks'],
+    required: ['feltType', 'feltMaterial', 'feltColour', 'feltGsm', 'feltLengthCm', 'feltWidthCm', 'feltTestingRequirements', 'feltSurplus', 'feltWastage', 'feltApproval'],
     advanced: ['feltThickness', 'feltFinishForm', 'feltApplication', 'feltStiffness'],
     conditional: {
       'feltYardage': { when: 'feltQtyType', equals: 'YARDAGE' },
@@ -188,7 +188,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'INTERLINING(FUSING)': {
-    required: ['interliningType', 'interliningMaterial', 'interliningAdhesiveType', 'interliningColour', 'interliningPlacement', 'interliningGsm', 'interliningLength', 'interliningWidth', 'interliningSurplus', 'interliningWastage', 'interliningApproval', 'interliningRemarks'],
+    required: ['interliningType', 'interliningMaterial', 'interliningAdhesiveType', 'interliningColour', 'interliningPlacement', 'interliningGsm', 'interliningLength', 'interliningWidth', 'interliningSurplus', 'interliningWastage', 'interliningApproval'],
     advanced: ['interliningDotDensity', 'interliningStretch', 'interliningFusingSpec', 'interliningHandFeel'],
     conditional: {
       'interliningYardage': { when: 'interliningQtyType', equals: 'YARDAGE' },
@@ -196,19 +196,19 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'HOOKS-EYES': {
-    required: ['hookEyeType', 'hookEyeMaterial', 'hookEyeSize', 'hookEyeColourFinish', 'hookEyeFinishType', 'hookEyePlacement', 'hookEyeQty', 'hookEyeTestingRequirements', 'hookEyeSurplus', 'hookEyeWastage', 'hookEyeApproval', 'hookEyeRemarks'],
+    required: ['hookEyeType', 'hookEyeMaterial', 'hookEyeSize', 'hookEyeColourFinish', 'hookEyeFinishType', 'hookEyePlacement', 'hookEyeQty', 'hookEyeTestingRequirements', 'hookEyeSurplus', 'hookEyeWastage', 'hookEyeApproval'],
     advanced: ['hookEyeStrength', 'hookEyeApplication']
   },
   'BUCKLES': {
-    required: ['bucklesType', 'bucklesMaterial', 'bucklesSize', 'bucklesFinishColour', 'bucklesPlacement', 'bucklesQty', 'bucklesSurplus', 'bucklesWastage', 'bucklesApproval', 'bucklesRemarks'],
+    required: ['bucklesType', 'bucklesMaterial', 'bucklesSize', 'bucklesFinishColour', 'bucklesPlacement', 'bucklesTestingRequirements', 'bucklesQty', 'bucklesSurplus', 'bucklesWastage', 'bucklesApproval'],
     advanced: ['bucklesFunction', 'bucklesTensileStrength', 'bucklesSafety']
   },
   'SHOULDER PADS': {
-    required: ['shoulderPadType', 'shoulderPadMaterial', 'shoulderPadSize', 'shoulderPadThickness', 'shoulderPadShape', 'shoulderPadCovering', 'shoulderPadCoveringColour', 'shoulderPadAttachment', 'shoulderPadDensity', 'shoulderPadPlacement', 'shoulderPadQty', 'shoulderPadSurplus', 'shoulderPadWastage', 'shoulderPadApproval', 'shoulderPadRemarks'],
+    required: ['shoulderPadType', 'shoulderPadMaterial', 'shoulderPadSize', 'shoulderPadThickness', 'shoulderPadShape', 'shoulderPadCovering', 'shoulderPadCoveringColour', 'shoulderPadAttachment', 'shoulderPadDensity', 'shoulderPadPlacement', 'shoulderPadQty', 'shoulderPadSurplus', 'shoulderPadWastage', 'shoulderPadApproval'],
     advanced: []
   },
   'RIBBING': {
-    required: ['ribbingType', 'ribbingMaterial', 'ribbingColour', 'ribbingPlacement', 'ribbingGsm', 'ribbingForm', 'ribbingLength', 'ribbingDia', 'ribbingWidth', 'ribbingSurplus', 'ribbingWastage', 'ribbingApproval', 'ribbingRemarks'],
+    required: ['ribbingType', 'ribbingMaterial', 'ribbingColour', 'ribbingGsm', 'ribbingForm', 'ribbingLength', 'ribbingDia', 'ribbingWidth', 'ribbingSurplus', 'ribbingWastage', 'ribbingApproval'],
     advanced: ['ribbingStretchPercent', 'ribbingCutting', 'ribbingSpandexContent', 'ribbingAntiCurl'],
     conditional: {
       'ribbingQtyYardage': { when: 'ribbingQtyType', equals: 'YARDAGE' },
@@ -216,15 +216,15 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'CABLE-TIES': {
-    required: ['cableTieType', 'cableTieMaterial', 'cableTieSize', 'cableTieColour', 'cableTiePlacement', 'cableTieTestingRequirements', 'cableTieQty', 'cableTieSurplus', 'cableTieWastage', 'cableTieApproval', 'cableTieRemarks'],
+    required: ['cableTieType', 'cableTieMaterial', 'cableTieSize', 'cableTieColour', 'cableTiePlacement', 'cableTieTestingRequirements', 'cableTieQty', 'cableTieSurplus', 'cableTieWastage', 'cableTieApproval'],
     advanced: ['cableTieTensileStrength', 'cableTieFinish', 'cableTieUvResistance']
   },
   'SEAM TAPE': {
-    required: ['seamTapeType', 'seamTapeMaterial', 'seamTapeWidth', 'seamTapeColour', 'seamTapeAdhesiveType', 'seamTapePlacement', 'seamTapeTestingRequirements', 'seamTapeQty', 'seamTapeSurplus', 'seamTapeWastage', 'seamTapeApproval', 'seamTapeRemarks'],
+    required: ['seamTapeType', 'seamTapeMaterial', 'seamTapeWidth', 'seamTapeColour', 'seamTapeAdhesiveType', 'seamTapePlacement', 'seamTapeTestingRequirements', 'seamTapeQty', 'seamTapeSurplus', 'seamTapeWastage', 'seamTapeApproval'],
     advanced: ['seamTapeApplicationSpec', 'seamTapeElasticity', 'seamTapeBreathability']
   },
   'REFLECTIVE TAPES': {
-    required: ['reflectiveTapeType', 'reflectiveTapeMaterial', 'reflectiveTapeColour', 'reflectiveTapeBaseFabric', 'reflectiveTapePlacement', 'reflectiveTapeTestingRequirements', 'reflectiveTapeGsm', 'reflectiveTapeLengthCm', 'reflectiveTapeWidthCm', 'reflectiveTapeSurplus', 'reflectiveTapeWastage', 'reflectiveTapeApproval', 'reflectiveTapeRemarks'],
+    required: ['reflectiveTapeType', 'reflectiveTapeMaterial', 'reflectiveTapeColour', 'reflectiveTapeBaseFabric', 'reflectiveTapePlacement', 'reflectiveTapeTestingRequirements', 'reflectiveTapeGsm', 'reflectiveTapeLengthCm', 'reflectiveTapeWidthCm', 'reflectiveTapeSurplus', 'reflectiveTapeWastage', 'reflectiveTapeApproval'],
     advanced: ['reflectiveTapeCertification', 'reflectiveTapeWashDurability', 'reflectiveTapeReflectivity'],
     conditional: {
       'reflectiveTapeYardage': { when: 'reflectiveTapeQtyType', equals: 'YARDAGE' },
@@ -232,7 +232,7 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'FIRE RETARDANT (FR) TRIMS': {
-    required: ['frTrimsType', 'frTrimsMaterial', 'frTrimsCompliance', 'frTrimsColour', 'frTrimsTestingRequirements', 'frTrimsPlacement', 'frTrimsSurplus', 'frTrimsWastage', 'frTrimsApproval', 'frTrimsRemarks'],
+    required: ['frTrimsType', 'frTrimsMaterial', 'frTrimsCompliance', 'frTrimsColour', 'frTrimsTestingRequirements', 'frTrimsPlacement', 'frTrimsSurplus', 'frTrimsWastage', 'frTrimsApproval'],
     advanced: ['frTrimsDurability', 'frTrimsFrComponents', 'frTrimsLoi', 'frTrimsCharLength'],
     conditional: {
       'frTrimsQtyYardage': { when: 'frTrimsQtyType', equals: 'YARDAGE' },
@@ -240,22 +240,52 @@ export const TRIM_ACCESSORY_SCHEMAS = {
     }
   },
   'CORD STOPS': {
-    required: ['cordStopType', 'cordStopMaterial', 'cordStopSize', 'cordStopColour', 'cordStopLockingMechanism', 'cordStopPlacement', 'cordStopTestingRequirements', 'cordStopQty', 'cordStopSurplus', 'cordStopWastage', 'cordStopApproval', 'cordStopRemarks'],
+    required: ['cordStopType', 'cordStopMaterial', 'cordStopSize', 'cordStopColour', 'cordStopLockingMechanism', 'cordStopPlacement', 'cordStopTestingRequirements', 'cordStopQty', 'cordStopSurplus', 'cordStopWastage', 'cordStopApproval'],
     advanced: ['cordStopFunction', 'cordStopBreakaway']
   },
   'RINGS-LOOPS': {
-    required: ['ringsLoopsType', 'ringsLoopsMaterial', 'ringsLoopsSize', 'ringsLoopsThicknessGauge', 'ringsLoopsFinishPlating', 'ringsLoopsPlacement', 'ringsLoopsTestingRequirements', 'ringsLoopsQty', 'ringsLoopsSurplus', 'ringsLoopsWastage', 'ringsLoopsApproval', 'ringsLoopsRemarks'],
+    required: ['ringsLoopsType', 'ringsLoopsMaterial', 'ringsLoopsSize', 'ringsLoopsThicknessGauge', 'ringsLoopsFinishPlating', 'ringsLoopsPlacement', 'ringsLoopsTestingRequirements', 'ringsLoopsQty', 'ringsLoopsSurplus', 'ringsLoopsWastage', 'ringsLoopsApproval'],
     advanced: ['ringsLoopsLoadRating', 'ringsLoopsWelded', 'ringsLoopsApplication']
   },
   'PIN-BARBS': {
-    required: ['pinBarbType', 'pinBarbMaterial', 'pinBarbSize', 'pinBarbColour', 'pinBarbHeadType', 'pinBarbPlacement', 'pinBarbTestingRequirements', 'pinBarbQty', 'pinBarbSurplus', 'pinBarbWastage', 'pinBarbApproval', 'pinBarbRemarks'],
+    required: ['pinBarbType', 'pinBarbMaterial', 'pinBarbSize', 'pinBarbColour', 'pinBarbHeadType', 'pinBarbPlacement', 'pinBarbTestingRequirements', 'pinBarbQty', 'pinBarbSurplus', 'pinBarbWastage', 'pinBarbApproval'],
     advanced: ['pinBarbTensileStrength', 'pinBarbApplication', 'pinBarbMagazineCartridge']
   },
   'MAGNETIC CLOSURE': {
-    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosurePlacement', 'magneticClosureTestingRequirements', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval', 'magneticClosureRemarks'],
+    required: ['magneticClosureType', 'magneticClosureMaterial', 'magneticClosureSize', 'magneticClosurePlacement', 'magneticClosureTestingRequirements', 'magneticClosureQty', 'magneticClosureSurplus', 'magneticClosureWastage', 'magneticClosureApproval'],
     advanced: ['magneticClosureStrength', 'magneticClosurePolarity', 'magneticClosureApplication', 'magneticClosureEncasing', 'magneticClosureShielding']
   }
 };
+
+// Auto-require mapping for trim/accessory fields (all non-upload, non-remarks, non-advanced)
+const TRIM_ACCESSORY_AUTO_PREFIX = {
+  'BUTTONS': 'button',
+  'VELCRO': 'velcro',
+  'RIVETS': 'rivet',
+  'NIWAR-WEBBING': 'niwar',
+  'LACE': 'lace',
+  'FELT': 'felt',
+  'INTERLINING(FUSING)': 'interlining',
+  'HOOKS-EYES': 'hookEye',
+  'BUCKLES': 'buckles',
+  'SHOULDER PADS': 'shoulderPad',
+  'RIBBING': 'ribbing',
+  'CABLE-TIES': 'cableTie',
+  'SEAM TAPE': 'seamTape',
+  'REFLECTIVE TAPES': 'reflectiveTape',
+  'FIRE RETARDANT (FR) TRIMS': 'frTrims',
+  'CORD STOPS': 'cordStop',
+  'RINGS-LOOPS': 'ringsLoops',
+  'PIN-BARBS': 'pinBarb',
+  'MAGNETIC CLOSURE': 'magneticClosure'
+  // ZIPPERS is excluded because required fields don't share a single prefix
+};
+
+Object.entries(TRIM_ACCESSORY_AUTO_PREFIX).forEach(([trimType, prefix]) => {
+  if (TRIM_ACCESSORY_SCHEMAS[trimType]) {
+    TRIM_ACCESSORY_SCHEMAS[trimType].autoRequirePrefix = prefix;
+  }
+});
 
 // ==================== FOAM SCHEMAS ====================
 export const FOAM_SCHEMAS = {
@@ -664,6 +694,37 @@ export const validateMaterialAgainstSchema = (material, schema, errorPrefix = ''
         errors[fieldKey] = `${getFieldLabel(field)} is required`;
       }
     }
+  }
+
+  // Auto-require fields for trim/accessory based on prefix (excluding uploads/remarks/advanced/conditional)
+  if (schema.autoRequirePrefix) {
+    const prefix = schema.autoRequirePrefix;
+    const excluded = new Set([
+      ...(schema.advanced || []),
+      ...Object.keys(schema.conditional || {})
+    ]);
+    const isOptionalAutoField = (field) => {
+      if (/remarks$/i.test(field)) return true;
+      if (/TestingRequirementFile$/i.test(field)) return true;
+      if (/ReferenceImage$/i.test(field)) return true;
+      if (/ColorReference$/i.test(field)) return true;
+      if (/ColourReference$/i.test(field)) return true;
+      if (/PlacementReferenceImage$/i.test(field)) return true;
+      if (/Reference$/i.test(field) && /Image/i.test(field)) return true;
+      return false;
+    };
+
+    Object.keys(material || {}).forEach((field) => {
+      if (!field.startsWith(prefix)) return;
+      if (excluded.has(field)) return;
+      if (isOptionalAutoField(field)) return;
+      if (isEmpty(material[field])) {
+        const fieldKey = errorPrefix ? `${errorPrefix}_${field}` : field;
+        if (!errors[fieldKey]) {
+          errors[fieldKey] = `${getFieldLabel(field)} is required`;
+        }
+      }
+    });
   }
   
   return {

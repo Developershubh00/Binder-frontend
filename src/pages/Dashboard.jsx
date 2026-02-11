@@ -82,11 +82,7 @@ const Dashboard = () => {
           ))}
         </nav>
         
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="nav-label">Logout</span>
-          </button>
-        </div>
+        <div className="sidebar-footer" />
       </aside>
 
       <main className="main-content">
@@ -107,6 +103,16 @@ const Dashboard = () => {
                   {user?.role === 'tenant' && 'Tenant'}
                 </p>
               </div>
+              <button className="top-logout-btn" onClick={handleLogout} aria-label="Logout">
+                <span className="top-logout-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <path d="M16 17l5-5-5-5" />
+                    <path d="M21 12H9" />
+                  </svg>
+                </span>
+                <span className="top-logout-label">Logout</span>
+              </button>
             </div>
           </div>
         </header>
