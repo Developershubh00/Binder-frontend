@@ -4,9 +4,10 @@ import React, { useMemo } from 'react';
  * ConsumptionSheet Component
  *
  * Displays all IPCs, their products/subproducts, and components in order:
- * - IPC 1 → Product (main) → Component A, B, ... (each with full block: Raw Material row → Spec → Work Orders)
+ * - IPC 1 → Product (main) → Component A, B, ... (each with full block: Raw Material row → Spec → Work Orders → Artwork)
  * - IPC 1 → Subproduct (if any) → Component A, B, ... (same structure)
  * - IPC 2 → Product → Components...
+ * - Packaging (at product/IPC level)
  * - etc.
  *
  * Each component block shows:
@@ -16,6 +17,7 @@ import React, { useMemo } from 'react';
  * - Row 4: Raw Material, Net CNS, Overage Qty, Gross Wastage, Gross CNS, Unit
  * - Row 5: Spec (Cut Size, Sew Size)
  * - Row 6: Work Orders
+ * - Row 7: Artwork (after work orders, per component)
  */
 const ConsumptionSheet = ({ formData = {} }) => {
   // Helper: Calculate overage qty from PO Qty and overage percentage
@@ -25,7 +27,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return (qty * (1 + overage / 100)).toFixed(2);
   };
 
-  // Helper: Calculate compound wastage from multiple wastage values
+  // Helper: Calculate compound wastage from multiple wastage/surplus values
   // Formula: compoundFactor = (1 + w1/100) * (1 + w2/100) * (1 + w3/100)...
   // Gross Wastage % = (compoundFactor - 1) * 100
   const calculateCompoundWastage = (wastageList) => {
@@ -45,16 +47,30 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return consumptions.reduce((sum, c) => sum + (parseFloat(c) || 0), 0).toFixed(3);
   };
 
-  // Helper: Calculate gross CNS with compound wastage
-  const calculateGrossCns = (overageQty, compoundWastage, netCns) => {
-    const overage = parseFloat(overageQty) || 0;
-    const wastageFactor = parseFloat(compoundWastage) || 0;
-    const net = parseFloat(netCns) || 0;
-    const compoundFactor = 1 + wastageFactor / 100;
-    return (overage * compoundFactor * net).toFixed(3);
+  // Helper: Calculate compound factor directly from wastage list (avoids precision loss from rounding)
+  const calculateCompoundFactor = (wastageList) => {
+    if (!wastageList || wastageList.length === 0) return 1;
+    return wastageList.reduce((factor, w) => {
+      const wastageVal = parseFloat(String(w).replace('%', '')) || 0;
+      return factor * (1 + wastageVal / 100);
+    }, 1);
   };
 
-  // Helper: Recursively extract ALL wastage values from an object (any key containing "wastage")
+  // Helper: Calculate gross CNS per piece with compound wastage (using compound factor directly)
+  const calculateGrossCnsPerPiece = (wastageList, netCns) => {
+    const net = parseFloat(netCns) || 0;
+    const compoundFactor = calculateCompoundFactor(wastageList);
+    return (net * compoundFactor).toFixed(6); // Higher precision for per-piece calculation
+  };
+
+  // Helper: Calculate gross CNS for PO (gross CNS per piece × overage qty)
+  const calculateGrossCns = (overageQty, wastageList, netCns) => {
+    const overage = parseFloat(overageQty) || 0;
+    const grossCnsPerPiece = parseFloat(calculateGrossCnsPerPiece(wastageList, netCns)) || 0;
+    return (grossCnsPerPiece * overage).toFixed(3);
+  };
+
+  // Helper: Recursively extract ALL wastage values from an object (any key containing "wastage" or "surplus")
   const extractAllWastages = (obj, wastageList = []) => {
     if (!obj || typeof obj !== 'object') return wastageList;
 
@@ -67,7 +83,9 @@ const ConsumptionSheet = ({ formData = {} }) => {
       const value = obj[key];
       const keyLower = key.toLowerCase();
 
-      if (keyLower.includes('wastage') && value !== undefined && value !== null && value !== '') {
+      // Extract both wastage and surplus (surplus is treated like wastage for compounding)
+      if ((keyLower.includes('wastage') || keyLower.includes('surplus')) && 
+          value !== undefined && value !== null && value !== '') {
         if (typeof value === 'object' && !Array.isArray(value)) {
           extractAllWastages(value, wastageList);
         } else {
@@ -79,6 +97,75 @@ const ConsumptionSheet = ({ formData = {} }) => {
     }
 
     return wastageList;
+  };
+
+  // Helper: Extract artwork wastage/surplus based on category
+  const extractArtworkWastageSurplus = (artworkMaterial) => {
+    const values = [];
+    
+    // General wastage and surplus fields
+    if (artworkMaterial.wastage) values.push(artworkMaterial.wastage);
+    if (artworkMaterial.surplus) values.push(artworkMaterial.surplus);
+    
+    // Category-specific surplus fields (based on artworkCategory)
+    const category = artworkMaterial.artworkCategory;
+    if (category) {
+      // Map category to its specific surplus field
+      const categorySurplusMap = {
+        'LABELS (BRAND/MAIN)': 'labelsBrandSurplus',
+        'CARE & COMPOSITION': 'careCompositionSurplus',
+        'RFID / SECURITY TAGS': 'rfidSurplus',
+        'LAW LABEL / CONTENTS TAG': 'lawLabelSurplus',
+        // Add more category mappings as needed
+      };
+      
+      const surplusField = categorySurplusMap[category];
+      if (surplusField && artworkMaterial[surplusField]) {
+        values.push(artworkMaterial[surplusField]);
+      }
+    }
+    
+    return values;
+  };
+
+  // Helper: Extract packaging wastage/surplus based on packagingMaterialType
+  const extractPackagingWastageSurplus = (packagingMaterial) => {
+    const values = [];
+    const type = packagingMaterial.packagingMaterialType;
+    
+    if (!type) return values;
+    
+    // Map packaging type to its specific wastage and surplus fields
+    const typeFieldMap = {
+      'CARTON BOX': { wastage: 'cartonBoxWastage', surplus: 'cartonBoxSurplus' },
+      'CORNER PROTECTORS': { wastage: 'cornerProtectorWastage', surplus: 'cornerProtectorSurplus' },
+      'EDGE PROTECTORS': { wastage: 'edgeProtectorWastage', surplus: 'edgeProtectorSurplus' },
+      'FOAM INSERT': { wastage: 'foamInsertWastage', surplus: 'foamInsertSurplus' },
+      'PALLET STRAP': { wastage: 'palletStrapWastage', surplus: 'palletStrapSurplus' },
+      'POLYBAG~Bale': { wastage: 'polybagBaleWastage', surplus: 'polybagBaleSurplus' },
+      'POLYBAG~POLYBAG-FLAP': { wastage: 'polybagPolybagFlapWastage', surplus: 'polybagPolybagFlapSurplus' },
+      'SILICA GEL DESICCANT': { wastage: 'silicaGelDesiccantWastage', surplus: 'silicaGelDesiccantSurplus' },
+      'SHRINK TAPE': { wastage: 'stretchWrapWastage', surplus: 'stretchWrapSurplus' },
+      'TAPE': { wastage: 'tapeWastage', surplus: 'tapeSurplus' },
+      'VOID~FILL': { wastage: 'voidFillWastage', surplus: 'voidFillSurplus' },
+      // Default/Divider
+      'DIVIDER': { wastage: 'dividerWastage', surplus: 'dividerSurplus' },
+    };
+    
+    const fields = typeFieldMap[type] || typeFieldMap['DIVIDER'];
+    if (fields) {
+      if (packagingMaterial[fields.wastage]) values.push(packagingMaterial[fields.wastage]);
+      if (packagingMaterial[fields.surplus]) values.push(packagingMaterial[fields.surplus]);
+    }
+    
+    // Also extract from workOrders
+    if (packagingMaterial.workOrders) {
+      packagingMaterial.workOrders.forEach((wo) => {
+        if (wo.wastage) values.push(wo.wastage);
+      });
+    }
+    
+    return values;
   };
 
   // Helper: Get raw materials for a component from stepData (Step-2)
@@ -94,6 +181,49 @@ const ConsumptionSheet = ({ formData = {} }) => {
   // Helper: Get artwork materials for a component from stepData (Step-4)
   const getArtworkMaterialsForComponent = (componentName, stepData) => {
     return stepData?.artworkMaterials?.filter((m) => (m.components || '') === componentName) || [];
+  };
+
+  // Helper: Get packaging materials for a product/IPC from stepData (Step-5)
+  const getPackagingMaterialsForProduct = (stepData) => {
+    return stepData?.packaging?.materials || [];
+  };
+
+  // Helper: Get merged IPCs/products from productSelection
+  const getMergedIpcsProducts = (productSelection, formData) => {
+    if (!productSelection || !Array.isArray(productSelection) || productSelection.length === 0) {
+      return [];
+    }
+
+    const mergedItems = [];
+    formData.skus?.forEach((sku) => {
+      // Check if main IPC matches
+      const ipcCode = sku.ipcCode || '';
+      if (productSelection.includes(ipcCode)) {
+        sku.stepData?.products?.forEach((product) => {
+          mergedItems.push({
+            ipcCode: ipcCode,
+            productName: product.name || sku.product || '',
+            isSubproduct: false
+          });
+        });
+      }
+
+      // Check subproducts
+      sku.subproducts?.forEach((subproduct, spIndex) => {
+        const subproductIpc = subproduct.ipcCode || `${ipcCode.replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
+        if (productSelection.includes(subproductIpc)) {
+          subproduct.stepData?.products?.forEach((product) => {
+            mergedItems.push({
+              ipcCode: subproductIpc,
+              productName: product.name || subproduct.subproduct || '',
+              isSubproduct: true
+            });
+          });
+        }
+      });
+    });
+
+    return mergedItems;
   };
 
   // Helper: Get work orders for a component from Step-2 rawMaterials
@@ -137,7 +267,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return calculateNetConsumption(consumptions);
   };
 
-  // Helper: Get ALL wastage values for compound calculation (Step-1, Step-2, Step-3, Step-4)
+  // Helper: Get ALL wastage/surplus values for compound calculation (Step-1, Step-2, Step-3, Step-4)
   const getAllWastagesForComponent = (componentName, stepData, productComponents) => {
     const wastageValues = [];
 
@@ -157,10 +287,29 @@ const ConsumptionSheet = ({ formData = {} }) => {
     const consumptionMats = getConsumptionMaterialsForComponent(componentName, stepData);
     consumptionMats.forEach((m) => extractAllWastages(m, wastageValues));
 
-    // Step-4: Artwork materials
+    // Step-4: Artwork materials (with category-specific surplus extraction)
     const artworkMats = getArtworkMaterialsForComponent(componentName, stepData);
-    artworkMats.forEach((m) => extractAllWastages(m, wastageValues));
+    artworkMats.forEach((m) => {
+      // Extract general wastage/surplus
+      extractAllWastages(m, wastageValues);
+      // Extract category-specific surplus
+      const artworkWastageSurplus = extractArtworkWastageSurplus(m);
+      wastageValues.push(...artworkWastageSurplus);
+    });
 
+    return wastageValues;
+  };
+
+  // Helper: Get ALL wastage/surplus values for packaging materials
+  const getAllWastagesForPackaging = (stepData) => {
+    const wastageValues = [];
+    const packagingMats = getPackagingMaterialsForProduct(stepData);
+    
+    packagingMats.forEach((m) => {
+      const packagingWastageSurplus = extractPackagingWastageSurplus(m);
+      wastageValues.push(...packagingWastageSurplus);
+    });
+    
     return wastageValues;
   };
 
@@ -187,6 +336,16 @@ const ConsumptionSheet = ({ formData = {} }) => {
       }
     }
     return null;
+  };
+
+  // Helper: Format packaging type name (convert "CARTON BOX" to "Carton Box")
+  const formatPackagingTypeName = (type) => {
+    if (!type) return '-';
+    // Convert to title case: "CARTON BOX" -> "Carton Box"
+    return type
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   };
 
   // Build flat list: IPC → Product/Subproduct → Components (in form order)
@@ -235,7 +394,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return products;
   }, [formData.skus]);
 
-  // Component Row: full block from Raw Material row to Work Orders
+  // Component Row: full block from Raw Material row to Work Orders to Artwork
   const ComponentRow = ({ componentName, component, product }) => {
     const stepData = product.stepData;
     const productComponents = product.productComponents || [];
@@ -246,10 +405,11 @@ const ConsumptionSheet = ({ formData = {} }) => {
     const allWastages = getAllWastagesForComponent(componentName, stepData, productComponents);
     const materialTypes = getMaterialTypes(componentName, stepData);
     const componentDetails = component || getComponentDetails(componentName, productComponents);
+    const artworkMats = getArtworkMaterialsForComponent(componentName, stepData);
 
     const compoundWastage = calculateCompoundWastage(allWastages);
     const overageQty = calculateOverageQty(product.poQty || 0, product.overagePercentage || '0');
-    const grossCns = calculateGrossCns(overageQty, compoundWastage, netCns);
+    const grossCns = calculateGrossCns(overageQty, allWastages, netCns);
 
     return (
       <div className="w-full mb-8">
@@ -343,7 +503,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
           </div>
 
           {/* WORK ORDERS */}
-          <div className="bg-muted/5 px-6 py-5">
+          <div className="border-b border-border bg-muted/5 px-6 py-5">
             <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Work Orders</span>
             <div className="px-3 pb-3">
               {workOrders.length > 0 ? (
@@ -366,28 +526,194 @@ const ConsumptionSheet = ({ formData = {} }) => {
               )}
             </div>
           </div>
+
+          {/* ARTWORK SECTION - After Work Orders */}
+          {artworkMats.length > 0 && (
+            <div className="border-b border-border bg-muted/5 px-6 py-5">
+              <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Artwork</span>
+              <div className="space-y-3">
+                {artworkMats.map((artwork, idx) => {
+                  const artworkNetCns = parseFloat(artwork.netConsumption) || 0;
+                  const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
+                  const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
+                  const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkNetCns);
+                  
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white border border-border rounded-lg p-4 shadow-sm"
+                    >
+                      <div className="grid grid-cols-6 gap-4">
+                        <div className="col-span-2">
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Material Description</span>
+                          <span className="text-sm font-medium text-foreground">{artwork.materialDescription || '-'}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Net CNS</span>
+                          <span className="text-sm font-bold text-foreground">{artworkNetCns || '-'}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Wastage/Surplus</span>
+                          <span className="text-sm font-bold text-foreground">{artworkCompoundWastage}%</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Gross CNS</span>
+                          <span className="text-sm font-bold text-primary">{artworkGrossCns}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Unit</span>
+                          <span className="text-sm font-bold text-foreground uppercase">{artwork.unit || '-'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Packaging Row: Display at product/IPC level
+  const PackagingRow = ({ product, formData }) => {
+    const stepData = product.stepData;
+    const packagingMats = getPackagingMaterialsForProduct(stepData);
+
+    if (!packagingMats || packagingMats.length === 0) return null;
+
+    const packagingType = stepData?.packaging?.toBeShipped || '';
+    const isMerged = packagingType.toLowerCase() === 'merged';
+    const isStandalone = packagingType.toLowerCase() === 'standalone';
+    
+    // Get merged IPCs/products if merged
+    const productSelection = stepData?.packaging?.productSelection || [];
+    const mergedItems = isMerged ? getMergedIpcsProducts(productSelection, formData) : [];
+
+    return (
+      <div className="w-full mb-8">
+        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm" style={{ padding: '16px' }}>
+          {/* ROW 1: IPC(s) */}
+          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/40 to-muted/20">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              {isMerged ? 'IPC Codes' : 'IPC Code'}
+            </span>
+            {isMerged && mergedItems.length > 0 ? (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {mergedItems.map((item, idx) => (
+                  <span key={idx} className="text-lg font-bold text-foreground bg-muted/30 px-3 py-1 rounded">
+                    {item.ipcCode}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-lg font-bold text-foreground">{product.ipcCode}</span>
+            )}
+          </div>
+
+          {/* ROW 2: Product(s) */}
+          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+                {isMerged ? 'Products' : (product.isSubproduct ? 'Subproduct' : 'Product')}
+              </span>
+              {isMerged && mergedItems.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {mergedItems.map((item, idx) => (
+                    <span key={idx} className="text-base font-semibold text-foreground bg-muted/20 px-3 py-1 rounded">
+                      {item.ipcCode}: {item.productName || '-'}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-base font-semibold text-foreground">{product.productName || '-'}</span>
+              )}
+            </div>
+            {(isMerged || isStandalone) && (
+              <span className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 ${
+                isMerged ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+              }`}>
+                {isMerged ? 'MERGED' : 'STANDALONE'}
+              </span>
+            )}
+          </div>
+
+          {/* PACKAGING SECTION */}
+          <div className="bg-muted/5 px-6 py-5">
+            <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Packaging</span>
+            <div className="space-y-3">
+              {packagingMats.map((packaging, idx) => {
+                const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
+                const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
+                const packagingTypeName = formatPackagingTypeName(packaging.packagingMaterialType);
+                
+                return (
+                  <div
+                    key={idx}
+                    className="bg-white border border-border rounded-lg p-4 shadow-sm"
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Packaging Type</span>
+                        <span className="text-base font-bold text-foreground">{packagingTypeName}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Wastage/Surplus</span>
+                        <span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
       {allProducts.length > 0 ? (
-        allProducts.map((product, idx) => (
-          <div key={idx}>
-            {product.components.map((component, cIdx) =>
-              component.productComforter ? (
-                <ComponentRow
-                  key={`${idx}-${cIdx}`}
-                  componentName={component.productComforter}
-                  component={component}
-                  product={product}
-                />
-              ) : null
-            )}
-          </div>
-        ))
+        (() => {
+          const shownMergedKeys = new Set();
+          return allProducts.map((product, idx) => {
+            const stepData = product.stepData;
+            const packagingType = stepData?.packaging?.toBeShipped || '';
+            const isMerged = packagingType.toLowerCase() === 'merged';
+            const productSelection = stepData?.packaging?.productSelection || [];
+            const mergedKey = Array.isArray(productSelection) ? productSelection.sort().join(',') : String(productSelection);
+            
+            // For merged: only show packaging once per merged group
+            // For standalone: show packaging for each product
+            let shouldShowPackaging = true;
+            if (isMerged && mergedKey) {
+              if (shownMergedKeys.has(mergedKey)) {
+                shouldShowPackaging = false;
+              } else {
+                shownMergedKeys.add(mergedKey);
+              }
+            }
+
+            return (
+              <div key={idx}>
+                {product.components.map((component, cIdx) =>
+                  component.productComforter ? (
+                    <ComponentRow
+                      key={`${idx}-${cIdx}`}
+                      componentName={component.productComforter}
+                      component={component}
+                      product={product}
+                    />
+                  ) : null
+                )}
+                {/* Packaging section at product/IPC level */}
+                {shouldShowPackaging && <PackagingRow product={product} formData={formData} />}
+              </div>
+            );
+          });
+        })()
       ) : (
         <div className="text-center py-12 text-muted-foreground">No products found. Please complete previous steps first.</div>
       )}

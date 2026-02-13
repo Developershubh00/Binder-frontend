@@ -4793,6 +4793,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         }
       }
       // flowPhase === 'step0'
+      // Hide Step0 form when IPC popup is shown
+      if (showIPCPopup) {
+        return null;
+      }
       return (
         <Step0 
           formData={formData} 
@@ -5190,10 +5194,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         </div>
       )}
 
-      </>
-      )}
-
-      {showIPCPopup ? (
+      {showIPCPopup && (
         // Buyer/Vendor-style success view (inline, not modal)
         <div className="w-full max-w-3xl mx-auto" style={{ marginTop: '24px' }}>
           <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
@@ -5252,34 +5253,19 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             </div>
           </FormCard>
         </div>
-      ) : showConsumptionSheet ? (
-        <>
-          {/* Consumption Sheet View - Just the sheet, no extra header */}
-          <div className="mb-8 mx-auto" style={{ maxWidth: '1800px', width: '100%' }}>
-            {/* Close Button */}
-            <div className="flex justify-end mb-4">
-              <Button type="button" onClick={() => setShowConsumptionSheet(false)} variant="default">
-                Close
-              </Button>
-            </div>
-            <div style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto', width: '100%' }}>
-              <ConsumptionSheet formData={formData} />
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Main content area: vertical progress bar (left, only in ipcFlow) + step content + nav */}
-          <div className={cn(
-            'mb-8',
-            flowPhase === 'ipcFlow' ? 'flex flex-row items-start gap-0' : ''
-          )}>
-            {flowPhase === 'ipcFlow' && renderVerticalProgressBar()}
-            <div className={cn(
-              'flex-1 min-w-0 flex flex-col',
-              flowPhase === 'ipcFlow' ? '' : 'mx-auto'
-            )} style={{ maxWidth: flowPhase === 'ipcFlow' ? undefined : '1000px' }}>
-              {renderStepContent()}
+      )}
+
+      {/* Main content area: vertical progress bar (left, only in ipcFlow) + step content + nav */}
+      <div className={cn(
+        'mb-8',
+        flowPhase === 'ipcFlow' ? 'flex flex-row items-start gap-0' : ''
+      )}>
+        {flowPhase === 'ipcFlow' && renderVerticalProgressBar()}
+        <div className={cn(
+          'flex-1 min-w-0 flex flex-col',
+          flowPhase === 'ipcFlow' ? '' : 'mx-auto'
+        )} style={{ maxWidth: flowPhase === 'ipcFlow' ? undefined : '1000px' }}>
+          {renderStepContent()}
 
           {/* Navigation Buttons - flowPhase-aware */}
           <div className="">
@@ -5403,9 +5389,24 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                   </Button>
                 )}
               </div>
-            )}
-          </div>
+          )}
+        </div>
+        </div>
+      </div>
+      </>
+      )}
+      
+      {showConsumptionSheet && (
+        <>
+          {/* Consumption Sheet View - Just the sheet, no extra header */}
+          <div className="mb-8 mx-auto" style={{ maxWidth: '1800px', width: '100%' }}>
+            {/* Close Button */}
+            <div className="flex justify-end mb-4">
+              <Button type="button" onClick={() => setShowConsumptionSheet(false)} variant="default">
+                Close
+              </Button>
             </div>
+            <ConsumptionSheet formData={formData} />
           </div>
         </>
       )}
@@ -5429,13 +5430,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           className="max-h-[90vh] overflow-hidden flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white p-6"
           style={{ padding: '18px', width: '50vw', maxWidth: '900px', minWidth: '700px' }}
         >
-          <DialogHeader className="pb-5 pt-2 px-2 border-b border-border">
+          <DialogHeader className="pb-5 pt-2 px-2 border-b border-border flex-shrink-0">
             <DialogTitle className="text-xl font-semibold text-foreground">
               Factory Code Generation
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6 overflow-y-auto px-6 py-6" style={{ maxHeight: 'calc(90vh - 160px)', overflowY: 'auto' }}>
+          <div className="flex flex-col gap-6 px-6 py-6 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
             {/* Consumption Sheet */}
             <div className="rounded-xl border border-border overflow-hidden">
               <ConsumptionSheet formData={formData} />
@@ -5443,7 +5444,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
           </div>
 
-          <div className="flex justify-end px-6 py-5 border-t border-border bg-white">
+          <div className="flex justify-end px-6 py-5 border-t border-border bg-white flex-shrink-0">
             <Button type="button" onClick={() => setShowFactoryCodePopup(false)} variant="default">
               Done
             </Button>
