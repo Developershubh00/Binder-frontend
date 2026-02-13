@@ -510,7 +510,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   // IPC-First: Per-IPC steps (0=Cut, 1=Raw, 2=Artwork)
   const ipcFlowTotalSteps = 2;
-  const ipcFlowStepLabels = ['Cut & Sew Spec', 'Raw Material', 'Artwork & Labeling'];
+  const ipcFlowStepLabels = ['Cut & Sew Spec', 'BOM & WIP', 'Artwork & Labeling'];
 
   // Step labels for progress bar
   const stepLabels = [
@@ -4695,7 +4695,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 {isDone ? '✓' : i + 1}
               </button>
               <div className={cn('text-[10px] mt-2 text-center leading-tight', isDone || isCurrent ? 'text-primary font-medium' : 'text-muted-foreground')} style={{ maxWidth: 44 }}>
-                {label.split(' ')[0]}
+                {label === 'BOM & WIP' ? (
+                  <>
+                    <div>BOM</div>
+                    <div>& WIP</div>
+                  </>
+                ) : (
+                  label.split(' ')[0]
+                )}
               </div>
               {i < ipcFlowTotalSteps && <div className={cn('w-0.5 h-5 my-2', i < currentStep ? 'bg-primary' : 'bg-border')} />}
             </div>
