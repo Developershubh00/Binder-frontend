@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 /**
  * ConsumptionSheet Component
@@ -20,6 +20,16 @@ import React, { useMemo } from 'react';
  * - Row 7: Artwork (after work orders, per component)
  */
 const ConsumptionSheet = ({ formData = {} }) => {
+  // Single layout on screen: only mobile OR desktop (avoids duplicate render)
+  const [isMobileCns, setIsMobileCns] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 639px)');
+    const set = () => setIsMobileCns(mql.matches);
+    set();
+    mql.addEventListener('change', set);
+    return () => mql.removeEventListener('change', set);
+  }, []);
+
   // Helper: Calculate overage qty from PO Qty and overage percentage
   const calculateOverageQty = (poQty, overagePercentage) => {
     const qty = parseFloat(poQty) || 0;
@@ -99,32 +109,12 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return wastageList;
   };
 
-  // Helper: Extract artwork wastage/surplus based on category
+  // Helper: Extract artwork wastage/surplus — use recursive extraction so we pick up
+  // generic (surplus, surplusForSection), category-specific (labelsBrandSurplus, rfidSurplus, etc.),
+  // and any future fields for every artwork material (fixes 2nd+ materials showing 0).
   const extractArtworkWastageSurplus = (artworkMaterial) => {
     const values = [];
-    
-    // General wastage and surplus fields
-    if (artworkMaterial.wastage) values.push(artworkMaterial.wastage);
-    if (artworkMaterial.surplus) values.push(artworkMaterial.surplus);
-    
-    // Category-specific surplus fields (based on artworkCategory)
-    const category = artworkMaterial.artworkCategory;
-    if (category) {
-      // Map category to its specific surplus field
-      const categorySurplusMap = {
-        'LABELS (BRAND/MAIN)': 'labelsBrandSurplus',
-        'CARE & COMPOSITION': 'careCompositionSurplus',
-        'RFID / SECURITY TAGS': 'rfidSurplus',
-        'LAW LABEL / CONTENTS TAG': 'lawLabelSurplus',
-        // Add more category mappings as needed
-      };
-      
-      const surplusField = categorySurplusMap[category];
-      if (surplusField && artworkMaterial[surplusField]) {
-        values.push(artworkMaterial[surplusField]);
-      }
-    }
-    
+    extractAllWastages(artworkMaterial, values);
     return values;
   };
 
@@ -245,7 +235,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return workOrders;
   };
 
-  // Helper: Get total net CNS for a component from Step-2, Step-3 AND Step-4
+  // Helper: Get total net CNS for a component from Step-2, Step-3 AND Step-4 (used only where full total is needed)
   const getTotalNetCNS = (componentName, stepData) => {
     const consumptions = [];
 
@@ -265,6 +255,58 @@ const ConsumptionSheet = ({ formData = {} }) => {
     });
 
     return calculateNetConsumption(consumptions);
+  };
+
+  // Helper: Get net CNS from raw materials only (Step-2) for the Raw Material row – isolated from consumption/artwork
+  const getRawMaterialsOnlyNetCNS = (componentName, stepData) => {
+    const rawMats = getRawMaterialsForComponent(componentName, stepData);
+    const consumptions = rawMats
+      .filter((m) => m.netConsumption)
+      .map((m) => m.netConsumption);
+    return calculateNetConsumption(consumptions);
+  };
+
+  // Known wastage/surplus keys on a raw material (Step-2): foam, fiber, fabric, trim&accessory, yarn categories + work orders.
+  // Explicit list so we never miss a category; extractAllWastages(m) still runs to catch any nested or future keys.
+  const RAW_MATERIAL_WASTAGE_SURPLUS_KEYS = [
+    'surplus', 'wastage',
+    'fabricSurplus', 'fabricWastage',
+    'foamSurplus', 'foamWastage', 'foamPeEpeSurplus', 'foamPeEpeWastage', 'foamPuSurplus', 'foamPuWastage',
+    'foamRebondedSurplus', 'foamRebondedWastage', 'foamGelInfusedSurplus', 'foamGelInfusedWastage',
+    'foamLatexSurplus', 'foamLatexWastage', 'foamMemorySurplus', 'foamMemoryWastage', 'foamHrSurplus', 'foamHrWastage',
+    'fiberSurplus', 'fiberWastage',
+    'stitchingThreadSurplus', 'stitchingThreadWastage',
+  ];
+
+  const pushIfPresent = (list, value) => {
+    if (value !== undefined && value !== null && value !== '') list.push(value);
+  };
+
+  // Extract all wastage/surplus from one raw material: 5 categories (foam, fiber, fabric, trim&accessory, yarn) + work orders
+  const extractRawMaterialWastagesSurplus = (material, wastageList) => {
+    RAW_MATERIAL_WASTAGE_SURPLUS_KEYS.forEach((key) => {
+      if (material[key] !== undefined) pushIfPresent(wastageList, material[key]);
+    });
+    (material.workOrders || []).forEach((wo) => extractAllWastages(wo, wastageList));
+  };
+
+  // Helper: Get wastage/surplus values for raw materials only (Step-1 component + Step-2 raw) for Raw Material row calculations.
+  // Step-2: from each raw material, all nested forms (foam, fiber, fabric, trim&accessory, yarn) and work orders – no Step-3/Step-4.
+  const getAllWastagesForRawMaterialsOnly = (componentName, stepData, productComponents) => {
+    const wastageValues = [];
+
+    // Step-1: Component-level wastage
+    for (const comp of productComponents || []) {
+      if (comp.productComforter === componentName && comp.wastage) {
+        wastageValues.push(comp.wastage);
+        break;
+      }
+    }
+
+    const rawMats = getRawMaterialsForComponent(componentName, stepData);
+    rawMats.forEach((m) => extractRawMaterialWastagesSurplus(m, wastageValues));
+
+    return wastageValues;
   };
 
   // Helper: Get ALL wastage/surplus values for compound calculation (Step-1, Step-2, Step-3, Step-4)
@@ -394,34 +436,42 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return products;
   }, [formData.skus]);
 
-  // Component Row: full block from Raw Material row to Work Orders to Artwork
+  // Component Row: full block from Raw Material rows to Work Orders to Artwork
   const ComponentRow = ({ componentName, component, product }) => {
     const stepData = product.stepData;
     const productComponents = product.productComponents || [];
 
     const unit = getUnitForComponent(componentName, stepData);
     const workOrders = getWorkOrdersForComponent(componentName, stepData);
-    const netCns = getTotalNetCNS(componentName, stepData);
-    const allWastages = getAllWastagesForComponent(componentName, stepData, productComponents);
-    const materialTypes = getMaterialTypes(componentName, stepData);
+    const rawMats = getRawMaterialsForComponent(componentName, stepData);
     const componentDetails = component || getComponentDetails(componentName, productComponents);
     const artworkMats = getArtworkMaterialsForComponent(componentName, stepData);
-
-    const compoundWastage = calculateCompoundWastage(allWastages);
     const overageQty = calculateOverageQty(product.poQty || 0, product.overagePercentage || '0');
-    const grossCns = calculateGrossCns(overageQty, allWastages, netCns);
+
+    let componentWastage = null;
+    for (const comp of productComponents || []) {
+      if (comp.productComforter === componentName && comp.wastage) {
+        componentWastage = comp.wastage;
+        break;
+      }
+    }
+
+    const row4Cell = 'min-w-0 border-r border-border bg-muted/5 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(3n)]:border-r md:[&:nth-child(6n)]:border-r-0';
+    const row4Last = 'min-w-0 border-border bg-muted/5';
+    const desktopTableCell = { padding: '14px 18px' };
+    const desktopHeaderCell = { padding: '12px 18px' };
 
     return (
-      <div className="w-full mb-8">
-        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm" style={{ padding: '16px' }}>
+      <div className="w-full min-w-0 mb-8">
+        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm min-w-0" style={{ padding: '20px' }}>
           {/* ROW 1: IPC */}
-          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/40 to-muted/20">
+          <div className="border-b border-border bg-gradient-to-r from-muted/40 to-muted/20" style={{ padding: '16px 20px' }}>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">IPC Code</span>
             <span className="text-lg font-bold text-foreground">{product.ipcCode}</span>
           </div>
 
           {/* ROW 2: Product (or Subproduct name) + Set Of */}
-          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4">
+          <div className="border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4" style={{ padding: '16px 20px' }}>
             <div>
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 {product.isSubproduct ? 'Subproduct' : 'Product'}
@@ -434,46 +484,125 @@ const ConsumptionSheet = ({ formData = {} }) => {
           </div>
 
           {/* ROW 3: Component */}
-          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="border-b border-border bg-gradient-to-r from-primary/5 to-transparent" style={{ padding: '16px 20px' }}>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Component</span>
             <span className="text-base font-bold text-primary">{componentName || '-'}</span>
           </div>
 
-          {/* ROW 4: Raw Material, Net CNS, Overage Qty, Gross Wastage, Gross CNS, Unit */}
-          <div className="grid grid-cols-6 gap-0 border-b border-border">
-            <div className="px-6 py-5 border-r border-border bg-muted/5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Raw Material</span>
-              <span className="text-sm text-foreground leading-relaxed">
-                {materialTypes.length > 0 ? materialTypes.join(', ') : '-'}
-              </span>
+          {/* ROW 4: One row per raw material — only one of mobile or desktop layout */}
+          <div className="border-b border-border min-w-0">
+            {isMobileCns ? (
+            /* Mobile: grouped cards */
+            <div className="bg-muted/5" style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {rawMats.length > 0 ? (
+                rawMats.map((material, mIdx) => {
+                  const matNetCns = material.netConsumption != null ? parseFloat(material.netConsumption) : 0;
+                  const matWastages = [];
+                  if (componentWastage) matWastages.push(componentWastage);
+                  extractRawMaterialWastagesSurplus(material, matWastages);
+                  const matCompoundWastage = calculateCompoundWastage(matWastages);
+                  const matGrossCns = calculateGrossCns(overageQty, matWastages, matNetCns);
+                  const matUnit = (material.unit || unit || '-').toString().toUpperCase();
+                  return (
+                    <div key={mIdx} className="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+                      <div style={{ padding: '16px 18px' }}>
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Material {mIdx + 1}</span>
+                        <p className="mt-1.5 text-base font-semibold text-foreground leading-snug">{material.materialType || '–'}</p>
+                      </div>
+                      <div className="border-t border-border bg-muted/20" style={{ padding: '14px 18px' }}>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Net CNS</span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{matNetCns !== 0 ? matNetCns : '–'}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Overage Qty</span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{overageQty}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Gross Wastage</span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{matCompoundWastage}%</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Unit</span>
+                            <span className="text-sm font-semibold text-foreground uppercase">{matUnit}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3 pt-2 mt-1 border-t border-border/60">
+                            <span className="text-xs font-semibold text-muted-foreground shrink-0">Gross CNS</span>
+                            <span className="text-base font-bold text-primary tabular-nums">{matGrossCns}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+                  <div className="border-b border-border/60" style={{ padding: '16px 18px' }}>
+                    <p className="text-sm font-medium text-muted-foreground">No raw material</p>
+                  </div>
+                  <div className="text-sm text-muted-foreground" style={{ padding: '14px 18px' }}>
+                    <div className="space-y-3">
+                      <div className="flex justify-between"><span>Net CNS</span><span>–</span></div>
+                      <div className="flex justify-between"><span>Overage Qty</span><span>–</span></div>
+                      <div className="flex justify-between"><span>Gross Wastage</span><span>–</span></div>
+                      <div className="flex justify-between"><span>Unit</span><span>–</span></div>
+                      <div className="flex justify-between pt-2 border-t border-border/60"><span className="font-medium">Gross CNS</span><span>–</span></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="px-6 py-5 border-r border-border bg-muted/5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Net CNS</span>
-              <span className="text-lg font-bold text-foreground">{netCns || '-'}</span>
+            ) : (
+            /* Desktop: table with header row + data rows */
+            <div className="min-w-0">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border bg-muted/30">
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Raw Material</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Net CNS</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Overage Qty</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross Wastage</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross CNS</span></div>
+                <div className={row4Last} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit</span></div>
+              </div>
+              {rawMats.length > 0 ? (
+                rawMats.map((material, mIdx) => {
+                  const matNetCns = material.netConsumption != null ? parseFloat(material.netConsumption) : 0;
+                  const matWastages = [];
+                  if (componentWastage) matWastages.push(componentWastage);
+                  extractRawMaterialWastagesSurplus(material, matWastages);
+                  const matCompoundWastage = calculateCompoundWastage(matWastages);
+                  const matGrossCns = calculateGrossCns(overageQty, matWastages, matNetCns);
+                  const matUnit = material.unit || unit;
+                  return (
+                    <div key={mIdx} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border last:border-b-0">
+                      <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{material.materialType || '-'}</span></div>
+                      <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matNetCns || '-'}</span></div>
+                      <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{overageQty}</span></div>
+                      <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matCompoundWastage}%</span></div>
+                      <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-primary">{matGrossCns}</span></div>
+                      <div className={row4Last} style={desktopTableCell}><span className="text-base font-bold text-foreground uppercase">{matUnit}</span></div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border">
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
+                  <div className={row4Last} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
+                </div>
+              )}
             </div>
-            <div className="px-6 py-5 border-r border-border bg-muted/5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Overage Qty</span>
-              <span className="text-lg font-bold text-foreground">{overageQty}</span>
-            </div>
-            <div className="px-6 py-5 border-r border-border bg-muted/5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Gross Wastage</span>
-              <span className="text-lg font-bold text-foreground">{compoundWastage}%</span>
-            </div>
-            <div className="px-6 py-5 border-r border-border bg-muted/5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Gross CNS</span>
-              <span className="text-lg font-bold text-primary">{grossCns}</span>
-            </div>
-            <div className="px-6 py-5 bg-muted/5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Unit</span>
-              <span className="text-lg font-bold text-foreground uppercase">{unit}</span>
-            </div>
+            )}
           </div>
 
           {/* ROW 5: SPEC */}
-          <div className="border-b border-border bg-muted/5 px-6 py-5">
+          <div className="border-b border-border bg-muted/5" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }}>
             <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Specification</span>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg border border-border p-4 shadow-sm">
+            <div className="grid grid-cols-2" style={isMobileCns ? { gap: '16px' } : { gap: '20px' }}>
+              <div className="bg-white rounded-lg border border-border shadow-sm" style={{ padding: isMobileCns ? '16px 18px' : '18px 20px' }}>
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Cut Size</span>
                 {String(componentDetails?.unit || unit || '').toUpperCase() === 'KGS' ? (
                   <span className="text-base font-medium text-foreground">
@@ -486,7 +615,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
                   </span>
                 )}
               </div>
-              <div className="bg-white rounded-lg border border-border p-4 shadow-sm">
+              <div className="bg-white rounded-lg border border-border shadow-sm" style={{ padding: isMobileCns ? '16px 18px' : '18px 20px' }}>
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Sew Size</span>
                 {String(componentDetails?.unit || unit || '').toUpperCase() === 'KGS' ? (
                   <span className="text-base font-medium text-foreground">
@@ -503,15 +632,16 @@ const ConsumptionSheet = ({ formData = {} }) => {
           </div>
 
           {/* WORK ORDERS */}
-          <div className="border-b border-border bg-muted/5 px-6 py-5">
+          <div className="border-b border-border bg-muted/5" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }}>
             <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Work Orders</span>
-            <div className="px-3 pb-3">
+            <div style={isMobileCns ? {} : { paddingBottom: '4px' }}>
               {workOrders.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap" style={{ gap: isMobileCns ? '14px' : '16px' }}>
                   {workOrders.map((wo, idx) => (
                     <div
                       key={idx}
-                      className="bg-white border border-border rounded-lg px-5 py-3 min-w-[140px] shadow-sm hover:shadow-md transition-shadow"
+                      className="bg-white border border-border rounded-lg min-w-[140px] shadow-sm hover:shadow-md transition-shadow"
+                      style={isMobileCns ? { padding: '14px 18px' } : { padding: '16px 20px' }}
                     >
                       <span className="text-xs font-medium text-muted-foreground block mb-1">WO {idx + 1}</span>
                       <span className="text-sm font-bold text-foreground">{wo.workOrder}</span>
@@ -527,48 +657,78 @@ const ConsumptionSheet = ({ formData = {} }) => {
             </div>
           </div>
 
-          {/* ARTWORK SECTION - After Work Orders */}
+          {/* ARTWORK SECTION – One row per artwork, original 5 columns only */}
           {artworkMats.length > 0 && (
-            <div className="border-b border-border bg-muted/5 px-6 py-5">
+            <div className="border-b border-border bg-muted/5 min-w-0" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }}>
               <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Artwork</span>
-              <div className="space-y-3">
+              {isMobileCns ? (
+              /* Mobile: grouped cards */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {artworkMats.map((artwork, idx) => {
                   const artworkNetCns = parseFloat(artwork.netConsumption) || 0;
                   const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
                   const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
                   const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkNetCns);
-                  
+                  const artUnit = (artwork.unit || '-').toString().toUpperCase();
                   return (
-                    <div
-                      key={idx}
-                      className="bg-white border border-border rounded-lg p-4 shadow-sm"
-                    >
-                      <div className="grid grid-cols-6 gap-4">
-                        <div className="col-span-2">
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Material Description</span>
-                          <span className="text-sm font-medium text-foreground">{artwork.materialDescription || '-'}</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Net CNS</span>
-                          <span className="text-sm font-bold text-foreground">{artworkNetCns || '-'}</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Wastage/Surplus</span>
-                          <span className="text-sm font-bold text-foreground">{artworkCompoundWastage}%</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Gross CNS</span>
-                          <span className="text-sm font-bold text-primary">{artworkGrossCns}</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Unit</span>
-                          <span className="text-sm font-bold text-foreground uppercase">{artwork.unit || '-'}</span>
+                    <div key={idx} className="rounded-xl border border-border bg-white shadow-sm overflow-hidden min-w-0">
+                      <div style={{ padding: '16px 18px' }}>
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Artwork {idx + 1}</span>
+                        <p className="mt-1.5 text-base font-semibold text-foreground leading-snug break-words">{artwork.materialDescription || '–'}</p>
+                      </div>
+                      <div className="border-t border-border bg-muted/20" style={{ padding: '14px 18px' }}>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Net CNS</span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{artworkNetCns || '–'}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Wastage/Surplus</span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{artworkCompoundWastage}%</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Unit</span>
+                            <span className="text-sm font-semibold text-foreground uppercase">{artUnit}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3 pt-2 mt-1 border-t border-border/60">
+                            <span className="text-xs font-semibold text-muted-foreground shrink-0">Gross CNS</span>
+                            <span className="text-base font-bold text-primary tabular-nums">{artworkGrossCns}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
+              ) : (
+              /* Desktop: table with header row + data rows */
+              <div className="min-w-0 rounded-lg border border-border overflow-hidden bg-card">
+                <div className="grid grid-cols-2 sm:grid-cols-5 min-w-0 border-b border-border bg-muted/30">
+                  <div className="min-w-0 border-r border-border [&:nth-child(5n)]:border-r-0" style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Material Description</span></div>
+                  <div className="min-w-0 border-r border-border [&:nth-child(5n)]:border-r-0" style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Net CNS</span></div>
+                  <div className="min-w-0 border-r border-border [&:nth-child(5n)]:border-r-0" style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wastage/Surplus</span></div>
+                  <div className="min-w-0 border-r border-border [&:nth-child(5n)]:border-r-0" style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross CNS</span></div>
+                  <div className="min-w-0 border-border" style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit</span></div>
+                </div>
+                {artworkMats.map((artwork, idx) => {
+                  const artworkNetCns = parseFloat(artwork.netConsumption) || 0;
+                  const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
+                  const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
+                  const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkNetCns);
+                  const artCellClass = 'min-w-0 border-r border-border [&:nth-child(5n)]:border-r-0 bg-muted/5';
+                  const artLastClass = 'min-w-0 border-border bg-muted/5';
+                  return (
+                    <div key={idx} className="grid grid-cols-2 sm:grid-cols-5 min-w-0 border-b border-border last:border-b-0">
+                      <div className={artCellClass} style={desktopTableCell}><span className="text-sm text-foreground break-words">{artwork.materialDescription || '-'}</span></div>
+                      <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{artworkNetCns || '-'}</span></div>
+                      <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{artworkCompoundWastage}%</span></div>
+                      <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-primary">{artworkGrossCns}</span></div>
+                      <div className={artLastClass} style={desktopTableCell}><span className="text-base font-bold text-foreground uppercase">{artwork.unit || '-'}</span></div>
+                    </div>
+                  );
+                })}
+              </div>
+              )}
             </div>
           )}
         </div>
@@ -577,7 +737,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
   };
 
   // Packaging Row: Display at product/IPC level
-  const PackagingRow = ({ product, formData }) => {
+  const PackagingRow = ({ product, formData, isMobile }) => {
     const stepData = product.stepData;
     const packagingMats = getPackagingMaterialsForProduct(stepData);
 
@@ -592,10 +752,10 @@ const ConsumptionSheet = ({ formData = {} }) => {
     const mergedItems = isMerged ? getMergedIpcsProducts(productSelection, formData) : [];
 
     return (
-      <div className="w-full mb-8">
-        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm" style={{ padding: '16px' }}>
+      <div className="w-full min-w-0 mb-8">
+        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm min-w-0" style={{ padding: isMobile ? '18px 16px' : '20px' }}>
           {/* ROW 1: IPC(s) */}
-          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/40 to-muted/20">
+          <div className="px-4 sm:px-6 py-4 border-b border-border bg-gradient-to-r from-muted/40 to-muted/20">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
               {isMerged ? 'IPC Codes' : 'IPC Code'}
             </span>
@@ -613,7 +773,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
           </div>
 
           {/* ROW 2: Product(s) */}
-          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4">
+          <div className="px-4 sm:px-6 py-4 border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4">
             <div className="flex-1">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 {isMerged ? 'Products' : (product.isSubproduct ? 'Subproduct' : 'Product')}
@@ -640,9 +800,9 @@ const ConsumptionSheet = ({ formData = {} }) => {
           </div>
 
           {/* PACKAGING SECTION */}
-          <div className="bg-muted/5 px-6 py-5">
+          <div className="bg-muted/5" style={isMobile ? { padding: '18px 16px' } : { padding: '20px' }}>
             <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Packaging</span>
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px' }}>
               {packagingMats.map((packaging, idx) => {
                 const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
                 const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
@@ -651,14 +811,15 @@ const ConsumptionSheet = ({ formData = {} }) => {
                 return (
                   <div
                     key={idx}
-                    className="bg-white border border-border rounded-lg p-4 shadow-sm"
+                    className="bg-white border border-border rounded-lg shadow-sm"
+                    style={{ padding: isMobile ? '16px 18px' : '18px 20px' }}
                   >
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
+                    <div className="grid grid-cols-2" style={{ gap: isMobile ? '16px' : '20px' }}>
+                      <div style={isMobile ? {} : { padding: '4px 0' }}>
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Packaging Type</span>
                         <span className="text-base font-bold text-foreground">{packagingTypeName}</span>
                       </div>
-                      <div>
+                      <div style={isMobile ? {} : { padding: '4px 0' }}>
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Wastage/Surplus</span>
                         <span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span>
                       </div>
@@ -674,7 +835,15 @@ const ConsumptionSheet = ({ formData = {} }) => {
   };
 
   return (
-    <div className="w-full overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+    <div
+      className="w-full min-w-0 overflow-y-auto overflow-x-hidden"
+      style={{
+        maxHeight: 'calc(100vh - 250px)',
+        WebkitOverflowScrolling: 'touch',
+        touchAction: 'pan-y',
+        overscrollBehavior: 'contain',
+      }}
+    >
       {allProducts.length > 0 ? (
         (() => {
           const shownMergedKeys = new Set();
@@ -709,7 +878,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
                   ) : null
                 )}
                 {/* Packaging section at product/IPC level */}
-                {shouldShowPackaging && <PackagingRow product={product} formData={formData} />}
+                {shouldShowPackaging && <PackagingRow product={product} formData={formData} isMobile={isMobileCns} />}
               </div>
             );
           });

@@ -208,7 +208,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       {material.cartonBoxStiffenerRequired === 'YES' && (
                         <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-                          <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER SIZE (L x W)</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER SIZE (L x W) <span className="text-red-500">*</span></label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">L</label>
@@ -216,10 +216,11 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 type="text"
                                 value={material.cartonBoxStiffenerLength || ''}
                                 onChange={(e) => onChange('cartonBoxStiffenerLength', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerLength`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Stiffener Length"
                               />
+                              {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerLength`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerLength`]}</span>}
                             </div>
                             <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">W</label>
@@ -227,10 +228,11 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 type="text"
                                 value={material.cartonBoxStiffenerWidth || ''}
                                 onChange={(e) => onChange('cartonBoxStiffenerWidth', e.target.value)}
-                                className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Stiffener Width"
                               />
+                              {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerWidth`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerWidth`]}</span>}
                             </div>
                           </div>
                         </div>

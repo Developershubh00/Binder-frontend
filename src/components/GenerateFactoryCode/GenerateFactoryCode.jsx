@@ -5406,9 +5406,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       {showConsumptionSheet && (
         <>
           {/* Consumption Sheet View - Just the sheet, no extra header */}
-          <div className="mb-8 mx-auto" style={{ maxWidth: '1800px', width: '100%' }}>
+          <div className="mb-8 mx-auto min-w-0 w-full" style={{ maxWidth: '1800px' }}>
             {/* Close Button */}
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4 px-2 sm:px-0">
               <Button type="button" onClick={() => setShowConsumptionSheet(false)} variant="default">
                 Close
               </Button>
@@ -5434,24 +5434,24 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       }}>
         <DialogContent
           showCloseButton={true}
-          className="max-h-[90vh] overflow-hidden flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white p-6"
-          style={{ padding: '18px', width: '50vw', maxWidth: '900px', minWidth: '700px' }}
+          className="max-h-[90vh] overflow-hidden flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white p-4 sm:p-6 w-[95vw] max-w-full sm:w-[85vw] md:w-[50vw] md:max-w-[900px]"
+          style={{ padding: '18px' }}
         >
-          <DialogHeader className="pb-5 pt-2 px-2 border-b border-border flex-shrink-0">
-            <DialogTitle className="text-xl font-semibold text-foreground">
+          <DialogHeader className="pb-5 pt-2 px-2 border-b border-border flex-shrink-0 min-w-0">
+            <DialogTitle className="text-xl font-semibold text-foreground truncate">
               Factory Code Generation
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6 px-6 py-6 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+          <div className="flex flex-col gap-6 px-3 sm:px-6 py-6 flex-1 overflow-y-auto overflow-x-hidden min-h-0 min-w-0">
             {/* Consumption Sheet */}
-            <div className="rounded-xl border border-border overflow-hidden">
+            <div className="rounded-xl border border-border overflow-hidden min-w-0 max-w-full">
               <ConsumptionSheet formData={formData} />
             </div>
 
           </div>
 
-          <div className="flex justify-end px-6 py-5 border-t border-border bg-white flex-shrink-0">
+          <div className="flex justify-end px-3 sm:px-6 py-5 border-t border-border bg-white flex-shrink-0 min-w-0">
             <Button type="button" onClick={() => setShowFactoryCodePopup(false)} variant="default">
               Done
             </Button>
