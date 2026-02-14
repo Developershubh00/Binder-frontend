@@ -99,32 +99,12 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return wastageList;
   };
 
-  // Helper: Extract artwork wastage/surplus based on category
+  // Helper: Extract artwork wastage/surplus — use recursive extraction so we pick up
+  // generic (surplus, surplusForSection), category-specific (labelsBrandSurplus, rfidSurplus, etc.),
+  // and any future fields for every artwork material (fixes 2nd+ materials showing 0).
   const extractArtworkWastageSurplus = (artworkMaterial) => {
     const values = [];
-    
-    // General wastage and surplus fields
-    if (artworkMaterial.wastage) values.push(artworkMaterial.wastage);
-    if (artworkMaterial.surplus) values.push(artworkMaterial.surplus);
-    
-    // Category-specific surplus fields (based on artworkCategory)
-    const category = artworkMaterial.artworkCategory;
-    if (category) {
-      // Map category to its specific surplus field
-      const categorySurplusMap = {
-        'LABELS (BRAND/MAIN)': 'labelsBrandSurplus',
-        'CARE & COMPOSITION': 'careCompositionSurplus',
-        'RFID / SECURITY TAGS': 'rfidSurplus',
-        'LAW LABEL / CONTENTS TAG': 'lawLabelSurplus',
-        // Add more category mappings as needed
-      };
-      
-      const surplusField = categorySurplusMap[category];
-      if (surplusField && artworkMaterial[surplusField]) {
-        values.push(artworkMaterial[surplusField]);
-      }
-    }
-    
+    extractAllWastages(artworkMaterial, values);
     return values;
   };
 
@@ -446,23 +426,28 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return products;
   }, [formData.skus]);
 
-  // Component Row: full block from Raw Material row to Work Orders to Artwork
+  // Component Row: full block from Raw Material rows to Work Orders to Artwork
   const ComponentRow = ({ componentName, component, product }) => {
     const stepData = product.stepData;
     const productComponents = product.productComponents || [];
 
     const unit = getUnitForComponent(componentName, stepData);
     const workOrders = getWorkOrdersForComponent(componentName, stepData);
-    // Raw Material row: use only raw materials (Step-2) – isolated from consumption/artwork
-    const netCns = getRawMaterialsOnlyNetCNS(componentName, stepData);
-    const rawOnlyWastages = getAllWastagesForRawMaterialsOnly(componentName, stepData, productComponents);
-    const materialTypes = getMaterialTypes(componentName, stepData);
+    const rawMats = getRawMaterialsForComponent(componentName, stepData);
     const componentDetails = component || getComponentDetails(componentName, productComponents);
     const artworkMats = getArtworkMaterialsForComponent(componentName, stepData);
-
-    const compoundWastage = calculateCompoundWastage(rawOnlyWastages);
     const overageQty = calculateOverageQty(product.poQty || 0, product.overagePercentage || '0');
-    const grossCns = calculateGrossCns(overageQty, rawOnlyWastages, netCns);
+
+    let componentWastage = null;
+    for (const comp of productComponents || []) {
+      if (comp.productComforter === componentName && comp.wastage) {
+        componentWastage = comp.wastage;
+        break;
+      }
+    }
+
+    const row4Cell = 'min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-r border-border bg-muted/5 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(3n)]:border-r md:[&:nth-child(6n)]:border-r-0';
+    const row4Last = 'min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-border bg-muted/5';
 
     return (
       <div className="w-full min-w-0 mb-8">
@@ -492,34 +477,46 @@ const ConsumptionSheet = ({ formData = {} }) => {
             <span className="text-base font-bold text-primary">{componentName || '-'}</span>
           </div>
 
-          {/* ROW 4: Same as Artwork – 2 cols | sm 3 cols | md 6 cols, no x-scroll */}
-          <div className="border-b border-border grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0">
-            <div className="min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-5 border-b border-r border-border bg-muted/5 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(3n)]:border-r md:[&:nth-child(6n)]:border-r-0">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Raw Material</span>
-              <span className="text-sm text-foreground leading-relaxed break-words">
-                {materialTypes.length > 0 ? materialTypes.join(', ') : '-'}
-              </span>
+          {/* ROW 4: One row per raw material */}
+          <div className="border-b border-border min-w-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border bg-muted/30">
+              <div className={row4Cell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Raw Material</span></div>
+              <div className={row4Cell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Net CNS</span></div>
+              <div className={row4Cell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Overage Qty</span></div>
+              <div className={row4Cell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross Wastage</span></div>
+              <div className={row4Cell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross CNS</span></div>
+              <div className={row4Last}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit</span></div>
             </div>
-            <div className="min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-5 border-b border-r border-border bg-muted/5 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(3n)]:border-r md:[&:nth-child(6n)]:border-r-0">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Net CNS</span>
-              <span className="text-base font-bold text-foreground">{netCns || '-'}</span>
-            </div>
-            <div className="min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-5 border-b border-r border-border bg-muted/5 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(3n)]:border-r md:[&:nth-child(6n)]:border-r-0">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Overage Qty</span>
-              <span className="text-base font-bold text-foreground">{overageQty}</span>
-            </div>
-            <div className="min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-5 border-b border-r border-border bg-muted/5 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(3n)]:border-r md:[&:nth-child(6n)]:border-r-0">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Gross Wastage</span>
-              <span className="text-base font-bold text-foreground">{compoundWastage}%</span>
-            </div>
-            <div className="min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-5 border-b border-r border-border bg-muted/5 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(3n)]:border-r md:[&:nth-child(6n)]:border-r-0">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Gross CNS</span>
-              <span className="text-base font-bold text-primary">{grossCns}</span>
-            </div>
-            <div className="min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-5 border-b border-border bg-muted/5 md:border-b-0">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Unit</span>
-              <span className="text-base font-bold text-foreground uppercase">{unit}</span>
-            </div>
+            {rawMats.length > 0 ? (
+              rawMats.map((material, mIdx) => {
+                const matNetCns = material.netConsumption != null ? parseFloat(material.netConsumption) : 0;
+                const matWastages = [];
+                if (componentWastage) matWastages.push(componentWastage);
+                extractRawMaterialWastagesSurplus(material, matWastages);
+                const matCompoundWastage = calculateCompoundWastage(matWastages);
+                const matGrossCns = calculateGrossCns(overageQty, matWastages, matNetCns);
+                const matUnit = material.unit || unit;
+                return (
+                  <div key={mIdx} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border last:border-b-0">
+                    <div className={row4Cell}><span className="text-sm text-foreground break-words">{material.materialType || '-'}</span></div>
+                    <div className={row4Cell}><span className="text-base font-bold text-foreground">{matNetCns || '-'}</span></div>
+                    <div className={row4Cell}><span className="text-base font-bold text-foreground">{overageQty}</span></div>
+                    <div className={row4Cell}><span className="text-base font-bold text-foreground">{matCompoundWastage}%</span></div>
+                    <div className={row4Cell}><span className="text-base font-bold text-primary">{matGrossCns}</span></div>
+                    <div className={row4Last}><span className="text-base font-bold text-foreground uppercase">{matUnit}</span></div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border">
+                <div className={row4Cell}><span className="text-sm text-muted-foreground">-</span></div>
+                <div className={row4Cell}><span className="text-sm text-muted-foreground">-</span></div>
+                <div className={row4Cell}><span className="text-sm text-muted-foreground">-</span></div>
+                <div className={row4Cell}><span className="text-sm text-muted-foreground">-</span></div>
+                <div className={row4Cell}><span className="text-sm text-muted-foreground">-</span></div>
+                <div className={row4Last}><span className="text-sm text-muted-foreground">-</span></div>
+              </div>
+            )}
           </div>
 
           {/* ROW 5: SPEC */}
@@ -580,44 +577,43 @@ const ConsumptionSheet = ({ formData = {} }) => {
             </div>
           </div>
 
-          {/* ARTWORK SECTION - After Work Orders */}
+          {/* ARTWORK SECTION – One row per artwork, original 5 columns only */}
           {artworkMats.length > 0 && (
-            <div className="border-b border-border bg-muted/5 px-4 sm:px-6 py-5">
-              <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Artwork</span>
-              <div className="space-y-3">
+            <div className="border-b border-border bg-muted/5 px-4 sm:px-6 py-5 min-w-0">
+              <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-3">Artwork</span>
+              <div className="min-w-0 rounded-lg border border-border overflow-hidden bg-card">
+                {/* Header row – 5 cols: Material Description, Net CNS, Wastage/Surplus, Gross CNS, Unit */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 min-w-0 border-b border-border bg-muted/30">
+                  <div className="min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-r border-border [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(5n)]:border-r-0">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Material Description</span>
+                  </div>
+                  <div className="min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-r border-border [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(5n)]:border-r-0">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Net CNS</span>
+                  </div>
+                  <div className="min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-r border-border [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(5n)]:border-r-0">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wastage/Surplus</span>
+                  </div>
+                  <div className="min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-r border-border [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(5n)]:border-r-0">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross CNS</span>
+                  </div>
+                  <div className="min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-border">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit</span>
+                  </div>
+                </div>
                 {artworkMats.map((artwork, idx) => {
                   const artworkNetCns = parseFloat(artwork.netConsumption) || 0;
                   const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
                   const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
                   const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkNetCns);
-                  
+                  const artCell = 'min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-r border-border [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(5n)]:border-r-0';
+                  const artLast = 'min-w-0 px-3 sm:px-4 md:px-6 py-3 md:py-4 border-border';
                   return (
-                    <div
-                      key={idx}
-                      className="bg-white border border-border rounded-lg p-3 sm:p-4 shadow-sm min-w-0 max-w-full"
-                    >
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 min-w-0">
-                        <div className="col-span-2 min-w-0">
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Material Description</span>
-                          <span className="text-sm font-medium text-foreground">{artwork.materialDescription || '-'}</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Net CNS</span>
-                          <span className="text-sm font-bold text-foreground">{artworkNetCns || '-'}</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Wastage/Surplus</span>
-                          <span className="text-sm font-bold text-foreground">{artworkCompoundWastage}%</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Gross CNS</span>
-                          <span className="text-sm font-bold text-primary">{artworkGrossCns}</span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Unit</span>
-                          <span className="text-sm font-bold text-foreground uppercase">{artwork.unit || '-'}</span>
-                        </div>
-                      </div>
+                    <div key={idx} className="grid grid-cols-2 sm:grid-cols-5 min-w-0 border-b border-border last:border-b-0">
+                      <div className={artCell}><span className="text-sm text-foreground break-words">{artwork.materialDescription || '-'}</span></div>
+                      <div className={artCell}><span className="text-base font-bold text-foreground">{artworkNetCns || '-'}</span></div>
+                      <div className={artCell}><span className="text-base font-bold text-foreground">{artworkCompoundWastage}%</span></div>
+                      <div className={artCell}><span className="text-base font-bold text-primary">{artworkGrossCns}</span></div>
+                      <div className={artLast}><span className="text-base font-bold text-foreground uppercase">{artwork.unit || '-'}</span></div>
                     </div>
                   );
                 })}
