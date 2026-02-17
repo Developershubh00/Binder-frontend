@@ -51,6 +51,26 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return ((compoundFactor - 1) * 100).toFixed(2);
   };
 
+  // Helper: Sum wastage/surplus values without compounding
+  const calculateTotalWastage = (wastageList) => {
+    if (!wastageList || wastageList.length === 0) return '0.00';
+    const total = wastageList.reduce((sum, w) => {
+      const wastageVal = parseFloat(String(w).replace('%', '')) || 0;
+      return sum + wastageVal;
+    }, 0);
+    return total.toFixed(2);
+  };
+
+  // Helper: Sum wastage/surplus values (no compounding)
+  // const calculateTotalWastage = (wastageList) => {
+  //   if (!wastageList || wastageList.length === 0) return '0.00';
+  //   const total = wastageList.reduce((sum, w) => {
+  //     const wastageVal = parseFloat(String(w).replace('%', '')) || 0;
+  //     return sum + wastageVal;
+  //   }, 0);
+  //   return total.toFixed(2);
+  // };
+
   // Helper: Calculate net consumption (sum of all consumptions)
   const calculateNetConsumption = (consumptions) => {
     if (!consumptions || consumptions.length === 0) return 0;
@@ -282,6 +302,59 @@ const ConsumptionSheet = ({ formData = {} }) => {
     if (value !== undefined && value !== null && value !== '') list.push(value);
   };
 
+  // Human-readable labels for raw material wastage/surplus keys (for trace/breakdown)
+  const RAW_MATERIAL_WASTAGE_LABELS = {
+    surplus: 'Surplus',
+    wastage: 'Wastage',
+    fabricSurplus: 'Fabric surplus',
+    fabricWastage: 'Fabric wastage',
+    foamSurplus: 'Foam surplus',
+    foamWastage: 'Foam wastage',
+    foamPeEpeSurplus: 'Foam PE/EPE surplus',
+    foamPeEpeWastage: 'Foam PE/EPE wastage',
+    foamPuSurplus: 'Foam PU surplus',
+    foamPuWastage: 'Foam PU wastage',
+    foamRebondedSurplus: 'Foam rebonded surplus',
+    foamRebondedWastage: 'Foam rebonded wastage',
+    foamGelInfusedSurplus: 'Foam gel infused surplus',
+    foamGelInfusedWastage: 'Foam gel infused wastage',
+    foamLatexSurplus: 'Foam latex surplus',
+    foamLatexWastage: 'Foam latex wastage',
+    foamMemorySurplus: 'Foam memory surplus',
+    foamMemoryWastage: 'Foam memory wastage',
+    foamHrSurplus: 'Foam HR surplus',
+    foamHrWastage: 'Foam HR wastage',
+    fiberSurplus: 'Fiber surplus',
+    fiberWastage: 'Fiber wastage',
+    stitchingThreadSurplus: 'Stitching thread surplus',
+    stitchingThreadWastage: 'Stitching thread wastage',
+  };
+
+  // Returns [{ source: string, value: number }] for one raw material only: this material's surplus/wastage + this material's work orders' wastage. No component.
+  const getRawMaterialWastageBreakdown = (material) => {
+    const breakdown = [];
+    const add = (source, value) => {
+      const num = parseFloat(String(value).replace('%', '')) || 0;
+      if (num > 0) breakdown.push({ source, value: num });
+    };
+
+    RAW_MATERIAL_WASTAGE_SURPLUS_KEYS.forEach((key) => {
+      if (material[key] !== undefined && material[key] !== null && material[key] !== '') {
+        add(RAW_MATERIAL_WASTAGE_LABELS[key] || key, material[key]);
+      }
+    });
+    (material.workOrders || []).forEach((wo, idx) => {
+      const woValues = [];
+      extractAllWastages(wo, woValues);
+      const woLabel = wo.workOrder ? `Work order (${wo.workOrder})` : `Work order ${idx + 1}`;
+      woValues.forEach((v, i) => {
+        add(woValues.length > 1 ? `${woLabel} #${i + 1}` : woLabel, v);
+      });
+    });
+
+    return breakdown;
+  };
+
   // Extract all wastage/surplus from one raw material: 5 categories (foam, fiber, fabric, trim&accessory, yarn) + work orders
   const extractRawMaterialWastagesSurplus = (material, wastageList) => {
     RAW_MATERIAL_WASTAGE_SURPLUS_KEYS.forEach((key) => {
@@ -497,10 +570,10 @@ const ConsumptionSheet = ({ formData = {} }) => {
               {rawMats.length > 0 ? (
                 rawMats.map((material, mIdx) => {
                   const matNetCns = material.netConsumption != null ? parseFloat(material.netConsumption) : 0;
-                  const matWastages = [];
-                  if (componentWastage) matWastages.push(componentWastage);
-                  extractRawMaterialWastagesSurplus(material, matWastages);
+                  const wastageBreakdown = getRawMaterialWastageBreakdown(material);
+                  const matWastages = wastageBreakdown.map((b) => b.value);
                   const matCompoundWastage = calculateCompoundWastage(matWastages);
+                  const matTotalWastage = calculateTotalWastage(matWastages);
                   const matGrossCns = calculateGrossCns(overageQty, matWastages, matNetCns);
                   const matUnit = (material.unit || unit || '-').toString().toUpperCase();
                   return (
@@ -520,9 +593,21 @@ const ConsumptionSheet = ({ formData = {} }) => {
                             <span className="text-sm font-semibold text-foreground tabular-nums">{overageQty}</span>
                           </div>
                           <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0">Wastage</span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{matTotalWastage}%</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3">
                             <span className="text-xs font-medium text-muted-foreground shrink-0">Gross Wastage</span>
                             <span className="text-sm font-semibold text-foreground tabular-nums">{matCompoundWastage}%</span>
                           </div>
+                          {wastageBreakdown.length > 0 && (
+                            <div className="text-[10px] text-muted-foreground pt-1 border-t border-border/60 mt-1">
+                              <span className="font-medium">From (compounded): </span>
+                              {wastageBreakdown.map((b, i) => (
+                                <span key={i}>{i > 0 ? ' + ' : ''}{b.source} {b.value}%</span>
+                              ))}
+                            </div>
+                          )}
                           <div className="flex justify-between items-baseline gap-3">
                             <span className="text-xs font-medium text-muted-foreground shrink-0">Unit</span>
                             <span className="text-sm font-semibold text-foreground uppercase">{matUnit}</span>
@@ -545,6 +630,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
                     <div className="space-y-3">
                       <div className="flex justify-between"><span>Net CNS</span><span>–</span></div>
                       <div className="flex justify-between"><span>Overage Qty</span><span>–</span></div>
+                      <div className="flex justify-between"><span>Wastage</span><span>–</span></div>
                       <div className="flex justify-between"><span>Gross Wastage</span><span>–</span></div>
                       <div className="flex justify-between"><span>Unit</span><span>–</span></div>
                       <div className="flex justify-between pt-2 border-t border-border/60"><span className="font-medium">Gross CNS</span><span>–</span></div>
@@ -556,10 +642,11 @@ const ConsumptionSheet = ({ formData = {} }) => {
             ) : (
             /* Desktop: table with header row + data rows */
             <div className="min-w-0">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border bg-muted/30">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 min-w-0 border-b border-border bg-muted/30">
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Raw Material</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Net CNS</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Overage Qty</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wastage</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross Wastage</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross CNS</span></div>
                 <div className={row4Last} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit</span></div>
@@ -567,25 +654,30 @@ const ConsumptionSheet = ({ formData = {} }) => {
               {rawMats.length > 0 ? (
                 rawMats.map((material, mIdx) => {
                   const matNetCns = material.netConsumption != null ? parseFloat(material.netConsumption) : 0;
-                  const matWastages = [];
-                  if (componentWastage) matWastages.push(componentWastage);
-                  extractRawMaterialWastagesSurplus(material, matWastages);
+                  const wastageBreakdown = getRawMaterialWastageBreakdown(material);
+                  const matWastages = wastageBreakdown.map((b) => b.value);
                   const matCompoundWastage = calculateCompoundWastage(matWastages);
+                  const matTotalWastage = calculateTotalWastage(matWastages);
                   const matGrossCns = calculateGrossCns(overageQty, matWastages, matNetCns);
                   const matUnit = material.unit || unit;
+                  const wastageTraceTitle = wastageBreakdown.length > 0
+                    ? `Gross wastage from (compounded): ${wastageBreakdown.map((b) => `${b.source} ${b.value}%`).join(' → ')}`
+                    : '';
                   return (
-                    <div key={mIdx} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border last:border-b-0">
+                    <div key={mIdx} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 min-w-0 border-b border-border last:border-b-0">
                       <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{material.materialType || '-'}</span></div>
                       <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matNetCns || '-'}</span></div>
                       <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{overageQty}</span></div>
-                      <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matCompoundWastage}%</span></div>
+                      <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matTotalWastage}%</span></div>
+                      <div className={row4Cell} style={desktopTableCell} title={wastageTraceTitle}><span className="text-base font-bold text-foreground">{matCompoundWastage}%</span></div>
                       <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-primary">{matGrossCns}</span></div>
                       <div className={row4Last} style={desktopTableCell}><span className="text-base font-bold text-foreground uppercase">{matUnit}</span></div>
                     </div>
                   );
                 })
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 min-w-0 border-b border-border">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 min-w-0 border-b border-border">
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
                   <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
                   <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
                   <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-muted-foreground">-</span></div>
