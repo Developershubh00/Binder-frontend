@@ -475,59 +475,6 @@ const Step4 = ({
                 </div>
                     </div>
                     
-              {/* SIZE Section: WIDTH, LENGTH, HEIGHT, UNIT */}
-              <div className="w-full mt-6 pt-6 border-t border-gray-100">
-                <h5 className="text-sm font-bold text-gray-800 mb-4">SIZE</h5>
-                <div className="flex flex-wrap items-start gap-4">
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">WIDTH</label>
-                    <input
-                      type="text"
-                      value={material.sizeWidth || ''}
-                      onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeWidth', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeWidth`] ? 'border-red-600' : 'border-border'}`}
-                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                      placeholder="e.g., 52"
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH</label>
-                    <input
-                      type="text"
-                      value={material.sizeLength || ''}
-                      onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLength', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLength`] ? 'border-red-600' : 'border-border'}`}
-                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                      placeholder="e.g., 48"
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">HEIGHT</label>
-                    <input
-                      type="text"
-                      value={material.sizeHeight || ''}
-                      onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeHeight', e.target.value)}
-                      className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeHeight`] ? 'border-red-600' : 'border-border'}`}
-                      style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                      placeholder="e.g., 52"
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-2">UNIT</label>
-                    <SearchableDropdown
-                      value={material.sizeUnit || ''}
-                      onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'sizeUnit', selectedValue)}
-                      options={['CM', 'KGS', 'PCS']}
-                      placeholder="Select or type Unit"
-                      style={{ width: '130px' }}
-                    />
-                  </div>
-                </div>
-              </div>
-
               {/* ARTWORK CATEGORY SELECTOR */}
               <div className="w-full" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
                 <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
