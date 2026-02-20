@@ -803,7 +803,7 @@ const Step4 = ({
                           <textarea
                             value={material.labelsBrandRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -1061,7 +1061,7 @@ const Step4 = ({
                             type="text"
                             value={material.careCompositionRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
@@ -1346,7 +1346,7 @@ const Step4 = ({
                           <textarea
                             value={material.rfidRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -1594,7 +1594,7 @@ const Step4 = ({
                           <textarea
                             value={material.lawLabelRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -2317,7 +2317,7 @@ const Step4 = ({
                           <textarea
                             value={material.upcBarcodeRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -2545,7 +2545,7 @@ const Step4 = ({
                           <textarea
                             value={material.priceTicketRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -2881,7 +2881,7 @@ const Step4 = ({
                                 type="text"
                                 value={material.antiCounterfeitRemarks || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitRemarks', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitRemarks`] ? 'border-red-600' : 'border-border'}`}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Text"
                               />
@@ -3507,7 +3507,7 @@ const Step4 = ({
                             type="text"
                             value={material.bellyBandRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
@@ -3843,7 +3843,7 @@ const Step4 = ({
                           <textarea
                             value={material.sizeLabelsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -4159,7 +4159,7 @@ const Step4 = ({
                           <textarea
                             value={material.tagsSpecialLabelsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />
@@ -4458,7 +4458,7 @@ const Step4 = ({
                             type="text"
                             value={material.flammabilitySafetyRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', height: '44px' }}
                             placeholder="Text"
                           />
@@ -4740,7 +4740,7 @@ const Step4 = ({
                           <textarea
                             value={material.insertCardsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
                           />
@@ -4947,7 +4947,7 @@ const Step4 = ({
                           <textarea
                             value={material.ribbonsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsRemarks', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsRemarks`] ? 'border-red-600' : 'border-border'}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px' }}
                             placeholder="Text"
                           />

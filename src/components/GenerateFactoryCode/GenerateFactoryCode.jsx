@@ -517,6 +517,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   const totalSteps = 4;
 
+
   // IPC-First: Per-IPC steps (0=Cut, 1=Raw, 2=Artwork)
   const ipcFlowTotalSteps = 2;
   const ipcFlowStepLabels = ['Cut & Sew Spec', 'BOM & WIP', 'Artwork & Labeling'];

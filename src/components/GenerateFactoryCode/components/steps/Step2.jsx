@@ -1123,6 +1123,7 @@ const Step2 = ({
                       options={material.fiberType ? getYarnTypes(material.fiberType) : []}
                       placeholder={material.fiberType ? 'Select or type Yarn Type' : 'Select Fiber Type First'}
                       disabled={!material.fiberType}
+                      error={Boolean(errors[`rawMaterial_${actualIndex}_yarnType`])}
                       className={errors[`rawMaterial_${actualIndex}_yarnType`] ? 'border-red-600' : ''}
                     />
                   </Field>

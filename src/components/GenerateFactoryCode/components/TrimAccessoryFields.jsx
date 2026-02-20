@@ -1026,16 +1026,40 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             aria-invalid={hasError('niwarKgsCns')}
                           />
                         </Field>
-                        <Field label="QTY TYPE" width="sm" required={!isOptionalField('niwarQtyType')} error={errors[getErrorKey('niwarQtyType')]}>
+                        <Field
+                          label="QTY TYPE"
+                          width="sm"
+                          required={!isOptionalField('niwarQtyType')}
+                          error={
+                            errors[getErrorKey('niwarQtyType')] ||
+                            (!isOptionalField('niwarQtyType') && !material.niwarQtyType ? 'Required' : undefined)
+                          }
+                        >
                           <SearchableDropdown
                             value={material.niwarQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'niwarQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
                             placeholder="Select type"
-                            className={dropdownClass(false)}
+                            className={dropdownClass(
+                              hasError('niwarQtyType') ||
+                              (!isOptionalField('niwarQtyType') && !material.niwarQtyType)
+                            )}
                           />
                         </Field>
-                        <Field label="QTY" width="sm" required={!isOptionalField('niwarQtyYardage')} error={errors[getErrorKey('niwarQtyYardage')]}>
+                        <Field
+                          label="QTY"
+                          width="sm"
+                          required={!isOptionalField('niwarQtyYardage')}
+                          error={
+                            !material.niwarQtyType && !isOptionalField('niwarQtyType')
+                              ? 'Required'
+                              : material.niwarQtyType === 'Yardage (cns per pc)'
+                                ? errors[getErrorKey('niwarQtyYardage')]
+                                : material.niwarQtyType === 'Kgs (cns per pc)'
+                                  ? errors[getErrorKey('niwarQtyKgs')]
+                                  : undefined
+                          }
+                        >
                           <Input
                             type="text"
                             value={material.niwarQtyType === 'Yardage (cns per pc)' ? (material.niwarQtyYardage || '') : material.niwarQtyType === 'Kgs (cns per pc)' ? (material.niwarQtyKgs || '') : ''}
@@ -1048,7 +1072,15 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             }}
                             placeholder="Enter value"
                             disabled={!material.niwarQtyType}
-                            aria-invalid={hasError('niwarQtyYardage')}
+                            aria-invalid={
+                              !material.niwarQtyType && !isOptionalField('niwarQtyType')
+                                ? true
+                                : material.niwarQtyType === 'Yardage (cns per pc)'
+                                  ? hasError('niwarQtyYardage')
+                                  : material.niwarQtyType === 'Kgs (cns per pc)'
+                                    ? hasError('niwarQtyKgs')
+                                    : false
+                            }
                           />
                         </Field>
                         <Field label="SURPLUS %" width="sm"
@@ -1215,13 +1247,24 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             aria-invalid={hasError('laceWidthCm')}
                           />
                         </Field>
-                        <Field label="QTY TYPE" width="sm" required={!isOptionalField('laceQtyType')} error={errors[getErrorKey('laceQtyType')]}>
+                        <Field
+                          label="QTY TYPE"
+                          width="sm"
+                          required={!isOptionalField('laceQtyType')}
+                          error={
+                            errors[getErrorKey('laceQtyType')] ||
+                            (!isOptionalField('laceQtyType') && !material.laceQtyType ? 'Required' : undefined)
+                          }
+                        >
                           <SearchableDropdown
                             value={material.laceQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'laceQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
                             placeholder="Select type"
-                            className={dropdownClass(false)}
+                            className={dropdownClass(
+                              hasError('laceQtyType') ||
+                              (!isOptionalField('laceQtyType') && !material.laceQtyType)
+                            )}
                           />
                         </Field>
                         <Field
@@ -1229,9 +1272,11 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           width="sm"
                           required={!isOptionalField('laceQtyYardage')}
                           error={
-                            material.laceQtyType === 'Kgs (cns per pc)'
-                              ? errors[getErrorKey('laceQtyKgs')]
-                              : errors[getErrorKey('laceQtyYardage')]
+                            !material.laceQtyType && !isOptionalField('laceQtyType')
+                              ? 'Required'
+                              : material.laceQtyType === 'Kgs (cns per pc)'
+                                ? errors[getErrorKey('laceQtyKgs')]
+                                : errors[getErrorKey('laceQtyYardage')]
                           }
                         >
                           <Input
@@ -1246,7 +1291,15 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             }}
                             placeholder="Enter value"
                             disabled={!material.laceQtyType}
-                            aria-invalid={material.laceQtyType === 'Kgs (cns per pc)' ? hasError('laceQtyKgs') : hasError('laceQtyYardage')}
+                            aria-invalid={
+                              !material.laceQtyType && !isOptionalField('laceQtyType')
+                                ? true
+                                : material.laceQtyType === 'Yardage (cns per pc)'
+                                  ? hasError('laceQtyYardage')
+                                  : material.laceQtyType === 'Kgs (cns per pc)'
+                                    ? hasError('laceQtyKgs')
+                                    : false
+                            }
                           />
                         </Field>
                         <Field label="SURPLUS %" width="sm" required={!isOptionalField('laceSurplus')} error={errors[getErrorKey('laceSurplus')]}>
@@ -1392,16 +1445,40 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             className={hasError('feltTestingRequirements') ? 'border-red-600' : ''}
                           />
                         </Field>
-                        <Field label="QTY TYPE" width="sm" required={!isOptionalField('feltQtyType')} error={errors[getErrorKey('feltQtyType')]}>
+                        <Field
+                          label="QTY TYPE"
+                          width="sm"
+                          required={!isOptionalField('feltQtyType')}
+                          error={
+                            errors[getErrorKey('feltQtyType')] ||
+                            (!isOptionalField('feltQtyType') && !material.feltQtyType ? 'Required' : undefined)
+                          }
+                        >
                           <SearchableDropdown
                             value={material.feltQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'feltQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
                             placeholder="Select type"
-                            className={dropdownClass(false)}
+                            className={dropdownClass(
+                              hasError('feltQtyType') ||
+                              (!isOptionalField('feltQtyType') && !material.feltQtyType)
+                            )}
                           />
                         </Field>
-                        <Field label="QTY" width="sm" required={!isOptionalField('feltYardage')} error={errors[getErrorKey('feltYardage')]}>
+                        <Field
+                          label="QTY"
+                          width="sm"
+                          required={!isOptionalField('feltYardage')}
+                          error={
+                            !material.feltQtyType && !isOptionalField('feltQtyType')
+                              ? 'Required'
+                              : material.feltQtyType === 'Yardage (cns per pc)'
+                                ? errors[getErrorKey('feltYardage')]
+                                : material.feltQtyType === 'Kgs (cns per pc)'
+                                  ? errors[getErrorKey('feltKgs')]
+                                  : undefined
+                          }
+                        >
                           <Input
                             type="text"
                             value={material.feltQtyType === 'Yardage (cns per pc)' ? (material.feltYardage || '') : material.feltQtyType === 'Kgs (cns per pc)' ? (material.feltKgs || '') : ''}
@@ -1414,7 +1491,15 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             }}
                             placeholder="Enter value"
                             disabled={!material.feltQtyType}
-                            aria-invalid={hasError('feltYardage')}
+                            aria-invalid={
+                              !material.feltQtyType && !isOptionalField('feltQtyType')
+                                ? true
+                                : material.feltQtyType === 'Yardage (cns per pc)'
+                                  ? hasError('feltYardage')
+                                  : material.feltQtyType === 'Kgs (cns per pc)'
+                                    ? hasError('feltKgs')
+                                    : false
+                            }
                           />
                         </Field>
                         <Field label="SURPLUS %" width="sm" required={!isOptionalField('feltSurplus')} error={errors[getErrorKey('feltSurplus')]}>
@@ -1585,16 +1670,40 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             className={hasError('interliningTestingRequirements') ? 'border-red-600' : ''}
                           />
                         </Field>
-                        <Field label="QTY TYPE" width="sm" required={!isOptionalField('interliningQtyType')} error={errors[getErrorKey('interliningQtyType')]}>
+                        <Field
+                          label="QTY TYPE"
+                          width="sm"
+                          required={!isOptionalField('interliningQtyType')}
+                          error={
+                            errors[getErrorKey('interliningQtyType')] ||
+                            (!isOptionalField('interliningQtyType') && !material.interliningQtyType ? 'Required' : undefined)
+                          }
+                        >
                           <SearchableDropdown
                             value={material.interliningQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'interliningQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
                             placeholder="Select type"
-                            className={dropdownClass(false)}
+                            className={dropdownClass(
+                              hasError('interliningQtyType') ||
+                              (!isOptionalField('interliningQtyType') && !material.interliningQtyType)
+                            )}
                           />
                         </Field>
-                        <Field label="QTY" width="sm" required={!isOptionalField('interliningYardage')} error={errors[getErrorKey('interliningYardage')]}>
+                        <Field
+                          label="QTY"
+                          width="sm"
+                          required={!isOptionalField('interliningYardage')}
+                          error={
+                            !material.interliningQtyType && !isOptionalField('interliningQtyType')
+                              ? 'Required'
+                              : material.interliningQtyType === 'Yardage (cns per pc)'
+                                ? errors[getErrorKey('interliningYardage')]
+                                : material.interliningQtyType === 'Kgs (cns per pc)'
+                                  ? errors[getErrorKey('interliningKgs')]
+                                  : undefined
+                          }
+                        >
                           <Input
                             type="text"
                             value={material.interliningQtyType === 'Yardage (cns per pc)' ? (material.interliningYardage || '') : material.interliningQtyType === 'Kgs (cns per pc)' ? (material.interliningKgs || '') : ''}
@@ -1607,7 +1716,15 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             }}
                             placeholder="Enter value"
                             disabled={!material.interliningQtyType}
-                            aria-invalid={hasError('interliningYardage')}
+                            aria-invalid={
+                              !material.interliningQtyType && !isOptionalField('interliningQtyType')
+                                ? true
+                                : material.interliningQtyType === 'Yardage (cns per pc)'
+                                  ? hasError('interliningYardage')
+                                  : material.interliningQtyType === 'Kgs (cns per pc)'
+                                    ? hasError('interliningKgs')
+                                    : false
+                            }
                           />
                         </Field>
                         <Field label="SURPLUS %" width="sm" required={!isOptionalField('interliningSurplus')} error={errors[getErrorKey('interliningSurplus')]}>
@@ -2223,16 +2340,40 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             placeholder="Select testing requirements"
                           />
                         </Field>
-                        <Field label="QTY TYPE" width="sm" required={!isOptionalField('ribbingQtyType')} error={errors[getErrorKey('ribbingQtyType')]}>
+                        <Field
+                          label="QTY TYPE"
+                          width="sm"
+                          required={!isOptionalField('ribbingQtyType')}
+                          error={
+                            errors[getErrorKey('ribbingQtyType')] ||
+                            (!isOptionalField('ribbingQtyType') && !material.ribbingQtyType ? 'Required' : undefined)
+                          }
+                        >
                           <SearchableDropdown
                             value={material.ribbingQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ribbingQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
                             placeholder="Select type"
-                            className={dropdownClass(false)}
+                            className={dropdownClass(
+                              hasError('ribbingQtyType') ||
+                              (!isOptionalField('ribbingQtyType') && !material.ribbingQtyType)
+                            )}
                           />
                         </Field>
-                        <Field label="QTY" width="sm" required={!isOptionalField('ribbingQtyYardage')} error={errors[getErrorKey('ribbingQtyYardage')]}>
+                        <Field
+                          label="QTY"
+                          width="sm"
+                          required={!isOptionalField('ribbingQtyYardage')}
+                          error={
+                            !material.ribbingQtyType && !isOptionalField('ribbingQtyType')
+                              ? 'Required'
+                              : material.ribbingQtyType === 'Yardage (cns per pc)'
+                                ? errors[getErrorKey('ribbingQtyYardage')]
+                                : material.ribbingQtyType === 'Kgs (cns per pc)'
+                                  ? errors[getErrorKey('ribbingQtyKgs')]
+                                  : undefined
+                          }
+                        >
                           <Input
                             type="text"
                             value={material.ribbingQtyType === 'Yardage (cns per pc)' ? (material.ribbingQtyYardage || '') : material.ribbingQtyType === 'Kgs (cns per pc)' ? (material.ribbingQtyKgs || '') : ''}
@@ -2245,7 +2386,15 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             }}
                             placeholder="Enter value"
                             disabled={!material.ribbingQtyType}
-                            aria-invalid={hasError('ribbingQtyYardage')}
+                            aria-invalid={
+                              !material.ribbingQtyType && !isOptionalField('ribbingQtyType')
+                                ? true
+                                : material.ribbingQtyType === 'Yardage (cns per pc)'
+                                  ? hasError('ribbingQtyYardage')
+                                  : material.ribbingQtyType === 'Kgs (cns per pc)'
+                                    ? hasError('ribbingQtyKgs')
+                                    : false
+                            }
                           />
                         </Field>
                         <Field label="SURPLUS %" width="sm"
@@ -2761,16 +2910,40 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             aria-invalid={hasError('reflectiveTapeWidthCm')}
                           />
                         </Field>
-                        <Field label="QTY TYPE" width="sm" required={!isOptionalField('reflectiveTapeQtyType')} error={errors[getErrorKey('reflectiveTapeQtyType')]}>
+                        <Field
+                          label="QTY TYPE"
+                          width="sm"
+                          required={!isOptionalField('reflectiveTapeQtyType')}
+                          error={
+                            errors[getErrorKey('reflectiveTapeQtyType')] ||
+                            (!isOptionalField('reflectiveTapeQtyType') && !material.reflectiveTapeQtyType ? 'Required' : undefined)
+                          }
+                        >
                           <SearchableDropdown
                             value={material.reflectiveTapeQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
                             placeholder="Select type"
-                            className={dropdownClass(false)}
+                            className={dropdownClass(
+                              hasError('reflectiveTapeQtyType') ||
+                              (!isOptionalField('reflectiveTapeQtyType') && !material.reflectiveTapeQtyType)
+                            )}
                           />
                         </Field>
-                        <Field label="QTY" width="sm" required={!isOptionalField('reflectiveTapeYardage')} error={errors[getErrorKey('reflectiveTapeYardage')]}>
+                        <Field
+                          label="QTY"
+                          width="sm"
+                          required={!isOptionalField('reflectiveTapeYardage')}
+                          error={
+                            !material.reflectiveTapeQtyType && !isOptionalField('reflectiveTapeQtyType')
+                              ? 'Required'
+                              : material.reflectiveTapeQtyType === 'Yardage (cns per pc)'
+                                ? errors[getErrorKey('reflectiveTapeYardage')]
+                                : material.reflectiveTapeQtyType === 'Kgs (cns per pc)'
+                                  ? errors[getErrorKey('reflectiveTapeKgs')]
+                                  : undefined
+                          }
+                        >
                           <Input
                             type="text"
                             value={material.reflectiveTapeQtyType === 'Yardage (cns per pc)' ? (material.reflectiveTapeYardage || '') : material.reflectiveTapeQtyType === 'Kgs (cns per pc)' ? (material.reflectiveTapeKgs || '') : ''}
@@ -2783,7 +2956,15 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             }}
                             placeholder="Enter value"
                             disabled={!material.reflectiveTapeQtyType}
-                            aria-invalid={hasError('reflectiveTapeYardage')}
+                            aria-invalid={
+                              !material.reflectiveTapeQtyType && !isOptionalField('reflectiveTapeQtyType')
+                                ? true
+                                : material.reflectiveTapeQtyType === 'Yardage (cns per pc)'
+                                  ? hasError('reflectiveTapeYardage')
+                                  : material.reflectiveTapeQtyType === 'Kgs (cns per pc)'
+                                    ? hasError('reflectiveTapeKgs')
+                                    : false
+                            }
                           />
                         </Field>
                         <Field label="SURPLUS %" width="sm" required={!isOptionalField('reflectiveTapeSurplus')} error={errors[getErrorKey('reflectiveTapeSurplus')]}>
@@ -2946,16 +3127,40 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                   {material.trimAccessory === 'FIRE RETARDANT (FR) TRIMS' && (
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
-                        <Field label="QTY TYPE" width="sm" required={!isOptionalField('frTrimsQtyType')} error={errors[getErrorKey('frTrimsQtyType')]}>
+                        <Field
+                          label="QTY TYPE"
+                          width="sm"
+                          required={!isOptionalField('frTrimsQtyType')}
+                          error={
+                            errors[getErrorKey('frTrimsQtyType')] ||
+                            (!isOptionalField('frTrimsQtyType') && !material.frTrimsQtyType ? 'Required' : undefined)
+                          }
+                        >
                           <SearchableDropdown
                             value={material.frTrimsQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Pieces']}
                             placeholder="Select type"
-                            className={dropdownClass(false)}
+                            className={dropdownClass(
+                              hasError('frTrimsQtyType') ||
+                              (!isOptionalField('frTrimsQtyType') && !material.frTrimsQtyType)
+                            )}
                           />
                         </Field>
-                        <Field label="QTY" width="sm" required={!isOptionalField('frTrimsQtyYardage')} error={errors[getErrorKey('frTrimsQtyYardage')]}>
+                        <Field
+                          label="QTY"
+                          width="sm"
+                          required={!isOptionalField('frTrimsQtyYardage')}
+                          error={
+                            !material.frTrimsQtyType && !isOptionalField('frTrimsQtyType')
+                              ? 'Required'
+                              : material.frTrimsQtyType === 'Yardage (cns per pc)'
+                                ? errors[getErrorKey('frTrimsQtyYardage')]
+                                : material.frTrimsQtyType === 'Pieces'
+                                  ? errors[getErrorKey('frTrimsQtyPieces')]
+                                  : undefined
+                          }
+                        >
                           <Input
                             type="text"
                             value={material.frTrimsQtyType === 'Yardage (cns per pc)' ? (material.frTrimsQtyYardage || '') : material.frTrimsQtyType === 'Pieces' ? (material.frTrimsQtyPieces || '') : ''}
@@ -2968,7 +3173,15 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             }}
                             placeholder="Enter value"
                             disabled={!material.frTrimsQtyType}
-                            aria-invalid={hasError('frTrimsQtyYardage')}
+                            aria-invalid={
+                              !material.frTrimsQtyType && !isOptionalField('frTrimsQtyType')
+                                ? true
+                                : material.frTrimsQtyType === 'Yardage (cns per pc)'
+                                  ? hasError('frTrimsQtyYardage')
+                                  : material.frTrimsQtyType === 'Pieces'
+                                    ? hasError('frTrimsQtyPieces')
+                                    : false
+                            }
                           />
                         </Field>
                         <Field label="SURPLUS %" width="sm" required={!isOptionalField('frTrimsSurplus')} error={errors[getErrorKey('frTrimsSurplus')]}>
