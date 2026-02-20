@@ -26,8 +26,18 @@
   width: 76px;
 }
 .sidebar-header {
-  padding: 24px 20px;
+  padding: 19px 20px;
   border-bottom: 1px solid var(--border);
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+}
+.sidebar.collapsed .sidebar-header {
+  padding: 23px 16px;
+}
+.sidebar.collapsed .logo-wrapper {
+  width: 100%;
+  justify-content: center;
 }
 .logo-wrapper {
   display: flex;
@@ -168,6 +178,7 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--shadow-sm);
+  min-height: 72px;
 }
 .top-bar-left {
   flex: 1;
