@@ -283,9 +283,21 @@ button:focus-visible {
 
   /* Field error styling for inputs */
   .field-error [data-slot="input"],
+  .field-error input:not([type="checkbox"]):not([type="radio"]),
+  .field-error select,
   .field-error textarea {
-    border-color: hsl(var(--destructive));
-    box-shadow: 0 0 0 3px hsl(var(--destructive) / 0.2);
+    border-color: var(--destructive);
+    box-shadow: none;
+  }
+
+  /* Hard fallback for legacy Tailwind error classes that aren't applying reliably */
+  .border-red-600,
+  .border-red-500 {
+    border-color: var(--destructive) !important;
+  }
+  .text-red-600,
+  .text-red-500 {
+    color: var(--destructive) !important;
   }
 }
 

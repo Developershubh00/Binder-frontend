@@ -8904,10 +8904,12 @@ const Step2 = ({
                     <div className="w-full flex flex-wrap items-start mt-14 pt-6 border-t border-gray-50" style={{ gap: '24px 32px', marginTop: '20px' }}>
                       {/* Machine Type / Specific Type Dropdown */}
                       {(['WEAVING', 'TUFTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET', 'CUTTING'].includes(workOrder.workOrder)) && (
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold mb-2 text-gray-700">
-                            {workOrder.workOrder === 'CUTTING' ? 'TOOL TYPE *' : 'MACHINE TYPE *'}
-                          </label>
+                        <Field
+                          label={workOrder.workOrder === 'CUTTING' ? 'TOOL TYPE' : 'MACHINE TYPE'}
+                          required
+                          width="sm"
+                          error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`]}
+                        >
                           <SearchableDropdown
                             value={workOrder.machineType || ''}
                             onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'machineType', selectedValue)}
@@ -8922,13 +8924,9 @@ const Step2 = ({
                               []
                             }
                             placeholder={workOrder.workOrder === 'CUTTING' ? "Select or type Tool Type" : "Select or type Machine Type"}
-                            style={{ width: '160px' }}
-                            className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] ? 'border-red-600' : ''}
-                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                            onBlur={(e) => e.target.style.boxShadow = ''}
+                            error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`])}
                           />
-                          {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] && <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`]}</span>}
-                        </div>
+                        </Field>
                       )}
 
                       {/* Braiding Specific Fields */}
