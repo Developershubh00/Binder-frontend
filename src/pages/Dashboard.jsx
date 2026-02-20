@@ -69,19 +69,27 @@ const Dashboard = () => {
       case 'tasks':
         return <TasksContent />;
       case 'code-creation':
-        if (codeCreationView === 'buyer') return <GenerateBuyerCode />;
-        if (codeCreationView === 'vendor') return <GenerateVendorCode />;
-        if (codeCreationView === 'company-essentials') return <CompanyEssentials />;
+        if (codeCreationView === 'buyer') {
+          return <GenerateBuyerCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+        }
+        if (codeCreationView === 'vendor') {
+          return <GenerateVendorCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+        }
+        if (codeCreationView === 'company-essentials') {
+          return <CompanyEssentials onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+        }
         if (codeCreationView === 'internal-purchase-order') {
           return (
             <InternalPurchaseOrder
-              onBack={() => setActivePage('home')}
+              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
               onNavigateToCodeCreation={() => setActivePage('code-creation')}
               onNavigateToIPO={() => setActivePage('code-creation')}
             />
           );
         }
-        if (codeCreationView === 'generate-po') return <GeneratePOCode />;
+        if (codeCreationView === 'generate-po') {
+          return <GeneratePOCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+        }
         return <div className="dashboard-content" />;
       default:
         return <div className="dashboard-content" />;

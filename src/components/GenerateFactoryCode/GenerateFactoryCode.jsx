@@ -4475,8 +4475,12 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const handleBreadcrumbClick = (stepIndex) => {
     console.log('Breadcrumb clicked:', stepIndex, { onNavigateToCodeCreation, onNavigateToIPO });
     if (stepIndex === -1) {
-      // Departments clicked - go back to departments
-      onBack();
+      // Code creation clicked - go back to code creation menu
+      if (onNavigateToCodeCreation) {
+        onNavigateToCodeCreation();
+      } else {
+        onBack();
+      }
     } else if (stepIndex === -2) {
       // Code creation clicked - navigate to code creation menu
       console.log('Calling onNavigateToCodeCreation');
@@ -4874,7 +4878,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           type="button"
           className="mb-6 bg-background transition-transform hover:-translate-x-0.5"
         >
-          ← Back to Department
+          ← Back to Code Creation
         </Button>
         
         {/* Breadcrumb Navigation */}
@@ -4888,16 +4892,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
             style={{ padding: '8px 14px' }}
           >
-            Departments
-          </button>
-          <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
-          <button
-            type="button"
-            onClick={() => handleBreadcrumbClick(-2)}
-            className="rounded-lg font-medium text-primary transition-colors hover:bg-accent hover:text-accent-foreground"
-            style={{ padding: '8px 14px' }}
-          >
-            Code creation
+            Code Creation
           </button>
           <span className="px-1 text-foreground/60 text-xs sm:text-sm">›</span>
           <button

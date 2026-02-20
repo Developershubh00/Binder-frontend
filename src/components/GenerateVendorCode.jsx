@@ -444,7 +444,7 @@ const GenerateVendorCode = ({ onBack }) => {
             type="button"
             className="mb-6 bg-white"
           >
-            ← Back to Department
+            ← Back to Code Creation
           </Button>
           <h1 className="fullscreen-title">Vendor Code Generated Successfully!</h1>
         </div>
@@ -493,7 +493,7 @@ const GenerateVendorCode = ({ onBack }) => {
                   Generate Another Code
                 </Button>
                 <Button variant="outline" onClick={onBack} type="button">
-                  Back to Department
+                  Back to Code Creation
                 </Button>
               </div>
             </div>
@@ -512,7 +512,7 @@ const GenerateVendorCode = ({ onBack }) => {
           type="button"
           className="mb-6 bg-white"
         >
-          ← Back to Department
+          ← Back to Code Creation
         </Button>
         <h1 className="fullscreen-title">Generate Vendor Code</h1>
         <p className="fullscreen-description">Fill in the vendor details to generate a unique vendor code</p>

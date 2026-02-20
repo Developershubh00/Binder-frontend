@@ -255,7 +255,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
       <FullscreenContent style={{ overflowY: 'auto' }}>
         <div className="content-header">
           <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
-            ← Back to Departments
+            ← Back to Code Creation
           </Button>
           <h1 className="fullscreen-title">Internal Purchase Order</h1>
         </div>
@@ -306,9 +306,9 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   return (
     <FullscreenContent style={{ overflowY: 'auto' }}>
       <div className="content-header">
-        <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
-          ← Back to Departments
-        </Button>
+          <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
+            ← Back to Code Creation
+          </Button>
         <h1 className="fullscreen-title">Internal Purchase Order</h1>
         <p className="fullscreen-description">Select order type and enter required information</p>
       </div>
