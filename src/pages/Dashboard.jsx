@@ -31,6 +31,22 @@ const Dashboard = () => {
   const sidebarRef = useRef(null);
   const hoverPanelRef = useRef(null);
 
+  const getDisplayName = () => {
+    const firstLast = [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim();
+    const firstLastAlt = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+    return (
+      user?.name?.trim() ||
+      user?.username?.trim() ||
+      firstLast ||
+      firstLastAlt ||
+      user?.email ||
+      'User'
+    );
+  };
+
+  const displayName = getDisplayName();
+  const showEmailLine = Boolean(user?.email && displayName !== user?.email);
+
   const handleLogout = () => {
     logout();
   };
@@ -363,14 +379,14 @@ const Dashboard = () => {
               aria-label="Open profile menu"
             >
               <span className="user-avatar">
-                {user?.name ? user.name.charAt(0).toUpperCase() : (user?.email ? user.email.charAt(0).toUpperCase() : 'U')}
+                {displayName?.charAt(0)?.toUpperCase() || 'U'}
               </span>
             </button>
             {showProfileMenu && (
               <div className="profile-menu">
                 <div className="profile-menu-header">
-                  <div className="profile-menu-name">{user?.name || 'User'}</div>
-                  <div className="profile-menu-email">{user?.email || ''}</div>
+                  <div className="profile-menu-name">{displayName}</div>
+                  {showEmailLine && <div className="profile-menu-email">{user.email}</div>}
                 </div>
                 <div className="profile-menu-divider" />
                 <button type="button" className="profile-menu-logout" onClick={handleLogout}>

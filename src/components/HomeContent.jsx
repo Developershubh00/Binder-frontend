@@ -66,13 +66,22 @@ const HomeContent = ({ user }) => {
     </div>
   );
 
+  const displayName = (
+    user?.name?.trim() ||
+    user?.username?.trim() ||
+    [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim() ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() ||
+    user?.email ||
+    'User'
+  );
+
   return (
     <div style={styles.container}>
       {/* Welcome Section - uses shadcn primary */}
       <div className="home-welcome-section">
         <div style={styles.welcomeContent}>
           <h1 className="home-welcome-title">
-            Welcome back, {user?.name || user?.email}! 👋
+            Welcome back, {displayName}! 👋
           </h1>
           <p className="home-welcome-subtitle">
             {user?.role === 'master-admin' && 'Here\'s what\'s happening across all departments today.'}
