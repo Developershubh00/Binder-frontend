@@ -29,6 +29,8 @@ const Step5 = ({
   const mergedDropdownRef = useRef(null);
   const [extraMergedOpenIndex, setExtraMergedOpenIndex] = useState(null);
   const [extraMergedSearchTerm, setExtraMergedSearchTerm] = useState('');
+  const [extraStandaloneOpenIndex, setExtraStandaloneOpenIndex] = useState(null);
+  const [extraStandaloneSearchTerm, setExtraStandaloneSearchTerm] = useState('');
 
   // Normalize productSelection to array (legacy may be string)
   const mainProductSelection = (() => {
@@ -97,6 +99,10 @@ const Step5 = ({
 
   // IPC options from this session only: IPCs created in Step 0 for this runtime (main + subproducts, with images)
   const getIpcOptionsWithImages = () => {
+    const resolvePreview = (item) =>
+      item?.imagePreview ||
+      item?.imageBase64?.data ||
+      (typeof item?.image === 'string' ? item.image : null);
     const options = [];
     (formData.skus || []).forEach((sku) => {
       const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
@@ -104,7 +110,7 @@ const Step5 = ({
         options.push({
           value: baseIpc,
           label: baseIpc,
-          imagePreview: sku.imagePreview || null,
+          imagePreview: resolvePreview(sku),
         });
       }
       (sku.subproducts || []).forEach((sub, idx) => {
@@ -112,7 +118,7 @@ const Step5 = ({
         options.push({
           value: spIpc,
           label: spIpc,
-          imagePreview: sub.imagePreview || null,
+          imagePreview: resolvePreview(sub),
         });
       });
     });
@@ -145,17 +151,22 @@ const Step5 = ({
       const insideStandalone = ipcDropdownRef.current?.contains(e.target);
       const insideMerged = mergedDropdownRef.current?.contains(e.target);
       const insideExtraMerged = e.target.closest?.('[data-extra-merged-dropdown]');
-      if (!insideStandalone && !insideMerged && !insideExtraMerged) {
+      const insideExtraStandalone = e.target.closest?.('[data-extra-standalone-dropdown]');
+      if (!insideStandalone && !insideMerged && !insideExtraMerged && !insideExtraStandalone) {
         setIpcDropdownOpen(false);
         setIpcSearchTerm('');
         setMergedSearchTerm('');
         setExtraMergedOpenIndex(null);
         setExtraMergedSearchTerm('');
+        setExtraStandaloneOpenIndex(null);
+        setExtraStandaloneSearchTerm('');
       }
     };
-    if (ipcDropdownOpen || extraMergedOpenIndex !== null) document.addEventListener('mousedown', handleClickOutside);
+    if (ipcDropdownOpen || extraMergedOpenIndex !== null || extraStandaloneOpenIndex !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [ipcDropdownOpen, extraMergedOpenIndex]);
+  }, [ipcDropdownOpen, extraMergedOpenIndex, extraStandaloneOpenIndex]);
 
   return (
 <div className="w-full">
@@ -502,15 +513,73 @@ const Step5 = ({
                     <div className="flex flex-col" style={{ width: '280px' }}>
                       <label className="text-sm font-semibold text-gray-700 mb-2">PRODUCT <span className="text-red-500">*</span></label>
                       {isExtraStandalone ? (
-                        <SearchableDropdown
-                          value={packSelection[0] || ''}
-                          onChange={(v) => handleExtraPackChange(extraIndex, 'productSelection', v ? [v] : [])}
-                          options={leftoverOptions}
-                          placeholder="Select IPC"
-                          strictMode={false}
-                          className={cn('border-2 rounded-lg text-sm bg-white', errors?.[`packaging_extra_${extraIndex}_productSelection`] ? 'border-red-600' : 'border-gray-200')}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                        />
+                        <div className="relative w-full" data-extra-standalone-dropdown>
+                          <input
+                            type="text"
+                            value={extraStandaloneOpenIndex === extraIndex ? extraStandaloneSearchTerm : (packSelection[0] || '')}
+                            onChange={(e) => {
+                              setExtraStandaloneSearchTerm(e.target.value);
+                              if (extraStandaloneOpenIndex !== extraIndex) setExtraStandaloneOpenIndex(extraIndex);
+                            }}
+                            onFocus={() => {
+                              setExtraStandaloneOpenIndex(extraIndex);
+                              setExtraStandaloneSearchTerm(packSelection[0] || '');
+                            }}
+                            placeholder="Select or type IPC"
+                            className={cn(
+                              'border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full',
+                              errors?.[`packaging_extra_${extraIndex}_productSelection`] ? 'border-red-600' : 'border-gray-200'
+                            )}
+                            style={{ padding: '10px 14px', paddingRight: '2.25rem', height: '44px' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const nextOpen = extraStandaloneOpenIndex === extraIndex ? null : extraIndex;
+                              setExtraStandaloneOpenIndex(nextOpen);
+                              setExtraStandaloneSearchTerm(nextOpen ? (packSelection[0] || '') : '');
+                            }}
+                            aria-label="Open IPC options"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded border-0 bg-transparent text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
+                          >
+                            <ChevronDown className={cn('h-4 w-4 transition-transform', extraStandaloneOpenIndex === extraIndex && 'rotate-180')} />
+                          </button>
+                          {extraStandaloneOpenIndex === extraIndex && (
+                            <div className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-md border border-gray-200 bg-white text-gray-900 shadow-lg" style={{ top: '100%', left: 0 }}>
+                              {leftoverOptions.length === 0 ? (
+                                <div className="px-3 py-4 text-sm text-gray-500 text-center">No IPC available.</div>
+                              ) : (
+                                (extraStandaloneSearchTerm.trim()
+                                  ? leftoverOptions.filter((v) => v.toLowerCase().includes(extraStandaloneSearchTerm.toLowerCase()))
+                                  : leftoverOptions
+                                ).map((ipcVal) => {
+                                  const opt = ipcOptionsWithImages.find((o) => o.value === ipcVal) || { value: ipcVal, label: ipcVal, imagePreview: null };
+                                  return (
+                                    <div
+                                      key={ipcVal}
+                                      onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        handleExtraPackChange(extraIndex, 'productSelection', [ipcVal]);
+                                        setExtraStandaloneOpenIndex(null);
+                                        setExtraStandaloneSearchTerm('');
+                                      }}
+                                      className="flex items-center gap-3 cursor-pointer px-3 py-2.5 text-sm border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 transition-colors"
+                                    >
+                                      <div className="flex-shrink-0 w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '40px' }}>
+                                        {opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : (
+                                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>
+                                        )}
+                                      </div>
+                                      <span className="font-medium text-gray-800 truncate">{opt.label}</span>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <div className="relative w-full" data-extra-merged-dropdown>
                           <input

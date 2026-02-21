@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Quilting Data for Work Order Specifications
 // Based on the image specifications provided
 
@@ -69,11 +70,7 @@ export const QUILTING_TYPES = {
 };
 
 // Approval options (common across all quilting types)
-export const QUILTING_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S'
-];
+export const QUILTING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get variants for a quilting type
 export const getQuiltingVariants = (quiltingType) => {

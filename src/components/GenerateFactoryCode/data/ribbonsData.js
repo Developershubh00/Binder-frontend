@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Ribbons Data for Artwork & Labeling Specifications
 // Based on the RIBBONS GENERAL UI STRUCTURE specifications
 
@@ -28,7 +29,5 @@ export const RIBBONS_TESTING_REQUIREMENTS = [
 ];
 
 // APPROVAL options
-export const RIBBONS_APPROVAL_OPTIONS = [
-  'BUYER\'S / INITIAL / IPP / Technical Integration Approval'
-];
+export const RIBBONS_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

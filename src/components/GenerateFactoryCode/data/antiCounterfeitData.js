@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Anti-Counterfeit Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -57,10 +58,7 @@ export const ANTI_COUNTERFEIT_TESTING_REQUIREMENTS = [
 ];
 
 // APPROVAL options
-export const ANTI_COUNTERFEIT_APPROVAL_OPTIONS = [
-  'Brand Security/Legal Department (Mandatory)',
-  'OTHERS (TEXT)'
-];
+export const ANTI_COUNTERFEIT_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // Advanced Filter Options
 

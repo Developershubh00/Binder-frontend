@@ -99,16 +99,22 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     }
   };
 
-  // Get next IPO sequential number - FIXED to increment per order type
-  const getNextIPOSrNo = (orderType) => {
+  // Get next IPO sequential number - increment per Order Type + Buyer/Type + Program
+  const getNextIPOSrNo = (data) => {
     try {
       const existingIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
-      // Filter IPOs by order type and get the highest serial number
-      const sameTypeIPOs = existingIPOs.filter(ipo => ipo.orderType === orderType);
-      if (sameTypeIPOs.length === 0) {
+      const sameGroupIPOs = existingIPOs.filter((ipo) => {
+        if (normalizeKey(ipo.orderType) !== normalizeKey(data.orderType)) return false;
+        if (normalizeKey(ipo.programName) !== normalizeKey(data.programName)) return false;
+        if (data.orderType === 'Company') {
+          return normalizeKey(ipo.type) === normalizeKey(data.type);
+        }
+        return normalizeKey(ipo.buyerCode) === normalizeKey(data.buyerCode);
+      });
+      if (sameGroupIPOs.length === 0) {
         return 1;
       }
-      const maxSrNo = Math.max(...sameTypeIPOs.map(ipo => ipo.poSrNo || 0));
+      const maxSrNo = Math.max(...sameGroupIPOs.map(ipo => ipo.poSrNo || 0));
       return maxSrNo + 1;
     } catch (error) {
       console.error('Error getting next IPO SR#:', error);
@@ -167,45 +173,12 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     if (!validateInitialScreen()) return;
 
     try {
-      const storedIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
-      const existingMatch = findExistingIPO(initialData, storedIPOs);
-      if (existingMatch) {
-        setInitialData({
-          orderType: existingMatch.orderType || initialData.orderType,
-          buyerCode: existingMatch.buyerCode || '',
-          type: existingMatch.type || '',
-          programName: existingMatch.programName || initialData.programName,
-          ipoCode: existingMatch.ipoCode || '',
-          poSrNo: existingMatch.poSrNo ?? null
-        });
-        setShowInitialScreen(false);
-        return;
-      }
-
-      const savedJson = localStorage.getItem(FACTORY_CODE_STORAGE_KEY);
-      const draft = savedJson ? JSON.parse(savedJson) : null;
-
-      const draftMatches =
-        draft &&
-        draft.programName === initialData.programName &&
-        (initialData.orderType === 'Company'
-          ? draft.orderType === 'Company'
-          : String(draft.buyerCode || '') === String(initialData.buyerCode || ''));
-
-      if (draftMatches && draft.ipoCode && draft.poSrNo != null) {
-        setInitialData({
-          ...initialData,
-          ipoCode: draft.ipoCode,
-          poSrNo: draft.poSrNo
-        });
-        setShowInitialScreen(false);
-        return;
-      }
+      // Always create a new IPO when user enters the same data again.
     } catch (e) {
       console.warn('Resume draft check failed:', e);
     }
 
-    const poSrNo = getNextIPOSrNo(initialData.orderType);
+    const poSrNo = getNextIPOSrNo(initialData);
     const buyerCodeOrType = initialData.orderType === 'Company'
       ? initialData.type
       : initialData.buyerCode;
@@ -282,7 +255,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
       <FullscreenContent style={{ overflowY: 'auto' }}>
         <div className="content-header">
           <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
-            ← Back to Departments
+            ← Back to Code Creation
           </Button>
           <h1 className="fullscreen-title">Internal Purchase Order</h1>
         </div>
@@ -333,9 +306,9 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   return (
     <FullscreenContent style={{ overflowY: 'auto' }}>
       <div className="content-header">
-        <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
-          ← Back to Departments
-        </Button>
+          <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
+            ← Back to Code Creation
+          </Button>
         <h1 className="fullscreen-title">Internal Purchase Order</h1>
         <p className="fullscreen-description">Select order type and enter required information</p>
       </div>

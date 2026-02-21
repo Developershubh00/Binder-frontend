@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // RFID Security Data for Artwork & Labeling Specifications
 // Based on the RFID SECURITY GENERAL UI STRUCTURE specifications
 
@@ -86,7 +87,5 @@ export const RFID_ADHESIVE_OPTIONS = [
 export const RFID_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const RFID_APPROVAL_OPTIONS = [
-  'BUYER\'S / INITIAL / IPP / Technical Integration Approval'
-];
+export const RFID_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

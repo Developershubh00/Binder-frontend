@@ -528,7 +528,7 @@ const CompanyEssentials = ({ onBack }) => {
       {/* Header */}
       <div className="content-header">
         <Button variant="outline" onClick={onBack} type="button" className="mb-6 bg-white">
-          ← Back to Departments
+            ← Back to Code Creation
         </Button>
         <h1 className="fullscreen-title">Company Essentials</h1>
       </div>

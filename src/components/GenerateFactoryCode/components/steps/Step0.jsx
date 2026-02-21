@@ -7,7 +7,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { Field } from '@/components/ui/field';
 import { cn } from '@/lib/utils';
 
-const Step0 = ({ 
+const Step0 = ({
   formData, 
   errors, 
   handleInputChange,
@@ -26,6 +26,11 @@ const Step0 = ({
   isSaved: parentIsSaved = false,
   onValidationFail,
 }) => {
+  const todayDate = new Date().toISOString().split('T')[0];
+  const clampPastDate = (value) => {
+    if (!value) return value;
+    return value < todayDate ? todayDate : value;
+  };
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [isSaved, setIsSaved] = useState(parentIsSaved); // Track if Step-0 is saved
@@ -277,9 +282,10 @@ const Step0 = ({
                 <Input
                   type="date"
                   value={sku.deliveryDueDate || ''}
-                  onChange={(e) => handleSkuChange(skuIndex, 'deliveryDueDate', e.target.value)}
+                  onChange={(e) => handleSkuChange(skuIndex, 'deliveryDueDate', clampPastDate(e.target.value))}
                   aria-invalid={errors[`deliveryDueDate_${skuIndex}`] ? true : undefined}
                   required
+                  min={todayDate}
                 />
               </Field>
             </div>
@@ -456,9 +462,10 @@ const Step0 = ({
                         <Input
                           type="date"
                           value={subproduct.deliveryDueDate || ''}
-                          onChange={(e) => handleSubproductChange(skuIndex, subproductIndex, 'deliveryDueDate', e.target.value)}
+                          onChange={(e) => handleSubproductChange(skuIndex, subproductIndex, 'deliveryDueDate', clampPastDate(e.target.value))}
                           aria-invalid={errors[`subproduct_${skuIndex}_${subproductIndex}_deliveryDueDate`] ? true : undefined}
                           required
+                          min={todayDate}
                         />
                       </Field>
                     </div>

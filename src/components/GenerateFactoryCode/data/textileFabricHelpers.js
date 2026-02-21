@@ -103,7 +103,14 @@ export const getAllApprovalOptions = () => {
     });
   });
   // Add standard approval options
-  const standardApprovals = ['BUYER', 'PROTO', 'FIT', 'SIZE SET', 'PP', 'TOP SAMPLE'];
+  const standardApprovals = [
+    'Self',
+    'QA Approval',
+    'Buyer Approval',
+    'Initial Sample',
+    'PP Sample',
+    'White Seal Sample'
+  ];
   standardApprovals.forEach(approval => approvals.add(approval));
   return Array.from(approvals).sort();
 };
@@ -153,4 +160,3 @@ export const getFabricApprovalOptions = (fiberType, fabricName) => {
   }
   return [];
 };
-

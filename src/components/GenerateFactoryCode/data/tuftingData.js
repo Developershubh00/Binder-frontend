@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Tufting Data for Work Order Specifications
 // Based on the image specifications provided
 
@@ -78,11 +79,7 @@ export const TUFTING_MACHINE_TYPES = {
 };
 
 // Approval options (common across all tufting types)
-export const TUFTING_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S'
-];
+export const TUFTING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get designs for a tufting machine type
 export const getTuftingDesigns = (machineType) => {

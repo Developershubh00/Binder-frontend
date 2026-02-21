@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Embroidery Data for Work Order Specifications
 // Based on the image specifications provided
 
@@ -118,11 +119,7 @@ export const EMBROIDERY_MACHINE_TYPES = {
 };
 
 // Approval options (common across all embroidery types)
-export const EMBROIDERY_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S'
-];
+export const EMBROIDERY_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get variants for an embroidery machine type
 export const getEmbroideryVariants = (machineType) => {

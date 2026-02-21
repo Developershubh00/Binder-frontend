@@ -18,7 +18,7 @@ import {
   getYarnWindingOptions
 } from '../../utils/yarnHelpers';
 import TEXTILE_FIBER_DATA from '../../data/textileFiberData';
-import { 
+import {
   getTextileFabricFiberTypes, 
   getTextileFabricNames, 
   getTextileFabricDetails,
@@ -31,6 +31,7 @@ import {
   getFabricWeaveKnitTypeOptions,
   getFabricApprovalOptions
 } from '../../data/textileFabricHelpers';
+import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import SearchableDropdown from '../SearchableDropdown';
 import TrimAccessoryFields from '../TrimAccessoryFields';
 import { 
@@ -989,7 +990,7 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.stitchingThreadApproval || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadApproval', value)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                          options={MATERIAL_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1123,6 +1124,7 @@ const Step2 = ({
                       options={material.fiberType ? getYarnTypes(material.fiberType) : []}
                       placeholder={material.fiberType ? 'Select or type Yarn Type' : 'Select Fiber Type First'}
                       disabled={!material.fiberType}
+                      error={Boolean(errors[`rawMaterial_${actualIndex}_yarnType`])}
                       className={errors[`rawMaterial_${actualIndex}_yarnType`] ? 'border-red-600' : ''}
                     />
                   </Field>
@@ -1246,7 +1248,7 @@ const Step2 = ({
                           <SearchableDropdown
                             value={material.approval || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'approval', value)}
-                            options={['BUYER\'S', 'PROTO', 'FIT', 'SIZE SET', 'PP', 'TOP SAMPLE']}
+                            options={MATERIAL_APPROVAL_OPTIONS}
                             placeholder="Select or type Approval"
                             className={errors[`rawMaterial_${actualIndex}_approval`] ? 'border-red-600' : ''}
                           />
@@ -2076,7 +2078,7 @@ const Step2 = ({
                           <SearchableDropdown
                             value={material.foamApproval || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamApproval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            options={MATERIAL_APPROVAL_OPTIONS}
                             placeholder="Select or type"
                             className={errors[`rawMaterial_${actualIndex}_foamApproval`] ? 'border-red-600' : ''}
                           />
@@ -2441,7 +2443,7 @@ const Step2 = ({
         <SearchableDropdown
           value={material.foamPeEpeApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeApproval', selectedValue)}
-          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+          options={MATERIAL_APPROVAL_OPTIONS}
           placeholder="Select or type"
           className={errors[`rawMaterial_${actualIndex}_foamPeEpeApproval`] ? 'border-red-600' : ''}
         />
@@ -2790,7 +2792,7 @@ const Step2 = ({
       <SearchableDropdown
         value={material.foamPuApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuApproval', selectedValue)}
-        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+        options={MATERIAL_APPROVAL_OPTIONS}
         placeholder="Select or type"
         className={errors[`rawMaterial_${actualIndex}_foamPuApproval`] ? 'border-red-600' : ''}
       />
@@ -3168,7 +3170,7 @@ const Step2 = ({
       <SearchableDropdown
         value={material.foamRebondedApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedApproval', selectedValue)}
-        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+        options={MATERIAL_APPROVAL_OPTIONS}
         placeholder="Select or type"
         className={errors[`rawMaterial_${actualIndex}_foamRebondedApproval`] ? 'border-red-600' : ''}
       />
@@ -3527,7 +3529,7 @@ const Step2 = ({
         <SearchableDropdown
           value={material.foamGelInfusedApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedApproval', selectedValue)}
-          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+          options={MATERIAL_APPROVAL_OPTIONS}
           placeholder="Select or type"
           className={errors[`rawMaterial_${actualIndex}_foamGelInfusedApproval`] ? 'border-red-600' : ''}
         />
@@ -3922,7 +3924,7 @@ const Step2 = ({
         <SearchableDropdown
           value={material.foamLatexApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexApproval', selectedValue)}
-          options={["BUYER'S", 'INITIAL', 'PP SAMPLE', 'GOLS Certificate']}
+          options={MATERIAL_APPROVAL_OPTIONS}
           placeholder="Select or type"
           className={errors[`rawMaterial_${actualIndex}_foamLatexApproval`] ? 'border-red-600' : ''}
         />
@@ -4310,7 +4312,7 @@ const Step2 = ({
           <SearchableDropdown
             value={material.foamMemoryApproval || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryApproval', selectedValue)}
-            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+            options={MATERIAL_APPROVAL_OPTIONS}
             placeholder="Select or type"
             className={errors[`rawMaterial_${actualIndex}_foamMemoryApproval`] ? 'border-red-600' : ''}
           />
@@ -4674,7 +4676,7 @@ const Step2 = ({
                             <SearchableDropdown
                               value={material.foamHrApproval || ''}
                               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamHrApproval', selectedValue)}
-                              options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                              options={MATERIAL_APPROVAL_OPTIONS}
                               placeholder="Select or type"
                               className={errors[`rawMaterial_${actualIndex}_foamHrApproval`] ? 'border-red-600' : ''}
                             />
@@ -5288,7 +5290,7 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.fiberApproval || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                          options={MATERIAL_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -5829,7 +5831,7 @@ const Step2 = ({
                           <SearchableDropdown
                             value={material.fiberApproval || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE', 'RDS Certificate']}
+                            options={MATERIAL_APPROVAL_OPTIONS}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -6383,7 +6385,7 @@ const Step2 = ({
                           <SearchableDropdown
                             value={material.fiberApproval || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            options={MATERIAL_APPROVAL_OPTIONS}
                             placeholder="Select or type"
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -7011,7 +7013,7 @@ const Step2 = ({
       <SearchableDropdown
         value={material.fiberApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
-        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+        options={MATERIAL_APPROVAL_OPTIONS}
         placeholder="Select or type"
         className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
         style={{ padding: '10px 14px', height: '44px' }}
@@ -7497,7 +7499,7 @@ const Step2 = ({
       <SearchableDropdown
         value={material.fiberApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
-        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+        options={MATERIAL_APPROVAL_OPTIONS}
         placeholder="Select or type"
         className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
         style={{ padding: '10px 14px', height: '44px' }}
@@ -8062,7 +8064,7 @@ const Step2 = ({
       <SearchableDropdown
         value={material.fiberApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
-        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+        options={MATERIAL_APPROVAL_OPTIONS}
         placeholder="Select or type"
         className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
         style={{ padding: '10px 14px', height: '44px' }}
@@ -8624,7 +8626,7 @@ const Step2 = ({
       <SearchableDropdown
         value={material.fiberApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
-        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+        options={MATERIAL_APPROVAL_OPTIONS}
         placeholder="Select or type"
         className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
         style={{ padding: '10px 14px', height: '44px' }}
@@ -8904,10 +8906,12 @@ const Step2 = ({
                     <div className="w-full flex flex-wrap items-start mt-14 pt-6 border-t border-gray-50" style={{ gap: '24px 32px', marginTop: '20px' }}>
                       {/* Machine Type / Specific Type Dropdown */}
                       {(['WEAVING', 'TUFTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET', 'CUTTING'].includes(workOrder.workOrder)) && (
-                        <div className="flex flex-col">
-                          <label className="text-sm font-semibold mb-2 text-gray-700">
-                            {workOrder.workOrder === 'CUTTING' ? 'TOOL TYPE *' : 'MACHINE TYPE *'}
-                          </label>
+                        <Field
+                          label={workOrder.workOrder === 'CUTTING' ? 'TOOL TYPE' : 'MACHINE TYPE'}
+                          required
+                          width="sm"
+                          error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`]}
+                        >
                           <SearchableDropdown
                             value={workOrder.machineType || ''}
                             onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'machineType', selectedValue)}
@@ -8922,13 +8926,9 @@ const Step2 = ({
                               []
                             }
                             placeholder={workOrder.workOrder === 'CUTTING' ? "Select or type Tool Type" : "Select or type Machine Type"}
-                            style={{ width: '160px' }}
-                            className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] ? 'border-red-600' : ''}
-                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                            onBlur={(e) => e.target.style.boxShadow = ''}
+                            error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`])}
                           />
-                          {errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`] && <span className="text-red-600 text-xs mt-1">{errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`]}</span>}
-                        </div>
+                        </Field>
                       )}
 
                       {/* Braiding Specific Fields */}
@@ -9843,7 +9843,7 @@ const Step2 = ({
                             <SearchableDropdown
                               value={workOrder.fringeApproval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeApproval', selectedValue)}
-                              options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                              options={MATERIAL_APPROVAL_OPTIONS}
                               placeholder="Select or type"
                               className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeApproval`] ? 'border-red-600' : ''}
                             />

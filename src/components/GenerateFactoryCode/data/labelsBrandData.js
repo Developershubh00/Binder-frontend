@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Labels Brand Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -56,11 +57,5 @@ export const LABELS_BRAND_TESTING_REQUIREMENTS = [
 export const LABELS_BRAND_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const LABELS_BRAND_APPROVAL_OPTIONS = [
-  'BUYER\'S',
-  'INITIAL',
-  'PP',
-  'Woven Sample Approval',
-  'OTHERS (TEXT)'
-];
+export const LABELS_BRAND_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Weaving Data for Work Order Specifications
 // Based on the image specifications provided
 
@@ -138,11 +139,7 @@ export const WEAVING_MACHINE_TYPES = {
 };
 
 // Approval options (common across all weaving types)
-export const WEAVING_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S',
-];
+export const WEAVING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get variants for a weaving machine type
 export const getWeavingVariants = (machineType) => {

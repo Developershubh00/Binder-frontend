@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Flammability & Safety Labels Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -27,13 +28,7 @@ export const FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS = [
 export const FLAMMABILITY_SAFETY_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const FLAMMABILITY_SAFETY_APPROVAL_OPTIONS = [
-  'BUYER\'S',
-  'INITIAL',
-  'PP',
-  'Legal/Compliance Approval',
-  'OTHERS (TEXT)'
-];
+export const FLAMMABILITY_SAFETY_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // Advanced Filter Options
 

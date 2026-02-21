@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Heat Transfer Labels Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -33,13 +34,7 @@ export const HEAT_TRANSFER_TESTING_REQUIREMENTS = [
 export const HEAT_TRANSFER_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const HEAT_TRANSFER_APPROVAL_OPTIONS = [
-  'BUYER\'S',
-  'INITIAL',
-  'PP',
-  'Application Test Approval',
-  'OTHERS (TEXT)'
-];
+export const HEAT_TRANSFER_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // Advanced Filter Options
 

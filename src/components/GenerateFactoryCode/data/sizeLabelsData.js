@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Size Labels Data for Artwork & Labeling Specifications
 // Based on the SIZE LABELS GENERAL UI STRUCTURE specifications
 
@@ -54,8 +55,5 @@ export const SIZE_LABELS_TESTING_REQUIREMENTS = [
 export const SIZE_LABELS_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const SIZE_LABELS_APPROVAL_OPTIONS = [
-  'BUYER\'S / INITIAL / IPP / Visual and Text Approval',
-  'OTHERS (TEXT)'
-];
+export const SIZE_LABELS_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

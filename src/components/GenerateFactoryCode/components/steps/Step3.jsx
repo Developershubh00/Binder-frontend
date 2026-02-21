@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import SearchableDropdown from '../SearchableDropdown';
+import { TRIMS_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -368,7 +369,7 @@ const Step3 = ({
                           <SearchableDropdown
                             value={material.approval || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP']}
+                            options={TRIMS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
@@ -692,7 +693,7 @@ const Step3 = ({
                           <SearchableDropdown
                             value={material.buttonApproval || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'buttonApproval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            options={TRIMS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
@@ -1159,7 +1160,7 @@ const Step3 = ({
                         <SearchableDropdown
                           value={material.velcroApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'velcroApproval', selectedValue)}
-                          options={["BUYER'S / INITIAL / PP SAMPLE"]}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1355,7 +1356,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.rivetApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'rivetApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1495,7 +1496,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.approval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1586,7 +1587,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.approval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -1789,7 +1790,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.feltApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'feltApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -2098,7 +2099,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.interliningApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'interliningApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -2364,7 +2365,7 @@ const Step3 = ({
                         <SearchableDropdown
                           value={material.hookEyeApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'hookEyeApproval', selectedValue)}
-                          options={["BUYER'S / INITIAL / PP SAMPLE", 'BUYER\'S', 'INITIAL', 'PP SAMPLE']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -2545,7 +2546,7 @@ const Step3 = ({
                           <SearchableDropdown
                             value={material.bucklesApproval || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'bucklesApproval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            options={TRIMS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
@@ -2815,7 +2816,7 @@ const Step3 = ({
                         <SearchableDropdown
                           value={material.shoulderPadApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'shoulderPadApproval', selectedValue)}
-                          options={["BUYER'S / INITIAL / PP SAMPLE", 'BUYER\'S', 'INITIAL', 'PP SAMPLE']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -2991,7 +2992,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.approval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -3113,7 +3114,7 @@ const Step3 = ({
                           <SearchableDropdown
                             value={material.cableTieApproval || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cableTieApproval', selectedValue)}
-                            options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                            options={TRIMS_APPROVAL_OPTIONS}
                             placeholder="Select or type"
                             className="border border-input rounded-md bg-background text-foreground h-11 w-full text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                           />
@@ -3331,7 +3332,7 @@ const Step3 = ({
                         <SearchableDropdown
                           value={material.seamTapeApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'seamTapeApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Technical Data Sheet']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -3632,7 +3633,7 @@ const Step3 = ({
                         <SearchableDropdown
                           value={material.reflectiveTapeApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'reflectiveTapeApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Compliance Certificate']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -3843,7 +3844,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.approval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'approval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Certification Test Report']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -4037,7 +4038,7 @@ const Step3 = ({
                         <SearchableDropdown
                           value={material.cordStopApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'cordStopApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Functionality Approval']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -4277,7 +4278,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.ringsLoopsApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'ringsLoopsApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Load Test Certificate']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -4517,7 +4518,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.pinBarbApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'pinBarbApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
@@ -4738,7 +4739,7 @@ const Step3 = ({
                                                 <SearchableDropdown
                           value={material.magneticClosureApproval || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'magneticClosureApproval', selectedValue)}
-                          options={["BUYER'S", 'INITIAL', 'IPP', 'Magnet Strength Check']}
+                          options={TRIMS_APPROVAL_OPTIONS}
                           placeholder="Select or type"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}

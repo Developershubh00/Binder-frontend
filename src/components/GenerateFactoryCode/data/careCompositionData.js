@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Care & Composition Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -32,13 +33,7 @@ export const CARE_COMPOSITION_TESTING_REQUIREMENTS = [
 export const CARE_COMPOSITION_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const CARE_COMPOSITION_APPROVAL_OPTIONS = [
-  'BUYER\'S',
-  'INITIAL',
-  'PP',
-  'Text Compliance Check',
-  'OTHERS (TEXT)'
-];
+export const CARE_COMPOSITION_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // Advanced Filter Options
 

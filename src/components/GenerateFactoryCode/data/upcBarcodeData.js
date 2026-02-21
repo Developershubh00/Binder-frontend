@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // UPC LABEL / BARCODE STICKER - Constants and Options
 
 export const UPC_BARCODE_TYPES = [
@@ -27,8 +28,5 @@ export const UPC_BARCODE_SIZE_UNITS = [
   'INCHES'
 ];
 
-export const UPC_BARCODE_APPROVAL_OPTIONS = [
-  "Retailer's EDI/Ticketing Department (for DC acceptance)",
-  'OTHERS (TEXT)'
-];
+export const UPC_BARCODE_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

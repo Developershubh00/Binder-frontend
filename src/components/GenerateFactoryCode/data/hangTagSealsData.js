@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Hang Tag Seals & Strings Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -35,13 +36,7 @@ export const HANG_TAG_SEALS_TESTING_REQUIREMENTS = [
 export const HANG_TAG_SEALS_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const HANG_TAG_SEALS_APPROVAL_OPTIONS = [
-  'BUYER\'S',
-  'INITIAL',
-  'PP',
-  'Functionality Check',
-  'OTHERS (TEXT)'
-];
+export const HANG_TAG_SEALS_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // Advanced Filter Options
 

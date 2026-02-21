@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Cutting Data for Work Order Specifications
 // Based on the image specification provided
 
@@ -126,11 +127,7 @@ export const CUTTING_MACHINE_TYPES = {
 };
 
 // Approval options (common across all machine types)
-export const CUTTING_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S'
-];
+export const CUTTING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Nesting options
 export const NESTING_OPTIONS = [

@@ -447,7 +447,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">{title}</h1>
         <p className="fullscreen-description">{description}</p>
@@ -470,7 +470,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Code Creation</h1>
         <p className="fullscreen-description">Generate codes for buyers, vendors, and manage company essentials</p>
@@ -521,7 +521,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Buyer Management</h1>
         <p className="fullscreen-description">Generate buyer codes and manage buyer master sheets</p>
@@ -553,7 +553,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Vendor Management</h1>
         <p className="fullscreen-description">Generate vendor codes and manage vendor master sheets</p>
@@ -585,7 +585,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Company Essentials</h1>
         <p className="fullscreen-description">Generate codes for company essential items</p>
@@ -608,7 +608,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Internal Purchase Order</h1>
         <p className="fullscreen-description">Create internal purchase orders for production, sampling, or company use</p>
@@ -632,7 +632,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Generate PO</h1>
         <p className="fullscreen-description">Create and manage purchase orders</p>
@@ -655,7 +655,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">PO Master</h1>
         <p className="fullscreen-description">View and manage purchase order master data</p>
@@ -676,7 +676,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Inward Store Sheet</h1>
         <p className="fullscreen-description">Manage incoming inventory and stock receipts</p>
@@ -696,7 +696,7 @@ const DepartmentContent = ({ resetKey }) => {
     <div className="fullscreen-content">
       <div className="content-header">
         <button className="back-button" onClick={handleBackToDepartments}>
-          ← Back to Departments
+          ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Outward Store Sheet</h1>
         <p className="fullscreen-description">Manage outgoing inventory and stock dispatch</p>

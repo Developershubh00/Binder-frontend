@@ -283,9 +283,54 @@ button:focus-visible {
 
   /* Field error styling for inputs */
   .field-error [data-slot="input"],
+  .field-error input:not([type="checkbox"]):not([type="radio"]),
+  .field-error select,
   .field-error textarea {
-    border-color: hsl(var(--destructive));
-    box-shadow: 0 0 0 3px hsl(var(--destructive) / 0.2);
+    border-color: var(--destructive);
+    box-shadow: none;
+  }
+
+  /* Hard fallback for legacy Tailwind error classes that aren't applying reliably */
+  .border-red-600,
+  .border-red-500 {
+    border-color: var(--destructive) !important;
+  }
+  .text-red-600,
+  .text-red-500 {
+    color: var(--destructive) !important;
+  }
+
+  /* Consistent error borders across inputs, even when Tailwind variants fail */
+  input[aria-invalid="true"],
+  select[aria-invalid="true"],
+  textarea[aria-invalid="true"],
+  input.border-destructive,
+  select.border-destructive,
+  textarea.border-destructive,
+  input.border-red-600,
+  select.border-red-600,
+  textarea.border-red-600,
+  input.border-red-500,
+  select.border-red-500,
+  textarea.border-red-500 {
+    border-color: var(--destructive) !important;
+    border-width: 1px;
+  }
+
+  /* If a required dependent field is disabled but invalid, keep full opacity */
+  input:disabled[aria-invalid="true"],
+  select:disabled[aria-invalid="true"],
+  textarea:disabled[aria-invalid="true"],
+  input:disabled.border-red-600,
+  select:disabled.border-red-600,
+  textarea:disabled.border-red-600,
+  input:disabled.border-red-500,
+  select:disabled.border-red-500,
+  textarea:disabled.border-red-500,
+  input:disabled.border-destructive,
+  select:disabled.border-destructive,
+  textarea:disabled.border-destructive {
+    opacity: 1 !important;
   }
 }
 

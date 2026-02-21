@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Carpet Data for Work Order Specifications
 // Based on the image specification provided
 
@@ -198,11 +199,7 @@ export const KNOT_TYPE_OPTIONS = [
 ];
 
 // Approval options (common across all machine types)
-export const CARPET_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S'
-];
+export const CARPET_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get variants for a machine type
 export const getCarpetVariants = (machineType) => {

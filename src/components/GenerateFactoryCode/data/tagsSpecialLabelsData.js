@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // TAGS & SPECIAL LABELS - Constants and Options
 
 export const TAGS_SPECIAL_LABELS_TYPES = [
@@ -52,11 +53,5 @@ export const TAGS_SPECIAL_LABELS_SIZE_UNITS = [
   'INCHES'
 ];
 
-export const TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS = [
-  "BUYER'S",
-  'INITIAL',
-  'PP',
-  'Design Proof Approval',
-  'OTHERS (TEXT)'
-];
+export const TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

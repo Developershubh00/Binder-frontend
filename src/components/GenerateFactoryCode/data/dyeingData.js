@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Dyeing Data for Work Order Specifications
 // Based on the image specifications provided
 
@@ -282,10 +283,7 @@ export const REFERENCE_TYPE_OPTIONS = [
 ];
 
 // Approval options (common across all dyeing types)
-export const DYEING_APPROVAL_OPTIONS = [
-  'SELF',
-  'BUYER\'S'
-];
+export const DYEING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to parse color ref string into array of options
 const parseColorRefOptions = (colorRefString) => {

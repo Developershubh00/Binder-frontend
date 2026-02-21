@@ -278,7 +278,7 @@ const GeneratePOCode = ({ onBack }) => {
               onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
               type="button"
             >
-              Back to Department
+              Back to Code Creation
             </button>
           </div>
         </div>
@@ -302,7 +302,7 @@ const GeneratePOCode = ({ onBack }) => {
           }}
           type="button"
         >
-          ← Back to Department
+          ← Back to Code Creation
         </button>
         <h1 style={styles.formTitle}>Generate PO Code</h1>
         <p style={styles.formDescription}>Fill in the purchase order details to generate a unique PO code</p>

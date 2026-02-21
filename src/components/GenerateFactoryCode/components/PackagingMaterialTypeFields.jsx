@@ -1,4 +1,5 @@
 import SearchableDropdown from './SearchableDropdown';
+import { PACKAGING_APPROVAL_OPTIONS } from '../data/approvalOptions';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +51,7 @@ const getPoQtyAndImageForIpc = (skus, ipc) => {
 const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, errors, materialIndex = 0, casepackQty, productSelection, skus }) => {
   if (!material || typeof material !== 'object') return null;
   const safeIndex = Number.isFinite(materialIndex) ? materialIndex : 0;
+  const typeFieldWidth = 280;
   const selectedIpcs = Array.isArray(productSelection) ? productSelection : (productSelection ? [productSelection] : []);
   const casepack = typeof casepackQty === 'number' ? casepackQty : parseFloat(String(casepackQty || '').trim()) || 0;
   const polybagNum = parseFloat(String(material.polybagBalePolybagCount || '').trim()) || 0;
@@ -209,7 +211,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       {material.cartonBoxStiffenerRequired === 'YES' && (
                         <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
                           <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER SIZE (L x W) <span className="text-red-500">*</span></label>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">L</label>
                               <input
@@ -233,6 +235,19 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 placeholder="Stiffener Width"
                               />
                               {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerWidth`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerWidth`]}</span>}
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-xs text-gray-600 mb-1">UNIT</label>
+                              <select
+                                value={material.cartonBoxStiffenerUnit || material.cartonBoxDimensionsUnit || 'CM'}
+                                onChange={(e) => onChange('cartonBoxStiffenerUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                style={{ padding: '10px 14px', height: '44px', width: '100%' }}
+                              >
+                                <option value="CM">CM</option>
+                                <option value="KGS">KGS</option>
+                              </select>
+                              {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerUnit`]}</span>}
                             </div>
                           </div>
                         </div>
@@ -2218,7 +2233,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   {(material.packagingMaterialType === 'CARTON BOX' || material.packagingMaterialType === 'CORNER PROTECTORS' || material.packagingMaterialType === 'EDGE PROTECTORS' || material.packagingMaterialType === 'FOAM INSERT' || material.packagingMaterialType === 'PALLET STRAP' || material.packagingMaterialType === 'POLYBAG~Bale' || material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' || material.packagingMaterialType === 'SILICA GEL DESICCANT' || material.packagingMaterialType === 'SHRINK TAPE' || material.packagingMaterialType === 'TAPE' || material.packagingMaterialType === 'VOID~FILL' || material.packagingMaterialType === 'DIVIDER') ? (
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                        <div className="flex flex-col flex-1">
+                        <div className="flex flex-col" style={{ width: `${typeFieldWidth}px` }}>
                           <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS % <span className="text-red-500">*</span></label>
                           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                             <input
@@ -2279,7 +2294,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 (material.packagingMaterialType === 'VOID~FILL' && errors?.[`${errorKeyPrefix}_voidFillSurplus`]) ||
                                 (material.packagingMaterialType === 'DIVIDER' && errors?.[`${errorKeyPrefix}_dividerSurplus`])
                               ) ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                              style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                              style={{ padding: '10px 32px 10px 14px', width: `${typeFieldWidth}px`, height: '44px' }}
                               placeholder=""
                             />
                             <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
@@ -2290,7 +2305,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             </span>
                           ) : null}
                         </div>
-                        <div className="flex flex-col flex-1">
+                        <div className="flex flex-col" style={{ width: `${typeFieldWidth}px` }}>
                           <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE % <span className="text-red-500">*</span></label>
                           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                             <input
@@ -2351,7 +2366,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 (material.packagingMaterialType === 'VOID~FILL' && errors?.[`${errorKeyPrefix}_voidFillWastage`]) ||
                                 (material.packagingMaterialType === 'DIVIDER' && errors?.[`${errorKeyPrefix}_dividerWastage`])
                               ) ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                              style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
+                              style={{ padding: '10px 32px 10px 14px', width: `${typeFieldWidth}px`, height: '44px' }}
                               placeholder=""
                             />
                             <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
@@ -2366,14 +2381,14 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     </>
                   ) : (
                   <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
-                    <div className="flex flex-col flex-1">
+                    <div className="flex flex-col" style={{ width: `${typeFieldWidth}px` }}>
                       <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS</label>
                       <input
                         type="text"
                         value={material.surplus || ''}
                         onChange={(e) => onChange('surplus', e.target.value)}
                         className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_surplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                        style={{ padding: '10px 14px', height: '44px' }}
+                        style={{ padding: '10px 14px', height: '44px', width: `${typeFieldWidth}px` }}
                         placeholder="%AGE"
                       />
                     </div>
@@ -2398,7 +2413,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.cartonBoxApproval || ''}
                         onChange={(selectedValue) => onChange('cartonBoxApproval', selectedValue)}
-                        options={['SELF', "BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2408,7 +2423,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.cornerProtectorApproval || ''}
                         onChange={(selectedValue) => onChange('cornerProtectorApproval', selectedValue)}
-                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2418,7 +2433,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.edgeProtectorApproval || ''}
                         onChange={(selectedValue) => onChange('edgeProtectorApproval', selectedValue)}
-                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2428,7 +2443,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.foamInsertApproval || ''}
                         onChange={(selectedValue) => onChange('foamInsertApproval', selectedValue)}
-                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2438,7 +2453,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.palletStrapApproval || ''}
                         onChange={(selectedValue) => onChange('palletStrapApproval', selectedValue)}
-                        options={["BUYER'S", 'Logistics Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2448,7 +2463,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.polybagBaleApproval || ''}
                         onChange={(selectedValue) => onChange('polybagBaleApproval', selectedValue)}
-                        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2458,7 +2473,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.polybagPolybagFlapApproval || ''}
                         onChange={(selectedValue) => onChange('polybagPolybagFlapApproval', selectedValue)}
-                        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2468,7 +2483,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.silicaGelDesiccantApproval || ''}
                         onChange={(selectedValue) => onChange('silicaGelDesiccantApproval', selectedValue)}
-                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2478,7 +2493,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.stretchWrapApproval || ''}
                         onChange={(selectedValue) => onChange('stretchWrapApproval', selectedValue)}
-                        options={["BUYER'S", 'Logistics Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2488,7 +2503,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.tapeApproval || ''}
                         onChange={(selectedValue) => onChange('tapeApproval', selectedValue)}
-                        options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2498,7 +2513,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.voidFillApproval || ''}
                         onChange={(selectedValue) => onChange('voidFillApproval', selectedValue)}
-                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2508,7 +2523,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <SearchableDropdown
                         value={material.dividerApproval || ''}
                         onChange={(selectedValue) => onChange('dividerApproval', selectedValue)}
-                        options={["BUYER'S", 'QA Approval', 'INITIAL', 'PP SAMPLE']}
+                        options={PACKAGING_APPROVAL_OPTIONS}
                         placeholder="Select or type Approval"
                       />
                     </div>
@@ -2518,7 +2533,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <SearchableDropdown
                       value={material.approvalAgainst || ''}
                       onChange={(selectedValue) => onChange('approvalAgainst', selectedValue)}
-                      options={["BUYER'S", 'INITIAL', 'PP SAMPLE']}
+                      options={PACKAGING_APPROVAL_OPTIONS}
                       placeholder="Select or type Approval Against"
                     />
                   </div>

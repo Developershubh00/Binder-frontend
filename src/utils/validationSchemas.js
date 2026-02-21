@@ -424,7 +424,7 @@ export const FIBER_SCHEMAS = {
 // ==================== ARTWORK SCHEMAS ====================
 export const ARTWORK_SCHEMAS = {
   'LABELS (BRAND/MAIN)': {
-    required: ['labelsBrandType', 'labelsBrandMaterial', 'labelsBrandSizeWidth', 'labelsBrandSizeHeight', 'labelsBrandSizeUnit', 'labelsBrandPlacement', 'labelsBrandAttachment', 'labelsBrandTestingRequirements', 'labelsBrandQty', 'labelsBrandSurplus', 'labelsBrandApproval', 'labelsBrandRemarks'],
+    required: ['labelsBrandType', 'labelsBrandMaterial', 'labelsBrandSizeWidth', 'labelsBrandSizeHeight', 'labelsBrandSizeUnit', 'labelsBrandPlacement', 'labelsBrandAttachment', 'labelsBrandTestingRequirements', 'labelsBrandQty', 'labelsBrandSurplus', 'labelsBrandApproval'],
     advanced: [],
     conditional: {
       'labelsBrandTypeText': { when: 'labelsBrandType', equals: 'OTHERS (TEXT)' },
@@ -435,7 +435,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'CARE & COMPOSITION': {
-    required: ['careCompositionType', 'careCompositionMaterial', 'careCompositionSizeWidth', 'careCompositionSizeLength', 'careCompositionSizeUnit', 'careCompositionPlacement', 'careCompositionTestingRequirements', 'careCompositionQty', 'careCompositionSurplus', 'careCompositionApproval', 'careCompositionRemarks'],
+    required: ['careCompositionType', 'careCompositionMaterial', 'careCompositionSizeWidth', 'careCompositionSizeLength', 'careCompositionSizeUnit', 'careCompositionPlacement', 'careCompositionTestingRequirements', 'careCompositionQty', 'careCompositionSurplus', 'careCompositionApproval'],
     advanced: ['careCompositionPrintType', 'careCompositionInkType', 'careCompositionManufacturerId', 'careCompositionPermanence', 'careCompositionLanguage'],
     conditional: {
       'careCompositionTypeText': { when: 'careCompositionType', equals: 'OTHERS (TEXT)' },
@@ -443,7 +443,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'RFID / SECURITY TAGS': {
-    required: ['rfidType', 'rfidFormFactor', 'rfidChipModel', 'rfidSizeWidth', 'rfidSizeHeight', 'rfidSizeUnit', 'rfidPlacementText', 'rfidTestingRequirements', 'rfidQty', 'rfidSurplus', 'rfidRemarks'],
+    required: ['rfidType', 'rfidFormFactor', 'rfidChipModel', 'rfidSizeWidth', 'rfidSizeHeight', 'rfidSizeUnit', 'rfidPlacementText', 'rfidTestingRequirements', 'rfidQty', 'rfidSurplus'],
     advanced: [],
     conditional: {
       'rfidTypeText': { when: 'rfidType', equals: 'OTHERS (TEXT)' },
@@ -452,7 +452,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'LAW LABEL / CONTENTS TAG': {
-    required: ['lawLabelType', 'lawLabelMaterial', 'lawLabelSizeWidth', 'lawLabelSizeHeight', 'lawLabelSizeUnit', 'lawLabelPlacement', 'lawLabelTestingRequirements', 'lawLabelQty', 'lawLabelSurplus', 'lawLabelApproval', 'lawLabelRemarks'],
+    required: ['lawLabelType', 'lawLabelMaterial', 'lawLabelSizeWidth', 'lawLabelSizeHeight', 'lawLabelSizeUnit', 'lawLabelPlacement', 'lawLabelTestingRequirements', 'lawLabelQty', 'lawLabelSurplus', 'lawLabelApproval'],
     advanced: [],
     conditional: {
       'lawLabelTypeText': { when: 'lawLabelType', equals: 'OTHERS (TEXT)' },
@@ -460,7 +460,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'HANG TAG SEALS / STRINGS': {
-    required: ['hangTagSealsType', 'hangTagSealsMaterial', 'hangTagSealsSizeWidth', 'hangTagSealsSizeHeight', 'hangTagSealsSizeUnit', 'hangTagSealsPlacement', 'hangTagSealsTestingRequirements', 'hangTagSealsQty', 'hangTagSealsSurplus', 'hangTagSealsApproval', 'hangTagSealsRemarks'],
+    required: ['hangTagSealsType', 'hangTagSealsMaterial', 'hangTagSealsSizeWidth', 'hangTagSealsSizeHeight', 'hangTagSealsSizeUnit', 'hangTagSealsPlacement', 'hangTagSealsTestingRequirements', 'hangTagSealsQty', 'hangTagSealsSurplus', 'hangTagSealsApproval'],
     advanced: ['hangTagSealsFastening', 'hangTagSealsPreStringing', 'hangTagSealsStringFinish', 'hangTagSealsSealShape', 'hangTagSealsColour', 'hangTagSealsLogoBranding'],
     conditional: {
       'hangTagSealsTypeText': { when: 'hangTagSealsType', equals: 'OTHERS (TEXT)' },
@@ -468,7 +468,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'HEAT TRANSFER LABELS': {
-    required: ['heatTransferType', 'heatTransferMaterialBase', 'heatTransferSizeWidth', 'heatTransferSizeHeight', 'heatTransferSizeUnit', 'heatTransferPlacement', 'heatTransferTestingRequirements', 'heatTransferQty', 'heatTransferSurplus', 'heatTransferApproval', 'heatTransferRemarks'],
+    required: ['heatTransferType', 'heatTransferMaterialBase', 'heatTransferSizeWidth', 'heatTransferSizeHeight', 'heatTransferSizeUnit', 'heatTransferPlacement', 'heatTransferTestingRequirements', 'heatTransferQty', 'heatTransferSurplus', 'heatTransferApproval'],
     advanced: ['heatTransferInkType', 'heatTransferFabricCompatibility', 'heatTransferApplicationSpec', 'heatTransferPeelType', 'heatTransferFinishHandFeel', 'heatTransferStretch'],
     conditional: {
       'heatTransferTypeText': { when: 'heatTransferType', equals: 'OTHERS (TEXT)' },
@@ -476,7 +476,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'UPC LABEL / BARCODE STICKER': {
-    required: ['upcBarcodeType', 'upcBarcodeMaterial', 'upcBarcodeSizeWidth', 'upcBarcodeSizeHeight', 'upcBarcodeSizeUnit', 'upcBarcodePlacement', 'upcBarcodeTestingRequirements', 'upcBarcodeQty', 'upcBarcodeSurplus', 'upcBarcodeApproval', 'upcBarcodeRemarks'],
+    required: ['upcBarcodeType', 'upcBarcodeMaterial', 'upcBarcodeSizeWidth', 'upcBarcodeSizeHeight', 'upcBarcodeSizeUnit', 'upcBarcodePlacement', 'upcBarcodeTestingRequirements', 'upcBarcodeQty', 'upcBarcodeSurplus', 'upcBarcodeApproval'],
     advanced: [],
     conditional: {
       'upcBarcodeTypeText': { when: 'upcBarcodeType', equals: 'OTHERS (TEXT)' },
@@ -484,7 +484,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'PRICE TICKET / BARCODE TAG': {
-    required: ['priceTicketType', 'priceTicketMaterial', 'priceTicketSizeWidth', 'priceTicketSizeHeight', 'priceTicketSizeUnit', 'priceTicketPlacement', 'priceTicketTestingRequirements', 'priceTicketQty', 'priceTicketSurplus', 'priceTicketApproval', 'priceTicketRemarks'],
+    required: ['priceTicketType', 'priceTicketMaterial', 'priceTicketSizeWidth', 'priceTicketSizeHeight', 'priceTicketSizeUnit', 'priceTicketPlacement', 'priceTicketTestingRequirements', 'priceTicketQty', 'priceTicketSurplus', 'priceTicketApproval'],
     advanced: [],
     conditional: {
       'priceTicketTypeText': { when: 'priceTicketType', equals: 'OTHERS (TEXT)' },
@@ -492,7 +492,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'ANTI-COUNTERFEIT & HOLOGRAMS': {
-    required: ['antiCounterfeitType', 'antiCounterfeitMaterial', 'antiCounterfeitSizeWidth', 'antiCounterfeitSizeHeight', 'antiCounterfeitSizeUnit', 'securityFeature', 'hologramType', 'numbering', 'antiCounterfeitPlacement', 'testingRequirements', 'antiCounterfeitQty', 'antiCounterfeitSurplus', 'antiCounterfeitApproval', 'antiCounterfeitRemarks'],
+    required: ['antiCounterfeitType', 'antiCounterfeitMaterial', 'antiCounterfeitSizeWidth', 'antiCounterfeitSizeHeight', 'antiCounterfeitSizeUnit', 'securityFeature', 'hologramType', 'numbering', 'antiCounterfeitPlacement', 'testingRequirements', 'antiCounterfeitQty', 'antiCounterfeitSurplus', 'antiCounterfeitApproval'],
     advanced: ['verification', 'qrCodeContent', 'antiCounterfeitApplication', 'tamperEvidence', 'antiCounterfeitDatabase', 'gummingQuality'],
     conditional: {
       'antiCounterfeitTypeText': { when: 'antiCounterfeitType', equals: 'OTHERS (TEXT)' },
@@ -500,7 +500,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'QC / INSPECTION LABELS': {
-    required: ['qcInspectionType', 'qcInspectionMaterial', 'qcInspectionSizeWidth', 'qcInspectionSizeHeight', 'qcInspectionSizeUnit', 'qcInspectionContent', 'qcInspectionCodingSystem', 'qcInspectionGummingQuality', 'qcInspectionPlacement', 'qcInspectionTestingRequirements', 'qcInspectionQty', 'qcInspectionSurplus', 'qcInspectionApproval', 'qcInspectionRemarks'],
+    required: ['qcInspectionType', 'qcInspectionMaterial', 'qcInspectionSizeWidth', 'qcInspectionSizeHeight', 'qcInspectionSizeUnit', 'qcInspectionContent', 'qcInspectionCodingSystem', 'qcInspectionGummingQuality', 'qcInspectionPlacement', 'qcInspectionTestingRequirements', 'qcInspectionQty', 'qcInspectionSurplus', 'qcInspectionApproval'],
     advanced: [],
     conditional: {
       'qcInspectionTypeText': { when: 'qcInspectionType', equals: 'OTHERS (TEXT)' },
@@ -508,7 +508,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'BELLY BAND / WRAPPER': {
-    required: ['bellyBandType', 'bellyBandMaterial', 'bellyBandSizeWidth', 'bellyBandSizeHeight', 'bellyBandSizeUnit', 'bellyBandClosure', 'bellyBandTestingRequirements', 'bellyBandPlacement', 'bellyBandQty', 'bellyBandSurplus', 'bellyBandApproval', 'bellyBandRemarks', 'permanence'],
+    required: ['bellyBandType', 'bellyBandMaterial', 'bellyBandSizeWidth', 'bellyBandSizeHeight', 'bellyBandSizeUnit', 'bellyBandClosure', 'bellyBandTestingRequirements', 'bellyBandPlacement', 'bellyBandQty', 'bellyBandSurplus', 'bellyBandApproval', 'permanence'],
     advanced: ['bellyBandProductFit', 'bellyBandPrinting', 'bellyBandFoldLines', 'bellyBandDurability', 'bellyBandContent', 'bellyBandColours', 'bellyBandFinish', 'bellyBandDieCut', 'bellyBandGummingQuality'],
     conditional: {
       'bellyBandTypeText': { when: 'bellyBandType', equals: 'OTHERS (TEXT)' },
@@ -516,7 +516,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'SIZE LABELS (INDIVIDUAL)': {
-    required: ['sizeLabelsType', 'sizeLabelsMaterial', 'sizeLabelsSizeWidth', 'sizeLabelsSizeHeight', 'sizeLabelsSizeUnit', 'sizeLabelsSizeSystem', 'sizeLabelsSizeCode', 'sizeLabelsFoldType', 'sizeLabelsPlacementText', 'sizeLabelsTestingRequirements', 'sizeLabelsQty', 'sizeLabelsSurplus', 'sizeLabelsApproval', 'sizeLabelsRemarks'],
+    required: ['sizeLabelsType', 'sizeLabelsMaterial', 'sizeLabelsSizeWidth', 'sizeLabelsSizeHeight', 'sizeLabelsSizeUnit', 'sizeLabelsSizeSystem', 'sizeLabelsSizeCode', 'sizeLabelsFoldType', 'sizeLabelsPlacementText', 'sizeLabelsTestingRequirements', 'sizeLabelsQty', 'sizeLabelsSurplus', 'sizeLabelsApproval'],
     advanced: [],
     conditional: {
       'sizeLabelsTypeText': { when: 'sizeLabelsType', equals: 'OTHERS (TEXT)' },
@@ -524,7 +524,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'TAGS & SPECIAL LABELS': {
-    required: ['tagsSpecialLabelsType', 'tagsSpecialLabelsMaterial', 'tagsSpecialLabelsSizeWidth', 'tagsSpecialLabelsSizeHeight', 'tagsSpecialLabelsSizeUnit', 'tagsSpecialLabelsAttachment', 'tagsSpecialLabelsFinishing', 'tagsSpecialLabelsPlacement', 'tagsSpecialLabelsQty', 'tagsSpecialLabelsSurplus', 'tagsSpecialLabelsTestingRequirements', 'tagsSpecialLabelsApproval', 'tagsSpecialLabelsRemarks'],
+    required: ['tagsSpecialLabelsType', 'tagsSpecialLabelsMaterial', 'tagsSpecialLabelsSizeWidth', 'tagsSpecialLabelsSizeHeight', 'tagsSpecialLabelsSizeUnit', 'tagsSpecialLabelsAttachment', 'tagsSpecialLabelsFinishing', 'tagsSpecialLabelsPlacement', 'tagsSpecialLabelsQty', 'tagsSpecialLabelsSurplus', 'tagsSpecialLabelsTestingRequirements', 'tagsSpecialLabelsApproval'],
     advanced: [],
     conditional: {
       'tagsSpecialLabelsTypeText': { when: 'tagsSpecialLabelsType', equals: 'OTHERS (TEXT)' },
@@ -532,7 +532,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'FLAMMABILITY / SAFETY LABELS': {
-    required: ['flammabilitySafetyType', 'flammabilitySafetyMaterial', 'flammabilitySafetySizeWidth', 'flammabilitySafetySizeHeight', 'flammabilitySafetySizeUnit', 'flammabilitySafetyPlacement', 'flammabilitySafetyTestingRequirements', 'flammabilitySafetyQty', 'flammabilitySafetySurplus', 'flammabilitySafetyApproval', 'flammabilitySafetyRemarks'],
+    required: ['flammabilitySafetyType', 'flammabilitySafetyMaterial', 'flammabilitySafetySizeWidth', 'flammabilitySafetySizeHeight', 'flammabilitySafetySizeUnit', 'flammabilitySafetyPlacement', 'flammabilitySafetyTestingRequirements', 'flammabilitySafetyQty', 'flammabilitySafetySurplus', 'flammabilitySafetyApproval'],
     advanced: ['flammabilitySafetyRegulation', 'flammabilitySafetyFontSize', 'flammabilitySafetyPermanence', 'flammabilitySafetySymbol', 'flammabilitySafetyInkDurability', 'flammabilitySafetyCertificationId'],
     conditional: {
       'flammabilitySafetyTypeText': { when: 'flammabilitySafetyType', equals: 'OTHERS (TEXT)' },
@@ -540,7 +540,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'INSERT CARDS': {
-    required: ['insertCardsType', 'insertCardsMaterial', 'insertCardsArtworkSpec', 'insertCardsSizeWidth', 'insertCardsSizeHeight', 'insertCardsSizeUnit', 'insertCardsPlacement', 'insertCardsTestingRequirements', 'insertCardsQty', 'insertCardsSurplus', 'insertCardsApproval', 'insertCardsRemarks'],
+    required: ['insertCardsType', 'insertCardsMaterial', 'insertCardsArtworkSpec', 'insertCardsSizeWidth', 'insertCardsSizeHeight', 'insertCardsSizeUnit', 'insertCardsPlacement', 'insertCardsTestingRequirements', 'insertCardsQty', 'insertCardsSurplus', 'insertCardsApproval'],
     advanced: ['insertCardsFunction', 'insertCardsContent', 'insertCardsPrinting', 'insertCardsFinish', 'insertCardsStiffness', 'insertCardsAcidFree', 'insertCardsBranding'],
     conditional: {
       'insertCardsTypeText': { when: 'insertCardsType', equals: 'OTHERS (TEXT)' },
@@ -548,7 +548,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'RIBBONS': {
-    required: ['ribbonsType', 'ribbonsMaterial', 'ribbonsWidth', 'ribbonsRollLength', 'ribbonsTestingRequirements', 'ribbonsQty', 'ribbonsSurplus', 'ribbonsRemarks'],
+    required: ['ribbonsType', 'ribbonsMaterial', 'ribbonsWidth', 'ribbonsRollLength', 'ribbonsTestingRequirements', 'ribbonsQty', 'ribbonsSurplus'],
     advanced: [],
     conditional: {
       'ribbonsTypeText': { when: 'ribbonsType', equals: 'OTHERS (TEXT)' },
@@ -576,7 +576,8 @@ export const PACKAGING_MATERIAL_SCHEMAS = {
     // Stiffener size (L x W) required only when Stiffener is YES; form uses Length + Width, not a single Dimensions field
     conditional: {
       'cartonBoxStiffenerLength': { when: 'cartonBoxStiffenerRequired', equals: 'YES' },
-      'cartonBoxStiffenerWidth': { when: 'cartonBoxStiffenerRequired', equals: 'YES' }
+      'cartonBoxStiffenerWidth': { when: 'cartonBoxStiffenerRequired', equals: 'YES' },
+      'cartonBoxStiffenerUnit': { when: 'cartonBoxStiffenerRequired', equals: 'YES' }
     }
   },
   'CORNER PROTECTORS': {

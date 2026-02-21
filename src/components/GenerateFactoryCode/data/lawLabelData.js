@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Law Label Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -26,8 +27,5 @@ export const LAW_LABEL_TESTING_REQUIREMENTS = [
 export const LAW_LABEL_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const LAW_LABEL_APPROVAL_OPTIONS = [
-  'State/Provincial Regulatory Approval (differs by state)',
-  'OTHERS (TEXT)'
-];
+export const LAW_LABEL_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

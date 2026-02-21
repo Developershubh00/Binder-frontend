@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Belly Band Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -39,13 +40,7 @@ export const BELLY_BAND_TESTING_REQUIREMENTS = [
 export const BELLY_BAND_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const BELLY_BAND_APPROVAL_OPTIONS = [
-  'BUYER\'S',
-  'INITIAL',
-  'PP',
-  'Structural Die-Line + Print Proof',
-  'OTHERS (TEXT)'
-];
+export const BELLY_BAND_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // Advanced Filter Options
 

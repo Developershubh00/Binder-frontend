@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Insert Cards Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -31,13 +32,7 @@ export const INSERT_CARDS_TESTING_REQUIREMENTS = [
 export const INSERT_CARDS_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const INSERT_CARDS_APPROVAL_OPTIONS = [
-  'BUYER\'S',
-  'INITIAL',
-  'PP',
-  'Structural + Print Proof',
-  'OTHERS (TEXT)'
-];
+export const INSERT_CARDS_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // Advanced Filter Options - 7 dropdown fields
 

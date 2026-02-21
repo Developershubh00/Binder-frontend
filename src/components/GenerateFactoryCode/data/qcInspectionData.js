@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // QC / INSPECTION LABELS Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -53,8 +54,5 @@ export const QC_INSPECTION_TESTING_REQUIREMENTS = [
 export const QC_INSPECTION_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const QC_INSPECTION_APPROVAL_OPTIONS = [
-  "Client's QA Team Approval (for third-party inspections)",
-  'OTHERS (TEXT)'
-];
+export const QC_INSPECTION_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 

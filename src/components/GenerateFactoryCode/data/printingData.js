@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Printing Data for Work Order Specifications
 // Based on the image specifications provided
 
@@ -204,10 +205,7 @@ export const PRINTING_TYPES = {
 };
 
 // Approval options (common across all printing types)
-export const PRINTING_APPROVAL_OPTIONS = [
-  'SELF',
-  'BUYER\'S'
-];
+export const PRINTING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get variants for a printing type
 export const getPrintingVariants = (printingType) => {

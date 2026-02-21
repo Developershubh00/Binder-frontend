@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Braiding Data for Work Order Specifications
 // Based on the image specification provided
 
@@ -82,11 +83,7 @@ export const BRAIDING_MACHINE_TYPES = {
 };
 
 // Approval options (common across all machine types)
-export const BRAIDING_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S'
-];
+export const BRAIDING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get variants for a machine type
 export const getBraidingVariants = (machineType) => {

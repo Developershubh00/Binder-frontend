@@ -215,7 +215,8 @@ const SearchableDropdown = ({
           paddingRight: '2.25rem',
           ...style,
         }}
-        aria-invalid={false}
+        data-slot="input"
+        aria-invalid={error ? true : undefined}
       />
       {!disabled && (
         <button
@@ -284,5 +285,4 @@ const SearchableDropdown = ({
 };
 
 export default SearchableDropdown;
-
 

@@ -1,3 +1,4 @@
+import { WORK_ORDER_APPROVAL_OPTIONS } from './approvalOptions';
 // Sewing Data for Work Order Specifications
 // Based on the image specifications provided
 
@@ -122,11 +123,7 @@ export const SEWING_THREAD_TYPE_OPTIONS = [
 ];
 
 // Approval options (common across all sewing types)
-export const SEWING_APPROVAL_OPTIONS = [
-  '1st PC',
-  'SELF',
-  'BUYER\'S'
-];
+export const SEWING_APPROVAL_OPTIONS = WORK_ORDER_APPROVAL_OPTIONS;
 
 // Helper function to get stitch type for a sewing machine type
 export const getSewingStitchType = (machineType) => {

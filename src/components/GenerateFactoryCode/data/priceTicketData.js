@@ -1,3 +1,4 @@
+import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 // Price Ticket Data for Artwork & Labeling Specifications
 // Based on the image specifications provided
 
@@ -30,8 +31,5 @@ export const PRICE_TICKET_TESTING_REQUIREMENTS = [
 export const PRICE_TICKET_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
 
 // APPROVAL options
-export const PRICE_TICKET_APPROVAL_OPTIONS = [
-  'Retailer\'s Ticketing Department Approval / Layout Proof',
-  'OTHERS (TEXT)'
-];
+export const PRICE_TICKET_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
