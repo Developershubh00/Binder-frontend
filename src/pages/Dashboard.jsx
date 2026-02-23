@@ -380,6 +380,7 @@ const Dashboard = () => {
             <h2 className="page-title">Binder Dashboard</h2>
           </div>
           <div className="top-bar-right" ref={profileMenuRef}>
+            <span className="profile-username">{displayName}</span>
             <button
               type="button"
               className="profile-trigger"
@@ -393,7 +394,6 @@ const Dashboard = () => {
             {showProfileMenu && (
               <div className="profile-menu">
                 <div className="profile-menu-header">
-                  <div className="profile-menu-name">{displayName}</div>
                   {showEmailLine && <div className="profile-menu-email">{user.email}</div>}
                 </div>
                 <div className="profile-menu-divider" />

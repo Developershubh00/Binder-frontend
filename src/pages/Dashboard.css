@@ -191,7 +191,12 @@
 .top-bar-right {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 10px;
+}
+.profile-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
 }
 .user-avatar {
   width: 42px;
