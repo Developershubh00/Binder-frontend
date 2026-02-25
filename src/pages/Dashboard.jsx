@@ -272,59 +272,44 @@ const Dashboard = () => {
     return () => window.clearTimeout(focusTimer);
   }, [showCalculator]);
 
-  useEffect(() => {
-    if (!showCalculator) {
-      return undefined;
+  const handleCalculatorKeyDown = (event) => {
+    const { key } = event;
+
+    if (/^\d$/.test(key)) {
+      event.preventDefault();
+      appendCalcValue(key);
+      return;
     }
 
-    const handleKeyDown = (event) => {
-      const { key } = event;
+    if (key === '.') {
+      event.preventDefault();
+      appendCalcValue('.');
+      return;
+    }
 
-      if (/^\d$/.test(key)) {
-        event.preventDefault();
-        appendCalcValue(key);
-        return;
-      }
+    if (['+', '-', '*', '/'].includes(key)) {
+      event.preventDefault();
+      appendCalcValue(key);
+      return;
+    }
 
-      if (key === '.') {
-        event.preventDefault();
-        appendCalcValue('.');
-        return;
-      }
+    if (key === 'Enter' || key === '=') {
+      event.preventDefault();
+      evaluateCalculation();
+      return;
+    }
 
-      if (['+', '-', '*', '/'].includes(key)) {
-        event.preventDefault();
-        appendCalcValue(key);
-        return;
-      }
+    if (key === 'Backspace') {
+      event.preventDefault();
+      handleCalcDelete();
+      return;
+    }
 
-      if (key === 'Enter' || key === '=') {
-        event.preventDefault();
-        evaluateCalculation();
-        return;
-      }
-
-      if (key === 'Backspace') {
-        event.preventDefault();
-        handleCalcDelete();
-        return;
-      }
-
-      if (key === 'Delete') {
-        event.preventDefault();
-        handleCalcClear();
-        return;
-      }
-
-      if (key === 'Escape') {
-        event.preventDefault();
-        setShowCalculator(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showCalculator, calcInput]);
+    if (key === 'Delete') {
+      event.preventDefault();
+      handleCalcClear();
+    }
+  };
 
   useEffect(() => {
     try {
@@ -636,7 +621,6 @@ const Dashboard = () => {
         {showCalculator && (
           <div
             className="calculator-overlay"
-            onClick={() => setShowCalculator(false)}
             role="presentation"
           >
             <div
@@ -646,7 +630,8 @@ const Dashboard = () => {
               aria-modal="true"
               onClick={(event) => event.stopPropagation()}
               ref={calculatorRef}
-              tabIndex={-1}
+              tabIndex={0}
+              onKeyDown={handleCalculatorKeyDown}
             >
               <div className="calculator-header">
                 <div>

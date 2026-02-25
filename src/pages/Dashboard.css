@@ -289,13 +289,14 @@
 .calculator-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.35);
-  backdrop-filter: blur(6px);
+  background: transparent;
+  backdrop-filter: none;
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
   padding: 96px 32px 32px;
   z-index: 250;
+  pointer-events: none;
 }
 .calculator-popup {
   width: min(360px, 92vw);
@@ -306,6 +307,7 @@
   padding: 18px;
   outline: none;
   animation: popIn 0.2s ease;
+  pointer-events: auto;
 }
 .calculator-header {
   display: flex;
