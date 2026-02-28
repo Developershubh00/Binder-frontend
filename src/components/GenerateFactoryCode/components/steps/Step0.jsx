@@ -44,16 +44,27 @@ const Step0 = ({
     }
   }, [parentIsSaved]);
 
-  // Load buyer codes from localStorage
+  // Load buyer codes from API (fallback to localStorage)
   useEffect(() => {
-    try {
-      const buyerCodes = JSON.parse(localStorage.getItem('buyerCodes') || '[]');
-      const codes = buyerCodes.map(buyer => buyer.code);
-      setBuyerCodeOptions(codes);
-    } catch (error) {
-      console.error('Error loading buyer codes:', error);
-      setBuyerCodeOptions([]);
-    }
+    const loadBuyerCodes = async () => {
+      try {
+        const response = await getBuyerCodes();
+        const buyers = response.results || response.data || response || [];
+        const codes = Array.isArray(buyers) ? buyers.map(b => b.code) : [];
+        setBuyerCodeOptions(codes);
+      } catch (error) {
+        console.warn('Failed to load buyer codes from API, using localStorage:', error);
+        try {
+          const buyerCodes = JSON.parse(localStorage.getItem('buyerCodes') || '[]');
+          const codes = buyerCodes.map(buyer => buyer.code);
+          setBuyerCodeOptions(codes);
+        } catch (e) {
+          console.error('Error loading buyer codes:', e);
+          setBuyerCodeOptions([]);
+        }
+      }
+    };
+    loadBuyerCodes();
   }, []);
 
   const handleBuyerCodeChange = (value) => {
