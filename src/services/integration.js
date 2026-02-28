@@ -1,5 +1,3 @@
-chmod +x apply_frontend_changes.sh
-
 /**
  * Binder ERP - Frontend API Integration File
  * React + Vite Frontend Integration
