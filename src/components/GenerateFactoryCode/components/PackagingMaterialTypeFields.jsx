@@ -132,18 +132,20 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         />
                         {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerRequired`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerRequired`]}</span>}
                       </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY <span className="text-red-500">*</span></label>
-                        <input
-                          type="text"
-                          value={material.cartonBoxQuantity || ''}
-                          onChange={(e) => onChange('cartonBoxQuantity', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pieces"
-                        />
-                        {errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxQuantity`]}</span>}
-                      </div>
+                      {material.cartonBoxStiffenerRequired === 'YES' && (
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY <span className="text-red-500">*</span></label>
+                          <input
+                            type="text"
+                            value={material.cartonBoxQuantity || ''}
+                            onChange={(e) => onChange('cartonBoxQuantity', e.target.value)}
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Pieces"
+                          />
+                          {errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxQuantity`]}</span>}
+                        </div>
+                      )}
                       {/* DIMENSIONS for CARTON BOX */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
