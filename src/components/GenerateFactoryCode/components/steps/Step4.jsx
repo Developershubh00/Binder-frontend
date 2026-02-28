@@ -173,6 +173,7 @@ import {
   SIZE_LABELS_SIZE_UNITS,
   SIZE_LABELS_APPROVAL_OPTIONS
 } from '../../data/sizeLabelsData';
+import QualityVerificationToggle from '../QualityVerificationToggle';
 
 const Step4 = ({
   formData,
@@ -6681,6 +6682,13 @@ const Step4 = ({
                   </>
                 )}
               </div>
+              <div style={{ marginTop: '20px' }}>
+                <QualityVerificationToggle
+                  value={material.qualityVerification}
+                  onChange={(value) => handleArtworkMaterialChange(actualIndex, 'qualityVerification', value)}
+                  width="lg"
+                />
+              </div>
             </div>
           </div>
                 );
@@ -6704,4 +6712,3 @@ const Step4 = ({
 };
 
 export default Step4;
-

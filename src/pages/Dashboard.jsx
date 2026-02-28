@@ -118,6 +118,7 @@ const Dashboard = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [hoveredSubmenu, setHoveredSubmenu] = useState(null);
   const [existingIPOs, setExistingIPOs] = useState([]);
+  const [existingCompanyEssentials, setExistingCompanyEssentials] = useState([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [calcInput, setCalcInput] = useState('');
   const [calcResult, setCalcResult] = useState('0');
@@ -318,6 +319,12 @@ const Dashboard = () => {
     } catch (e) {
       setExistingIPOs([]);
     }
+    try {
+      const storedEssentials = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
+      setExistingCompanyEssentials(storedEssentials);
+    } catch (e) {
+      setExistingCompanyEssentials([]);
+    }
   }, [hoveredMenu]);
 
   useEffect(() => {
@@ -348,7 +355,46 @@ const Dashboard = () => {
   }, [hoveredMenu]);
 
   const ipoByType = (type) =>
-    existingIPOs.filter((ipo) => (ipo.orderType || '').toLowerCase() === type.toLowerCase());
+    existingIPOs.filter((ipo) =>
+      (ipo.orderType || '').toLowerCase() === type.toLowerCase() && ipo.ipoCode
+    );
+
+  const getCompanyEssentialsItems = () =>
+    existingCompanyEssentials.map((entry, index) => {
+      const label = entry.code || entry.poNumber || 'CHD/E/.../PO-';
+      return {
+        key: entry.code || entry.poNumber || `${entry.category || 'ce'}-${index}`,
+        label
+      };
+    });
+
+  const getIpoItems = (orderType) => {
+    const normalizedType = String(orderType || '').trim();
+    const prefixByType = {
+      Production: 'CHD/PD/',
+      Sampling: 'CHD/SAM/',
+      Company: 'CHD/SELF/'
+    };
+    const expectedPrefix = prefixByType[normalizedType];
+    return ipoByType(normalizedType)
+      .filter((ipo) => {
+        if (!expectedPrefix) return true;
+        const code = (ipo.ipoCode || ipo.code || '').toUpperCase();
+        if (code.includes('/E/')) return false;
+        return code.startsWith(expectedPrefix);
+      })
+      .map((ipo, index) => ({
+        key: ipo.ipoCode || `${type}-${index}`,
+        label: ipo.ipoCode || ipo.code || 'IPO'
+      }));
+  };
+
+  const getItemsForCategory = (categoryKey, categoryType) => {
+    if (categoryKey === 'company-essentials') {
+      return getCompanyEssentialsItems();
+    }
+    return getIpoItems(categoryType);
+  };
 
   const renderHoverPanel = () => {
     if (!hoveredMenu) return null;
@@ -465,13 +511,20 @@ const Dashboard = () => {
 
     if (hoveredMenu === 'ims') {
       const categories = [
-        { label: 'Production', key: 'Production' },
-        { label: 'Sampling', key: 'Sampling' },
-        { label: 'Company Essentials', key: 'Company' },
+        { label: 'Production', key: 'production', type: 'Production' },
+        { label: 'Sampling', key: 'sampling', type: 'Sampling' },
+        { label: 'Company Essentials', key: 'company-essentials', type: 'Company Essentials' },
+        { label: 'Company', key: 'company', type: 'Company' },
       ];
+      const actionsBySection = {
+        inward: { key: 'receive', label: 'Receive Challan' },
+        outward: { key: 'generate', label: 'Generate Challan' },
+      };
       const activeSection = hoveredSubmenu?.menu === 'ims' ? hoveredSubmenu.section : null;
+      const activeAction = hoveredSubmenu?.menu === 'ims' ? hoveredSubmenu.action : null;
       const activeCategory = hoveredSubmenu?.menu === 'ims' ? hoveredSubmenu.category : null;
-      const items = activeCategory ? ipoByType(activeCategory) : [];
+      const activeCategoryMeta = categories.find((cat) => cat.key === activeCategory);
+      const items = activeCategory ? getItemsForCategory(activeCategory, activeCategoryMeta?.type) : [];
       return (
         <div className="hover-panel-group" ref={hoverPanelRef} onMouseLeave={() => setHoveredSubmenu(null)}>
           <div className="hover-panel">
@@ -480,14 +533,14 @@ const Dashboard = () => {
               <button
                 type="button"
                 className={`hover-panel-item ${activeSection === 'inward' ? 'active' : ''}`}
-                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'inward', category: null })}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'inward', action: null, category: null })}
               >
                 Inward Store Sheet
               </button>
               <button
                 type="button"
                 className={`hover-panel-item ${activeSection === 'outward' ? 'active' : ''}`}
-                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'outward', category: null })}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'outward', action: null, category: null })}
               >
                 Outward Store Sheet
               </button>
@@ -499,12 +552,37 @@ const Dashboard = () => {
                 <div className="hover-panel-title">
                   {activeSection === 'inward' ? 'Inward Store Sheet' : 'Outward Store Sheet'}
                 </div>
+                <button
+                  key={`${activeSection}-${actionsBySection[activeSection]?.key}`}
+                  type="button"
+                  className={`hover-panel-item ${activeAction === actionsBySection[activeSection]?.key ? 'active' : ''}`}
+                  onMouseEnter={() => setHoveredSubmenu({
+                    menu: 'ims',
+                    section: activeSection,
+                    action: actionsBySection[activeSection]?.key,
+                    category: null
+                  })}
+                >
+                  {actionsBySection[activeSection]?.label}
+                </button>
+              </div>
+            </div>
+          )}
+          {activeAction && (
+            <div className="hover-panel nested-panel second">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Select Type</div>
                 {categories.map((cat) => (
                   <button
                     key={`${activeSection}-${cat.key}`}
                     type="button"
                     className={`hover-panel-item ${activeCategory === cat.key ? 'active' : ''}`}
-                    onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: activeSection, category: cat.key })}
+                    onMouseEnter={() => setHoveredSubmenu({
+                      menu: 'ims',
+                      section: activeSection,
+                      action: activeAction,
+                      category: cat.key
+                    })}
                   >
                     {cat.label}
                   </button>
@@ -513,13 +591,172 @@ const Dashboard = () => {
             </div>
           )}
           {activeCategory && (
+            <div className="hover-panel nested-panel third">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">{activeCategoryMeta?.label}</div>
+                {items.map((item) => (
+                  <div key={`${activeSection}-${activeCategory}-${item.key}`} className="hover-panel-subitem">
+                    {item.label}
+                  </div>
+                ))}
+                {items.length === 0 && <div className="hover-panel-subitem muted">No PO codes</div>}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (hoveredMenu === 'tasks') {
+      const poTypes = [
+        { label: 'Production', key: 'production', type: 'Production' },
+        { label: 'Sampling', key: 'sampling', type: 'Sampling' },
+        { label: 'Company', key: 'company', type: 'Company' },
+      ];
+      const departments = ['Department 1', 'Department 2', 'Department 3'];
+      const users = ['User 1', 'User 2', 'User 3'];
+      const priorities = ['Low', 'Medium', 'High', 'Urgent'];
+
+      const activeAction = hoveredSubmenu?.menu === 'tasks' ? hoveredSubmenu.action : null;
+      const activeType = hoveredSubmenu?.menu === 'tasks' ? hoveredSubmenu.type : null;
+      const activeIpo = hoveredSubmenu?.menu === 'tasks' ? hoveredSubmenu.ipo : null;
+      const activeDepartment = hoveredSubmenu?.menu === 'tasks' ? hoveredSubmenu.department : null;
+      const activeUser = hoveredSubmenu?.menu === 'tasks' ? hoveredSubmenu.user : null;
+
+      const activeTypeMeta = poTypes.find((t) => t.key === activeType);
+      const ipoItems = activeTypeMeta ? getIpoItems(activeTypeMeta.type) : [];
+
+      return (
+        <div className="hover-panel-group" ref={hoverPanelRef} onMouseLeave={() => setHoveredSubmenu(null)}>
+          <div className="hover-panel">
+            <div className="hover-panel-column">
+              <div className="hover-panel-title">Tasks</div>
+              <button
+                type="button"
+                className={`hover-panel-item ${activeAction === 'assign' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'tasks', action: 'assign', type: null, ipo: null, department: null, user: null })}
+              >
+                Assign Tasks
+              </button>
+            </div>
+          </div>
+
+          {activeAction && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Select PO Type</div>
+                {poTypes.map((po) => (
+                  <button
+                    key={po.key}
+                    type="button"
+                    className={`hover-panel-item ${activeType === po.key ? 'active' : ''}`}
+                    onMouseEnter={() => setHoveredSubmenu({
+                      menu: 'tasks',
+                      action: activeAction,
+                      type: po.key,
+                      ipo: null,
+                      department: null,
+                      user: null
+                    })}
+                  >
+                    {po.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeType && (
             <div className="hover-panel nested-panel second">
               <div className="hover-panel-column">
-                <div className="hover-panel-title">{categories.find((c) => c.key === activeCategory)?.label}</div>
-                {items.map((ipo) => (
-                  <div key={`${activeSection}-${ipo.ipoCode}`} className="hover-panel-subitem">{ipo.ipoCode}</div>
+                <div className="hover-panel-title">Select IPO</div>
+                {ipoItems.map((ipo) => (
+                  <button
+                    key={ipo.key}
+                    type="button"
+                    className={`hover-panel-item ${activeIpo === ipo.key ? 'active' : ''}`}
+                    onMouseEnter={() => setHoveredSubmenu({
+                      menu: 'tasks',
+                      action: activeAction,
+                      type: activeType,
+                      ipo: ipo.key,
+                      department: null,
+                      user: null
+                    })}
+                  >
+                    {ipo.label}
+                  </button>
                 ))}
-                {items.length === 0 && <div className="hover-panel-subitem muted">No IPOs</div>}
+                {ipoItems.length === 0 && <div className="hover-panel-subitem muted">No IPOs</div>}
+              </div>
+            </div>
+          )}
+
+          {activeIpo && (
+            <div className="hover-panel nested-panel third">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Select Department</div>
+                {departments.map((dept) => (
+                  <button
+                    key={dept}
+                    type="button"
+                    className={`hover-panel-item ${activeDepartment === dept ? 'active' : ''}`}
+                    onMouseEnter={() => setHoveredSubmenu({
+                      menu: 'tasks',
+                      action: activeAction,
+                      type: activeType,
+                      ipo: activeIpo,
+                      department: dept,
+                      user: null
+                    })}
+                  >
+                    {dept}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeDepartment && (
+            <div className="hover-panel nested-panel fourth">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Users</div>
+                {users.map((user) => (
+                  <button
+                    key={user}
+                    type="button"
+                    className={`hover-panel-item ${activeUser === user ? 'active' : ''}`}
+                    onMouseEnter={() => setHoveredSubmenu({
+                      menu: 'tasks',
+                      action: activeAction,
+                      type: activeType,
+                      ipo: activeIpo,
+                      department: activeDepartment,
+                      user
+                    })}
+                  >
+                    {user}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeUser && (
+            <div className="hover-panel nested-panel fifth">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Define Task</div>
+                <input className="hover-panel-input" placeholder="Define task" />
+                <input className="hover-panel-input" placeholder="Add sub task" />
+                <input className="hover-panel-input" placeholder="Remarks" />
+                <input className="hover-panel-input" placeholder="Due date" />
+                <div className="hover-panel-subtitle">Priority</div>
+                {priorities.map((priority) => (
+                  <button key={priority} type="button" className="hover-panel-subitem">
+                    {priority}
+                  </button>
+                ))}
+                <button type="button" className="hover-panel-action">Assign</button>
               </div>
             </div>
           )}

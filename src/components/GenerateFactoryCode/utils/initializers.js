@@ -14,6 +14,7 @@ export const initializeRawMaterials = (formData) => {
         materialDescription: '',
         netConsumption: '',
         unit: component.unit || '',
+        qualityVerification: 'No',
         materialType: '', // 'Yarn' or 'Fabric'
         fiberType: '',
         yarnType: '',
@@ -56,6 +57,7 @@ export const initializeRawMaterials = (formData) => {
           remarks: '',
           design: '',
           imageRef: null,
+          qualityVerification: 'No',
           machineType: '',
           reed: '',
           pick: '',
@@ -113,6 +115,7 @@ export const initializeConsumptionMaterials = (formData) => {
       materialDescription: '',
       netConsumption: '',
       unit: '',
+      qualityVerification: 'No',
       workOrder: '',
       wastage: '',
       forField: '',
@@ -133,6 +136,7 @@ export const initializeConsumptionMaterials = (formData) => {
       materialDescription: material.materialDescription || '',
       netConsumption: material.netConsumption || '',
       unit: material.unit || '',
+      qualityVerification: material.qualityVerification || 'No',
       workOrder: material.workOrders?.[0]?.workOrder || '',
       wastage: material.workOrders?.[0]?.wastage || '',
       forField: material.workOrders?.[0]?.forField || '',
@@ -149,4 +153,3 @@ export const initializeConsumptionMaterials = (formData) => {
   }).filter(Boolean); // Remove any null entries
   return consumptionMaterials;
 };
-
