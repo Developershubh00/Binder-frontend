@@ -314,41 +314,9 @@ const Step4 = ({
               )}
             </div>
 
-            {/* Row 1: Material Desc, Net CNS, Unit (component is fixed by selection) */}
+            {/* Row 1: Net CNS (component is fixed by selection) */}
             <div style={{ marginBottom: '24px' }}>
               <div className="flex flex-wrap items-start gap-3">
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    MATERIAL DESC <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={material.materialDescription}
-                    onChange={(e) => handleArtworkMaterialChange(actualIndex, 'materialDescription', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
-                      errors[`artworkMaterial_${actualIndex}_materialDescription`] 
-                        ? 'border-red-600' 
-                        : 'border-border focus:border-primary focus:outline-none'
-                    }`}
-                    style={{ padding: '10px 14px', width: '180px', height: '44px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${actualIndex}_materialDescription`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="e.g., Care Label"
-                    required
-                  />
-                  {errors[`artworkMaterial_${actualIndex}_materialDescription`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${actualIndex}_materialDescription`]}
-                    </span>
-                  )}
-                </div>
-                
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-2">
                     NET CNS/PC <span className="text-red-600">*</span>
@@ -381,103 +349,7 @@ const Step4 = ({
                     </span>
                   )}
                 </div>
-                
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    UNIT <span className="text-red-600">*</span>
-                  </label>
-                  <SearchableDropdown
-                    value={material.unit || ''}
-                    onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'unit', selectedValue)}
-                    options={['CM', 'KGS', 'PCS']}
-                    strictMode
-                    placeholder="CM"
-                    className={errors[`artworkMaterial_${actualIndex}_unit`] 
-                      ? 'border-red-600' 
-                      : ''}
-                    style={{ width: '130px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${actualIndex}_unit`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                  />
-                  {errors[`artworkMaterial_${actualIndex}_unit`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${actualIndex}_unit`]}
-                    </span>
-                  )}
-                </div>
               </div>
-              
-              {/* PLACEMENT and WORK ORDER Row */}
-              <div style={{ marginBottom: '24px', marginTop: '24px' }}>
-                <div className="flex flex-wrap items-start gap-4">
-                  <div className="flex flex-col" style={{ flex: 1, minWidth: '300px', maxWidth: '600px' }}>
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    PLACEMENT <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={material.placement}
-                    onChange={(e) => handleArtworkMaterialChange(actualIndex, 'placement', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
-                      errors[`artworkMaterial_${actualIndex}_placement`] 
-                        ? 'border-red-600' 
-                        : 'border-border focus:border-primary focus:outline-none'
-                    }`}
-                    style={{ padding: '12px 16px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${actualIndex}_placement`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="2&quot; FROM RIGHT CORNER AT FLAP"
-                    required
-                  />
-                  {errors[`artworkMaterial_${actualIndex}_placement`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${actualIndex}_placement`]}
-                    </span>
-                  )}
-              </div>
-              
-                    <div className="flex flex-col" style={{ width: '180px' }}>
-                      <label className="text-sm font-semibold text-gray-700 mb-2">
-                      WORK ORDER <span className="text-red-600">*</span>
-                      </label>
-                    <SearchableDropdown
-                      value={material.workOrder || ''}
-                      onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'workOrder', selectedValue)}
-                      options={["WEAVING", "TUFTING", "QUILTING", "PRINTING", "KNITTING", "EMBROIDERY", "DYEING", "BRAIDING", "CARPET", "CUTTING" , "SEWING" , "FRINGE/TASSELS"]}
-                      placeholder="Select or type Work Order"
-                      className={errors[`artworkMaterial_${actualIndex}_workOrder`] 
-                        ? 'border-red-600' 
-                        : ''}
-                      onFocus={(e) => {
-                        if (!errors[`artworkMaterial_${actualIndex}_workOrder`]) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
-                    />
-                    {errors[`artworkMaterial_${actualIndex}_workOrder`] && (
-                        <span className="text-red-600 text-xs mt-1 font-medium">
-                        {errors[`artworkMaterial_${actualIndex}_workOrder`]}
-                        </span>
-                      )}
-                  </div>
-                </div>
-                    </div>
-                    
               {/* ARTWORK CATEGORY SELECTOR */}
               <div className="w-full" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
                 <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>

@@ -3132,11 +3132,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
       const errorPrefix = `artworkMaterial_${materialIndex}`;
       const hasAnyData = material.components?.trim() ||
-        material.materialDescription?.trim() ||
         material.netConsumption?.toString().trim() ||
-        material.unit?.trim() ||
-        material.placement?.trim() ||
-        material.workOrder?.trim() ||
         material.artworkCategory?.trim();
 
       if (!hasAnyData) return;
@@ -3144,20 +3140,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       if (isEmpty(material.components)) {
         newErrors[`${errorPrefix}_components`] = 'Component is required';
       }
-      if (isEmpty(material.materialDescription)) {
-        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
-      }
       if (isEmpty(material.netConsumption)) {
         newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
-      }
-      if (isEmpty(material.unit)) {
-        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
-      }
-      if (isEmpty(material.placement)) {
-        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
-      }
-      if (isEmpty(material.workOrder)) {
-        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
       }
 
       const artworkCategory = material.artworkCategory?.toString().trim();
@@ -3183,11 +3167,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     // Only validate materials that have a component and have data entered (don't require material 0 or others to be filled)
     const materialsWithData = materials.filter((material) => {
       const hasAnyData = material.components?.trim() ||
-        material.materialDescription?.trim() ||
         material.netConsumption?.toString().trim() ||
-        material.unit?.trim() ||
-        material.placement?.trim() ||
-        material.workOrder?.trim() ||
         material.artworkCategory?.trim();
       return hasAnyData;
     });
@@ -3211,20 +3191,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       if (isEmpty(material.components)) {
         newErrors[`${errorPrefix}_components`] = 'Component is required';
       }
-      if (isEmpty(material.materialDescription)) {
-        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
-      }
       if (isEmpty(material.netConsumption)) {
         newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
-      }
-      if (isEmpty(material.unit)) {
-        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
-      }
-      if (isEmpty(material.placement)) {
-        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
-      }
-      if (isEmpty(material.workOrder)) {
-        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
       }
 
       const artworkCategory = material.artworkCategory?.toString().trim();
@@ -3286,11 +3254,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         };
       }
 
-      // Clear width and size when unit changes away from R.Mtr
-      if (field === 'unit' && value !== 'R.Mtr' && value !== 'R METER' && value !== 'R METERS') {
-        updatedMaterials[materialIndex].width = '';
-        updatedMaterials[materialIndex].size = '';
-      }
       return { ...stepData, artworkMaterials: updatedMaterials };
     });
     
@@ -3303,15 +3266,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         return newErrors;
       });
     }
-    // Clear width and size errors when unit changes
-    if (field === 'unit') {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[`artworkMaterial_${materialIndex}_width`];
-        delete newErrors[`artworkMaterial_${materialIndex}_size`];
-        return newErrors;
-      });
-    }
+      // Unit field removed from artwork header; no unit-based error clearing needed.
   };
 
   const addArtworkMaterial = (componentName = '') => {
