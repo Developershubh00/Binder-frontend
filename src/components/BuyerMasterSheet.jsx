@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getBuyerCodes } from '../../integration';
+import { getBuyerCodes } from '../services/integration';
 
 const BuyerMasterSheet = ({ onBack }) => {
   const [buyers, setBuyers] = useState([]);

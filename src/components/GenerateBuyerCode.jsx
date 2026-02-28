@@ -447,6 +447,7 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-layout';
+import { getBuyerCodes, createBuyerCode } from '../services/integration';
 
 const GenerateBuyerCode = ({ onBack }) => {
   const [formData, setFormData] = useState({

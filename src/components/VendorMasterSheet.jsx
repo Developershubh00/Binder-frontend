@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getVendorCodes } from '../../integration';
+import { getVendorCodes } from '../services/integration';
 
 const VendorMasterSheet = ({ onBack }) => {
   const [vendors, setVendors] = useState([]);

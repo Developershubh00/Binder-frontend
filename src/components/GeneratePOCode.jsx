@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getBuyerCodes, getVendorCodes, createPurchaseOrder } from '../services/integration';
 
 const GeneratePOCode = ({ onBack }) => {
   const [formData, setFormData] = useState({

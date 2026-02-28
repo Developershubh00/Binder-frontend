@@ -6,6 +6,7 @@ import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 // Dialog removed: IPO success is shown inline like Buyer/Vendor
 import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
+import { getIPOs, createIPO, getBuyerCodes } from '../../services/integration';
 
 const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const [showInitialScreen, setShowInitialScreen] = useState(true);

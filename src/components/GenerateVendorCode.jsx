@@ -5,6 +5,7 @@ import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FormCard } from '@/components/ui/form-layout';
+import { getVendorCodes, createVendorCode } from '../services/integration';
 
 // Premium Multi-Select Component
 const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholder, error }) => {

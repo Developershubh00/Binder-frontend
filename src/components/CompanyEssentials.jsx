@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormCard, FormRow, FullscreenContent } from '@/components/ui/form-layout';
 import { cn } from '@/lib/utils';
+import { getCompanyEssentials, createCompanyEssential } from '../services/integration';
 
 const CompanyEssentials = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('');

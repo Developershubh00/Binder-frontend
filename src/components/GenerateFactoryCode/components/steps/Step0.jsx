@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { PercentInput } from '@/components/ui/percent-input';
 import { Field } from '@/components/ui/field';
 import { cn } from '@/lib/utils';
+import { getBuyerCodes } from '../../../../services/integration';
 
 const Step0 = ({
   formData, 
