@@ -2745,6 +2745,13 @@ export const formsConfig = {
   // ═══════════════════════════════════════════════════════════
 
   // 1. YARN
+
+
+    // ═══════════════════════════════════════════════════════════
+  // CATEGORY: YARN & FABRIC (CORRECTED - DROPDOWN IN DEFECT)
+  // ═══════════════════════════════════════════════════════════
+
+  // 1. YARN
   yarn: {
     title: 'UQR - YARN',
     sections: [
@@ -2774,26 +2781,10 @@ export const formsConfig = {
         ]
       },
       {
-        title: 'Inspection Parameters', // Specific fields for Yarn
+        title: 'Final Metrics',
         fields: [
-          { name: 'yarnWeightFound', label: 'YARN WEIGHT FOUND (20 MTR LACE)', type: 'text' },
-          { name: 'tpi', label: 'TPI', type: 'text' },
-          { name: 'twist', label: 'TWIST', type: 'text' },
-          { name: 'defectMajor', label: 'DEFECT MAJOR', type: 'number' },
-          { name: 'defectMinor', label: 'DEFECT MINOR', type: 'number' },
-          { 
-            name: 'findings', 
-            label: 'FINDINGS', 
-            type: 'select', 
-            options: ['Un-even', 'Contamination', 'Stained', 'Faded', 'Cone Damaged'] 
-          },
           { name: 'avgWeightDiff', label: 'AVG WEIGHT DIFFERENCE FOUND', type: 'text' },
-          { name: 'moisturePercentage', label: 'MOISTURE %AGE', type: 'text' }
-        ]
-      },
-      {
-        title: 'Result',
-        fields: [
+          { name: 'moisturePercentage', label: 'MOISTURE %AGE', type: 'text' },
           { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
@@ -2809,7 +2800,20 @@ export const formsConfig = {
         { name: 'count', label: 'COUNT', type: 'text' },
         { name: 'doubling', label: 'DOUBLING', type: 'text' },
         { name: 'ply', label: 'PLY', type: 'text' },
-        { name: 'winding', label: 'WINDING', type: 'text' }
+        { name: 'winding', label: 'WINDING', type: 'text' },
+        { name: 'yarnWeightFound', label: 'YARN WEIGHT FOUND (20 MTR LACE)', type: 'text' },
+        { name: 'tpi', label: 'TPI', type: 'text' },
+        { name: 'twist', label: 'TWIST', type: 'text' },
+        // DROPDOWN IN DEFECT
+        { 
+          name: 'defect', 
+          label: 'DEFECT', 
+          type: 'select', 
+          options: ['Un-even', 'Contamination', 'Stained', 'Faded', 'Cone Damaged'] 
+        },
+        { name: 'major', label: 'MAJOR', type: 'number' },
+        { name: 'minor', label: 'MINOR', type: 'number' },
+        { name: 'findings', label: 'Findings', type: 'text' }
       ]
     }
   },
@@ -2851,7 +2855,7 @@ export const formsConfig = {
         ]
       },
       {
-        title: 'Inspection Result',
+        title: 'Final Metrics',
         fields: [
           { name: 'moisturePercentage', label: 'MOISTURE %AGE', type: 'text' },
           { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
@@ -2861,7 +2865,7 @@ export const formsConfig = {
       }
     ],
     tableConfig: {
-      title: 'USN (UNIT SEQUENCE #) - Fabric Inspection',
+      title: 'USN (UNIT SEQUENCE #)',
       columns: [
         { name: 'usn', label: 'USN', type: 'text' },
         { name: 'fiberType', label: 'FIBER TYPE', type: 'text' },
@@ -2872,16 +2876,22 @@ export const formsConfig = {
         { name: 'weaveKnitType', label: 'WEAVE/KNIT TYPE', type: 'text' },
         { name: 'fiberCategory', label: 'FIBER CATEGORY', type: 'text' },
         { name: 'origin', label: 'ORIGIN', type: 'text' },
-        { name: 'widthDefect', label: 'WIDTH DEFECT', type: 'text' },
-        { name: 'lengthDefect', label: 'LENGTH DEFECT', type: 'text' },
-        { name: 'major', label: 'MAJOR', type: 'number' },
-        { name: 'minor', label: 'MINOR', type: 'number' },
-        { name: 'findings', label: 'FINDINGS', type: 'text' },
-        { name: 'attachRefImage', label: 'ATTACH REF IMAGE', type: 'text' },
-        { name: 'lengthMeter', label: 'LENGTH (METER)', type: 'number' }
+        { name: 'width', label: 'Width', type: 'text' },
+        { name: 'defectAtMtr', label: 'Defect at MTR', type: 'text' },
+        { name: 'length', label: 'Length', type: 'text' },
+        // DROPDOWN IN DEFECT
+        { 
+          name: 'defect', 
+          label: 'Defect', 
+          type: 'select', 
+          options: ['Fabric Damage', 'Stain', 'Stain Patch', 'Weaving Line', 'Cut/Hole'] 
+        },
+        { name: 'major', label: 'Major', type: 'number' },
+        { name: 'minor', label: 'Minor', type: 'number' },
+        { name: 'findings', label: 'Findings', type: 'text' },
+        { name: 'attachRefImage', label: 'Attach Ref Image', type: 'text' }
       ]
     }
   }
-
   
 };
