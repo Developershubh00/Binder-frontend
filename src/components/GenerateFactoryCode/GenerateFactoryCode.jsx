@@ -2374,18 +2374,18 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         // Generate IPC code - main is always IPC-{digit}, no SP; subproducts use IPC-{digit}/SP-{n}
         const ipcCode = `CHD/${buyerCode}/PO-${poSrNo}/IPC-${ipcNumber}`;
         
-        // Update subproducts with the same IPC code as the main product
-        const updatedSubproducts = sku.subproducts?.map((subproduct) => {
+        // Subproducts always get base/SP-{n} - never same as main product
+        const updatedSubproducts = sku.subproducts?.map((subproduct, spIndex) => {
           return {
             ...subproduct,
-            ipcCode: ipcCode // Same IPC code as main product
+            ipcCode: `${ipcCode}/SP-${spIndex + 1}`
           };
         }) || [];
         
         return {
           ...sku,
           subproducts: updatedSubproducts,
-          ipcCode: ipcCode // Same IPC code for product and all subproducts
+          ipcCode: ipcCode
         };
       });
       

@@ -817,7 +817,7 @@ const Dashboard = () => {
               key={item.id}
               className={`nav-item ${activePage === item.id ? 'active' : ''}`}
               onClick={() => {
-                if (item.id === 'home' || item.id === 'tasks' || item.id === 'uqr-forms') {
+                if (item.id === 'home' || item.id === 'tasks' || item.id === 'uqr-forms' || item.id === 'purchase') {
                   setActivePage(item.id);
                   setHoveredMenu(null);
                   return;

@@ -253,9 +253,9 @@ const ConsumptionSheet = ({ formData = {} }) => {
         });
       }
 
-      // Check subproducts
+      // Check subproducts - subproduct IPC is always base/SP-{n}, never same as main
       sku.subproducts?.forEach((subproduct, spIndex) => {
-        const subproductIpc = subproduct.ipcCode || `${ipcCode.replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
+        const subproductIpc = `${(ipcCode || '').replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
         if (productSelection.includes(subproductIpc)) {
           subproduct.stepData?.products?.forEach((product) => {
             mergedItems.push({
@@ -544,29 +544,30 @@ const ConsumptionSheet = ({ formData = {} }) => {
   const buildPurchaseSharePayload = () => {
     const ipcs = [];
     const addIpc = (ipcCode, stepData) => {
-      if (!ipcCode || !stepData) return;
+      if (!ipcCode) return;
+      const sd = stepData || {};
       const rawSet = new Set();
-      (stepData.rawMaterials || []).forEach((m) => {
+      (sd.rawMaterials || []).forEach((m) => {
         if (!isRawMaterialCompleteForCns(m)) return;
         const label = m.materialDescription || m.materialType || '';
         if (label) rawSet.add(label);
       });
 
       const trimSet = new Set();
-      (stepData.consumptionMaterials || []).forEach((m) => {
+      (sd.consumptionMaterials || []).forEach((m) => {
         const label = (m.materialDescription || '').trim();
         const net = (m.netConsumption || '').toString().trim();
         if (label && net) trimSet.add(label);
       });
 
       const artworkSet = new Set();
-      (stepData.artworkMaterials || []).forEach((m) => {
+      (sd.artworkMaterials || []).forEach((m) => {
         const label = (m.artworkCategory || m.material || '').toString().trim();
         if (label) artworkSet.add(label);
       });
 
       const packagingSet = new Set();
-      (stepData.packaging?.materials || []).forEach((m) => {
+      (sd.packaging?.materials || []).forEach((m) => {
         const label = formatPackagingTypeName(m.packagingMaterialType || '');
         if (label && label !== '-') packagingSet.add(label);
       });
@@ -586,7 +587,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
       const ipcCode = sku.ipcCode || `IPC-${skuIndex + 1}`;
       addIpc(ipcCode, sku.stepData);
       sku.subproducts?.forEach((subproduct, spIndex) => {
-        const spCode = subproduct.ipcCode || `${ipcCode.replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
+        const spCode = `${(ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
         addIpc(spCode, subproduct.stepData);
       });
     });
@@ -643,7 +644,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
             skuIndex,
             spIndex,
             productIndex,
-            ipcCode: subproduct.ipcCode || `${(sku.ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`,
+            ipcCode: `${(sku.ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`,
             productName: product.name || subproduct.subproduct || '',
             setOf: sku.setOf || '',
             poQty: subproduct.poQty,

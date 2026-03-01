@@ -125,37 +125,40 @@ const PurchaseContent = () => {
                     </button>
                     {openCodes[entry.code] && (
                       <div className="purchase-children">
-                        {(entry.ipcs || []).map((ipc) => (
-                          <div key={`${entry.code}-${ipc.ipcCode}`} className="purchase-node">
-                            <button className="purchase-toggle" onClick={() => toggle(setOpenIpcs, `${entry.code}-${ipc.ipcCode}`)}>
-                              <span>{ipc.ipcCode}</span>
-                              <span className={`purchase-arrow ${openIpcs[`${entry.code}-${ipc.ipcCode}`] ? 'open' : ''}`}>▸</span>
-                            </button>
-                            {openIpcs[`${entry.code}-${ipc.ipcCode}`] && (
-                              <div className="purchase-children">
-                                {[
-                                  { key: 'rawMaterials', label: 'Raw Materials' },
-                                  { key: 'trimsAccessory', label: 'Trims & Accessory' },
-                                  { key: 'artworkLabeling', label: 'Artwork & Labeling' },
-                                  { key: 'packaging', label: 'Packaging' }
-                                ].map((cat) => {
-                                  const items = ipc.categories?.[cat.key] || [];
-                                  if (items.length === 0) return null;
-                                  const catKey = `${entry.code}-${ipc.ipcCode}-${cat.key}`;
-                                  return (
-                                    <div key={catKey} className="purchase-node">
-                                      <button className="purchase-toggle" onClick={() => toggle(setOpenCategories, catKey)}>
-                                        <span>{cat.label}</span>
-                                        <span className={`purchase-arrow ${openCategories[catKey] ? 'open' : ''}`}>▸</span>
-                                      </button>
-                                      {openCategories[catKey] && renderItems(entry, ipc.ipcCode, cat.key, items)}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                        {(entry.ipcs || []).map((ipc, ipcIdx) => {
+                          const ipcKey = `${entry.code}-ipc-${ipcIdx}`;
+                          return (
+                            <div key={ipcKey} className="purchase-node">
+                              <button className="purchase-toggle" onClick={() => toggle(setOpenIpcs, ipcKey)}>
+                                <span>{ipc.ipcCode}</span>
+                                <span className={`purchase-arrow ${openIpcs[ipcKey] ? 'open' : ''}`}>▸</span>
+                              </button>
+                              {openIpcs[ipcKey] && (
+                                <div className="purchase-children">
+                                  {[
+                                    { key: 'rawMaterials', label: 'Raw Materials' },
+                                    { key: 'trimsAccessory', label: 'Trims & Accessory' },
+                                    { key: 'artworkLabeling', label: 'Artwork & Labeling' },
+                                    { key: 'packaging', label: 'Packaging' }
+                                  ].map((cat) => {
+                                    const items = ipc.categories?.[cat.key] || [];
+                                    if (items.length === 0) return null;
+                                    const catKey = `${ipcKey}-${cat.key}`;
+                                    return (
+                                      <div key={catKey} className="purchase-node">
+                                        <button className="purchase-toggle" onClick={() => toggle(setOpenCategories, catKey)}>
+                                          <span>{cat.label}</span>
+                                          <span className={`purchase-arrow ${openCategories[catKey] ? 'open' : ''}`}>▸</span>
+                                        </button>
+                                        {openCategories[catKey] && renderItems(entry, ipc.ipcCode, cat.key, items)}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
