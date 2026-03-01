@@ -35,6 +35,7 @@ import { X } from 'lucide-react';
 
 const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const scrollContainerRef = useRef(null);
+  const consumptionSheetRef = useRef(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedSku, setSelectedSku] = useState('product_0'); // Format: 'product_0' or 'subproduct_0_1'
   const [flowPhase, setFlowPhase] = useState('step0'); // 'step0' | 'ipcSelector' | 'ipcFlow' | 'packaging'
@@ -57,6 +58,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const [showPackagingBlockPrompt, setShowPackagingBlockPrompt] = useState(false); // "Fill all IPCs" when user clicks Proceed to Packaging
   const [showFactoryCodePopup, setShowFactoryCodePopup] = useState(false);
   const [showConsumptionSheet, setShowConsumptionSheet] = useState(false);
+  const [showShareSuccessPopup, setShowShareSuccessPopup] = useState(false);
   const [shippingGroups, setShippingGroups] = useState({}); // { "0-product": 1, "0-sp-0": 2, ... } -> itemId -> groupNum
   const [validationErrorsPopup, setValidationErrorsPopup] = useState({
     open: false,
@@ -5371,13 +5373,23 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         <>
           {/* Consumption Sheet View - Just the sheet, no extra header */}
           <div className="mb-8 mx-auto min-w-0 w-[92vw]" style={{ maxWidth: '2000px' }}>
-            {/* Close Button */}
-            <div className="flex justify-end mb-4 px-2 sm:px-0">
+            {/* Close + Share Buttons */}
+            <div className="flex justify-end gap-3 mb-4 px-2 sm:px-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const ok = consumptionSheetRef.current?.shareToPurchase?.();
+                  if (ok) setShowShareSuccessPopup(true);
+                }}
+              >
+                Share to Purchase Department
+              </Button>
               <Button type="button" onClick={() => setShowConsumptionSheet(false)} variant="default">
                 Close
               </Button>
             </div>
-            <ConsumptionSheet formData={formData} />
+            <ConsumptionSheet ref={consumptionSheetRef} formData={formData} />
           </div>
         </>
       )}
@@ -5410,12 +5422,22 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           <div className="flex flex-col gap-6 px-3 sm:px-6 py-6 flex-1 overflow-y-auto overflow-x-hidden min-h-0 min-w-0">
             {/* Consumption Sheet */}
             <div className="rounded-xl border border-border overflow-hidden min-w-0 max-w-full">
-              <ConsumptionSheet formData={formData} />
+              <ConsumptionSheet ref={consumptionSheetRef} formData={formData} />
             </div>
 
           </div>
 
-          <div className="flex justify-end px-3 sm:px-6 py-5 border-t border-border bg-white flex-shrink-0 min-w-0">
+          <div className="flex justify-end gap-3 px-3 sm:px-6 py-5 border-t border-border bg-white flex-shrink-0 min-w-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                const ok = consumptionSheetRef.current?.shareToPurchase?.();
+                if (ok) setShowShareSuccessPopup(true);
+              }}
+            >
+              Share to Purchase Department
+            </Button>
             <Button type="button" onClick={() => setShowFactoryCodePopup(false)} variant="default">
               Done
             </Button>
@@ -5423,6 +5445,33 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         </DialogContent>
       </Dialog>
 
+      {/* Share to Purchase Success Dialog */}
+      <Dialog open={showShareSuccessPopup} onOpenChange={setShowShareSuccessPopup}>
+        <DialogContent className="max-w-md" showCloseButton={true}>
+          <div className="flex flex-col items-center text-center" style={{padding: '32px'}}>
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mb-4">
+              ✓
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Shared to Purchase Department</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground " style={{marginTop: '6px'}}>Consumption sheet has been shared successfully.</p>
+            <Button
+              type="button"
+              className="mt-6 min-w-[140px]"
+              style={{marginTop: '16px'}}
+              onClick={() => {
+                setShowShareSuccessPopup(false);
+                setShowFactoryCodePopup(false);
+                setShowConsumptionSheet(false);
+                onNavigateToCodeCreation?.();
+              }}
+            >
+              OK
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Validation Errors Dialog */}
       <ValidationErrorsDialog

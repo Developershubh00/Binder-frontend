@@ -244,7 +244,7 @@ const Dashboard = () => {
           return (
             <InternalPurchaseOrder
               onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
-              onNavigateToCodeCreation={() => setActivePage('code-creation')}
+              onNavigateToCodeCreation={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
               onNavigateToIPO={() => setActivePage('code-creation')}
             />
           );

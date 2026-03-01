@@ -1,5 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useMemo, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TRIM_ACCESSORY_SCHEMAS } from '@/utils/validationSchemas';
 
 /**
@@ -21,7 +20,7 @@ import { TRIM_ACCESSORY_SCHEMAS } from '@/utils/validationSchemas';
  * - Row 6: Work Orders
  * - Row 7: Artwork (after work orders, per component)
  */
-const ConsumptionSheet = ({ formData = {} }) => {
+const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
   const PURCHASE_SHARE_KEY = 'purchaseSharedData';
   // Single layout on screen: only mobile OR desktop (avoids duplicate render)
   const [isMobileCns, setIsMobileCns] = useState(false);
@@ -603,7 +602,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
 
   const handleShareToPurchase = () => {
     const payload = buildPurchaseSharePayload();
-    if (!payload.code) return;
+    if (!payload.code) return false;
     const existing = JSON.parse(localStorage.getItem(PURCHASE_SHARE_KEY) || '[]');
     const next = Array.isArray(existing) ? [...existing] : [];
     const idx = next.findIndex((entry) => entry.code === payload.code && entry.orderType === payload.orderType);
@@ -613,7 +612,12 @@ const ConsumptionSheet = ({ formData = {} }) => {
       next.push(payload);
     }
     localStorage.setItem(PURCHASE_SHARE_KEY, JSON.stringify(next));
+    return true;
   };
+
+  useImperativeHandle(ref, () => ({
+    shareToPurchase: handleShareToPurchase
+  }), [formData.skus, formData.ipoCode, formData.buyerCode, formData.orderType]);
 
   // Build flat list: IPC → Product/Subproduct → Components (in form order)
   const allProducts = useMemo(() => {
@@ -1516,13 +1520,10 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
           <div className="text-center py-12 text-muted-foreground">No products found. Please complete previous steps first.</div>
         )}
       </div>
-      <div className="mt-6 flex justify-end">
-        <Button type="button" onClick={handleShareToPurchase}>
-          Share to Purchase Department
-        </Button>
-      </div>
     </div>
   );
-};
+});
+
+ConsumptionSheet.displayName = 'ConsumptionSheet';
 
 export default ConsumptionSheet;
