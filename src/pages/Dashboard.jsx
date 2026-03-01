@@ -8,10 +8,12 @@ import GenerateVendorCode from '../components/GenerateVendorCode';
 import CompanyEssentials from '../components/CompanyEssentials';
 import InternalPurchaseOrder from '../components/InternalPurchaseOrder/InternalPurchaseOrder';
 import GeneratePOCode from '../components/GeneratePOCode';
+import UQRFormsPreview from '../components/UQR_forms/UQRFormsPreview.jsx';
 import {
   Menu,
   Home,
-  Calculator
+  Calculator,
+  FileText
 } from 'lucide-react';
 import './Dashboard.css';
 
@@ -209,6 +211,7 @@ const Dashboard = () => {
   const getMenuItems = () => {
     return [
       { id: 'home', label: 'Home', icon: Home },
+      { id: 'uqr-forms', label: 'UQR Forms', icon: FileText },
       { id: 'tasks', label: 'Tasks', icon: Stack3Icon },
       { id: 'code-creation', label: 'Code Creation', icon: FingerprintScanIcon },
       { id: 'ipo-issued', label: 'IPO Issued', icon: ReceiptIcon },
@@ -221,6 +224,8 @@ const Dashboard = () => {
     switch (activePage) {
       case 'home':
         return <HomeContent user={user} />;
+      case 'uqr-forms':
+        return <UQRFormsPreview />;
       case 'tasks':
         return <TasksContent initialView={tasksView} />;
       case 'purchase':
@@ -340,7 +345,7 @@ const Dashboard = () => {
   }, [hoveredMenu]);
 
   useEffect(() => {
-    if (activePage === 'home' || activePage === 'tasks') {
+    if (activePage === 'home' || activePage === 'tasks' || activePage === 'uqr-forms') {
       setHoveredMenu(null);
     }
   }, [activePage]);
@@ -812,7 +817,7 @@ const Dashboard = () => {
               key={item.id}
               className={`nav-item ${activePage === item.id ? 'active' : ''}`}
               onClick={() => {
-                if (item.id === 'home' || item.id === 'tasks') {
+                if (item.id === 'home' || item.id === 'tasks' || item.id === 'uqr-forms') {
                   setActivePage(item.id);
                   setHoveredMenu(null);
                   return;
