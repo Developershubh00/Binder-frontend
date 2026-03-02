@@ -890,7 +890,6 @@ const GenerateBuyerCode = ({ onBack }) => {
               borderRadius: '8px',
               padding: '16px 20px',
               maxWidth: '480px',
-              marginTop: '16px'
             }}
           >
             <span style={{ fontSize: '12px', fontWeight: '500', color: '#000', letterSpacing: '0.5px' }}>

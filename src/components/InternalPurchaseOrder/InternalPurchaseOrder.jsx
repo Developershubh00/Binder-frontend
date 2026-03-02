@@ -289,6 +289,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   if (!showInitialScreen) {
     return (
       <GenerateFactoryCode 
+        key={`${initialData.ipoCode || ''}-${initialData.programName || ''}-${initialData.buyerCode || ''}-${initialData.type || ''}`}
         onBack={onBack}
         initialFormData={initialData}
         onNavigateToCodeCreation={onNavigateToCodeCreation}
@@ -410,8 +411,8 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
                   value={initialData.buyerCode}
                   onChange={handleBuyerCodeChange}
                   options={buyerCodeOptions}
-                  placeholder="Select or type buyer code"
-                  strictMode={false}
+                  placeholder="Select buyer code"
+                  strictMode={true}
                   className={errors.buyerCode ? 'border-destructive' : ''}
                 />
               </Field>

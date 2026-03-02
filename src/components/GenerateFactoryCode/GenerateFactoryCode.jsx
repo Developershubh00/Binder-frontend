@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSidebar, SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '@/context/SidebarContext';
 import TEXTILE_FIBER_DATA from './data/textileFiberData';
 import { getFiberTypes, getYarnTypes, getSpinningMethod, getYarnDetails } from './utils/yarnHelpers';
 import { initializeRawMaterials, initializeConsumptionMaterials } from './utils/initializers';
@@ -34,7 +35,26 @@ import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 
 const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
+  const { isSidebarCollapsed } = useSidebar();
   const scrollContainerRef = useRef(null);
+  const [overlayLeft, setOverlayLeft] = useState(
+    typeof window !== 'undefined' && window.innerWidth >= 768
+      ? (isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED)
+      : 0
+  );
+  useEffect(() => {
+    const update = () => {
+      setOverlayLeft(
+        window.innerWidth >= 768
+          ? (isSidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED)
+          : 0
+      );
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [isSidebarCollapsed]);
+  const consumptionSheetRef = useRef(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedSku, setSelectedSku] = useState('product_0'); // Format: 'product_0' or 'subproduct_0_1'
   const [flowPhase, setFlowPhase] = useState('step0'); // 'step0' | 'ipcSelector' | 'ipcFlow' | 'packaging'
@@ -57,6 +77,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   const [showPackagingBlockPrompt, setShowPackagingBlockPrompt] = useState(false); // "Fill all IPCs" when user clicks Proceed to Packaging
   const [showFactoryCodePopup, setShowFactoryCodePopup] = useState(false);
   const [showConsumptionSheet, setShowConsumptionSheet] = useState(false);
+  const [showShareSuccessPopup, setShowShareSuccessPopup] = useState(false);
   const [shippingGroups, setShippingGroups] = useState({}); // { "0-product": 1, "0-sp-0": 2, ... } -> itemId -> groupNum
   const [validationErrorsPopup, setValidationErrorsPopup] = useState({
     open: false,
@@ -67,7 +88,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     orderType: initialFormData.orderType || '',
     programName: initialFormData.programName || '',
     ipoCode: initialFormData.ipoCode || '',
-    poSrNo: initialFormData.poSrNo || null,
+    poSrNo: initialFormData.poSrNo ?? null,
+    type: initialFormData.type || '', // Company orders: STOCK | SAM
     // Step 0 - Multiple SKUs
     buyerCode: initialFormData.buyerCode || '',
     skus: [{
@@ -98,7 +120,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         artworkMaterials: [{
           srNo: 1,
           materialDescription: '',
-          netConsumption: '',
           unit: '',
           placement: '',
           workOrder: '',
@@ -256,7 +277,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     artworkMaterials: [{
       srNo: 1,
       materialDescription: '',
-      netConsumption: '',
       unit: '',
       placement: '',
       workOrder: '',
@@ -496,7 +516,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   useEffect(() => {
-    const savedData = loadFromLocalStorage(initialFormData?.ipoCode);
+    // Try ipoCode-specific key first, then fallback to generic key
+    let savedData = loadFromLocalStorage(initialFormData?.ipoCode);
+    if (!savedData && initialFormData?.ipoCode) {
+      savedData = loadFromLocalStorage(null); // Fallback: generic key (legacy)
+    }
     if (!savedData) return;
 
     const hasInitialFromIPO = initialFormData?.ipoCode || (initialFormData?.programName && (initialFormData?.buyerCode || initialFormData?.type));
@@ -506,14 +530,19 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       return;
     }
 
-    const draftMatchesContext =
-      (!initialFormData?.ipoCode || savedData.ipoCode === initialFormData.ipoCode) &&
-      savedData.programName === initialFormData.programName &&
-      (initialFormData.orderType === 'Company'
-        ? savedData.type === initialFormData.type
-        : String(savedData.buyerCode || '') === String(initialFormData.buyerCode || ''));
+    // When loading by ipoCode, the storage key is unique - data belongs to this IPO.
+    // Use relaxed matching: ipoCode match + programName/buyerCode|type (with normalize for edge cases)
+    const norm = (v) => String(v ?? '').trim().toLowerCase();
+    const ipoMatch = !initialFormData?.ipoCode || (savedData.ipoCode && norm(savedData.ipoCode) === norm(initialFormData.ipoCode));
+    const programMatch = norm(savedData.programName) === norm(initialFormData.programName);
+    const contextMatch = initialFormData.orderType === 'Company'
+      ? norm(savedData.type) === norm(initialFormData.type)
+      : norm(savedData.buyerCode) === norm(initialFormData.buyerCode);
 
-    if (draftMatchesContext) {
+    if (ipoMatch && programMatch && contextMatch) {
+      setFormData(prev => ({ ...prev, ...savedData }));
+    } else if (ipoMatch) {
+      // IPO codes match (we loaded from ipoCode-specific key) - trust it even if metadata drifted
       setFormData(prev => ({ ...prev, ...savedData }));
     }
   }, []);
@@ -533,6 +562,19 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     'Artwork & Labeling',
     'Packaging'
   ];
+
+  // Init shipping groups when Factory Code popup opens
+  useEffect(() => {
+    if (!showFactoryCodePopup) return;
+    const init = {};
+    formData.skus?.forEach((sku, idx) => {
+      init[`${idx}-product`] = 1;
+      (sku.subproducts || []).forEach((_, spIdx) => {
+        init[`${idx}-sp-${spIdx}`] = 1;
+      });
+    });
+    setShippingGroups(init);
+  }, [showFactoryCodePopup]);
 
   // Update consumption materials when overage or poQty changes from Step 0
   useEffect(() => {
@@ -671,7 +713,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     artworkMaterials: [{
       srNo: 1,
       materialDescription: '',
-      netConsumption: '',
       unit: '',
       placement: '',
       workOrder: '',
@@ -1688,6 +1729,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           remarks: '',
           design: '',
           imageRef: null,
+          qualityVerification: '',
+          startDate: '',
+          dateOfCompletion: '',
           machineType: '',
           reed: '',
           pick: '',
@@ -1797,6 +1841,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         netConsumption: '',
         unit: '',
         materialType: materialType,
+        qualityVerification: '',
         workOrders: [{
           workOrder: '',
           wastage: '',
@@ -1805,6 +1850,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           remarks: '',
           design: '',
           imageRef: null,
+          qualityVerification: '',
+          startDate: '',
+          dateOfCompletion: '',
           machineType: '',
           reed: '',
           pick: '',
@@ -2371,18 +2419,18 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         // Generate IPC code - main is always IPC-{digit}, no SP; subproducts use IPC-{digit}/SP-{n}
         const ipcCode = `CHD/${buyerCode}/PO-${poSrNo}/IPC-${ipcNumber}`;
         
-        // Update subproducts with the same IPC code as the main product
-        const updatedSubproducts = sku.subproducts?.map((subproduct) => {
+        // Subproducts always get base/SP-{n} - never same as main product
+        const updatedSubproducts = sku.subproducts?.map((subproduct, spIndex) => {
           return {
             ...subproduct,
-            ipcCode: ipcCode // Same IPC code as main product
+            ipcCode: `${ipcCode}/SP-${spIndex + 1}`
           };
         }) || [];
         
         return {
           ...sku,
           subproducts: updatedSubproducts,
-          ipcCode: ipcCode // Same IPC code for product and all subproducts
+          ipcCode: ipcCode
         };
       });
       
@@ -2611,6 +2659,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           materialDescription: '',
           netConsumption: '',
           unit: '',
+          qualityVerification: '',
           placement: '',
           size: {
             width: '',
@@ -3128,32 +3177,12 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
       const errorPrefix = `artworkMaterial_${materialIndex}`;
       const hasAnyData = material.components?.trim() ||
-        material.materialDescription?.trim() ||
-        material.netConsumption?.toString().trim() ||
-        material.unit?.trim() ||
-        material.placement?.trim() ||
-        material.workOrder?.trim() ||
         material.artworkCategory?.trim();
 
       if (!hasAnyData) return;
 
       if (isEmpty(material.components)) {
         newErrors[`${errorPrefix}_components`] = 'Component is required';
-      }
-      if (isEmpty(material.materialDescription)) {
-        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
-      }
-      if (isEmpty(material.netConsumption)) {
-        newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
-      }
-      if (isEmpty(material.unit)) {
-        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
-      }
-      if (isEmpty(material.placement)) {
-        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
-      }
-      if (isEmpty(material.workOrder)) {
-        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
       }
 
       const artworkCategory = material.artworkCategory?.toString().trim();
@@ -3179,11 +3208,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     // Only validate materials that have a component and have data entered (don't require material 0 or others to be filled)
     const materialsWithData = materials.filter((material) => {
       const hasAnyData = material.components?.trim() ||
-        material.materialDescription?.trim() ||
-        material.netConsumption?.toString().trim() ||
-        material.unit?.trim() ||
-        material.placement?.trim() ||
-        material.workOrder?.trim() ||
         material.artworkCategory?.trim();
       return hasAnyData;
     });
@@ -3196,7 +3220,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       const errorPrefix = `artworkMaterial_${materialIndex}`;
       const hasAnyData = material.components?.trim() ||
         material.materialDescription?.trim() ||
-        material.netConsumption?.toString().trim() ||
         material.unit?.trim() ||
         material.placement?.trim() ||
         material.workOrder?.trim() ||
@@ -3206,21 +3229,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
       if (isEmpty(material.components)) {
         newErrors[`${errorPrefix}_components`] = 'Component is required';
-      }
-      if (isEmpty(material.materialDescription)) {
-        newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
-      }
-      if (isEmpty(material.netConsumption)) {
-        newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption is required';
-      }
-      if (isEmpty(material.unit)) {
-        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
-      }
-      if (isEmpty(material.placement)) {
-        newErrors[`${errorPrefix}_placement`] = 'Placement is required';
-      }
-      if (isEmpty(material.workOrder)) {
-        newErrors[`${errorPrefix}_workOrder`] = 'Work Order is required';
       }
 
       const artworkCategory = material.artworkCategory?.toString().trim();
@@ -3282,11 +3290,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         };
       }
 
-      // Clear width and size when unit changes away from R.Mtr
-      if (field === 'unit' && value !== 'R.Mtr' && value !== 'R METER' && value !== 'R METERS') {
-        updatedMaterials[materialIndex].width = '';
-        updatedMaterials[materialIndex].size = '';
-      }
       return { ...stepData, artworkMaterials: updatedMaterials };
     });
     
@@ -3299,15 +3302,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         return newErrors;
       });
     }
-    // Clear width and size errors when unit changes
-    if (field === 'unit') {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[`artworkMaterial_${materialIndex}_width`];
-        delete newErrors[`artworkMaterial_${materialIndex}_size`];
-        return newErrors;
-      });
-    }
+      // Unit field removed from artwork header; no unit-based error clearing needed.
   };
 
   const addArtworkMaterial = (componentName = '') => {
@@ -3324,10 +3319,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             srNo: newSrNo,
             components: componentName || '',
             materialDescription: '',
-            netConsumption: '',
             unit: '',
             placement: '',
             workOrder: '',
+            qualityVerification: '',
             wastage: '',
             forField: '',
             packagingWorkOrder: '',
@@ -5409,60 +5404,109 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       
       {showConsumptionSheet && (
         <>
-          {/* Consumption Sheet View - Just the sheet, no extra header */}
-          <div className="mb-8 mx-auto min-w-0 w-[92vw]" style={{ maxWidth: '2000px' }}>
-            {/* Close Button */}
-            <div className="flex justify-end mb-4 px-2 sm:px-0">
+          {/* Consumption Sheet View - Centered in main content area, full width with overflow */}
+          <div className="mb-8 mx-auto min-w-0 w-full max-w-[2400px] px-4 overflow-x-auto">
+            {/* Close + Share Buttons */}
+            <div className="flex justify-end gap-3 mb-4 px-2 sm:px-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const ok = consumptionSheetRef.current?.shareToPurchase?.();
+                  if (ok) setShowShareSuccessPopup(true);
+                }}
+              >
+                Share to Purchase Department
+              </Button>
               <Button type="button" onClick={() => setShowConsumptionSheet(false)} variant="default">
                 Close
               </Button>
             </div>
-            <ConsumptionSheet formData={formData} />
+            <ConsumptionSheet ref={consumptionSheetRef} formData={formData} />
           </div>
         </>
       )}
 
-      {/* Generate Factory Code Popup */}
-      <Dialog open={showFactoryCodePopup} onOpenChange={(open) => {
-        setShowFactoryCodePopup(open);
-        if (open) {
-          const init = {};
-          formData.skus?.forEach((sku, idx) => {
-            init[`${idx}-product`] = 1;
-            (sku.subproducts || []).forEach((_, spIdx) => {
-              init[`${idx}-sp-${spIdx}`] = 1;
-            });
-          });
-          setShippingGroups(init);
-        }
-      }}>
-        <DialogContent
-          showCloseButton={true}
-          className="max-h-[90vh] overflow-hidden flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white p-4 sm:p-6 w-[92vw] max-w-full sm:w-[85vw] md:w-[65vw] md:max-w-[1100px]"
-          style={{ padding: '18px' }}
+      {/* Generate Factory Code Popup - Custom overlay: main area only, centered, full width */}
+      {showFactoryCodePopup && (
+        <div
+          className="fixed z-50 flex items-center justify-center bg-black/50 right-0"
+          style={{ left: overlayLeft, top: '72px', bottom: 0 }}
+          onClick={() => setShowFactoryCodePopup(false)}
+          role="presentation"
         >
-          <DialogHeader className="pb-5 pt-2 px-2 border-b border-border flex-shrink-0 min-w-0">
-            <DialogTitle className="text-xl font-semibold text-foreground truncate">
-              Factory Code Generation
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="flex flex-col gap-6 px-3 sm:px-6 py-6 flex-1 overflow-y-auto overflow-x-hidden min-h-0 min-w-0">
-            {/* Consumption Sheet */}
-            <div className="rounded-xl border border-border overflow-hidden min-w-0 max-w-full">
-              <ConsumptionSheet formData={formData} />
+          <div
+            className="flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white overflow-hidden"
+            style={{
+              width: 'calc(100% - 48px)',
+              maxHeight: 'calc(100% - 48px)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-5 pt-2 px-6 border-b border-border flex-shrink-0">
+              <h2 className="text-xl font-semibold text-foreground truncate">Factory Code Generation</h2>
+              <button
+                type="button"
+                onClick={() => setShowFactoryCodePopup(false)}
+                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity p-1"
+                aria-label="Close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
             </div>
 
-          </div>
+            <div className="flex flex-col gap-6 px-6 py-6 flex-1 overflow-y-auto overflow-x-auto min-h-0 min-w-0 items-center">
+              <div className="rounded-xl border border-border overflow-x-auto min-w-0 w-full max-w-[2400px]">
+                <ConsumptionSheet ref={consumptionSheetRef} formData={formData} />
+              </div>
+            </div>
 
-          <div className="flex justify-end px-3 sm:px-6 py-5 border-t border-border bg-white flex-shrink-0 min-w-0">
-            <Button type="button" onClick={() => setShowFactoryCodePopup(false)} variant="default">
-              Done
+            <div className="flex justify-end gap-3 px-6 py-5 border-t border-border bg-white flex-shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const ok = consumptionSheetRef.current?.shareToPurchase?.();
+                  if (ok) setShowShareSuccessPopup(true);
+                }}
+              >
+                Share to Purchase Department
+              </Button>
+              <Button type="button" onClick={() => setShowFactoryCodePopup(false)} variant="default">
+                Done
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share to Purchase Success Dialog */}
+      <Dialog open={showShareSuccessPopup} onOpenChange={setShowShareSuccessPopup}>
+        <DialogContent className="max-w-md" showCloseButton={true}>
+          <div className="flex flex-col items-center text-center" style={{padding: '32px'}}>
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mb-4">
+              ✓
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Shared to Purchase Department</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground " style={{marginTop: '6px'}}>Consumption sheet has been shared successfully.</p>
+            <Button
+              type="button"
+              className="mt-6 min-w-[140px]"
+              style={{marginTop: '16px'}}
+              onClick={() => {
+                setShowShareSuccessPopup(false);
+                setShowFactoryCodePopup(false);
+                setShowConsumptionSheet(false);
+                onNavigateToCodeCreation?.();
+              }}
+            >
+              OK
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-
 
       {/* Validation Errors Dialog */}
       <ValidationErrorsDialog

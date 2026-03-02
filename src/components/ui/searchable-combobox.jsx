@@ -44,6 +44,7 @@ function SearchableCombobox({
   const [searchTerm, setSearchTerm] = React.useState(value || "");
   const inputRef = React.useRef(null);
   const containerRef = React.useRef(null);
+  const popoverRef = React.useRef(null);
   const lastCommittedValueRef = React.useRef(value || "");
 
   // Filter options based on search term
@@ -96,7 +97,7 @@ function SearchableCombobox({
   const handleBlur = (e) => {
     // Delay to allow click on option
     setTimeout(() => {
-      if (!containerRef.current?.contains(document.activeElement)) {
+      if (!containerRef.current?.contains(document.activeElement) && !popoverRef.current?.contains(document.activeElement)) {
         setOpen(false);
         
         // In strict mode, validate on blur
@@ -170,6 +171,7 @@ function SearchableCombobox({
         align="start"
         side="bottom"
         sideOffset={4}
+        ref={popoverRef}
       >
         <Command shouldFilter={false}>
           <CommandList>

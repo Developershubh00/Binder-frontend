@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import SearchableDropdown from '../SearchableDropdown';
+import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { ARTWORK_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import {
   ANTI_COUNTERFEIT_TYPES,
@@ -173,6 +174,7 @@ import {
   SIZE_LABELS_SIZE_UNITS,
   SIZE_LABELS_APPROVAL_OPTIONS
 } from '../../data/sizeLabelsData';
+import QualityVerificationToggle from '../QualityVerificationToggle';
 
 const Step4 = ({
   formData,
@@ -313,172 +315,8 @@ const Step4 = ({
               )}
             </div>
 
-            {/* Row 1: Material Desc, Net CNS, Unit (component is fixed by selection) */}
-            <div style={{ marginBottom: '24px' }}>
-              <div className="flex flex-wrap items-start gap-3">
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    MATERIAL DESC <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={material.materialDescription}
-                    onChange={(e) => handleArtworkMaterialChange(actualIndex, 'materialDescription', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
-                      errors[`artworkMaterial_${actualIndex}_materialDescription`] 
-                        ? 'border-red-600' 
-                        : 'border-border focus:border-primary focus:outline-none'
-                    }`}
-                    style={{ padding: '10px 14px', width: '180px', height: '44px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${actualIndex}_materialDescription`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="e.g., Care Label"
-                    required
-                  />
-                  {errors[`artworkMaterial_${actualIndex}_materialDescription`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${actualIndex}_materialDescription`]}
-                    </span>
-                  )}
-                </div>
-                
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    NET CNS/PC <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.001"
-                    value={material.netConsumption}
-                    onChange={(e) => handleArtworkMaterialChange(actualIndex, 'netConsumption', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
-                      errors[`artworkMaterial_${actualIndex}_netConsumption`] 
-                        ? 'border-red-600' 
-                        : 'border-border focus:border-primary focus:outline-none'
-                    }`}
-                    style={{ padding: '10px 14px', width: '120px', height: '44px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${actualIndex}_netConsumption`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="0.000"
-                    required
-                  />
-                  {errors[`artworkMaterial_${actualIndex}_netConsumption`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${actualIndex}_netConsumption`]}
-                    </span>
-                  )}
-                </div>
-                
-                <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    UNIT <span className="text-red-600">*</span>
-                  </label>
-                  <SearchableDropdown
-                    value={material.unit || ''}
-                    onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'unit', selectedValue)}
-                    options={['CM', 'KGS', 'PCS']}
-                    strictMode
-                    placeholder="CM"
-                    className={errors[`artworkMaterial_${actualIndex}_unit`] 
-                      ? 'border-red-600' 
-                      : ''}
-                    style={{ width: '130px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${actualIndex}_unit`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                  />
-                  {errors[`artworkMaterial_${actualIndex}_unit`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${actualIndex}_unit`]}
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              {/* PLACEMENT and WORK ORDER Row */}
-              <div style={{ marginBottom: '24px', marginTop: '24px' }}>
-                <div className="flex flex-wrap items-start gap-4">
-                  <div className="flex flex-col" style={{ flex: 1, minWidth: '300px', maxWidth: '600px' }}>
-                  <label className="text-sm font-semibold text-gray-700 mb-2">
-                    PLACEMENT <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={material.placement}
-                    onChange={(e) => handleArtworkMaterialChange(actualIndex, 'placement', e.target.value)}
-                    className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground ${
-                      errors[`artworkMaterial_${actualIndex}_placement`] 
-                        ? 'border-red-600' 
-                        : 'border-border focus:border-primary focus:outline-none'
-                    }`}
-                    style={{ padding: '12px 16px' }}
-                    onFocus={(e) => {
-                      if (!errors[`artworkMaterial_${actualIndex}_placement`]) {
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.boxShadow = '';
-                    }}
-                    placeholder="2&quot; FROM RIGHT CORNER AT FLAP"
-                    required
-                  />
-                  {errors[`artworkMaterial_${actualIndex}_placement`] && (
-                    <span className="text-red-600 text-xs mt-1 font-medium">
-                      {errors[`artworkMaterial_${actualIndex}_placement`]}
-                    </span>
-                  )}
-              </div>
-              
-                    <div className="flex flex-col" style={{ width: '180px' }}>
-                      <label className="text-sm font-semibold text-gray-700 mb-2">
-                      WORK ORDER <span className="text-red-600">*</span>
-                      </label>
-                    <SearchableDropdown
-                      value={material.workOrder || ''}
-                      onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'workOrder', selectedValue)}
-                      options={["WEAVING", "TUFTING", "QUILTING", "PRINTING", "KNITTING", "EMBROIDERY", "DYEING", "BRAIDING", "CARPET", "CUTTING" , "SEWING" , "FRINGE/TASSELS"]}
-                      placeholder="Select or type Work Order"
-                      className={errors[`artworkMaterial_${actualIndex}_workOrder`] 
-                        ? 'border-red-600' 
-                        : ''}
-                      onFocus={(e) => {
-                        if (!errors[`artworkMaterial_${actualIndex}_workOrder`]) {
-                          e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                        }
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.boxShadow = '';
-                      }}
-                    />
-                    {errors[`artworkMaterial_${actualIndex}_workOrder`] && (
-                        <span className="text-red-600 text-xs mt-1 font-medium">
-                        {errors[`artworkMaterial_${actualIndex}_workOrder`]}
-                        </span>
-                      )}
-                  </div>
-                </div>
-                    </div>
-                    
-              {/* ARTWORK CATEGORY SELECTOR */}
-              <div className="w-full" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+            {/* ARTWORK CATEGORY SELECTOR */}
+              <div className="w-full" style={{ marginTop: 0 }}>
                 <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
                   <label className="text-sm font-bold text-gray-800 mb-2">ARTWORK CATEGORY</label>
                   <SearchableDropdown
@@ -643,9 +481,10 @@ const Step4 = ({
                                 <SearchableDropdown
                                   value={material.labelsBrandSizeUnit || ''}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'labelsBrandSizeUnit', selectedValue)}
-                                  options={['CM', 'KGS','PCS']}
+                                  options={UNIT_OPTIONS_WITH_PCS}
                                   strictMode
-                                  placeholder="CM"
+                                  placeholder="Select unit"
+                                  placeholderDim
                                   style={{ width: '120px' }}
                                 />
                               </div>
@@ -923,9 +762,10 @@ const Step4 = ({
                                 <SearchableDropdown
                                   value={material.careCompositionSizeUnit || ''}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'careCompositionSizeUnit', selectedValue)}
-                                  options={['CM', 'KGS','PCS']}
+                                  options={UNIT_OPTIONS_WITH_PCS}
                                   strictMode
-                                  placeholder="CM"
+                                  placeholder="Select unit"
+                                  placeholderDim
                                   style={{ width: '120px' }}
                                 />
                               </div>
@@ -1204,9 +1044,10 @@ const Step4 = ({
                                 <SearchableDropdown
                                   value={material.rfidSizeUnit || ''}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'rfidSizeUnit', selectedValue)}
-                                  options={['CM', 'KGS','PCS']}
+                                  options={UNIT_OPTIONS_WITH_PCS}
                                   strictMode
-                                  placeholder="CM"
+                                  placeholder="Select unit"
+                                  placeholderDim
                                   style={{ width: '120px' }}
                                 />
                               </div>
@@ -1461,9 +1302,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.lawLabelSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'lawLabelSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_lawLabelSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -1714,9 +1556,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.hangTagSealsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_hangTagSealsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -1941,9 +1784,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.heatTransferSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'heatTransferSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_heatTransferSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -2177,9 +2021,10 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.upcBarcodeSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '100px' }}
                           />
@@ -2430,9 +2275,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.priceTicketSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'priceTicketSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_priceTicketSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -2664,9 +2510,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.antiCounterfeitSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                             style={{ width: '120px' }}
                           />
@@ -2998,9 +2845,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.qcInspectionSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'qcInspectionSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className="border-2 rounded-lg text-sm transition-all bg-background text-foreground border-border focus:border-primary focus:outline-none"
                             style={{ width: '120px' }}
                           />
@@ -3338,9 +3186,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.bellyBandSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'bellyBandSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_bellyBandSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -3623,9 +3472,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.sizeLabelsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -3948,9 +3798,10 @@ const Step4 = ({
                                                       <SearchableDropdown
                             value={material.tagsSpecialLabelsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '100px' }}
                           />
@@ -4319,9 +4170,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.flammabilitySafetySizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetySizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -4604,9 +4456,10 @@ const Step4 = ({
                                                           <SearchableDropdown
                             value={material.insertCardsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'insertCardsSizeUnit', selectedValue)}
-                            options={['CM', 'KGS','PCS']}
+                            options={UNIT_OPTIONS_WITH_PCS}
                             strictMode
-                            placeholder="CM"
+                            placeholder="Select unit"
+                            placeholderDim
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_insertCardsSizeUnit`] ? 'border-red-600' : 'border-border'}`}
                             style={{ width: '120px' }}
                           />
@@ -6681,7 +6534,13 @@ const Step4 = ({
                   </>
                 )}
               </div>
-            </div>
+              <div style={{ marginTop: '20px' }}>
+                <QualityVerificationToggle
+                  value={material.qualityVerification}
+                  onChange={(value) => handleArtworkMaterialChange(actualIndex, 'qualityVerification', value)}
+                  width="lg"
+                />
+              </div>
           </div>
                 );
               })}
@@ -6704,4 +6563,3 @@ const Step4 = ({
 };
 
 export default Step4;
-

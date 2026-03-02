@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import { cn } from '@/lib/utils';
+import QualityVerificationToggle from '../QualityVerificationToggle';
+import WorkOrderDateFields from '../WorkOrderDateFields';
 import { 
   getFiberTypes, 
   getYarnTypes, 
@@ -33,6 +35,7 @@ import {
 } from '../../data/textileFabricHelpers';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import SearchableDropdown from '../SearchableDropdown';
+import { UNIT_OPTIONS } from '../../constants/unitOptions';
 import TrimAccessoryFields from '../TrimAccessoryFields';
 import { 
   FIBER_CATEGORIES, 
@@ -617,8 +620,9 @@ const Step2 = ({
                     onChange={(selectedValue) => {
                       handleRawMaterialChange(actualIndex, 'unit', selectedValue);
                     }}
-                    options={['KGS', 'CM']}
+                    options={UNIT_OPTIONS}
                     placeholder="Select unit"
+                    placeholderDim
                     className={errors[`rawMaterial_${actualIndex}_unit`] ? 'border-destructive' : ''}
                     required
                   />
@@ -1011,6 +1015,13 @@ const Step2 = ({
                       </div>
                     </div>
 
+                    <div style={{ marginTop: '16px' }}>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                      />
+                    </div>
+
                     {/* ADV DATA Button and ADVANCE SPEC Section */}
                     <div className="col-span-1 md:col-span-2 lg:col-span-3 w-full" style={{ marginTop: '20px' }}>
                       <button
@@ -1264,6 +1275,12 @@ const Step2 = ({
                           />
                         </Field>
                       </div>
+
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                        className="mt-2"
+                      />
                       
                       {/* Show/Hide Advance Spec Button */}
                       <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
@@ -1465,6 +1482,12 @@ const Step2 = ({
                     />
                   </Field>
                 </div>
+
+                <QualityVerificationToggle
+                  value={material.qualityVerification}
+                  onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                  className="mt-2"
+                />
                 
                 {/* Show/Hide Advance Spec Button */}
                 <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
@@ -2096,6 +2119,13 @@ const Step2 = ({
                         </Field>
                       </div>
 
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-5 mt-2"
+                        width="lg"
+                      />
+
                       {/* Show/Hide Advance Spec Button */}
                       <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
                         <Button
@@ -2460,6 +2490,13 @@ const Step2 = ({
       </Field>
     </div>
 
+    <QualityVerificationToggle
+      value={material.qualityVerification}
+      onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+      className="col-span-1 md:col-span-2 lg:col-span-5 mt-2"
+      width="lg"
+    />
+
     {/* Advance Spec Button */}
     <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
       <Button
@@ -2808,6 +2845,12 @@ const Step2 = ({
         aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_foamPuRemarks`])}/>
     </Field>
   </div>
+
+  <QualityVerificationToggle
+    value={material.qualityVerification}
+    onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+    className="mt-2"
+  />
   
   {/* Show/Hide Advance Spec Button */}
   <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
@@ -3188,6 +3231,12 @@ const Step2 = ({
     </Field>
   </div>
 
+  <QualityVerificationToggle
+    value={material.qualityVerification}
+    onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+    className="mt-2"
+  />
+
   {/* Show/Hide Advance Spec Button */}
   <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
     <Button
@@ -3546,6 +3595,13 @@ const Step2 = ({
         />
       </Field>
     </div>
+
+    <QualityVerificationToggle
+      value={material.qualityVerification}
+      onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+      className="col-span-1 md:col-span-2 lg:col-span-5 mt-2"
+      width="lg"
+    />
 
     {/* Advance Spec Button */}
     <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
@@ -3942,6 +3998,13 @@ const Step2 = ({
       </Field>
     </div>
 
+    <QualityVerificationToggle
+      value={material.qualityVerification}
+      onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+      className="col-span-1 md:col-span-2 lg:col-span-5 mt-2"
+      width="lg"
+    />
+
     {/* Advance Spec Button */}
     <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
       <Button
@@ -4330,6 +4393,13 @@ const Step2 = ({
         </Field>
       </div>
 
+      <QualityVerificationToggle
+        value={material.qualityVerification}
+        onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+        className="col-span-1 md:col-span-2 lg:col-span-5 mt-2"
+        width="lg"
+      />
+
       {/* Advance Spec Button */}
       <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
         <Button
@@ -4693,6 +4763,12 @@ const Step2 = ({
                             />
                           </Field>
                         </div>
+                        <QualityVerificationToggle
+                          value={material.qualityVerification}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                          className="col-span-1 md:col-span-2 lg:col-span-5 mt-2"
+                          width="lg"
+                        />
                         {/* Show/Hide Advance Spec Button */}
                         <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="col-span-1 md:col-span-2 lg:col-span-5">
                           <Button
@@ -5310,6 +5386,13 @@ const Step2 = ({
                         />
                       </div>
 
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-4 mt-2"
+                        width="lg"
+                      />
+
                       {/* ADVANCE SPEC Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-4 w-full" style={{ marginTop: '20px' }}>
                         <button
@@ -5850,6 +5933,13 @@ const Step2 = ({
                             placeholder="Must be RDS certified, Hungarian White Goose Down for luxury, 4x washed for hypoallergenic"
                           />
                         </div>
+
+                        <QualityVerificationToggle
+                          value={material.qualityVerification}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                          className="col-span-1 md:col-span-2 lg:col-span-4 mt-2"
+                          width="lg"
+                        />
 
                         {/* ADVANCE SPEC Button and Fields for Down-Feather */}
                         <div className="col-span-1 md:col-span-2 lg:col-span-4 w-full" style={{ marginTop: '20px' }}>
@@ -6404,6 +6494,13 @@ const Step2 = ({
                             placeholder="Merino for softness, RWS certified for ethical sourcing, Naturally temperature regulating"
                           />
                         </div>
+
+                        <QualityVerificationToggle
+                          value={material.qualityVerification}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+                          className="col-span-1 md:col-span-2 lg:col-span-4 mt-2"
+                          width="lg"
+                        />
 
                         {/* ADVANCE SPEC Button and Fields for Wool-Natural */}
                         <div className="col-span-1 md:col-span-2 lg:col-span-4 w-full" style={{ marginTop: '20px' }}>
@@ -7033,6 +7130,13 @@ const Step2 = ({
       />
     </div>
 
+    <QualityVerificationToggle
+      value={material.qualityVerification}
+      onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+      className="col-span-1 md:col-span-2 lg:col-span-4 mt-2"
+      width="lg"
+    />
+
     {/* ADVANCE SPEC Button and Fields */}
     <div className="col-span-1 md:col-span-2 lg:col-span-4 w-full" style={{ marginTop: '20px' }}>
       <button
@@ -7518,6 +7622,13 @@ const Step2 = ({
         placeholder="Micro-Gel cluster mimics down feel, Ideal for hypoallergenic products"
       />
     </div>
+
+    <QualityVerificationToggle
+      value={material.qualityVerification}
+      onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+      className="col-span-1 md:col-span-2 lg:col-span-4 mt-2"
+      width="lg"
+    />
 
     {/* ADVANCE SPEC Button and Fields */}
     <div className="col-span-1 md:col-span-2 lg:col-span-4 w-full" style={{ marginTop: '20px' }}>
@@ -8084,6 +8195,13 @@ const Step2 = ({
       />
     </div>
 
+    <QualityVerificationToggle
+      value={material.qualityVerification}
+      onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+      className="col-span-1 md:col-span-2 lg:col-span-4 mt-2"
+      width="lg"
+    />
+
     {/* ADVANCE SPEC Button and Fields */}
     <div className="col-span-1 md:col-span-2 lg:col-span-4 w-full" style={{ marginTop: '20px' }}>
       <button
@@ -8646,6 +8764,13 @@ const Step2 = ({
       />
     </div>
 
+    <QualityVerificationToggle
+      value={material.qualityVerification}
+      onChange={(value) => handleRawMaterialChange(actualIndex, 'qualityVerification', value)}
+      className="col-span-1 md:col-span-2 lg:col-span-4 mt-2"
+      width="lg"
+    />
+
     {/* ADVANCE SPEC Button and Fields */}
     <div className="col-span-1 md:col-span-2 lg:col-span-4 w-full" style={{ marginTop: '20px' }}>
       <button
@@ -9183,6 +9308,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'KNITTING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Advance Filter Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -9265,6 +9396,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'BRAIDING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -9863,6 +10000,12 @@ const Step2 = ({
                           {/* Advance Spec Section for FRINGE/TASSELS */}
                           <div className="w-full" style={{ marginTop: '20px' }}>
                             {/* Advance Spec Button */}
+                            <QualityVerificationToggle
+                              value={workOrder.qualityVerification}
+                              onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                              width="lg"
+                              className="mb-3"
+                            />
                             <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                               <Button
                                 type="button"
@@ -10407,6 +10550,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'CARPET' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -10512,6 +10661,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'CUTTING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -10634,6 +10789,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'EMBROIDERY' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -10751,6 +10912,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'PRINTING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Show/Hide Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -10872,6 +11039,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'QUILTING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Show/Hide Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -10956,6 +11129,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'SEWING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -11054,6 +11233,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'WEAVING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Show/Hide Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -11144,6 +11329,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'TUFTING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Show/Hide Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -11243,6 +11434,12 @@ const Step2 = ({
                       {workOrder.workOrder === 'DYEING' && (
                         <div className="w-full" style={{ marginTop: '20px' }}>
                           {/* Advance Spec Button */}
+                          <QualityVerificationToggle
+                            value={workOrder.qualityVerification}
+                            onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'qualityVerification', value)}
+                            width="lg"
+                            className="mb-3"
+                          />
                           <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }} className="w-full">
                             <Button
                               type="button"
@@ -11292,6 +11489,18 @@ const Step2 = ({
                           )}
                         </div>
                       )}
+
+                      {/* Start Date & Date of Completion - Common for all work order types, after Quality Verification */}
+                      <div className="w-full" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                        <WorkOrderDateFields
+                          startDate={workOrder.startDate}
+                          dateOfCompletion={workOrder.dateOfCompletion}
+                          onChange={(field, value) => handleWorkOrderChange(actualIndex, woIndex, field, value)}
+                          errorStartDate={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_startDate`]}
+                          errorDateOfCompletion={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dateOfCompletion`]}
+                          className="w-full"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

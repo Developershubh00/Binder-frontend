@@ -132,18 +132,20 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         />
                         {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerRequired`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerRequired`]}</span>}
                       </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY <span className="text-red-500">*</span></label>
-                        <input
-                          type="text"
-                          value={material.cartonBoxQuantity || ''}
-                          onChange={(e) => onChange('cartonBoxQuantity', e.target.value)}
-                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Pieces"
-                        />
-                        {errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxQuantity`]}</span>}
-                      </div>
+                      {material.cartonBoxStiffenerRequired === 'YES' && (
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY <span className="text-red-500">*</span></label>
+                          <input
+                            type="text"
+                            value={material.cartonBoxQuantity || ''}
+                            onChange={(e) => onChange('cartonBoxQuantity', e.target.value)}
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            style={{ padding: '10px 14px', height: '44px' }}
+                            placeholder="Pieces"
+                          />
+                          {errors?.[`${errorKeyPrefix}_cartonBoxQuantity`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxQuantity`]}</span>}
+                        </div>
+                      )}
                       {/* DIMENSIONS for CARTON BOX */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
                         <label className="text-sm font-semibold text-gray-700 mb-2">
@@ -201,6 +203,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                   >
                                     <option value="CM">CM</option>
                                     <option value="KGS">KGS</option>
+                                    <option value="PCS">PCS</option>
                                   </select>
                                 </div>
                               </div>
@@ -246,6 +249,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               >
                                 <option value="CM">CM</option>
                                 <option value="KGS">KGS</option>
+                                <option value="PCS">PCS</option>
                               </select>
                               {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerUnit`]}</span>}
                             </div>
@@ -452,6 +456,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {errors?.[`${errorKeyPrefix}_cornerProtectorLegLength`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cornerProtectorLegLength`]}</span>}
@@ -475,6 +480,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {errors?.[`${errorKeyPrefix}_cornerProtectorThickness`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cornerProtectorThickness`]}</span>}
@@ -498,6 +504,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {errors?.[`${errorKeyPrefix}_cornerProtectorHeightLength`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cornerProtectorHeightLength`]}</span>}
@@ -734,6 +741,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 >
                                   <option value="CM">CM</option>
                                   <option value="KGS">KGS</option>
+                                  <option value="PCS">PCS</option>
                                 </select>
                               </div>
                             </div>
@@ -929,6 +937,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {(errors?.[`${errorKeyPrefix}_polybagBaleRollWidth`] || errors?.[`${errorKeyPrefix}_polybagBaleRollWidthUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_polybagBaleRollWidth`] || errors[`${errorKeyPrefix}_polybagBaleRollWidthUnit`]}</span>}
@@ -1116,6 +1125,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {(errors?.[`${errorKeyPrefix}_polybagBaleQuantity`] || errors?.[`${errorKeyPrefix}_polybagBaleQuantityUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_polybagBaleQuantity`] || errors[`${errorKeyPrefix}_polybagBaleQuantityUnit`]}</span>}
@@ -1174,10 +1184,9 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS</label>
                         {(() => {
-                          const legacy = parsePairDimensions(material.polybagPolybagFlapDimensions);
-                          const lengthVal = material.polybagPolybagFlapLength || legacy.length;
-                          const widthVal = material.polybagPolybagFlapWidth || legacy.width;
-                          const gVal = material.polybagPolybagFlapGaugeThickness || '';
+                          const lengthVal = material.polybagPolybagFlapLength ?? '';
+                          const widthVal = material.polybagPolybagFlapWidth ?? '';
+                          const gVal = material.polybagPolybagFlapGaugeThickness ?? '';
                           return (
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div className="flex flex-col">
@@ -1203,7 +1212,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 />
                               </div>
                               <div className="flex flex-col">
-                                <label className="text-xs text-gray-600 mb-1">G</label>
+                                <label className="text-xs text-gray-600 mb-1">GAUGE/GAUSS</label>
                                 <input
                                   type="text"
                                   value={gVal}
@@ -1414,6 +1423,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {(errors?.[`${errorKeyPrefix}_polybagPolybagFlapQuantity`] || errors?.[`${errorKeyPrefix}_polybagPolybagFlapQuantityUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_polybagPolybagFlapQuantity`] || errors[`${errorKeyPrefix}_polybagPolybagFlapQuantityUnit`]}</span>}
@@ -1756,6 +1766,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {(errors?.[`${errorKeyPrefix}_voidFillQuantity`] || errors?.[`${errorKeyPrefix}_voidFillQuantityUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_voidFillQuantity`] || errors[`${errorKeyPrefix}_voidFillQuantityUnit`]}</span>}
@@ -1835,6 +1846,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             >
                               <option value="CM">CM</option>
                               <option value="KGS">KGS</option>
+                              <option value="PCS">PCS</option>
                             </select>
                           </div>
                         </div>
@@ -1860,6 +1872,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {errors?.[`${errorKeyPrefix}_dividerHeight`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_dividerHeight`]}</span>}
@@ -1973,6 +1986,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {(errors?.[`${errorKeyPrefix}_tapeWidth`] || errors?.[`${errorKeyPrefix}_tapeWidthUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_tapeWidth`] || errors[`${errorKeyPrefix}_tapeWidthUnit`]}</span>}
@@ -1996,6 +2010,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                         {(errors?.[`${errorKeyPrefix}_tapeLength`] || errors?.[`${errorKeyPrefix}_tapeLengthUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_tapeLength`] || errors[`${errorKeyPrefix}_tapeLengthUnit`]}</span>}
@@ -2194,6 +2209,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           >
                             <option value="CM">CM</option>
                             <option value="KGS">KGS</option>
+                            <option value="PCS">PCS</option>
                           </select>
                         </div>
                       </div>

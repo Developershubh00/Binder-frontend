@@ -1,4 +1,5 @@
 import SearchableDropdown from './SearchableDropdown';
+import { UNIT_OPTIONS_WITH_PCS } from '../constants/unitOptions';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import { isEmpty } from '@/utils/validationSchemas';
 import { TRIMS_APPROVAL_OPTIONS } from '../data/approvalOptions';
+import QualityVerificationToggle from './QualityVerificationToggle';
 import {
   ZippersAdvancedSpec,
   ButtonsAdvancedSpec,
@@ -227,8 +229,9 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           <SearchableDropdown
                             value={material.unitAdditional || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'unitAdditional', selectedValue)}
-                            options={['CM', 'KGS']}
-                            placeholder="Select or type"
+                            options={UNIT_OPTIONS_WITH_PCS}
+                            placeholder="Select unit"
+                            placeholderDim
                             className={dropdownClass(hasError('unitAdditional'))}
                           />
                         </Field>
@@ -258,6 +261,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
 
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -457,6 +467,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
 
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
+
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
                           type="button"
@@ -655,6 +672,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* VELCRO - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -828,6 +851,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -1120,6 +1149,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* NIWAR-WEBBING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -1336,6 +1371,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* LACE - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -1536,6 +1577,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* FELT - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -1761,6 +1808,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* INTERLINING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -1893,6 +1946,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* ADVANCE SPEC Button */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -2039,6 +2098,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
 
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -2434,6 +2500,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* RIBBING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -2577,6 +2649,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
 
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -2756,6 +2835,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -3001,6 +3086,12 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -3218,6 +3309,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
                       
                       {/* FR-TRIMS - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
@@ -3397,6 +3495,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
 
                       {/* CORD RING - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
@@ -3578,6 +3683,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
 
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
+
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -3757,6 +3869,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                       </div>
 
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
+
                       {/* ADVANCE SPEC Section */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">
                         <Button
@@ -3918,6 +4037,13 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                       </div>
+
+                      <QualityVerificationToggle
+                        value={material.qualityVerification}
+                        onChange={(value) => handleChange(materialIndex, 'qualityVerification', value)}
+                        className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 mt-2"
+                        width="lg"
+                      />
 
                       {/* MAGNETIC CLOSURE - Advance Spec Button and Fields */}
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 w-full mt-5 mb-5">

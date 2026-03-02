@@ -15,7 +15,8 @@ const SearchableDropdown = ({
   onFocus,
   onBlur,
   strictMode = false, // If true, only accepts values from options list
-  usePortal = false // If true, render dropdown in portal so it isn't clipped by overflow
+  usePortal = false, // If true, render dropdown in portal so it isn't clipped by overflow
+  placeholderDim = false // If true, dim placeholder to avoid confusion when value is selected
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -202,7 +203,8 @@ const SearchableDropdown = ({
         placeholder={placeholder}
         className={cn(
           // Base shadcn-style input
-          'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground',
+          'file:text-foreground selection:bg-primary selection:text-primary-foreground',
+          placeholderDim ? 'placeholder:text-muted-foreground/50' : 'placeholder:text-muted-foreground',
           'border-input h-11 w-full min-w-0 rounded-md border bg-white text-sm shadow-xs transition-[color,box-shadow]',
           'outline-none disabled:cursor-not-allowed disabled:opacity-50',
           'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',

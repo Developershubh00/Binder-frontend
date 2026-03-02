@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import SearchableDropdown from '../SearchableDropdown';
+import { UNIT_OPTIONS } from '../../constants/unitOptions';
 import { TRIMS_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -138,8 +139,9 @@ const Step3 = ({
                 <SearchableDropdown
                   value={material.unit || ''}
                   onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'unit', selectedValue)}
-                  options={['KGS', 'CM']}
-                  placeholder="Select or type"
+                  options={UNIT_OPTIONS}
+                  placeholder="Select unit"
+                  placeholderDim
                   className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                   style={{ padding: '10px 14px', height: '44px' }}
                 />
@@ -216,8 +218,9 @@ const Step3 = ({
                                         <SearchableDropdown
                           value={material.size?.unit || ''}
                           onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'size.unit', selectedValue)}
-                          options={['CM', 'KGS']}
-                          placeholder="Select or type"
+                          options={UNIT_OPTIONS}
+                          placeholder="Select unit"
+                          placeholderDim
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ width: '120px' }}
                         />
@@ -353,8 +356,9 @@ const Step3 = ({
                           <SearchableDropdown
                             value={material.unitAdditional || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'unitAdditional', selectedValue)}
-                            options={['CM', 'KGS']}
-                            placeholder="Select or type"
+                            options={UNIT_OPTIONS}
+                            placeholder="Select unit"
+                            placeholderDim
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px' }}
                           />
@@ -916,8 +920,9 @@ const Step3 = ({
                           <SearchableDropdown
                             value={material.unitAdditional || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'unitAdditional', selectedValue)}
-                            options={['CM', 'KGS']}
-                            placeholder="Select or type"
+                            options={UNIT_OPTIONS}
+                            placeholder="Select unit"
+                            placeholderDim
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px', width: '100px' }}
                           />
@@ -1012,8 +1017,9 @@ const Step3 = ({
                           <SearchableDropdown
                             value={material.unitAdditional || ''}
                             onChange={(selectedValue) => handleConsumptionMaterialChange(materialIndex, 'unitAdditional', selectedValue)}
-                            options={['CM', 'KGS']}
-                            placeholder="Select or type"
+                            options={UNIT_OPTIONS}
+                            placeholder="Select unit"
+                            placeholderDim
                             className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                             style={{ padding: '10px 14px', height: '44px', width: '100px' }}
                           />

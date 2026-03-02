@@ -81,63 +81,77 @@ export const STITCHING_THREAD_SCHEMA = {
 };
 
 // ==================== WORK ORDER SCHEMAS ====================
+const WORK_ORDER_DATE_FIELDS = ['startDate', 'dateOfCompletion'];
+const WORK_ORDER_DATE_LABELS = { startDate: 'Start Date', dateOfCompletion: 'Date of Completion' };
+
 export const WORK_ORDER_SCHEMAS = {
   'BRAIDING': {
-    required: ['machineType', 'strandCount', 'widthDiameter', 'gsm', 'approval', 'remarks'],
-    advanced: ['variants', 'braidingDesign', 'pattern']
+    required: ['machineType', 'strandCount', 'widthDiameter', 'gsm', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['variants', 'braidingDesign', 'pattern'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'KNITTING': {
-    required: ['machineType', 'knittingDesignRef', 'knittingGauge', 'knittingGsm', 'knittingWalesRatio', 'knittingCoursesRatio', 'knittingRatioWeightWales', 'knittingRatioWeightCourses', 'wastage', 'approval', 'remarks'],
-    advanced: ['knittingDesign', 'knittingVariant']
+    required: ['machineType', 'knittingDesignRef', 'knittingGauge', 'knittingGsm', 'knittingWalesRatio', 'knittingCoursesRatio', 'knittingRatioWeightWales', 'knittingRatioWeightCourses', 'wastage', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['knittingDesign', 'knittingVariant'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'QUILTING': {
-    required: ['quiltingType', 'stitchLength', 'patternRepeat', 'wastage', 'approval', 'remarks'],
-    advanced: ['variants', 'quiltingDesign', 'needleSpacing']
+    required: ['quiltingType', 'stitchLength', 'patternRepeat', 'wastage', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['variants', 'quiltingDesign', 'needleSpacing'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'PRINTING': {
-    required: ['printingType', 'repeatSize', 'wastage', 'approval', 'remarks'],
-    advanced: ['variants', 'printingDesign', 'numberOfScreens', 'colors', 'coveragePercent', 'resolution']
+    required: ['printingType', 'repeatSize', 'wastage', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['variants', 'printingDesign', 'numberOfScreens', 'colors', 'coveragePercent', 'resolution'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'SEWING': {
-    required: ['spi', 'threadType', 'wastage', 'approval', 'remarks'],
-    advanced: ['sewingMachineType', 'stitchType', 'variants', 'needleSize']
+    required: ['spi', 'threadType', 'wastage', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['sewingMachineType', 'stitchType', 'variants', 'needleSize'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'FRINGE/TASSELS': {
-    required: ['fringeType', 'fringeMaterial', 'dropLength', 'tapeHeaderWidth', 'fringeColour', 'fringePlacement', 'fringeQtyType', 'fringeTestingRequirements', 'fringeSurplus', 'fringeWastage', 'fringeApproval', 'fringeRemarks'],
+    required: ['fringeType', 'fringeMaterial', 'dropLength', 'tapeHeaderWidth', 'fringeColour', 'fringePlacement', 'fringeQtyType', 'fringeTestingRequirements', 'fringeSurplus', 'fringeWastage', 'fringeApproval', 'fringeRemarks', ...WORK_ORDER_DATE_FIELDS],
     advanced: ['fringeColourRefImage', 'fringePlacementRefImage', 'fringeFinish', 'fringeAttachment', 'fringeConstruction'],
+    fieldLabels: WORK_ORDER_DATE_LABELS,
     conditional: {
       'fringeQtyPcs': { when: 'fringeQtyType', equals: 'PCS' },
       'fringeQtyCnsPerPc': { when: 'fringeQtyType', equals: 'LENGTH' }
     }
   },
   'DYEING': {
-    required: ['dyeingType', 'colorRef', 'referenceType', 'dyeingReference', 'approval', 'remarks'],
+    required: ['dyeingType', 'colorRef', 'referenceType', 'dyeingReference', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
     advanced: ['variants'],
+    fieldLabels: WORK_ORDER_DATE_LABELS,
     conditional: {
       'shrinkageWidthPercent': { when: 'dyeingType', notEmpty: true },
       'shrinkageLengthPercent': { when: 'dyeingType', notEmpty: true }
     }
   },
   'WEAVING': {
-    required: ['machineType', 'reed', 'pick', 'gsm', 'wastage', 'approval', 'remarks'],
-    advanced: ['variants', 'weavingDesign', 'advancedWarpRatio', 'advancedWeftRatio']
+    required: ['machineType', 'reed', 'pick', 'gsm', 'wastage', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['variants', 'weavingDesign', 'advancedWarpRatio', 'advancedWeftRatio'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'TUFTING': {
-    required: ['machineType', 'gsm', 'pileHeight', 'tpi', 'wastage', 'approval', 'remarks'],
-    advanced: ['tuftingDesign', 'variants', 'machineGauge', 'stitchRate']
+    required: ['machineType', 'gsm', 'pileHeight', 'tpi', 'wastage', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['tuftingDesign', 'variants', 'machineGauge', 'stitchRate'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'CARPET': {
-    required: ['machineType', 'gsm', 'pileHeight', 'tpiKpsi', 'knotType', 'pitchRows', 'approval', 'remarks'],
-    advanced: ['variants', 'carpetDesign']
+    required: ['machineType', 'gsm', 'pileHeight', 'tpiKpsi', 'knotType', 'pitchRows', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['variants', 'carpetDesign'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'CUTTING': {
-    required: ['machineType', 'variants', 'approval', 'remarks'],
+    required: ['machineType', 'variants', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
     advanced: ['cutType', 'layers', 'nesting', 'wastage'],
-    fieldLabels: { machineType: 'Tool type' }
+    fieldLabels: { machineType: 'Tool type', ...WORK_ORDER_DATE_LABELS }
   },
   'EMBROIDERY': {
-    required: ['machineType', 'approval', 'remarks'],
-    advanced: ['variants', 'embroideryDesign', 'threadColors', 'stitchCount', 'hoopFrameSize']
+    required: ['machineType', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
+    advanced: ['variants', 'embroideryDesign', 'threadColors', 'stitchCount', 'hoopFrameSize'],
+    fieldLabels: WORK_ORDER_DATE_LABELS
   }
 };
 
@@ -571,10 +585,11 @@ export const PACKAGING_COMMON_SCHEMA = {
 
 export const PACKAGING_MATERIAL_SCHEMAS = {
   'CARTON BOX': {
-    required: ['cartonBoxType', 'cartonBoxNoOfPlys', 'cartonBoxBoardGrade', 'cartonBoxJointType', 'cartonBoxBurstingStrength', 'cartonBoxStiffenerRequired', 'cartonBoxQuantity', 'cartonBoxTestingRequirements', 'cartonBoxSurplus', 'cartonBoxWastage'],
+    required: ['cartonBoxType', 'cartonBoxNoOfPlys', 'cartonBoxBoardGrade', 'cartonBoxJointType', 'cartonBoxBurstingStrength', 'cartonBoxStiffenerRequired', 'cartonBoxTestingRequirements', 'cartonBoxSurplus', 'cartonBoxWastage'],
     advanced: [],
     // Stiffener size (L x W) required only when Stiffener is YES; form uses Length + Width, not a single Dimensions field
     conditional: {
+      'cartonBoxQuantity': { when: 'cartonBoxStiffenerRequired', equals: 'YES' },
       'cartonBoxStiffenerLength': { when: 'cartonBoxStiffenerRequired', equals: 'YES' },
       'cartonBoxStiffenerWidth': { when: 'cartonBoxStiffenerRequired', equals: 'YES' },
       'cartonBoxStiffenerUnit': { when: 'cartonBoxStiffenerRequired', equals: 'YES' }

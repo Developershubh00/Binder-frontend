@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TRIM_ACCESSORY_SCHEMAS } from '@/utils/validationSchemas';
 
 /**
@@ -20,7 +20,8 @@ import { TRIM_ACCESSORY_SCHEMAS } from '@/utils/validationSchemas';
  * - Row 6: Work Orders
  * - Row 7: Artwork (after work orders, per component)
  */
-const ConsumptionSheet = ({ formData = {} }) => {
+const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
+  const PURCHASE_SHARE_KEY = 'purchaseSharedData';
   // Single layout on screen: only mobile OR desktop (avoids duplicate render)
   const [isMobileCns, setIsMobileCns] = useState(false);
   useEffect(() => {
@@ -226,9 +227,117 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return stepData?.artworkMaterials?.filter((m) => (m.components || '') === componentName) || [];
   };
 
-  // Helper: Get packaging materials for a product/IPC from stepData (Step-5)
-  const getPackagingMaterialsForProduct = (stepData) => {
-    return stepData?.packaging?.materials || [];
+  // Helper: Get quantity from artwork material based on category-specific qty field
+  const getArtworkQuantity = (artwork) => {
+    if (!artwork) return '';
+    const cat = (artwork.artworkCategory || '').trim();
+    const qtyFieldMap = {
+      'LABELS (BRAND/MAIN)': 'labelsBrandQty',
+      'CARE & COMPOSITION': 'careCompositionQty',
+      'TAGS & SPECIAL LABELS': 'tagsSpecialLabelsQty',
+      'FLAMMABILITY / SAFETY LABELS': 'flammabilitySafetyQty',
+      'RFID / SECURITY TAGS': 'rfidQty',
+      'LAW LABEL / CONTENTS TAG': 'lawLabelQty',
+      'HANG TAG SEALS / STRINGS': 'hangTagSealsQty',
+      'PRICE TICKET / BARCODE TAG': 'priceTicketQty',
+      'HEAT TRANSFER LABELS': 'heatTransferQty',
+      'UPC LABEL / BARCODE STICKER': 'upcBarcodeQty',
+      'SIZE LABELS (INDIVIDUAL)': 'sizeLabelsQty',
+      'ANTI-COUNTERFEIT & HOLOGRAMS': 'antiCounterfeitQty',
+      'QC / INSPECTION LABELS': 'qcInspectionQty',
+      'BELLY BAND / WRAPPER': 'bellyBandQty',
+      'INSERT CARDS': 'insertCardsQty',
+      'RIBBONS': 'ribbonsQty'
+    };
+    const field = qtyFieldMap[cat] || 'lengthQuantity';
+    const val = artwork[field];
+    return val != null && val !== '' ? String(val).trim() : '';
+  };
+
+  // Helper: Get PO qty for an IPC from skus (for packaging req material calc)
+  const getPoQtyForIpc = (skus, ipc) => {
+    if (!ipc || !Array.isArray(skus)) return 0;
+    const isSub = /\/SP-?\d+$/i.test(ipc);
+    const baseIpc = (ipc || '').replace(/\/SP-?\d+$/i, '');
+    const spNum = isSub ? parseInt(ipc.replace(/.*\/SP-?(\d+)$/i, '$1'), 10) : 0;
+    for (const sku of skus) {
+      const skuBase = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
+      if (skuBase !== baseIpc) continue;
+      if (!isSub) return parseFloat(sku.poQty ?? '0') || 0;
+      const sub = sku.subproducts?.[spNum - 1];
+      return sub ? (parseFloat(sub.poQty ?? '0') || 0) : 0;
+    }
+    return 0;
+  };
+
+  // Helper: Find packaging config from formData (top-level) or any sku's stepData
+  // Prefer the config with the most materials (main + extraPacks)
+  const getPackagingConfig = (formData) => {
+    let best = null;
+    let bestCount = 0;
+    const totalMaterials = (pkg) => {
+      const main = pkg?.materials?.length || 0;
+      const extra = (pkg?.extraPacks || []).reduce((s, ep) => s + (ep?.materials?.length || 0), 0);
+      return main + extra;
+    };
+    const consider = (pkg) => {
+      if (!pkg) return;
+      const n = totalMaterials(pkg);
+      if (n > bestCount) {
+        bestCount = n;
+        best = pkg;
+      }
+    };
+    consider(formData?.packaging);
+    (formData?.skus || []).forEach((sku) => {
+      consider(sku?.stepData?.packaging);
+      (sku?.subproducts || []).forEach((sub) => consider(sub?.stepData?.packaging));
+    });
+    return best;
+  };
+
+  // Helper: Get packaging config for a product (prefer current product's sku packaging)
+  const getPackagingConfigForProduct = (stepData, formData) => {
+    if (stepData?.packaging) return stepData.packaging;
+    if (formData?.packaging) return formData.packaging;
+    return getPackagingConfig(formData);
+  };
+
+  // Helper: Check if material has meaningful data (type or description)
+  const hasMaterialData = (m) => {
+    const type = (m?.packagingMaterialType || '').toString().trim();
+    const desc = (m?.materialDescription || '').toString().trim();
+    return !!(type || desc);
+  };
+
+  // Helper: Get ALL packaging blocks (main + extraPacks) from ALL sources (formData + every sku)
+  const getAllPackagingBlocks = (formData, stepData) => {
+    const blocks = [];
+    const seenExtraKeys = new Set();
+    const addBlocksFromPkg = (pkg, isFromStepData) => {
+      if (!pkg) return;
+      const mainMats = (pkg?.materials || []).filter(hasMaterialData);
+      if (mainMats.length > 0 && blocks.length === 0) {
+        blocks.push({ config: pkg, materials: mainMats, label: 'Packaging', isExtra: false });
+      }
+      (pkg?.extraPacks || []).forEach((ep) => {
+        const mats = (ep?.materials || []).filter(hasMaterialData);
+        if (mats.length > 0) {
+          const key = `${ep?.toBeShipped}-${(ep?.productSelection || []).join(',')}`;
+          if (!seenExtraKeys.has(key)) {
+            seenExtraKeys.add(key);
+            blocks.push({ config: ep, materials: mats, label: `Packaging ${blocks.length + 1}`, isExtra: true });
+          }
+        }
+      });
+    };
+    addBlocksFromPkg(stepData?.packaging, true);
+    addBlocksFromPkg(formData?.packaging, false);
+    (formData?.skus || []).forEach((sku) => {
+      addBlocksFromPkg(sku?.stepData?.packaging, false);
+      (sku?.subproducts || []).forEach((sub) => addBlocksFromPkg(sub?.stepData?.packaging, false));
+    });
+    return blocks;
   };
 
   // Helper: Get merged IPCs/products from productSelection
@@ -251,9 +360,9 @@ const ConsumptionSheet = ({ formData = {} }) => {
         });
       }
 
-      // Check subproducts
+      // Check subproducts - subproduct IPC is always base/SP-{n}, never same as main
       sku.subproducts?.forEach((subproduct, spIndex) => {
-        const subproductIpc = subproduct.ipcCode || `${ipcCode.replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
+        const subproductIpc = `${(ipcCode || '').replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
         if (productSelection.includes(subproductIpc)) {
           subproduct.stepData?.products?.forEach((product) => {
             mergedItems.push({
@@ -304,7 +413,11 @@ const ConsumptionSheet = ({ formData = {} }) => {
 
     const artworkMats = getArtworkMaterialsForComponent(componentName, stepData);
     artworkMats.forEach((m) => {
-      if (m.netConsumption) consumptions.push(m.netConsumption);
+      const qty = getArtworkQuantity(m);
+      if (qty) {
+        const n = parseFloat(String(qty).replace(/[^0-9.-]/g, ''));
+        if (!isNaN(n)) consumptions.push(n);
+      }
     });
 
     return calculateNetConsumption(consumptions);
@@ -491,16 +604,16 @@ const ConsumptionSheet = ({ formData = {} }) => {
     return wastageValues;
   };
 
-  // Helper: Get ALL wastage/surplus values for packaging materials
-  const getAllWastagesForPackaging = (stepData) => {
+  // Helper: Get ALL wastage/surplus values for packaging materials (main + extraPacks)
+  const getAllWastagesForPackaging = (stepData, formData) => {
     const wastageValues = [];
-    const packagingMats = getPackagingMaterialsForProduct(stepData);
-    
-    packagingMats.forEach((m) => {
-      const packagingWastageSurplus = extractPackagingWastageSurplus(m);
-      wastageValues.push(...packagingWastageSurplus);
+    const blocks = getAllPackagingBlocks(formData ?? {}, stepData);
+    blocks.forEach((b) => {
+      (b.materials || []).forEach((m) => {
+        const packagingWastageSurplus = extractPackagingWastageSurplus(m);
+        wastageValues.push(...packagingWastageSurplus);
+      });
     });
-    
     return wastageValues;
   };
 
@@ -539,6 +652,85 @@ const ConsumptionSheet = ({ formData = {} }) => {
       .join(' ');
   };
 
+  const buildPurchaseSharePayload = () => {
+    const ipcs = [];
+    const addIpc = (ipcCode, stepData) => {
+      if (!ipcCode) return;
+      const sd = stepData || {};
+      const rawSet = new Set();
+      (sd.rawMaterials || []).forEach((m) => {
+        if (!isRawMaterialCompleteForCns(m)) return;
+        const label = m.materialDescription || m.materialType || '';
+        if (label) rawSet.add(label);
+      });
+
+      const trimSet = new Set();
+      (sd.consumptionMaterials || []).forEach((m) => {
+        const label = (m.materialDescription || '').trim();
+        const net = (m.netConsumption || '').toString().trim();
+        if (label && net) trimSet.add(label);
+      });
+
+      const artworkSet = new Set();
+      (sd.artworkMaterials || []).forEach((m) => {
+        const label = (m.artworkCategory || m.material || '').toString().trim();
+        if (label) artworkSet.add(label);
+      });
+
+      const packagingSet = new Set();
+      (formData?.packaging?.materials || sd.packaging?.materials || []).forEach((m) => {
+        const label = formatPackagingTypeName(m.packagingMaterialType || '');
+        if (label && label !== '-') packagingSet.add(label);
+      });
+
+      ipcs.push({
+        ipcCode,
+        categories: {
+          rawMaterials: Array.from(rawSet),
+          trimsAccessory: Array.from(trimSet),
+          artworkLabeling: Array.from(artworkSet),
+          packaging: Array.from(packagingSet)
+        }
+      });
+    };
+
+    formData.skus?.forEach((sku, skuIndex) => {
+      const ipcCode = sku.ipcCode || `IPC-${skuIndex + 1}`;
+      addIpc(ipcCode, sku.stepData);
+      sku.subproducts?.forEach((subproduct, spIndex) => {
+        const spCode = `${(ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
+        addIpc(spCode, subproduct.stepData);
+      });
+    });
+
+    const code = formData.ipoCode || formData.buyerCode || '';
+    return {
+      code,
+      orderType: formData.orderType || '',
+      sharedAt: new Date().toISOString(),
+      ipcs
+    };
+  };
+
+  const handleShareToPurchase = () => {
+    const payload = buildPurchaseSharePayload();
+    if (!payload.code) return false;
+    const existing = JSON.parse(localStorage.getItem(PURCHASE_SHARE_KEY) || '[]');
+    const next = Array.isArray(existing) ? [...existing] : [];
+    const idx = next.findIndex((entry) => entry.code === payload.code && entry.orderType === payload.orderType);
+    if (idx >= 0) {
+      next[idx] = payload;
+    } else {
+      next.push(payload);
+    }
+    localStorage.setItem(PURCHASE_SHARE_KEY, JSON.stringify(next));
+    return true;
+  };
+
+  useImperativeHandle(ref, () => ({
+    shareToPurchase: handleShareToPurchase
+  }), [formData.skus, formData.ipoCode, formData.buyerCode, formData.orderType]);
+
   // Build flat list: IPC → Product/Subproduct → Components (in form order)
   const allProducts = useMemo(() => {
     const products = [];
@@ -568,7 +760,7 @@ const ConsumptionSheet = ({ formData = {} }) => {
             skuIndex,
             spIndex,
             productIndex,
-            ipcCode: subproduct.ipcCode || `${(sku.ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`,
+            ipcCode: `${(sku.ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`,
             productName: product.name || subproduct.subproduct || '',
             setOf: sku.setOf || '',
             poQty: subproduct.poQty,
@@ -800,13 +992,14 @@ const ConsumptionSheet = ({ formData = {} }) => {
 
       return (
         <div key={matIdx} className="min-w-0 border-b border-border">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-8 min-w-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-9 min-w-0">
             <div className={row4Cell} style={desktopTableCell}>
               <div className="flex items-start gap-2">
                 <span className="text-xs font-semibold text-muted-foreground">{matIdx + 1}.</span>
                 <span className="text-sm text-foreground break-words">{material.materialType || '-'}</span>
               </div>
             </div>
+            <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{material.materialDescription || '-'}</span></div>
             <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matNetCns || '-'}</span></div>
             <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{overageQty}</span></div>
             <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matTotalWastage}%</span></div>
@@ -871,6 +1064,9 @@ const ConsumptionSheet = ({ formData = {} }) => {
                 <span className="text-[10px] font-semibold text-muted-foreground">#{matIdx + 1}</span>
               </div>
               <p className="mt-1.5 text-base font-semibold text-foreground leading-snug">{material.materialType || 'Raw material'}</p>
+              {material.materialDescription && (
+                <p className="mt-1 text-sm text-muted-foreground leading-snug break-words">{material.materialDescription}</p>
+              )}
             </div>
             <div className="space-y-3 mt-3">
               <div className="flex justify-between items-baseline gap-3">
@@ -1026,10 +1222,15 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`, { size: 'sm' 
               </div>
             ) : (
               <div className="min-w-0">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-8 min-w-0 border-b border-border bg-muted/30">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-9 min-w-0 border-b border-border bg-muted/30">
                   <div className={row4Cell} style={desktopHeaderCell}>
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider inline-flex items-center gap-2">
                       Raw Material {renderInfoIcon('Each row is a raw material; its work orders are listed below')}
+                    </span>
+                  </div>
+                  <div className={row4Cell} style={desktopHeaderCell}>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider inline-flex items-center gap-2">
+                      Material Description {renderInfoIcon('Description of the raw material')}
                     </span>
                   </div>
                   <div className={row4Cell} style={desktopHeaderCell}>
@@ -1175,10 +1376,11 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
               /* Mobile: grouped cards */
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {artworkMats.map((artwork, idx) => {
-                  const artworkNetCns = parseFloat(artwork.netConsumption) || 0;
+                  const artworkQty = getArtworkQuantity(artwork);
+                  const artworkQtyNum = parseFloat(String(artworkQty).replace(/[^0-9.-]/g, '')) || 0;
                   const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
                   const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
-                  const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkNetCns);
+                  const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkQtyNum);
                   const artworkGrossCnsSet = (parseFloat(artworkGrossCns) || 0) * setOfNumber;
                   const artUnit = (artwork.unit || '-').toString().toUpperCase();
                   return (
@@ -1191,9 +1393,9 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                         <div className="space-y-3">
                           <div className="flex justify-between items-baseline gap-3">
                             <span className="text-xs font-medium text-muted-foreground shrink-0 inline-flex items-center gap-2">
-                              {renderInfoIcon('Sum of net consumption for this artwork material', { size: 'sm' })} Net CNS
+                              {renderInfoIcon('Quantity from artwork material', { size: 'sm' })} Quantity
                             </span>
-                            <span className="text-sm font-semibold text-foreground tabular-nums">{artworkNetCns || '–'}</span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{artworkQty || '–'}</span>
                           </div>
                           <div className="flex justify-between items-baseline gap-3">
                             <span className="text-xs font-medium text-muted-foreground shrink-0 inline-flex items-center gap-2">
@@ -1233,7 +1435,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Material Description</span></div>
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}>
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider inline-flex items-center gap-2">
-                      Net CNS {renderInfoIcon('Sum of net consumption for this artwork material')}
+                      Quantity {renderInfoIcon('Quantity from artwork material')}
                     </span>
                   </div>
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}>
@@ -1261,17 +1463,18 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                   </div>
                 </div>
                 {artworkMats.map((artwork, idx) => {
-                  const artworkNetCns = parseFloat(artwork.netConsumption) || 0;
+                  const artworkQty = getArtworkQuantity(artwork);
+                  const artworkQtyNum = parseFloat(String(artworkQty).replace(/[^0-9.-]/g, '')) || 0;
                   const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
                   const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
-                  const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkNetCns);
+                  const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkQtyNum);
                   const artworkGrossCnsSet = (parseFloat(artworkGrossCns) || 0) * setOfNumber;
                   const artCellClass = 'min-w-0 border-r border-border bg-muted/5';
                   const artLastClass = 'min-w-0 border-border bg-muted/5';
                   return (
                     <div key={idx} className="grid grid-cols-2 sm:grid-cols-6 min-w-0 border-b border-border last:border-b-0">
                       <div className={artCellClass} style={desktopTableCell}><span className="text-sm text-foreground break-words">{artwork.materialDescription || '-'}</span></div>
-                      <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{artworkNetCns || '-'}</span></div>
+                      <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{artworkQty || '-'}</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{artworkCompoundWastage}%</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-primary">{artworkGrossCns}</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-primary">{artworkGrossCnsSet.toFixed(3)}</span></div>
@@ -1288,158 +1491,247 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
     );
   };
 
-  // Packaging Row: Display at product/IPC level
-  const PackagingRow = ({ product, formData, isMobile }) => {
-    const stepData = product.stepData;
-    const packagingMats = getPackagingMaterialsForProduct(stepData);
+  // Packaging Row: renders one packaging block (main or extra pack)
+  const PackagingRow = ({ product, formData, isMobile, pkgBlock }) => {
+    const { config: pkgConfig, materials: packagingMats, label: blockLabel } = pkgBlock;
+    const skus = formData.skus || [];
 
     if (!packagingMats || packagingMats.length === 0) return null;
 
-    const packagingType = stepData?.packaging?.toBeShipped || '';
-    const isMerged = packagingType.toLowerCase() === 'merged';
-    const isStandalone = packagingType.toLowerCase() === 'standalone';
-    
-    // Get merged IPCs/products if merged
-    const productSelection = stepData?.packaging?.productSelection || [];
+    const packagingType = (pkgConfig?.toBeShipped || '').toLowerCase();
+    const isMerged = packagingType === 'merged';
+    const productSelection = pkgConfig?.productSelection || [];
+    const selectedIpcs = Array.isArray(productSelection) ? productSelection : (productSelection ? [productSelection] : []);
     const mergedItems = isMerged ? getMergedIpcsProducts(productSelection, formData) : [];
+    // For inner polybag table: use selected IPCs when merged, else current product's IPC (standalone)
+    const ipcsForInnerTable = isMerged && selectedIpcs.length > 0 ? selectedIpcs : (product.ipcCode ? [product.ipcCode] : []);
+    const formCasepack = parseFloat(String(pkgConfig?.casepackQty || '').trim()) || 0;
+
+    const ipcsDisplay = isMerged && mergedItems.length > 0
+      ? mergedItems.map((i) => i.ipcCode).join(', ')
+      : (product.ipcCode || '');
+
+    const totalPoQtyForMerged = mergedItems.reduce((sum, item) => sum + getPoQtyForIpc(skus, item.ipcCode), 0);
+    const poQtyForStandalone = getPoQtyForIpc(skus, product.ipcCode);
+
+    const row4Cell = 'min-w-0 border-r border-border bg-muted/5 flex items-center';
+    const row4Last = 'min-w-0 border-border bg-muted/5 flex items-center';
+    const desktopHeaderCell = { padding: '12px 18px' };
+    const desktopTableCell = { padding: '14px 18px' };
+
+    const isPolybagInner = (p) => {
+      const type = String(p.packagingMaterialType || '').trim();
+      const innerType = String(p.polybagBalePackagingType || '').trim();
+      const isPolybagBale = /polybag\s*[~-]?\s*bale/i.test(type) || type === 'POLYBAG~Bale';
+      const isInnerCasepack = /inner\s*[~-]?\s*caseapack/i.test(innerType) || /inner/i.test(innerType);
+      return isPolybagBale && isInnerCasepack;
+    };
+    const standardMats = packagingMats.filter((p) => !isPolybagInner(p));
+    const innerMats = packagingMats.filter(isPolybagInner);
 
     return (
       <div className="w-full min-w-0 mb-8">
-        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm min-w-0" style={{ padding: isMobile ? '18px 16px' : '20px' }}>
-          {/* ROW 1: IPC(s) */}
-          <div className="px-4 sm:px-6 py-4 border-b border-border bg-gradient-to-r from-muted/40 to-muted/20">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-              {isMerged ? 'IPC Codes' : 'IPC Code'}
-            </span>
-            {isMerged && mergedItems.length > 0 ? (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {mergedItems.map((item, idx) => (
-                  <span key={idx} className="text-lg font-bold text-foreground bg-muted/30 px-3 py-1 rounded">
-                    {item.ipcCode}
-                  </span>
-                ))}
-              </div>
+        <div className="border border-border rounded-xl bg-card shadow-sm min-w-0" style={{ padding: isMobile ? '18px 16px' : '20px' }}>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs font-bold text-foreground uppercase tracking-wider">{blockLabel}</span>
+            {isMerged ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-primary/15 text-primary border border-primary/30">
+                Merged
+              </span>
             ) : (
-              <span className="text-lg font-bold text-foreground">{product.ipcCode}</span>
-            )}
-          </div>
-
-          {/* ROW 2: Product(s) */}
-          <div className="px-4 sm:px-6 py-4 border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4">
-            <div className="flex-1">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-                {isMerged ? 'Products' : (product.isSubproduct ? 'Subproduct' : 'Product')}
-              </span>
-              {isMerged && mergedItems.length > 0 ? (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {mergedItems.map((item, idx) => (
-                    <span key={idx} className="text-base font-semibold text-foreground bg-muted/20 px-3 py-1 rounded">
-                      {item.ipcCode}: {item.productName || '-'}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-base font-semibold text-foreground">{product.productName || '-'}</span>
-              )}
-            </div>
-            {(isMerged || isStandalone) && (
-              <span className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 ${
-                isMerged ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
-              }`}>
-                {isMerged ? 'MERGED' : 'STANDALONE'}
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                Standalone
               </span>
             )}
           </div>
-
-          {/* PACKAGING SECTION */}
-          <div className="bg-muted/5" style={isMobile ? { padding: '18px 16px' } : { padding: '20px' }}>
-            <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Packaging</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px' }}>
-              {packagingMats.map((packaging, idx) => {
+          <div className="min-w-0 rounded-lg border border-border overflow-hidden bg-card">
+          {standardMats.length > 0 && (
+            <>
+              <div className="grid grid-cols-6 min-w-0 border-b border-border bg-muted/30">
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mat</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mat Desc</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">IPCs</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wastage/Surplus</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Casepack</span></div>
+                <div className={row4Last} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total mat req</span></div>
+              </div>
+              {standardMats.map((packaging, idx) => {
                 const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
                 const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
-                const packagingTypeName = formatPackagingTypeName(packaging.packagingMaterialType);
-                
+                const matDesc = (packaging.materialDescription || '').toString().trim();
+                const matType = formatPackagingTypeName(packaging.packagingMaterialType);
+                const matCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
+                const totalPo = isMerged ? totalPoQtyForMerged : poQtyForStandalone;
+                const reqMat = matCasepack > 0 ? (totalPo / matCasepack).toFixed(2) : '-';
                 return (
-                  <div
-                    key={idx}
-                    className="bg-white border border-border rounded-lg shadow-sm"
-                    style={{ padding: isMobile ? '16px 18px' : '18px 20px' }}
-                  >
-                    <div className="grid grid-cols-2" style={{ gap: isMobile ? '16px' : '20px' }}>
-                      <div style={isMobile ? {} : { padding: '4px 0' }}>
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Packaging Type</span>
-                        <span className="text-base font-bold text-foreground">{packagingTypeName}</span>
-                      </div>
-                      <div style={isMobile ? {} : { padding: '4px 0' }}>
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Wastage/Surplus</span>
-                        <span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span>
-                      </div>
-                    </div>
+                  <div key={`std-${idx}`} className="grid grid-cols-6 min-w-0 border-b border-border last:border-b-0">
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matType || '-'}</span></div>
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matDesc || '-'}</span></div>
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{ipcsDisplay || '-'}</span></div>
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span></div>
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matCasepack || '-'}</span></div>
+                    <div className={row4Last} style={desktopTableCell}><span className="text-base font-bold text-primary">{reqMat}</span></div>
                   </div>
                 );
               })}
-            </div>
-          </div>
+            </>
+          )}
+          {innerMats.map((packaging, idx) => {
+            const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
+            const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
+            const matDesc = (packaging.materialDescription || '').toString().trim();
+            const matName = matDesc || formatPackagingTypeName(packaging.packagingMaterialType);
+            const matCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
+            const polybagNum = parseFloat(String(packaging.polybagBalePolybagCount || '').trim()) || 0;
+            const innerQty = polybagNum > 0 ? matCasepack / polybagNum : 0;
+            const assdByIpc = packaging.polybagBaleAssdQtyByIpc && typeof packaging.polybagBaleAssdQtyByIpc === 'object'
+              ? packaging.polybagBaleAssdQtyByIpc : {};
+
+            if (ipcsForInnerTable.length === 0) return null;
+
+            return (
+              <div key={`inner-${idx}`} className="border-b border-border last:border-b-0">
+                <div className="grid grid-cols-4 min-w-0 border-b border-border bg-muted/30">
+                  <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mat</span></div>
+                  <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mat Desc</span></div>
+                  <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Casepack</span></div>
+                  <div className={row4Last} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wastage/Surplus</span></div>
+                </div>
+                <div className="grid grid-cols-4 min-w-0 border-b border-border">
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{formatPackagingTypeName(packaging.packagingMaterialType) || '-'}</span></div>
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matDesc || '-'}</span></div>
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matCasepack || '-'}</span></div>
+                  <div className={row4Last} style={desktopTableCell}><span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span></div>
+                </div>
+                <div className="pt-2 pb-2">
+                    <div className="rounded-lg border border-border overflow-hidden bg-card mt-2">
+                      <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr className="border-b border-border bg-muted/30">
+                            <th className="text-left font-semibold text-muted-foreground uppercase text-xs border-r border-border last:border-r-0" style={desktopHeaderCell}>PO</th>
+                            <th className="text-left font-semibold text-muted-foreground uppercase text-xs border-r border-border last:border-r-0" style={desktopHeaderCell}>IPC</th>
+                            <th className="text-left font-semibold text-muted-foreground uppercase text-xs border-r border-border last:border-r-0" style={desktopHeaderCell}>ASSD QTY</th>
+                            <th className="text-left font-semibold text-muted-foreground uppercase text-xs border-r border-border last:border-r-0" style={desktopHeaderCell}>INNER QTY</th>
+                            <th className="text-left font-semibold text-muted-foreground uppercase text-xs" style={desktopHeaderCell}>REQ MAT</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ipcsForInnerTable.map((ipc) => {
+                            const poQty = getPoQtyForIpc(skus, ipc);
+                            const assd = parseFloat(String(assdByIpc[ipc] ?? '').trim()) || 0;
+                            const reqMat = innerQty > 0 ? assd / innerQty : 0;
+                            return (
+                              <tr key={ipc} className="border-b border-border/70 last:border-b-0 bg-muted/5">
+                                <td className="text-foreground border-r border-border" style={desktopTableCell}>{poQty || '-'}</td>
+                                <td className="font-medium text-foreground border-r border-border" style={desktopTableCell}>{ipc}</td>
+                                <td className="text-foreground border-r border-border" style={desktopTableCell}>{assd || '-'}</td>
+                                <td className="text-foreground border-r border-border" style={desktopTableCell}>{innerQty > 0 ? innerQty.toFixed(2) : '-'}</td>
+                                <td className="font-semibold text-primary" style={desktopTableCell}>{reqMat > 0 ? reqMat.toFixed(2) : '-'}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+            );
+          })}
+        </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div
-      className="w-full min-w-0 overflow-y-auto overflow-x-hidden"
-      style={{
-        maxHeight: 'calc(100vh - 250px)',
-        WebkitOverflowScrolling: 'touch',
-        touchAction: 'pan-y',
-        overscrollBehavior: 'contain',
-      }}
-    >
-      {allProducts.length > 0 ? (
-        (() => {
-          const shownMergedKeys = new Set();
-          return allProducts.map((product, idx) => {
-            const stepData = product.stepData;
-            const packagingType = stepData?.packaging?.toBeShipped || '';
-            const isMerged = packagingType.toLowerCase() === 'merged';
-            const productSelection = stepData?.packaging?.productSelection || [];
-            const mergedKey = Array.isArray(productSelection) ? productSelection.sort().join(',') : String(productSelection);
-            
-            // For merged: only show packaging once per merged group
-            // For standalone: show packaging for each product
-            let shouldShowPackaging = true;
-            if (isMerged && mergedKey) {
-              if (shownMergedKeys.has(mergedKey)) {
-                shouldShowPackaging = false;
-              } else {
-                shownMergedKeys.add(mergedKey);
-              }
-            }
+    <div>
+      <div
+        className="w-full min-w-0 overflow-y-auto overflow-x-auto"
+        style={{
+          maxHeight: 'calc(100vh - 250px)',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
+          overscrollBehavior: 'contain',
+        }}
+      >
+        {allProducts.length > 0 ? (
+          (() => {
+            // 1. Collect all packaging rows to render at the end (same dedup logic)
+            const packagingRows = [];
+            const shownMergedKeys = new Set();
+            const shownStandaloneBlockKeys = new Set();
+            allProducts.forEach((product, idx) => {
+              const blocks = getAllPackagingBlocks(formData, product.stepData);
+              blocks.forEach((pkgBlock, blockIdx) => {
+                const pkgConfig = pkgBlock.config;
+                const packagingType = (pkgConfig?.toBeShipped || '').toLowerCase();
+                const isMerged = packagingType === 'merged';
+                const productSelection = pkgConfig?.productSelection ?? [];
+                const selArr = Array.isArray(productSelection) ? productSelection : (productSelection ? [productSelection] : []);
+                const mergedKey = [...selArr].sort().join(',');
+                const productIpc = product.ipcCode || '';
+
+                let shouldShow = false;
+                if (isMerged) {
+                  const key = `${blockIdx}:${mergedKey}`;
+                  if (mergedKey && !shownMergedKeys.has(key)) {
+                    shownMergedKeys.add(key);
+                    shouldShow = true;
+                  }
+                } else {
+                  if (selArr.length > 0) {
+                    shouldShow = selArr.includes(productIpc) && !shownStandaloneBlockKeys.has(`${blockIdx}:${productIpc}`);
+                    if (shouldShow) shownStandaloneBlockKeys.add(`${blockIdx}:${productIpc}`);
+                  } else {
+                    shouldShow = !shownStandaloneBlockKeys.has(`block-${blockIdx}`);
+                    if (shouldShow) shownStandaloneBlockKeys.add(`block-${blockIdx}`);
+                  }
+                }
+
+                if (shouldShow) {
+                  packagingRows.push({ product, pkgBlock, key: `pkg-${idx}-${blockIdx}` });
+                }
+              });
+            });
 
             return (
-              <div key={idx}>
-                {product.components.map((component, cIdx) =>
-                  component.productComforter ? (
-                    <ComponentRow
-                      key={`${idx}-${cIdx}`}
-                      componentName={component.productComforter}
-                      component={component}
-                      product={product}
-                    />
-                  ) : null
-                )}
-                {/* Packaging section at product/IPC level */}
-                {shouldShowPackaging && <PackagingRow product={product} formData={formData} isMobile={isMobileCns} />}
-              </div>
+              <>
+                {/* 2. Render all product components first */}
+                {allProducts.map((product, idx) => (
+                  <div key={idx}>
+                    {product.components.map((component, cIdx) =>
+                      component.productComforter ? (
+                        <ComponentRow
+                          key={`${idx}-${cIdx}`}
+                          componentName={component.productComforter}
+                          component={component}
+                          product={product}
+                        />
+                      ) : null
+                    )}
+                  </div>
+                ))}
+                {/* 3. Render all packaging at the end */}
+                {packagingRows.map(({ product, pkgBlock, key }) => (
+                  <PackagingRow
+                    key={key}
+                    product={product}
+                    formData={formData}
+                    isMobile={isMobileCns}
+                    pkgBlock={pkgBlock}
+                  />
+                ))}
+              </>
             );
-          });
-        })()
-      ) : (
-        <div className="text-center py-12 text-muted-foreground">No products found. Please complete previous steps first.</div>
-      )}
+          })()
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">No products found. Please complete previous steps first.</div>
+        )}
+      </div>
     </div>
   );
-};
+});
+
+ConsumptionSheet.displayName = 'ConsumptionSheet';
 
 export default ConsumptionSheet;
