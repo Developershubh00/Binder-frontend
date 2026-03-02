@@ -1176,10 +1176,9 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">DIMENSIONS</label>
                         {(() => {
-                          const legacy = parsePairDimensions(material.polybagPolybagFlapDimensions);
-                          const lengthVal = material.polybagPolybagFlapLength || legacy.length;
-                          const widthVal = material.polybagPolybagFlapWidth || legacy.width;
-                          const gVal = material.polybagPolybagFlapGaugeThickness || '';
+                          const lengthVal = material.polybagPolybagFlapLength ?? '';
+                          const widthVal = material.polybagPolybagFlapWidth ?? '';
+                          const gVal = material.polybagPolybagFlapGaugeThickness ?? '';
                           return (
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div className="flex flex-col">
