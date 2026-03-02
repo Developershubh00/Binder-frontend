@@ -88,7 +88,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     orderType: initialFormData.orderType || '',
     programName: initialFormData.programName || '',
     ipoCode: initialFormData.ipoCode || '',
-    poSrNo: initialFormData.poSrNo || null,
+    poSrNo: initialFormData.poSrNo ?? null,
+    type: initialFormData.type || '', // Company orders: STOCK | SAM
     // Step 0 - Multiple SKUs
     buyerCode: initialFormData.buyerCode || '',
     skus: [{
@@ -515,7 +516,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   useEffect(() => {
-    const savedData = loadFromLocalStorage(initialFormData?.ipoCode);
+    // Try ipoCode-specific key first, then fallback to generic key
+    let savedData = loadFromLocalStorage(initialFormData?.ipoCode);
+    if (!savedData && initialFormData?.ipoCode) {
+      savedData = loadFromLocalStorage(null); // Fallback: generic key (legacy)
+    }
     if (!savedData) return;
 
     const hasInitialFromIPO = initialFormData?.ipoCode || (initialFormData?.programName && (initialFormData?.buyerCode || initialFormData?.type));
@@ -525,14 +530,19 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       return;
     }
 
-    const draftMatchesContext =
-      (!initialFormData?.ipoCode || savedData.ipoCode === initialFormData.ipoCode) &&
-      savedData.programName === initialFormData.programName &&
-      (initialFormData.orderType === 'Company'
-        ? savedData.type === initialFormData.type
-        : String(savedData.buyerCode || '') === String(initialFormData.buyerCode || ''));
+    // When loading by ipoCode, the storage key is unique - data belongs to this IPO.
+    // Use relaxed matching: ipoCode match + programName/buyerCode|type (with normalize for edge cases)
+    const norm = (v) => String(v ?? '').trim().toLowerCase();
+    const ipoMatch = !initialFormData?.ipoCode || (savedData.ipoCode && norm(savedData.ipoCode) === norm(initialFormData.ipoCode));
+    const programMatch = norm(savedData.programName) === norm(initialFormData.programName);
+    const contextMatch = initialFormData.orderType === 'Company'
+      ? norm(savedData.type) === norm(initialFormData.type)
+      : norm(savedData.buyerCode) === norm(initialFormData.buyerCode);
 
-    if (draftMatchesContext) {
+    if (ipoMatch && programMatch && contextMatch) {
+      setFormData(prev => ({ ...prev, ...savedData }));
+    } else if (ipoMatch) {
+      // IPO codes match (we loaded from ipoCode-specific key) - trust it even if metadata drifted
       setFormData(prev => ({ ...prev, ...savedData }));
     }
   }, []);
