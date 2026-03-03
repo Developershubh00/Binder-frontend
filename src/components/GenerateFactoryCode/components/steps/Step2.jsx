@@ -1248,22 +1248,24 @@ const Step2 = ({
                         </Field>
                         
                         <Field label="TESTING REQUIREMENTS" required width="lg" error={errors[`rawMaterial_${actualIndex}_testingRequirements`]}>
-                          <Input
-                            type="text"
-                            value={material.testingRequirements || ''}
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'testingRequirements', e.target.value)}
-                            aria-invalid={!!errors[`rawMaterial_${actualIndex}_testingRequirements`]}
-                            placeholder="Enter testing requirements"
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.testingRequirements) ? material.testingRequirements : (material.testingRequirements ? [String(material.testingRequirements).trim()] : [])}
+                            onChange={(arr) => handleRawMaterialChange(actualIndex, 'testingRequirements', arr)}
+                            options={[]}
+                            placeholder="Type to add Testing Requirements"
+                            className={errors[`rawMaterial_${actualIndex}_testingRequirements`] ? 'border-red-600' : ''}
+                            error={!!errors[`rawMaterial_${actualIndex}_testingRequirements`]}
                           />
                         </Field>
                         
                         <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_approval`]}>
-                          <SearchableDropdown
-                            value={material.approval || ''}
-                            onChange={(value) => handleRawMaterialChange(actualIndex, 'approval', value)}
+                          <TestingRequirementsInput
+                            value={Array.isArray(material.approval) ? material.approval : (material.approval ? [String(material.approval).trim()] : [])}
+                            onChange={(arr) => handleRawMaterialChange(actualIndex, 'approval', arr)}
                             options={MATERIAL_APPROVAL_OPTIONS}
                             placeholder="Select or type Approval"
                             className={errors[`rawMaterial_${actualIndex}_approval`] ? 'border-red-600' : ''}
+                            error={!!errors[`rawMaterial_${actualIndex}_approval`]}
                           />
                         </Field>
                         
@@ -1396,7 +1398,7 @@ const Step2 = ({
                           handleRawMaterialChange(actualIndex, 'fabricComposition', '');
                           handleRawMaterialChange(actualIndex, 'constructionType', '');
                           handleRawMaterialChange(actualIndex, 'weaveKnitType', '');
-                          handleRawMaterialChange(actualIndex, 'fabricApproval', '');
+                          handleRawMaterialChange(actualIndex, 'fabricApproval', []);
                         }
                       }}
                       options={material.fabricFiberType ? getTextileFabricNames(material.fabricFiberType) : []}
@@ -1453,26 +1455,26 @@ const Step2 = ({
                   
                   {/* Testing Requirements */}
                   <Field label="TESTING REQUIREMENTS" required width="lg" error={errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`]}>
-                    <Input
-                      type="text"
-                      value={material.fabricTestingRequirements || ''}
-                      onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricTestingRequirements', e.target.value)}
-                      placeholder="Enter testing requirements"
-                      aria-invalid={!!errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`]}
+                    <TestingRequirementsInput
+                      value={Array.isArray(material.fabricTestingRequirements) ? material.fabricTestingRequirements : (material.fabricTestingRequirements ? [String(material.fabricTestingRequirements).trim()] : [])}
+                      onChange={(arr) => handleRawMaterialChange(actualIndex, 'fabricTestingRequirements', arr)}
+                      options={[]}
+                      placeholder="Type to add Testing Requirements"
+                      className={errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`] ? 'border-red-600' : ''}
+                      error={!!errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`]}
                     />
                   </Field>
                   
                   {/* Approval */}
                   <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricApproval`]}>
-                    <SearchableDropdown
-                      value={material.fabricApproval || ''}
-                      onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricApproval', value)}
-                      options={material.fabricFiberType && material.fabricName 
-                        ? getFabricApprovalOptions(material.fabricFiberType, material.fabricName)
-                        : []}
+                    <TestingRequirementsInput
+                      value={Array.isArray(material.fabricApproval) ? material.fabricApproval : (material.fabricApproval ? [String(material.fabricApproval).trim()] : [])}
+                      onChange={(arr) => handleRawMaterialChange(actualIndex, 'fabricApproval', arr)}
+                      options={material.fabricFiberType && material.fabricName ? getFabricApprovalOptions(material.fabricFiberType, material.fabricName) : []}
                       placeholder={material.fabricFiberType && material.fabricName ? "Select or type Approval" : "Select Fabric First"}
                       disabled={!material.fabricFiberType || !material.fabricName}
                       className={errors[`rawMaterial_${actualIndex}_fabricApproval`] ? 'border-red-600' : ''}
+                      error={!!errors[`rawMaterial_${actualIndex}_fabricApproval`]}
                     />
                   </Field>
                   
