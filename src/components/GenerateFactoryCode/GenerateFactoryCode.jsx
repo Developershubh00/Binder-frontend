@@ -3323,6 +3323,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             placement: '',
             workOrder: '',
             qualityVerification: '',
+            qualityVerificationByCategory: {},
             wastage: '',
             forField: '',
             packagingWorkOrder: '',

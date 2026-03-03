@@ -6531,15 +6531,15 @@ const Step4 = ({
                     )}
                   </div>
                   )}
-                  </>
-                )}
-              </div>
-              <div style={{ marginTop: '20px' }}>
+              <div className="w-full col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
                 <QualityVerificationToggle
-                  value={material.qualityVerification}
-                  onChange={(value) => handleArtworkMaterialChange(actualIndex, 'qualityVerification', value)}
+                  value={material.qualityVerificationByCategory?.[material.artworkCategory] ?? material.qualityVerification}
+                  onChange={(value) => handleArtworkMaterialChange(actualIndex, 'qualityVerificationByCategory', { ...(material.qualityVerificationByCategory || {}), [material.artworkCategory]: value })}
                   width="lg"
                 />
+              </div>
+                  </>
+                )}
               </div>
           </div>
                 );

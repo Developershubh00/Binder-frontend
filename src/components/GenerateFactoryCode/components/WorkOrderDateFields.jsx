@@ -13,11 +13,13 @@ const WorkOrderDateFields = ({
   onChange,
   errorStartDate,
   errorDateOfCompletion,
+  startDateLabel = 'starting date',
+  completionDateLabel = 'completion date',
   className = ''
 }) => (
   <div className={className} style={{ display: 'flex', flexWrap: 'wrap', gap: '24px 32px', marginTop: '16px' }}>
     <Field
-      label="START DATE"
+      label={startDateLabel}
       required
       width="sm"
       error={errorStartDate}
@@ -33,7 +35,7 @@ const WorkOrderDateFields = ({
       />
     </Field>
     <Field
-      label="DATE OF COMPLETION"
+      label={completionDateLabel}
       required
       width="sm"
       error={errorDateOfCompletion}

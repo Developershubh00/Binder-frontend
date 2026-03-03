@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 const QualityVerificationToggle = ({
   value,
   onChange,
-  label = 'QUALITY VERIFICATION',
+  label = 'Do you want the goods to be quality inspected ?',
   width = 'sm',
   className
 }) => {
@@ -20,7 +20,7 @@ const QualityVerificationToggle = ({
   ];
 
   return (
-    <Field label={label} width={width} className={cn('w-fit', className)}>
+    <Field label={label} width={width} className={cn('w-fit', '[&>label]:whitespace-nowrap', className)}>
       <div
         className="flex items-center gap-4"
         role="radiogroup"

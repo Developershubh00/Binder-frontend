@@ -82,7 +82,7 @@ export const STITCHING_THREAD_SCHEMA = {
 
 // ==================== WORK ORDER SCHEMAS ====================
 const WORK_ORDER_DATE_FIELDS = ['startDate', 'dateOfCompletion'];
-const WORK_ORDER_DATE_LABELS = { startDate: 'Start Date', dateOfCompletion: 'Date of Completion' };
+const WORK_ORDER_DATE_LABELS = { startDate: 'starting date', dateOfCompletion: 'completion date' };
 
 export const WORK_ORDER_SCHEMAS = {
   'BRAIDING': {
