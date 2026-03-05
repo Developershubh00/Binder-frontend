@@ -185,9 +185,40 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
     if (!material) return false;
     const materialType = material.materialType?.toString().trim();
     const materialDescription = material.materialDescription?.toString().trim();
+    const isStitchingThread = materialType === 'Yarn' && material.subMaterial?.toString().trim() === 'Stitching Thread';
+    if (isStitchingThread) {
+      // Stitching Thread: single qty + unit (with backward compat for old yardage/kgs)
+      const qty = material.stitchingThreadQty?.toString().trim() ||
+        material.stitchingThreadQtyYardage?.toString().trim() ||
+        material.stitchingThreadQtyKgs?.toString().trim();
+      const unit = material.stitchingThreadUnit?.trim() ||
+        (material.stitchingThreadQtyYardage != null && String(material.stitchingThreadQtyYardage).trim() !== '' ? 'Yardage' : null) ||
+        (material.stitchingThreadQtyKgs != null && String(material.stitchingThreadQtyKgs).trim() !== '' ? 'Kgs' : null);
+      return Boolean(materialType && materialDescription && qty && unit);
+    }
     const netConsumption = material.netConsumption?.toString().trim();
     const unit = material.unit?.toString().trim();
     return Boolean(materialType && materialDescription && netConsumption && unit);
+  };
+
+  // For Stitching Thread: get net cns value and unit (single qty + unit, with backward compat)
+  const getStitchingThreadNetCnsAndUnit = (material) => {
+    if (!material) return { netCns: 0, unit: '-' };
+    const isStitchingThread = material.materialType?.toString().trim() === 'Yarn' && material.subMaterial?.toString().trim() === 'Stitching Thread';
+    if (!isStitchingThread) return null;
+    if (material.stitchingThreadQty != null && material.stitchingThreadQty !== '') {
+      const n = parseFloat(String(material.stitchingThreadQty).replace(/[^0-9.-]/g, ''));
+      return { netCns: isNaN(n) ? 0 : n, unit: (material.stitchingThreadUnit || '-').toString().trim() || '-' };
+    }
+    if (material.stitchingThreadQtyYardage != null && String(material.stitchingThreadQtyYardage).trim() !== '') {
+      const n = parseFloat(String(material.stitchingThreadQtyYardage).replace(/[^0-9.-]/g, ''));
+      return { netCns: isNaN(n) ? 0 : n, unit: 'Yardage' };
+    }
+    if (material.stitchingThreadQtyKgs != null && String(material.stitchingThreadQtyKgs).trim() !== '') {
+      const n = parseFloat(String(material.stitchingThreadQtyKgs).replace(/[^0-9.-]/g, ''));
+      return { netCns: isNaN(n) ? 0 : n, unit: 'Kgs' };
+    }
+    return { netCns: 0, unit: '-' };
   };
 
   // Helper: Get raw materials for a component from stepData (Step-2)
@@ -403,7 +434,9 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
 
     const rawMats = getRawMaterialsForComponent(componentName, stepData);
     rawMats.forEach((m) => {
-      if (m.netConsumption) consumptions.push(m.netConsumption);
+      const stitching = getStitchingThreadNetCnsAndUnit(m);
+      if (stitching !== null && stitching.netCns != null) consumptions.push(stitching.netCns);
+      else if (m.netConsumption) consumptions.push(m.netConsumption);
     });
 
     const consumptionMats = getConsumptionMaterialsForComponent(componentName, stepData, productComponents);
@@ -426,9 +459,11 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
   // Helper: Get net CNS from raw materials only (Step-2) for the Raw Material row – isolated from consumption/artwork
   const getRawMaterialsOnlyNetCNS = (componentName, stepData) => {
     const rawMats = getRawMaterialsForComponent(componentName, stepData);
-    const consumptions = rawMats
-      .filter((m) => m.netConsumption)
-      .map((m) => m.netConsumption);
+    const consumptions = rawMats.map((m) => {
+      const stitching = getStitchingThreadNetCnsAndUnit(m);
+      if (stitching !== null) return stitching.netCns;
+      return m.netConsumption ? parseFloat(m.netConsumption) : null;
+    }).filter((v) => v != null && !isNaN(v));
     return calculateNetConsumption(consumptions);
   };
 
@@ -977,14 +1012,17 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
     };
 
     const renderDesktopMaterialBlock = (material, matIdx) => {
-      const matNetCns = material.netConsumption != null ? parseFloat(material.netConsumption) : 0;
+      const stitchingData = getStitchingThreadNetCnsAndUnit(material);
+      const matNetCns = stitchingData !== null
+        ? stitchingData.netCns
+        : (material.netConsumption != null ? parseFloat(material.netConsumption) : 0);
       const wastageBreakdown = getRawMaterialWastageBreakdown(material);
       const matWastages = wastageBreakdown.map((b) => b.value);
       const matCompoundWastage = calculateCompoundWastage(matWastages);
       const matTotalWastage = calculateTotalWastage(matWastages);
       const matGrossCns = calculateGrossCns(overageQty, matWastages, matNetCns);
       const matGrossCnsSet = (parseFloat(matGrossCns) || 0) * setOfNumber;
-      const matUnit = material.unit || unit || '-';
+      const matUnit = stitchingData !== null ? stitchingData.unit : (material.unit || unit || '-');
       const materialWorkOrders = filterValidWorkOrders(material.workOrders || []);
       const wastageTraceTitle = wastageBreakdown.length > 0
         ? `Gross wastage from (compounded): ${wastageBreakdown.map((b) => `${b.source} ${b.value}%`).join(' → ')}`
@@ -1045,14 +1083,17 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
     };
 
     const renderMobileTimelineBlock = (material, matIdx) => {
-      const matNetCns = material.netConsumption != null ? parseFloat(material.netConsumption) : 0;
+      const stitchingData = getStitchingThreadNetCnsAndUnit(material);
+      const matNetCns = stitchingData !== null
+        ? stitchingData.netCns
+        : (material.netConsumption != null ? parseFloat(material.netConsumption) : 0);
       const wastageBreakdown = getRawMaterialWastageBreakdown(material);
       const matWastages = wastageBreakdown.map((b) => b.value);
       const matCompoundWastage = calculateCompoundWastage(matWastages);
       const matTotalWastage = calculateTotalWastage(matWastages);
       const matGrossCns = calculateGrossCns(overageQty, matWastages, matNetCns);
       const matGrossCnsSet = (parseFloat(matGrossCns) || 0) * setOfNumber;
-      const matUnit = (material.unit || unit || '-').toString().toUpperCase();
+      const matUnit = (stitchingData !== null ? stitchingData.unit : (material.unit || unit || '-')).toString().toUpperCase();
       const materialWorkOrders = filterValidWorkOrders(material.workOrders || []);
 
       return (

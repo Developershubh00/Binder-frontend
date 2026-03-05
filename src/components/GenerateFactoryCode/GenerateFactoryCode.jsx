@@ -1072,6 +1072,9 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   // Helpers to decide if a row has any user input (for optional navigation)
   const isRawMaterialFilled = (material = {}) => {
     const hasWorkOrderSelection = material.workOrders?.some(wo => wo?.workOrder?.trim());
+    const isStitchingThread = material.materialType === 'Yarn' && material.subMaterial?.toString().trim() === 'Stitching Thread';
+    const hasStitchingThreadQty = material.stitchingThreadQty?.toString().trim() || material.stitchingThreadQtyYardage?.toString().trim() || material.stitchingThreadQtyKgs?.toString().trim();
+    const hasStitchingThreadUnit = material.stitchingThreadUnit?.trim() || (material.stitchingThreadQtyYardage != null && String(material.stitchingThreadQtyYardage).trim() !== '') || (material.stitchingThreadQtyKgs != null && String(material.stitchingThreadQtyKgs).trim() !== '');
     return Boolean(
       material.materialType?.trim() ||
       material.materialDescription?.trim() ||
@@ -1090,6 +1093,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       material.stitchingThreadPly?.trim() ||
       material.stitchingThreadColour?.trim() ||
       material.stitchingThreadRef?.trim() ||
+      (isStitchingThread && (hasStitchingThreadQty || hasStitchingThreadUnit)) ||
       hasWorkOrderSelection
     );
   };
@@ -4127,11 +4131,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       if (isEmpty(material.materialDescription)) {
         newErrors[`${errorPrefix}_materialDescription`] = 'Material Description is required';
       }
-      if (isEmpty(material.netConsumption)) {
-        newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption per Pc is required';
-      }
-      if (isEmpty(material.unit)) {
-        newErrors[`${errorPrefix}_unit`] = 'Unit is required';
+      // Stitching Thread uses stitchingThreadQty + stitchingThreadUnit instead of netConsumption/unit
+      const isStitchingThread = matType === 'Yarn' && material.subMaterial?.toString().trim() === 'Stitching Thread';
+      if (!isStitchingThread) {
+        if (isEmpty(material.netConsumption)) {
+          newErrors[`${errorPrefix}_netConsumption`] = 'Net Consumption per Pc is required';
+        }
+        if (isEmpty(material.unit)) {
+          newErrors[`${errorPrefix}_unit`] = 'Unit is required';
+        }
       }
       
       // === FABRIC SPECIFIC FIELDS ===
