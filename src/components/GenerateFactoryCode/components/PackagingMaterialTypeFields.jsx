@@ -1,4 +1,5 @@
 import SearchableDropdown from './SearchableDropdown';
+import UnitDropdown from './UnitDropdown';
 import { PACKAGING_APPROVAL_OPTIONS } from '../data/approvalOptions';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import { cn } from '@/lib/utils';
@@ -195,16 +196,12 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                 </div>
                                 <div className="flex flex-col">
                                   <label className="text-xs text-gray-600 mb-1">UNIT</label>
-                                  <select
-                                    value={material.cartonBoxDimensionsUnit || 'CM'}
-                                    onChange={(e) => onChange('cartonBoxDimensionsUnit', e.target.value)}
-                                    className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
-                                    style={{ padding: '10px 14px', height: '44px', width: '100%' }}
-                                  >
-                                    <option value="CM">CM</option>
-                                    <option value="KGS">KGS</option>
-                                    <option value="PCS">PCS</option>
-                                  </select>
+                                  <UnitDropdown
+                                    value={material.cartonBoxDimensionsUnit ?? ''}
+                                    onChange={(v) => onChange('cartonBoxDimensionsUnit', v)}
+                                    className="border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                    style={{ height: '44px', width: '100%' }}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -241,16 +238,12 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             </div>
                             <div className="flex flex-col">
                               <label className="text-xs text-gray-600 mb-1">UNIT</label>
-                              <select
-                                value={material.cartonBoxStiffenerUnit || material.cartonBoxDimensionsUnit || 'CM'}
-                                onChange={(e) => onChange('cartonBoxStiffenerUnit', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                                style={{ padding: '10px 14px', height: '44px', width: '100%' }}
-                              >
-                                <option value="CM">CM</option>
-                                <option value="KGS">KGS</option>
-                                <option value="PCS">PCS</option>
-                              </select>
+                              <UnitDropdown
+                                value={material.cartonBoxStiffenerUnit ?? material.cartonBoxDimensionsUnit ?? ''}
+                                onChange={(v) => onChange('cartonBoxStiffenerUnit', v)}
+                                className={`border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                                style={{ height: '44px', width: '100%' }}
+                              />
                               {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerUnit`]}</span>}
                             </div>
                           </div>
@@ -448,16 +441,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="25"
                           />
-                          <select
-                            value={material.cornerProtectorLegLengthUnit || 'CM'}
-                            onChange={(e) => onChange('cornerProtectorLegLengthUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.cornerProtectorLegLengthUnit ?? ''}
+                            onChange={(v) => onChange('cornerProtectorLegLengthUnit', v)}
+                          />
                         </div>
                         {errors?.[`${errorKeyPrefix}_cornerProtectorLegLength`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cornerProtectorLegLength`]}</span>}
                       </div>
@@ -472,16 +459,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="3"
                           />
-                          <select
-                            value={material.cornerProtectorThicknessUnit || 'CM'}
-                            onChange={(e) => onChange('cornerProtectorThicknessUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.cornerProtectorThicknessUnit ?? ''}
+                            onChange={(v) => onChange('cornerProtectorThicknessUnit', v)}
+                          />
                         </div>
                         {errors?.[`${errorKeyPrefix}_cornerProtectorThickness`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cornerProtectorThickness`]}</span>}
                       </div>
@@ -496,16 +477,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="50"
                           />
-                          <select
-                            value={material.cornerProtectorHeightLengthUnit || 'CM'}
-                            onChange={(e) => onChange('cornerProtectorHeightLengthUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.cornerProtectorHeightLengthUnit ?? ''}
+                            onChange={(v) => onChange('cornerProtectorHeightLengthUnit', v)}
+                          />
                         </div>
                         {errors?.[`${errorKeyPrefix}_cornerProtectorHeightLength`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cornerProtectorHeightLength`]}</span>}
                       </div>
@@ -733,16 +708,12 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               </div>
                               <div className="flex flex-col">
                                 <label className="text-xs text-gray-600 mb-1">UNIT</label>
-                                <select
-                                  value={material.foamInsertDimensionsUnit || 'CM'}
-                                  onChange={(e) => onChange('foamInsertDimensionsUnit', e.target.value)}
-                                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
-                                  style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                                >
-                                  <option value="CM">CM</option>
-                                  <option value="KGS">KGS</option>
-                                  <option value="PCS">PCS</option>
-                                </select>
+                                <UnitDropdown
+                                  value={material.foamInsertDimensionsUnit ?? ''}
+                                  onChange={(v) => onChange('foamInsertDimensionsUnit', v)}
+                                  className="border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                  style={{ height: '44px', width: '120px' }}
+                                />
                               </div>
                             </div>
                           );
@@ -929,16 +900,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="36"
                           />
-                          <select
-                            value={material.polybagBaleRollWidthUnit || 'CM'}
-                            onChange={(e) => onChange('polybagBaleRollWidthUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.polybagBaleRollWidthUnit ?? ''}
+                            onChange={(v) => onChange('polybagBaleRollWidthUnit', v)}
+                          />
                         </div>
                         {(errors?.[`${errorKeyPrefix}_polybagBaleRollWidth`] || errors?.[`${errorKeyPrefix}_polybagBaleRollWidthUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_polybagBaleRollWidth`] || errors[`${errorKeyPrefix}_polybagBaleRollWidthUnit`]}</span>}
                       </div>
@@ -1117,16 +1082,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="100"
                           />
-                          <select
-                            value={material.polybagBaleQuantityUnit || 'CM'}
-                            onChange={(e) => onChange('polybagBaleQuantityUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.polybagBaleQuantityUnit ?? ''}
+                            onChange={(v) => onChange('polybagBaleQuantityUnit', v)}
+                          />
                         </div>
                         {(errors?.[`${errorKeyPrefix}_polybagBaleQuantity`] || errors?.[`${errorKeyPrefix}_polybagBaleQuantityUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_polybagBaleQuantity`] || errors[`${errorKeyPrefix}_polybagBaleQuantityUnit`]}</span>}
                       </div>
@@ -1415,16 +1374,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="100"
                           />
-                          <select
-                            value={material.polybagPolybagFlapQuantityUnit || 'CM'}
-                            onChange={(e) => onChange('polybagPolybagFlapQuantityUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.polybagPolybagFlapQuantityUnit ?? ''}
+                            onChange={(v) => onChange('polybagPolybagFlapQuantityUnit', v)}
+                          />
                         </div>
                         {(errors?.[`${errorKeyPrefix}_polybagPolybagFlapQuantity`] || errors?.[`${errorKeyPrefix}_polybagPolybagFlapQuantityUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_polybagPolybagFlapQuantity`] || errors[`${errorKeyPrefix}_polybagPolybagFlapQuantityUnit`]}</span>}
                       </div>
@@ -1758,16 +1711,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="100"
                           />
-                          <select
-                            value={material.voidFillQuantityUnit || 'CM'}
-                            onChange={(e) => onChange('voidFillQuantityUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.voidFillQuantityUnit ?? ''}
+                            onChange={(v) => onChange('voidFillQuantityUnit', v)}
+                          />
                         </div>
                         {(errors?.[`${errorKeyPrefix}_voidFillQuantity`] || errors?.[`${errorKeyPrefix}_voidFillQuantityUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_voidFillQuantity`] || errors[`${errorKeyPrefix}_voidFillQuantityUnit`]}</span>}
                       </div>
@@ -1838,16 +1785,12 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           </div>
                           <div className="flex flex-col">
                             <label className="text-xs text-gray-600 mb-1">UNIT</label>
-                            <select
-                              value={material.dividerCellSizeUnit || 'CM'}
-                              onChange={(e) => onChange('dividerCellSizeUnit', e.target.value)}
-                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_dividerCellSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
-                              style={{ padding: '10px 14px', height: '44px', width: '120px' }}
-                            >
-                              <option value="CM">CM</option>
-                              <option value="KGS">KGS</option>
-                              <option value="PCS">PCS</option>
-                            </select>
+                            <UnitDropdown
+                              value={material.dividerCellSizeUnit ?? ''}
+                              onChange={(v) => onChange('dividerCellSizeUnit', v)}
+                              className={`border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_dividerCellSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              style={{ height: '44px', width: '120px' }}
+                            />
                           </div>
                         </div>
                         {(errors?.[`${errorKeyPrefix}_dividerCellSizeLength`] || errors?.[`${errorKeyPrefix}_dividerCellSizeWidth`] || errors?.[`${errorKeyPrefix}_dividerCellSizeUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_dividerCellSizeLength`] || errors[`${errorKeyPrefix}_dividerCellSizeWidth`] || errors[`${errorKeyPrefix}_dividerCellSizeUnit`]}</span>}
@@ -1864,16 +1807,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="50"
                           />
-                          <select
-                            value={material.dividerHeightUnit || 'CM'}
-                            onChange={(e) => onChange('dividerHeightUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.dividerHeightUnit ?? ''}
+                            onChange={(v) => onChange('dividerHeightUnit', v)}
+                          />
                         </div>
                         {errors?.[`${errorKeyPrefix}_dividerHeight`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_dividerHeight`]}</span>}
                       </div>
@@ -1974,20 +1911,14 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             type="text"
                             value={material.tapeWidth || ''}
                             onChange={(e) => onChange('tapeWidth', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
+                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200 placeholder:text-gray-400"
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="2"
                           />
-                          <select
-                            value={material.tapeWidthUnit || 'CM'}
-                            onChange={(e) => onChange('tapeWidthUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.tapeWidthUnit ?? ''}
+                            onChange={(v) => onChange('tapeWidthUnit', v)}
+                          />
                         </div>
                         {(errors?.[`${errorKeyPrefix}_tapeWidth`] || errors?.[`${errorKeyPrefix}_tapeWidthUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_tapeWidth`] || errors[`${errorKeyPrefix}_tapeWidthUnit`]}</span>}
                       </div>
@@ -2002,16 +1933,10 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             style={{ padding: '10px 14px', width: '80px' }}
                             placeholder="100"
                           />
-                          <select
-                            value={material.tapeLengthUnit || 'CM'}
-                            onChange={(e) => onChange('tapeLengthUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
+                          <UnitDropdown
+                            value={material.tapeLengthUnit ?? ''}
+                            onChange={(v) => onChange('tapeLengthUnit', v)}
+                          />
                         </div>
                         {(errors?.[`${errorKeyPrefix}_tapeLength`] || errors?.[`${errorKeyPrefix}_tapeLengthUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_tapeLength`] || errors[`${errorKeyPrefix}_tapeLengthUnit`]}</span>}
                       </div>
@@ -2189,29 +2114,6 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           </div>
                         </div>
                         {errors?.[`${errorKeyPrefix}_tapeTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_tapeTestingRequirements`]}</span>}
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY</label>
-                        <div className={`flex items-center gap-0 border-2 rounded-lg bg-white overflow-hidden focus-within:border-indigo-500 transition-all ${errors?.[`${errorKeyPrefix}_tapeQuantity`] ? 'border-red-600' : 'border-[#e5e7eb]'}`} style={{ height: '44px' }}>
-                          <input
-                            type="text"
-                            value={material.tapeQuantity || ''}
-                            onChange={(e) => onChange('tapeQuantity', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none border-r border-gray-200"
-                            style={{ padding: '10px 14px', width: '80px' }}
-                            placeholder="100"
-                          />
-                          <select
-                            value={material.tapeQuantityUnit || 'CM'}
-                            onChange={(e) => onChange('tapeQuantityUnit', e.target.value)}
-                            className="text-sm bg-transparent text-gray-900 focus:outline-none flex-grow"
-                            style={{ padding: '0 10px', height: '100%' }}
-                          >
-                            <option value="CM">CM</option>
-                            <option value="KGS">KGS</option>
-                            <option value="PCS">PCS</option>
-                          </select>
-                        </div>
                       </div>
                     </>
                   )}

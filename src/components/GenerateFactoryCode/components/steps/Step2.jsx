@@ -584,6 +584,9 @@ const Step2 = ({
                   />
                 </Field>
                 
+                {/* Net CNS and Unit: hidden for Stitching Thread (uses stitchingThreadQty + stitchingThreadUnit) */}
+                {!(material.materialType === "Yarn" && material.subMaterial === "Stitching Thread") && (
+                  <>
                 <Field
                   label={
                     <>
@@ -627,6 +630,8 @@ const Step2 = ({
                     required
                   />
                 </Field>
+                  </>
+                )}
               </div>
               
               {/* Stitching Thread Section - only show when subMaterial is "Stitching Thread" */}
@@ -924,29 +929,29 @@ const Step2 = ({
                         </div>
                       </div>
 
-                      {/* QTY - Yardage (CNS) */}
+                      {/* QTY (CNS) - single field */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY - Yardage (CNS)</label>
+                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY (CNS) <span className="text-red-600">*</span></label>
                         <input
                           type="text"
-                          value={material.stitchingThreadQtyYardage || ''}
-                          onChange={(e) => handleRawMaterialChange(actualIndex, 'stitchingThreadQtyYardage', e.target.value)}
+                          value={material.stitchingThreadQty ?? ''}
+                          onChange={(e) => handleRawMaterialChange(actualIndex, 'stitchingThreadQty', e.target.value)}
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Enter yardage"
+                          placeholder="Enter quantity"
                         />
                       </div>
 
-                      {/* QTY - Kgs (CNS) */}
+                      {/* UNIT - Yardage or Kgs */}
                       <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">QTY - Kgs (CNS)</label>
-                        <input
-                          type="text"
-                          value={material.stitchingThreadQtyKgs || ''}
-                          onChange={(e) => handleRawMaterialChange(actualIndex, 'stitchingThreadQtyKgs', e.target.value)}
+                        <label className="text-sm font-semibold text-gray-700 mb-2">UNIT <span className="text-red-600">*</span></label>
+                        <SearchableDropdown
+                          value={material.stitchingThreadUnit || ''}
+                          onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadUnit', value)}
+                          options={['Yardage', 'Kgs']}
+                          placeholder="Select unit"
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
-                          placeholder="Enter KGS"
                         />
                       </div>
 
@@ -1218,7 +1223,7 @@ const Step2 = ({
                         
                         <Field label="WINDING OPTIONS" required width="sm" error={errors[`rawMaterial_${actualIndex}_windingOptions`]}>
                           <SearchableDropdown
-                            value={material.windingOptions || details.windingOptions || ''}
+                            value={material.windingOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'windingOptions', value)}
                             options={material.fiberType && material.yarnType 
                               ? getYarnWindingOptions(material.fiberType, material.yarnType)

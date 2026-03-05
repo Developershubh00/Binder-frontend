@@ -101,6 +101,19 @@ import {
   INSERT_CARDS_BRANDING_OPTIONS
 } from '../../data/insertCardsData';
 import {
+  HEADER_CARDS_TYPES,
+  HEADER_CARDS_MATERIALS,
+  HEADER_CARDS_TESTING_REQUIREMENTS,
+  HEADER_CARDS_APPROVAL_OPTIONS,
+  HEADER_CARDS_FUNCTION_OPTIONS,
+  HEADER_CARDS_CONTENT_OPTIONS,
+  HEADER_CARDS_PRINTING_OPTIONS,
+  HEADER_CARDS_FINISH_OPTIONS,
+  HEADER_CARDS_STIFFNESS_OPTIONS,
+  HEADER_CARDS_ACID_FREE_OPTIONS,
+  HEADER_CARDS_BRANDING_OPTIONS
+} from '../../data/headerCardsData';
+import {
   LABELS_BRAND_TYPES,
   LABELS_BRAND_MATERIALS,
   LABELS_BRAND_PLACEMENT_OPTIONS,
@@ -175,6 +188,8 @@ import {
   SIZE_LABELS_APPROVAL_OPTIONS
 } from '../../data/sizeLabelsData';
 import QualityVerificationToggle from '../QualityVerificationToggle';
+
+const ARTWORK_QTY_UNIT_OPTIONS = ['CM', 'KGS', 'PCS'];
 
 const Step4 = ({
   formData,
@@ -291,7 +306,7 @@ const Step4 = ({
             {/* Material Header with Remove Button */}
             <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
               <h4 className="text-sm font-bold text-gray-700">MATERIAL {materialNumber}</h4>
-              {materialsForComponent.length > 1 && (
+              {materialsForComponent.length >= 1 && (
                 <button
                   type="button"
                   onClick={() => removeArtworkMaterial(actualIndex)}
@@ -322,7 +337,7 @@ const Step4 = ({
                   <SearchableDropdown
                     value={material.artworkCategory || ''}
                     onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'artworkCategory', selectedValue)}
-                    options={['LABELS (BRAND/MAIN)', 'CARE & COMPOSITION', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'INSERT CARDS', 'RIBBONS']}
+                    options={['LABELS (BRAND/MAIN)', 'CARE & COMPOSITION', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'INSERT CARDS', 'HEADER CARD', 'RIBBONS']}
                     placeholder="Select or type Category"
                     style={{ width: '280px' }}
                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
@@ -334,7 +349,7 @@ const Step4 = ({
                   <>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
                     {/* TYPE Field */}
-                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'HEADER CARD', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
                       <SearchableDropdown
@@ -356,7 +371,7 @@ const Step4 = ({
                     )}
 
                     {/* MATERIAL Field */}
-                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
+                    {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'HEADER CARD', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">
                           {material.artworkCategory === 'CARE & COMPOSITION' ? 'FIBER CONTENT' : 'MATERIAL'}
@@ -577,36 +592,49 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces/R LENGTH */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.labelsBrandQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces/R LENGTH"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_labelsBrandQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_labelsBrandQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_labelsBrandQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_labelsBrandQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.labelsBrandQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_labelsBrandQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_labelsBrandQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.labelsBrandSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'labelsBrandSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_labelsBrandSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_labelsBrandSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_labelsBrandSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_labelsBrandSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_labelsBrandSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -834,11 +862,11 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces/ R LENGTH */}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
                               <input
                                 type="text"
@@ -850,9 +878,22 @@ const Step4 = ({
                               />
                               {errors[`artworkMaterial_${actualIndex}_careCompositionQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_careCompositionQty`]}</span>}
                             </div>
-
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.careCompositionQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'careCompositionQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_careCompositionQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_careCompositionQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_careCompositionQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
                               <input
                                 type="text"
@@ -1128,36 +1169,49 @@ const Step4 = ({
                           </label>
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.rfidQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_rfidQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_rfidQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_rfidQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_rfidQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.rfidQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_rfidQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_rfidQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.rfidSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'rfidSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_rfidSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_rfidSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_rfidSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_rfidSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_rfidSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -1213,7 +1267,7 @@ const Step4 = ({
                               }
                             }}
                             options={LAW_LABEL_TYPES}
-                            placeholder="CM"
+                            placeholder="select or type"
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_lawLabelType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelType`]}</span>}
@@ -1370,36 +1424,49 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.lawLabelQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_lawLabelQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_lawLabelQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.lawLabelQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_lawLabelQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.lawLabelSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'lawLabelSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_lawLabelSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_lawLabelSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -1626,32 +1693,45 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.hangTagSealsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_hangTagSealsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hangTagSealsQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_hangTagSealsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hangTagSealsQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.hangTagSealsQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_hangTagSealsQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hangTagSealsQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.hangTagSealsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_hangTagSealsSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="e.g., 5%"
                               />
                               {errors[`artworkMaterial_${actualIndex}_hangTagSealsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_hangTagSealsSurplus`]}</span>}
@@ -1852,34 +1932,47 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces / Sheets */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.heatTransferQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_heatTransferQty`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces / Sheets (rolls of transfer film)"
-                          />
-                        </div>
-
+                              />
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.heatTransferQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_heatTransferQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_heatTransferQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_heatTransferQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.heatTransferSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'heatTransferSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_heatTransferSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_heatTransferSurplus`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                        </div>
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2099,34 +2192,47 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces / Rolls */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.upcBarcodeQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeQty', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeQty`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces / Rolls"
-                          />
-                        </div>
-
+                              />
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.upcBarcodeQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_upcBarcodeQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_upcBarcodeQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.upcBarcodeSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSurplus', e.target.value)}
-                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_\${actualIndex}_upcBarcodeSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_upcBarcodeSurplus`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="5%"
-                          />
-                        </div>
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2328,34 +2434,47 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces / Rolls */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.priceTicketQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces / Rolls"
-                          />
-                        </div>
-
+                              />
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.priceTicketQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_priceTicketQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_priceTicketQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS %</label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.priceTicketSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'priceTicketSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_priceTicketSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                        </div>
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2643,26 +2762,25 @@ const Step4 = ({
                           {errors[`artworkMaterial_${actualIndex}_antiCounterfeitPlacement`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_antiCounterfeitPlacement`]}</span>}
                         </div>
 
-                        {/* TESTING REQUIREMENTS, QTY, SURPLUS % in one row */}
+                        {/* TESTING REQUIREMENTS, QTY, UNIT, SURPLUS % */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                            {/* TESTING REQUIREMENTS - Simple Dropdown */}
-                            <div className="md:col-span-2 flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
+                            {/* TESTING REQUIREMENTS - full width row */}
+                            <div className="md:col-span-3 flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS <span className="text-red-500">*</span></label>
-                                                        <SearchableDropdown
-                            value={material.testingRequirements || ''}
-                            onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'testingRequirements', selectedValue)}
-                            options={ANTI_COUNTERFEIT_TESTING_REQUIREMENTS}
-                            placeholder="Select or type"
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_testingRequirements`] ? 'border-red-600' : 'border-border'}`}
-                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
-                            onBlur={(e) => e.target.style.boxShadow = ''}
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_testingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_testingRequirements`]}</span>}
+                              <SearchableDropdown
+                                value={material.testingRequirements || ''}
+                                onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'testingRequirements', selectedValue)}
+                                options={ANTI_COUNTERFEIT_TESTING_REQUIREMENTS}
+                                placeholder="Select or type"
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_testingRequirements`] ? 'border-red-600' : 'border-border'}`}
+                                onFocus={(e) => e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'}
+                                onBlur={(e) => e.target.style.boxShadow = ''}
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_testingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_testingRequirements`]}</span>}
                             </div>
-
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
                               <input
                                 type="number"
@@ -2674,20 +2792,33 @@ const Step4 = ({
                               />
                               {errors[`artworkMaterial_${actualIndex}_antiCounterfeitQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_antiCounterfeitQty`]}</span>}
                             </div>
-
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.antiCounterfeitQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_antiCounterfeitQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_antiCounterfeitQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.antiCounterfeitSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_antiCounterfeitSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_antiCounterfeitSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_antiCounterfeitSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_antiCounterfeitSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_antiCounterfeitSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -2999,36 +3130,49 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.qcInspectionQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_qcInspectionQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_qcInspectionQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.qcInspectionQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_qcInspectionQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.qcInspectionSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'qcInspectionSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_qcInspectionSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_qcInspectionSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_qcInspectionSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_qcInspectionSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -3289,11 +3433,11 @@ const Step4 = ({
                           {errors[`artworkMaterial_${actualIndex}_bellyBandPlacement`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandPlacement`]}</span>}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
                               <input
                                 type="number"
@@ -3305,20 +3449,33 @@ const Step4 = ({
                               />
                               {errors[`artworkMaterial_${actualIndex}_bellyBandQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandQty`]}</span>}
                             </div>
-
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.bellyBandQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_bellyBandQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.bellyBandSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'bellyBandSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_bellyBandSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_bellyBandSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_bellyBandSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_bellyBandSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -3627,36 +3784,49 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces or Rolls */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.sizeLabelsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces or Rolls"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_sizeLabelsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_sizeLabelsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.sizeLabelsQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_sizeLabelsQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.sizeLabelsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_sizeLabelsSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_sizeLabelsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_sizeLabelsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_sizeLabelsSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -3904,35 +4074,48 @@ const Step4 = ({
                           {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsPlacement`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsPlacement`]}</span>}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - PCS/R LENGTH */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.tagsSpecialLabelsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="PCS/R LENGTH"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.tagsSpecialLabelsQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.tagsSpecialLabelsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSurplus`]}</span>}
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_tagsSpecialLabelsSurplus`]}</span>}
                             </div>
                           </div>
                         </div>
@@ -4243,25 +4426,38 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                      <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                        <input
-                          type="text"
+                              <input
+                                type="text"
                                 value={material.flammabilitySafetyQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQty`] ? 'border-red-600' : 'border-border'}`}
-                          style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
-                        />
-                          {errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQty`]}</span>}
-                </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.flammabilitySafetyQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_flammabilitySafetyQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
                               <input
                                 type="text"
@@ -4418,18 +4614,28 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* ARTWORK SPEC */}
+                        {/* ARTWORK SPEC - Upload */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
-                            value={material.insertCardsArtworkSpec || ''}
-                            onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsArtworkSpec', e.target.value)}
-                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsArtworkSpec`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
-                            placeholder="Artwork specifications"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_insertCardsArtworkSpec`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsArtworkSpec`]}</span>}
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="file"
+                              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleArtworkMaterialChange(actualIndex, 'insertCardsArtworkSpecFile', f); }}
+                              className="hidden"
+                              id={`insert-cards-artwork-spec-${actualIndex}`}
+                            />
+                            <label
+                              htmlFor={`insert-cards-artwork-spec-${actualIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
+                              style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.insertCardsArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                            </label>
+                          </div>
+                          {errors[`artworkMaterial_${actualIndex}_insertCardsArtworkSpecFile`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsArtworkSpecFile`]}</span>}
                         </div>
 
                         {/* SIZE */}
@@ -4527,36 +4733,49 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.insertCardsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_insertCardsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_insertCardsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.insertCardsQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_insertCardsQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.insertCardsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_insertCardsSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_insertCardsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_insertCardsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_insertCardsSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -4594,6 +4813,283 @@ const Step4 = ({
                           <textarea
                             value={material.insertCardsRemarks || ''}
                             onChange={(e) => handleArtworkMaterialChange(actualIndex, 'insertCardsRemarks', e.target.value)}
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
+                            style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
+                            placeholder="Enter REMARKS"
+                          />
+                        </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Specific Fields for HEADER CARD - Exact replica of INSERT CARDS */}
+                    {material.artworkCategory === 'HEADER CARD' && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                        {/* TYPE - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
+                                                    <SearchableDropdown
+                            value={material.headerCardType || ''}
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardType', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardTypeText', '');
+                              }
+                            }}
+                            options={HEADER_CARDS_TYPES}
+                            placeholder="Select or type"
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardType`] ? 'border-red-600' : 'border-border'}`}
+                          />
+                          {errors[`artworkMaterial_${actualIndex}_headerCardType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardType`]}</span>}
+                          {material.headerCardType === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.headerCardTypeText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardTypeText', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_headerCardTypeText`] ? 'border-red-600' : 'border-border'}`}
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TYPE"
+                          />
+                          )}
+                        </div>
+
+                        {/* MATERIAL - Dropdown with Others option */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
+                                                    <SearchableDropdown
+                            value={material.headerCardMaterial || ''}
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardMaterial', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardMaterialText', '');
+                              }
+                            }}
+                            options={HEADER_CARDS_MATERIALS}
+                            placeholder="Select or type"
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardMaterial`] ? 'border-red-600' : 'border-border'}`}
+                          />
+                          {errors[`artworkMaterial_${actualIndex}_headerCardMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardMaterial`]}</span>}
+                          {material.headerCardMaterial === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.headerCardMaterialText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardMaterialText', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_headerCardMaterialText`] ? 'border-red-600' : 'border-border'}`}
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter MATERIAL"
+                          />
+                          )}
+                        </div>
+
+                        {/* ARTWORK SPEC - Upload */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ARTWORK SPEC <span className="text-red-500">*</span></label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="file"
+                              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleArtworkMaterialChange(actualIndex, 'headerCardArtworkSpecFile', f); }}
+                              className="hidden"
+                              id={`header-card-artwork-spec-${actualIndex}`}
+                            />
+                            <label
+                              htmlFor={`header-card-artwork-spec-${actualIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
+                              style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.headerCardArtworkSpecFile ? 'UPLOADED' : 'UPLOAD'}</span>
+                            </label>
+                          </div>
+                          {errors[`artworkMaterial_${actualIndex}_headerCardArtworkSpecFile`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardArtworkSpecFile`]}</span>}
+                        </div>
+
+                        {/* SIZE - Length, Width, Gusset + Unit (Header Card only) */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE <span className="text-red-500">*</span></label>
+                          <div className="flex flex-row flex-nowrap items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.headerCardSizeLength || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardSizeLength', e.target.value)}
+                              className={`flex-shrink-0 border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_headerCardSizeLength`] ? 'border-red-600' : 'border-border'}`}
+                              style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              placeholder="LENGTH"
+                            />
+                            <input
+                              type="text"
+                              value={material.headerCardSizeWidth || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardSizeWidth', e.target.value)}
+                              className={`flex-shrink-0 border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_headerCardSizeWidth`] ? 'border-red-600' : 'border-border'}`}
+                              style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              placeholder="WIDTH"
+                            />
+                            <input
+                              type="text"
+                              value={material.headerCardSizeGusset || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardSizeGusset', e.target.value)}
+                              className={`flex-shrink-0 border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none ${errors[`artworkMaterial_${actualIndex}_headerCardSizeGusset`] ? 'border-red-600' : 'border-border'}`}
+                              style={{ padding: '10px 14px', height: '44px', width: '140px' }}
+                              placeholder="GUSSET"
+                            />
+                            <div style={{ width: '120px', flexShrink: 0 }}>
+                              <SearchableDropdown
+                                value={material.headerCardSizeUnit || ''}
+                                onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'headerCardSizeUnit', selectedValue)}
+                                options={UNIT_OPTIONS_WITH_PCS}
+                                strictMode
+                                placeholder="Select unit"
+                                placeholderDim
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardSizeUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ width: '100%' }}
+                              />
+                            </div>
+                          </div>
+                          {(errors[`artworkMaterial_${actualIndex}_headerCardSizeLength`] || errors[`artworkMaterial_${actualIndex}_headerCardSizeWidth`] || errors[`artworkMaterial_${actualIndex}_headerCardSizeGusset`] || errors[`artworkMaterial_${actualIndex}_headerCardSizeUnit`]) && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardSizeLength`] || errors[`artworkMaterial_${actualIndex}_headerCardSizeWidth`] || errors[`artworkMaterial_${actualIndex}_headerCardSizeGusset`] || errors[`artworkMaterial_${actualIndex}_headerCardSizeUnit`]}</span>}
+                        </div>
+
+                        {/* PLACEMENT - Full width in grid */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>PLACEMENT <span className="text-red-500">*</span></label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={material.headerCardPlacement || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardPlacement', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none flex-1 ${errors[`artworkMaterial_${actualIndex}_headerCardPlacement`] ? 'border-red-600' : 'border-border'}`}
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Text"
+                            />
+                            <input
+                              type="file"
+                              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleArtworkMaterialChange(actualIndex, 'headerCardPlacementImageRef', f); }}
+                              className="hidden"
+                              id={`header-card-placement-${actualIndex}`}
+                            />
+                            <label
+                              htmlFor={`header-card-placement-${actualIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-background cursor-pointer hover:bg-muted flex items-center justify-center gap-2 text-foreground border-border"
+                              style={{ padding: '10px 14px', height: '44px', minWidth: '200px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.headerCardPlacementImageRef ? 'UPLOADED' : 'UPLOAD IMAGE REFERENCE'}</span>
+                            </label>
+                        </div>
+                          {errors[`artworkMaterial_${actualIndex}_headerCardPlacement`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardPlacement`]}</span>}
+                        </div>
+
+                        {/* TESTING REQUIREMENTS */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TESTING REQUIREMENTS <span className="text-red-500">*</span></label>
+                                                    <SearchableDropdown
+                            value={material.headerCardTestingRequirements || ''}
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardTestingRequirements', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardTestingRequirementsText', '');
+                              }
+                            }}
+                            options={HEADER_CARDS_TESTING_REQUIREMENTS}
+                            placeholder="Select or type"
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardTestingRequirements`] ? 'border-red-600' : 'border-border'}`}
+                          />
+                          {errors[`artworkMaterial_${actualIndex}_headerCardTestingRequirements`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardTestingRequirements`]}</span>}
+                          {material.headerCardTestingRequirements === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.headerCardTestingRequirementsText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardTestingRequirementsText', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_headerCardTestingRequirementsText`] ? 'border-red-600' : 'border-border'}`}
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter TESTING REQUIREMENTS"
+                          />
+                          )}
+                        </div>
+
+                        {/* QTY, UNIT, SURPLUS % */}
+                        <div className="col-span-full flex flex-col">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
+                            {/* QTY - Pieces */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
+                              <input
+                                type="text"
+                                value={material.headerCardQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardQty', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardQty`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="Pieces"
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_headerCardQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.headerCardQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_headerCardQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardQtyUnit`]}</span>}
+                            </div>
+                            {/* SURPLUS % */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
+                              <input
+                                type="text"
+                                value={material.headerCardSurplus || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardSurplus', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardSurplus`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="%AGE"
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_headerCardSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardSurplus`]}</span>}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* APPROVAL */}
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
+                                                    <SearchableDropdown
+                            value={material.headerCardApproval || ''}
+                            onChange={(selectedValue) => {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardApproval', selectedValue);
+                              if (selectedValue === 'OTHERS (TEXT)') {
+                              handleArtworkMaterialChange(actualIndex, 'headerCardApprovalText', '');
+                              }
+                            }}
+                            options={HEADER_CARDS_APPROVAL_OPTIONS}
+                            placeholder="Select or type"
+                            className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardApproval`] ? 'border-red-600' : 'border-border'}`}
+                          />
+                          {errors[`artworkMaterial_${actualIndex}_headerCardApproval`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardApproval`]}</span>}
+                          {material.headerCardApproval === 'OTHERS (TEXT)' && (
+                          <input
+                            type="text"
+                              value={material.headerCardApprovalText || ''}
+                              onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardApprovalText', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none mt-2 ${errors[`artworkMaterial_${actualIndex}_headerCardApprovalText`] ? 'border-red-600' : 'border-border'}`}
+                            style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter APPROVAL"
+                            />
+                          )}
+                        </div>
+
+                        {/* REMARKS - Full width */}
+                        <div className="col-span-full flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>REMARKS</label>
+                          <textarea
+                            value={material.headerCardRemarks || ''}
+                            onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardRemarks', e.target.value)}
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full border-border`}
                             style={{ padding: '10px 14px', minHeight: '80px', resize: 'vertical' }}
                             placeholder="Enter REMARKS"
@@ -4740,36 +5236,49 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY and SURPLUS % in one row */}
+                        {/* QTY, UNIT, SURPLUS % in one row */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY</label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.ribbonsQty || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsQty', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsQty`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Pieces"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_ribbonsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsQty`]}</span>}
-                        </div>
-
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_ribbonsQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsQty`]}</span>}
+                            </div>
+                            {/* UNIT */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>UNIT <span className="text-red-500">*</span></label>
+                              <select
+                                value={material.ribbonsQtyUnit || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsQtyUnit', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsQtyUnit`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                              >
+                                <option value="">Select</option>
+                                {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                              </select>
+                              {errors[`artworkMaterial_${actualIndex}_ribbonsQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsQtyUnit`]}</span>}
+                            </div>
                             {/* SURPLUS % */}
-                        <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SURPLUS % <span className="text-red-500">*</span></label>
-                          <input
-                            type="text"
+                              <input
+                                type="text"
                                 value={material.ribbonsSurplus || ''}
                                 onChange={(e) => handleArtworkMaterialChange(actualIndex, 'ribbonsSurplus', e.target.value)}
                                 className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_ribbonsSurplus`] ? 'border-red-600' : 'border-border'}`}
-                            style={{ padding: '10px 14px', height: '44px' }}
+                                style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="%AGE"
-                          />
-                          {errors[`artworkMaterial_${actualIndex}_ribbonsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsSurplus`]}</span>}
-                        </div>
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_ribbonsSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_ribbonsSurplus`]}</span>}
+                            </div>
                           </div>
                         </div>
 
@@ -4812,7 +5321,7 @@ const Step4 = ({
 
 
                     {/* TESTING REQUIREMENT Field with Image Upload - For all except LAW LABEL / CONTENTS TAG, ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER */}
-                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'HEADER CARD' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col md:col-span-2">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENT</label>
                       <div className="flex items-center gap-2">
@@ -4846,7 +5355,7 @@ const Step4 = ({
 
 
                     {/* LENGTH / QUANTITY Field - For all except LAW LABEL / CONTENTS TAG, ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER */}
-                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'HEADER CARD' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH / QUANTITY</label>
                       <input
@@ -4862,7 +5371,7 @@ const Step4 = ({
 
 
                     {/* SURPLUS Field with FOR SECTION - For all except LAW LABEL / CONTENTS TAG, ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER */}
-                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
+                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'HEADER CARD' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col md:col-span-2">
                       <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR)</label>
                       <div className={`flex items-center gap-0 border-2 rounded-lg bg-white overflow-hidden focus-within:border-primary transition-all ${errors[`artworkMaterial_${actualIndex}_surplus`] || errors[`artworkMaterial_${actualIndex}_surplusForSection`] ? 'border-red-600' : 'border-border'}`} style={{ height: '44px' }}>
@@ -4888,7 +5397,7 @@ const Step4 = ({
 
 
                     {/* APPROVAL Field - Excluded for ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), LAW LABEL / CONTENTS TAG, PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER (have their own) */}
-                    {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
+                    {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'HEADER CARD' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                   <SearchableDropdown
@@ -4902,7 +5411,7 @@ const Step4 = ({
                     )}
 
                     {/* REMARKS Field - Excluded for ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), LAW LABEL / CONTENTS TAG, PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER (have their own) */}
-                    {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
+                    {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'HEADER CARD' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="col-span-full flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">REMARKS</label>
                       <textarea
@@ -5158,6 +5667,159 @@ const Step4 = ({
                                 style={{ padding: '10px 14px', height: '44px' }}
                                 placeholder="Enter BRANDING"
                               />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )}
+
+                  {/* Advanced Filter for HEADER CARD - Same as INSERT CARDS */}
+                  {material.artworkCategory === 'HEADER CARD' && (
+                  <div className="w-full" style={{ marginTop: '20px' }}>
+                    <div style={{ marginBottom: '20px', width: '100%' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleArtworkMaterialChange(actualIndex, 'showHeaderCardsAdvancedFilter', !material.showHeaderCardsAdvancedFilter)}
+                        className="border-2 rounded-lg text-sm font-medium transition-all"
+                        style={{
+                          padding: '10px 20px',
+                          height: '44px',
+                          backgroundColor: material.showHeaderCardsAdvancedFilter ? 'var(--primary)' : 'var(--card)',
+                          borderColor: material.showHeaderCardsAdvancedFilter ? 'var(--primary)' : 'var(--border)',
+                          color: material.showHeaderCardsAdvancedFilter ? 'var(--primary-foreground)' : 'var(--foreground)'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showHeaderCardsAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = 'var(--muted)';
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showHeaderCardsAdvancedFilter) {
+                            e.currentTarget.style.backgroundColor = 'var(--card)';
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                          }
+                        }}
+                      >
+                        Advance Filter
+                      </button>
+                    </div>
+                    {material.showHeaderCardsAdvancedFilter && (
+                      <div style={{ padding: '24px', backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', width: '100%' }}>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-6">ADVANCE SPEC~UI</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
+                            <SearchableDropdown
+                              value={material.headerCardFunction || ''}
+                              onChange={(selectedValue) => {
+                                handleArtworkMaterialChange(actualIndex, 'headerCardFunction', selectedValue);
+                                if (selectedValue === 'OTHERS (TEXT)') handleArtworkMaterialChange(actualIndex, 'headerCardFunctionText', '');
+                              }}
+                              options={HEADER_CARDS_FUNCTION_OPTIONS}
+                              placeholder="Select or type"
+                              className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none border-border`}
+                            />
+                            {material.headerCardFunction === 'OTHERS (TEXT)' && (
+                              <input type="text" value={material.headerCardFunctionText || ''} onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardFunctionText', e.target.value)} className="border-2 rounded-lg text-sm mt-2 bg-background text-foreground border-border" style={{ padding: '10px 14px', height: '44px' }} placeholder="Enter FUNCTION" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
+                            <SearchableDropdown
+                              value={material.headerCardContent || ''}
+                              onChange={(selectedValue) => {
+                                handleArtworkMaterialChange(actualIndex, 'headerCardContent', selectedValue);
+                                if (selectedValue === 'OTHERS (TEXT)') handleArtworkMaterialChange(actualIndex, 'headerCardContentText', '');
+                              }}
+                              options={HEADER_CARDS_CONTENT_OPTIONS}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none border-border"
+                            />
+                            {material.headerCardContent === 'OTHERS (TEXT)' && (
+                              <input type="text" value={material.headerCardContentText || ''} onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardContentText', e.target.value)} className="border-2 rounded-lg text-sm mt-2 bg-background text-foreground border-border" style={{ padding: '10px 14px', height: '44px' }} placeholder="Enter CONTENT" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING</label>
+                            <SearchableDropdown
+                              value={material.headerCardPrinting || ''}
+                              onChange={(selectedValue) => {
+                                handleArtworkMaterialChange(actualIndex, 'headerCardPrinting', selectedValue);
+                                if (selectedValue === 'OTHERS (TEXT)') handleArtworkMaterialChange(actualIndex, 'headerCardPrintingText', '');
+                              }}
+                              options={HEADER_CARDS_PRINTING_OPTIONS}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none border-border"
+                            />
+                            {material.headerCardPrinting === 'OTHERS (TEXT)' && (
+                              <input type="text" value={material.headerCardPrintingText || ''} onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardPrintingText', e.target.value)} className="border-2 rounded-lg text-sm mt-2 bg-background text-foreground border-border" style={{ padding: '10px 14px', height: '44px' }} placeholder="Enter PRINTING" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
+                            <SearchableDropdown
+                              value={material.headerCardFinish || ''}
+                              onChange={(selectedValue) => {
+                                handleArtworkMaterialChange(actualIndex, 'headerCardFinish', selectedValue);
+                                if (selectedValue === 'OTHERS (TEXT)') handleArtworkMaterialChange(actualIndex, 'headerCardFinishText', '');
+                              }}
+                              options={HEADER_CARDS_FINISH_OPTIONS}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none border-border"
+                            />
+                            {material.headerCardFinish === 'OTHERS (TEXT)' && (
+                              <input type="text" value={material.headerCardFinishText || ''} onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardFinishText', e.target.value)} className="border-2 rounded-lg text-sm mt-2 bg-background text-foreground border-border" style={{ padding: '10px 14px', height: '44px' }} placeholder="Enter FINISH" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">STIFFNESS</label>
+                            <SearchableDropdown
+                              value={material.headerCardStiffness || ''}
+                              onChange={(selectedValue) => {
+                                handleArtworkMaterialChange(actualIndex, 'headerCardStiffness', selectedValue);
+                                if (selectedValue === 'OTHERS (TEXT)') handleArtworkMaterialChange(actualIndex, 'headerCardStiffnessText', '');
+                              }}
+                              options={HEADER_CARDS_STIFFNESS_OPTIONS}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none border-border"
+                            />
+                            {material.headerCardStiffness === 'OTHERS (TEXT)' && (
+                              <input type="text" value={material.headerCardStiffnessText || ''} onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardStiffnessText', e.target.value)} className="border-2 rounded-lg text-sm mt-2 bg-background text-foreground border-border" style={{ padding: '10px 14px', height: '44px' }} placeholder="Enter STIFFNESS" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">ACID-FREE</label>
+                            <SearchableDropdown
+                              value={material.headerCardAcidFree || ''}
+                              onChange={(selectedValue) => {
+                                handleArtworkMaterialChange(actualIndex, 'headerCardAcidFree', selectedValue);
+                                if (selectedValue === 'OTHERS (TEXT)') handleArtworkMaterialChange(actualIndex, 'headerCardAcidFreeText', '');
+                              }}
+                              options={HEADER_CARDS_ACID_FREE_OPTIONS}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none border-border"
+                            />
+                            {material.headerCardAcidFree === 'OTHERS (TEXT)' && (
+                              <input type="text" value={material.headerCardAcidFreeText || ''} onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardAcidFreeText', e.target.value)} className="border-2 rounded-lg text-sm mt-2 bg-background text-foreground border-border" style={{ padding: '10px 14px', height: '44px' }} placeholder="Enter ACID-FREE" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">BRANDING</label>
+                            <SearchableDropdown
+                              value={material.headerCardBranding || ''}
+                              onChange={(selectedValue) => {
+                                handleArtworkMaterialChange(actualIndex, 'headerCardBranding', selectedValue);
+                                if (selectedValue === 'OTHERS (TEXT)') handleArtworkMaterialChange(actualIndex, 'headerCardBrandingText', '');
+                              }}
+                              options={HEADER_CARDS_BRANDING_OPTIONS}
+                              placeholder="Select or type"
+                              className="border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none border-border"
+                            />
+                            {material.headerCardBranding === 'OTHERS (TEXT)' && (
+                              <input type="text" value={material.headerCardBrandingText || ''} onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardBrandingText', e.target.value)} className="border-2 rounded-lg text-sm mt-2 bg-background text-foreground border-border" style={{ padding: '10px 14px', height: '44px' }} placeholder="Enter BRANDING" />
                             )}
                           </div>
                         </div>
