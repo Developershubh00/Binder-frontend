@@ -1213,7 +1213,7 @@ const Step4 = ({
                               }
                             }}
                             options={LAW_LABEL_TYPES}
-                            placeholder="CM"
+                            placeholder="select or type"
                             className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_lawLabelType`] ? 'border-red-600' : 'border-border'}`}
                           />
                           {errors[`artworkMaterial_${actualIndex}_lawLabelType`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_lawLabelType`]}</span>}
