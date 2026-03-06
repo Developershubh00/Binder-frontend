@@ -210,9 +210,12 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         ? initialData.type
         : initialData.buyerCode;
       
+      // Map frontend label → backend DB value (matches image: PD / SAM / SELF)
+      const ORDER_TYPE_MAP = { 'Production': 'PD', 'Sampling': 'SAM', 'Company': 'SELF' };
+
       const response = await createIPO({
-        order_type: initialData.orderType === 'Production' ? 'STOCK' : 'SAM',
-        buyer_code_text: initialData.buyerCode || '',
+        order_type: ORDER_TYPE_MAP[initialData.orderType] || 'PD',
+        buyer_code_text: initialData.orderType !== 'Company' ? (initialData.buyerCode || '') : '',
         company_type: initialData.orderType === 'Company' ? initialData.type : null,
         program_name: initialData.programName.trim(),
       });

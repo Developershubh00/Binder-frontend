@@ -33,6 +33,60 @@ import { FormCard } from '@/components/ui/form-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
+import { saveFactoryCodeWizard } from '../../services/integration';
+
+// ─── IMAGE COMPRESSION UTILITY ───────────────────────────────────────────────
+// Compresses image to maxKB. Quality never drops below (1 - maxQualityDrop).
+// e.g. maxKB=100, maxQualityDrop=0.2 → min quality = 80%, target size = 100KB
+const compressImage = (file, maxKB = 100, maxQualityDrop = 0.2) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        // Scale down if larger than 1200px on any side
+        const MAX_DIM = 1200;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+        const minQuality = 1 - maxQualityDrop; // e.g. 0.8
+        let quality = 0.95;
+
+        const tryCompress = () => {
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          const sizeKB = (dataUrl.length * 3) / 4 / 1024;
+
+          if (sizeKB <= maxKB || quality <= minQuality) {
+            // Convert dataUrl → File
+            const arr = dataUrl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            const newName = file.name.replace(/\.[^.]+$/, '.jpg');
+            resolve(new File([u8arr], newName, { type: mime }));
+          } else {
+            quality = Math.max(minQuality, +(quality - 0.05).toFixed(2));
+            tryCompress();
+          }
+        };
+        tryCompress();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+// ─────────────────────────────────────────────────────────────────────────────
 
 const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const { isSidebarCollapsed } = useSidebar();
@@ -663,26 +717,24 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
   };
 
-  const handleSkuImageChange = (skuIndex, file) => {
-    setStep0Saved(false); // Any edit invalidates saved state
+  const handleSkuImageChange = async (skuIndex, file) => {
+    setStep0Saved(false);
     if (file) {
+      // Compress to 100KB, quality never drops below 80%
+      const compressed = await compressImage(file, 100, 0.2);
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => {
           const updatedSkus = [...prev.skus];
           updatedSkus[skuIndex] = {
             ...updatedSkus[skuIndex],
-            image: file,
+            image: compressed,
             imagePreview: reader.result
           };
-          return {
-            ...prev,
-            skus: updatedSkus
-          };
+          return { ...prev, skus: updatedSkus };
         });
       };
-      reader.readAsDataURL(file);
-      // Clear error for image when user uploads
+      reader.readAsDataURL(compressed);
       const errorKey = `image_${skuIndex}`;
       if (errors[errorKey]) {
         setErrors(prev => {
@@ -942,9 +994,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
   };
 
-  const handleSubproductImageChange = (skuIndex, subproductIndex, file) => {
-    setStep0Saved(false); // Any edit invalidates saved state
+  const handleSubproductImageChange = async (skuIndex, subproductIndex, file) => {
+    setStep0Saved(false);
     if (file) {
+      // Compress to 100KB, quality never drops below 80%
+      const compressed = await compressImage(file, 100, 0.2);
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => {
@@ -954,14 +1008,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           }
           updatedSkus[skuIndex].subproducts[subproductIndex] = {
             ...updatedSkus[skuIndex].subproducts[subproductIndex],
-            image: file,
+            image: compressed,
             imagePreview: reader.result
           };
           return { ...prev, skus: updatedSkus };
         });
       };
-      reader.readAsDataURL(file);
-      // Clear error for subproduct image when user uploads
+      reader.readAsDataURL(compressed);
       const errorKey = `subproduct_${skuIndex}_${subproductIndex}_image`;
       if (errors[errorKey]) {
         setErrors(prev => {
@@ -5337,12 +5390,44 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       if (!step4Saved) {
                         setShowSaveMessage(true);
                         setSaveMessage('Save first');
                         return;
                       }
+
+                      // ─── SAVE ALL STEPS TO DATABASE ───
+                      try {
+                        const wizardPayload = {
+                          step0: {
+                            sku: formData.skus?.[0]?.sku || '',
+                            product_name: formData.skus?.[0]?.product || '',
+                            notes: formData.ipoCode || '',
+                          },
+                          products: (formData.products || []).map(p => ({
+                            name: p.name || '',
+                            components: (p.components || []).map(c => ({
+                              name: c.name || '',
+                              sizeWidth: c.size?.width || '',
+                              sizeLength: c.size?.length || '',
+                              sizeHeight: c.size?.height || '',
+                              sizeUnit: c.size?.unit || '',
+                            })),
+                          })),
+                          rawMaterials: formData.rawMaterials || [],
+                          consumptionMaterials: formData.consumptionMaterials || [],
+                          artworkMaterials: formData.artworkMaterials || [],
+                          packaging: formData.packaging || null,
+                        };
+
+                        const result = await saveFactoryCodeWizard(wizardPayload);
+                        console.log('✅ Factory code saved to DB:', result);
+                      } catch (err) {
+                        console.error('❌ Failed to save factory code to DB:', err);
+                        // Don't block the user — still show popup even if DB save fails
+                      }
+
                       setShowFactoryCodePopup(true);
                     }}
                   >

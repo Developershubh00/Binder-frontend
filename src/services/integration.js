@@ -1019,6 +1019,15 @@ export const createFactoryCode = async (data) => {
   return await response.json();
 };
 
+// Saves all 6 steps at once using the wizard endpoint
+export const saveFactoryCodeWizard = async (wizardData) => {
+  const response = await apiRequest('ims/factory-codes/wizard/', {
+    method: 'POST',
+    body: JSON.stringify(wizardData),
+  });
+  return await response.json();
+};
+
 export const deleteFactoryCode = async (id) => {
   const response = await apiRequest(`ims/factory-codes/${id}/`, {
     method: 'DELETE',

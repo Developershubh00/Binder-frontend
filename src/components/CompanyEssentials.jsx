@@ -59,12 +59,12 @@ const CompanyEssentials = ({ onBack }) => {
     'PANTRY',
     'MACHINERY',
     'HOUSEKEEPING',
-    'ELECTRICAL',
-    'HARDWARE & CHEMICALS',
-    'AUDIT & COMPLIANCES',
+    'ELECTRICALS',
+    'HARDWARE_CHEMICALS',
+    'AUDIT_COMPLIANCE',
     'IT',
-    'QC TOOLS',
-    'TRAVEL EXPENSE',
+    'QC_TOOLS',
+    'TRAVEL_EXPENSE',
     'REPAIR',
     'MAINTENANCE'
   ];
