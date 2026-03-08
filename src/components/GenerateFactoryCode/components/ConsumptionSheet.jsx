@@ -338,6 +338,22 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
     return 0;
   };
 
+  // Helper: Get Set Of for an IPC from skus (for packaging total material requirement calc)
+  const getSetOfForIpc = (skus, ipc) => {
+    if (!ipc || !Array.isArray(skus)) return 1;
+    const isSub = /\/SP-?\d+$/i.test(ipc);
+    const baseIpc = (ipc || '').replace(/\/SP-?\d+$/i, '');
+    const spNum = isSub ? parseInt(ipc.replace(/.*\/SP-?(\d+)$/i, '$1'), 10) : 0;
+    for (const sku of skus) {
+      const skuBase = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
+      if (skuBase !== baseIpc) continue;
+      if (!isSub) return parseFloat(sku.setOf ?? '1') || 1;
+      const sub = sku.subproducts?.[spNum - 1];
+      return parseFloat(sub?.setOf ?? sku.setOf ?? '1') || 1;
+    }
+    return 1;
+  };
+
   // Helper: Find packaging config from formData (top-level) or any sku's stepData
   // Prefer the config with the most materials (main + extraPacks)
   const getPackagingConfig = (formData) => {
@@ -1589,8 +1605,15 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
       ? mergedItems.map((i) => i.ipcCode).join(', ')
       : (product.ipcCode || '');
 
-    const totalPoQtyForMerged = mergedItems.reduce((sum, item) => sum + getPoQtyForIpc(skus, item.ipcCode), 0);
+    const mergedIpcsForCalc = selectedIpcs.length > 0
+      ? Array.from(new Set(selectedIpcs))
+      : Array.from(new Set(mergedItems.map((item) => item.ipcCode)));
+    const totalPoSetQtyForMerged = mergedIpcsForCalc.reduce(
+      (sum, ipcCode) => sum + (getPoQtyForIpc(skus, ipcCode) * getSetOfForIpc(skus, ipcCode)),
+      0
+    );
     const poQtyForStandalone = getPoQtyForIpc(skus, product.ipcCode);
+    const setOfForStandalone = getSetOfForIpc(skus, product.ipcCode);
 
     const row4Cell = 'min-w-0 border-r border-border bg-muted/5 flex items-center';
     const row4Last = 'min-w-0 border-border bg-muted/5 flex items-center';
@@ -1639,8 +1662,10 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                 const matDesc = (packaging.materialDescription || '').toString().trim();
                 const matType = formatPackagingTypeName(packaging.packagingMaterialType);
                 const matCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
-                const totalPo = isMerged ? totalPoQtyForMerged : poQtyForStandalone;
-                const reqMat = matCasepack > 0 ? (totalPo / matCasepack).toFixed(2) : '-';
+                const totalMatReqBase = isMerged
+                  ? totalPoSetQtyForMerged
+                  : (poQtyForStandalone * setOfForStandalone);
+                const reqMat = matCasepack > 0 ? (totalMatReqBase / matCasepack).toFixed(2) : '-';
                 return (
                   <div key={`std-${idx}`} className="grid grid-cols-6 min-w-0 border-b border-border last:border-b-0">
                     <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matType || '-'}</span></div>

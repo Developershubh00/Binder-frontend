@@ -308,6 +308,12 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             tapeWidthUnit: ''
           }],
         },
+        ipcSavedState: {
+          cut: false,
+          raw: false,
+          artwork: false,
+        },
+        rawSavedComponents: [],
       }
     }],
     // Step 1 - Multiple products, each with multiple components/materials with cut & sew specs
@@ -899,6 +905,12 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         tapeWidthUnit: ''
       }],
     },
+    ipcSavedState: {
+      cut: false,
+      raw: false,
+      artwork: false,
+    },
+    rawSavedComponents: [],
   });
 
   const addSku = () => {
@@ -1050,6 +1062,25 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
     return { type: 'product', skuIndex: 0 };
   };
+
+  const getNormalizedIpcSavedState = (stepData) => ({
+    cut: Boolean(stepData?.ipcSavedState?.cut),
+    raw: Boolean(stepData?.ipcSavedState?.raw),
+    artwork: Boolean(stepData?.ipcSavedState?.artwork),
+  });
+
+  const getNormalizedRawSavedComponents = (stepData) =>
+    Array.isArray(stepData?.rawSavedComponents)
+      ? stepData.rawSavedComponents.filter((name) => typeof name === 'string' && name.trim())
+      : [];
+
+  const withUpdatedIpcSavedState = (stepData, patch) => ({
+    ...stepData,
+    ipcSavedState: {
+      ...getNormalizedIpcSavedState(stepData),
+      ...patch,
+    },
+  });
 
   // Helper functions to get/set selected SKU's step data
   const getSelectedSkuStepData = () => {
@@ -1307,13 +1338,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleProductNameChange = (productIndex, value) => {
+    setStep1Saved(false); // Any edit invalidates saved state
     updateSelectedSkuStepData((stepData) => {
       const updatedProducts = [...stepData.products];
       updatedProducts[productIndex] = {
         ...updatedProducts[productIndex],
         name: value
       };
-      return { ...stepData, products: updatedProducts };
+      return withUpdatedIpcSavedState({ ...stepData, products: updatedProducts }, { cut: false });
     });
     
     // Clear error
@@ -1353,7 +1385,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           return comp;
         })
       };
-      return { ...stepData, products: updatedProducts };
+      return withUpdatedIpcSavedState({ ...stepData, products: updatedProducts }, { cut: false });
     });
     
     // Clear error
@@ -1400,7 +1432,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             : comp
         )
       };
-      return { ...stepData, products: updatedProducts };
+      return withUpdatedIpcSavedState({ ...stepData, products: updatedProducts }, { cut: false });
     });
     
     // Clear error
@@ -1434,7 +1466,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             : comp
         )
       };
-      return { ...stepData, products: updatedProducts };
+      return withUpdatedIpcSavedState({ ...stepData, products: updatedProducts }, { cut: false });
     });
     
     // Clear error
@@ -1497,7 +1529,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           sewSize: { cns: '', length: '', width: '', netCns: '' },
         }]
       };
-      return { ...stepData, products: updatedProducts };
+      return withUpdatedIpcSavedState({ ...stepData, products: updatedProducts }, { cut: false });
     });
   };
 
@@ -1550,7 +1582,18 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         };
       }
       
-      return { ...stepData, rawMaterials: updatedRawMaterials };
+      const nextRawSavedComponents = componentName
+        ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
+        : getNormalizedRawSavedComponents(stepData);
+
+      return withUpdatedIpcSavedState(
+        {
+          ...stepData,
+          rawMaterials: updatedRawMaterials,
+          rawSavedComponents: nextRawSavedComponents,
+        },
+        { raw: false }
+      );
     });
     if (componentName) {
       setStep2SavedComponents(prev => {
@@ -1572,6 +1615,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const handleWorkOrderChange = (materialIndex, workOrderIndex, field, value) => {
+    const stepDataBefore = getSelectedSkuStepData();
+    const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       updatedRawMaterials[materialIndex] = {
@@ -1759,8 +1804,26 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           return wo;
         })
       };
-      return { ...stepData, rawMaterials: updatedRawMaterials };
+      const nextRawSavedComponents = componentName
+        ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
+        : getNormalizedRawSavedComponents(stepData);
+
+      return withUpdatedIpcSavedState(
+        {
+          ...stepData,
+          rawMaterials: updatedRawMaterials,
+          rawSavedComponents: nextRawSavedComponents,
+        },
+        { raw: false }
+      );
     });
+    if (componentName) {
+      setStep2SavedComponents(prev => {
+        const next = new Set(prev);
+        next.delete(componentName);
+        return next;
+      });
+    }
     
     // Clear error
     const errorKey = `rawMaterial_${materialIndex}_workOrder_${workOrderIndex}_${field}`;
@@ -1774,6 +1837,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const addWorkOrder = (materialIndex) => {
+    const stepDataBefore = getSelectedSkuStepData();
+    const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       updatedRawMaterials[materialIndex] = {
@@ -1864,8 +1929,26 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           showKnittingAdvancedFilter: false,
         }]
       };
-      return { ...stepData, rawMaterials: updatedRawMaterials };
+      const nextRawSavedComponents = componentName
+        ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
+        : getNormalizedRawSavedComponents(stepData);
+
+      return withUpdatedIpcSavedState(
+        {
+          ...stepData,
+          rawMaterials: updatedRawMaterials,
+          rawSavedComponents: nextRawSavedComponents,
+        },
+        { raw: false }
+      );
     });
+    if (componentName) {
+      setStep2SavedComponents(prev => {
+        const next = new Set(prev);
+        next.delete(componentName);
+        return next;
+      });
+    }
   };
 
   const addRawMaterialWithType = (materialType, componentName = '') => {
@@ -2357,8 +2440,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       }
 
       return {
-        ...stepData,
-        rawMaterials: [...(stepData.rawMaterials || []), baseMaterial]
+        ...withUpdatedIpcSavedState(stepData, { raw: false }),
+        rawMaterials: [...(stepData.rawMaterials || []), baseMaterial],
+        rawSavedComponents: componentName
+          ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
+          : getNormalizedRawSavedComponents(stepData),
       };
     });
     // Adding a material invalidates saved state for that component
@@ -2375,26 +2461,36 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     // Save functionality for Step2
     console.log('Saving Step2 data for component:', componentName);
     if (componentName) {
+      const stepData = getSelectedSkuStepData();
+      const componentsWithMaterials = new Set();
+      (stepData?.rawMaterials || []).forEach((material) => {
+        if (material.componentName) {
+          componentsWithMaterials.add(material.componentName);
+        }
+      });
+
       setStep2SavedComponents(prev => {
-        const updated = new Set([...prev, componentName]);
-        
-        // Check if all components are saved, then hide message
-        setTimeout(() => {
-          const stepData = getSelectedSkuStepData();
-          const componentsWithMaterials = new Set();
-          (stepData?.rawMaterials || []).forEach((material) => {
-            if (material.componentName) {
-              componentsWithMaterials.add(material.componentName);
-            }
-          });
-          const unsavedComponents = Array.from(componentsWithMaterials).filter(
-            comp => !updated.has(comp)
-          );
-          if (unsavedComponents.length === 0) {
-            setShowSaveMessage(false);
-          }
-        }, 0);
-        
+        const updated = new Set(prev);
+        updated.add(componentName);
+        const allSaved =
+          componentsWithMaterials.size > 0 &&
+          Array.from(componentsWithMaterials).every((comp) => updated.has(comp));
+        const rawSavedComponents = Array.from(updated);
+
+        updateSelectedSkuStepData((stepDataToUpdate) =>
+          withUpdatedIpcSavedState(
+            {
+              ...stepDataToUpdate,
+              rawSavedComponents,
+            },
+            { raw: allSaved }
+          )
+        );
+
+        if (allSaved) {
+          setShowSaveMessage(false);
+        }
+
         return updated;
       });
     }
@@ -2430,6 +2526,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       }
     }
     setStep3Saved(true);
+    updateSelectedSkuStepData((stepData) => withUpdatedIpcSavedState(stepData, { artwork: true }));
     setStep3SaveStatus('success');
     setShowSaveMessage(false);
     saveToLocalStorage(formData);
@@ -2549,6 +2646,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       return;
     }
     setStep1Saved(true);
+    updateSelectedSkuStepData((stepData) => withUpdatedIpcSavedState(stepData, { cut: true }));
     setShowSaveMessage(false);
     saveToLocalStorage(formData);
   };
@@ -3305,7 +3403,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     setStep3SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
       if (!stepData.artworkMaterials || !stepData.artworkMaterials[materialIndex]) {
-        return stepData;
+        return withUpdatedIpcSavedState(stepData, { artwork: false });
       }
       const updatedMaterials = [...stepData.artworkMaterials];
       updatedMaterials[materialIndex] = {
@@ -3348,7 +3446,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         };
       }
 
-      return { ...stepData, artworkMaterials: updatedMaterials };
+      return withUpdatedIpcSavedState({ ...stepData, artworkMaterials: updatedMaterials }, { artwork: false });
     });
     
     // Clear error
@@ -3369,9 +3467,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     updateSelectedSkuStepData((stepData) => {
       const currentMaterials = stepData.artworkMaterials || [];
       const newSrNo = currentMaterials.length + 1;
-      return {
-        ...stepData,
-        artworkMaterials: [
+      return withUpdatedIpcSavedState(
+        {
+          ...stepData,
+          artworkMaterials: [
           ...currentMaterials,
           {
             srNo: newSrNo,
@@ -3478,8 +3577,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           headerCardQtyUnit: '',
           ribbonsQtyUnit: ''
         }
-        ]
-      };
+          ]
+        },
+        { artwork: false }
+      );
     });
   };
 
@@ -3490,10 +3591,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       const materials = prev?.artworkMaterials || [];
       if (materials.length < 1) return prev;
       const filtered = materials.filter((_, i) => i !== materialIndex);
-      return {
-        ...prev,
-        artworkMaterials: filtered.map((material, i) => ({ ...material, srNo: i + 1 }))
-      };
+      return withUpdatedIpcSavedState(
+        {
+          ...prev,
+          artworkMaterials: filtered.map((material, i) => ({ ...material, srNo: i + 1 }))
+        },
+        { artwork: false }
+      );
     });
   };
 
@@ -3963,7 +4067,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       updatedRawMaterials.forEach((material, index) => {
         material.srNo = index + 1;
       });
-      return { ...stepData, rawMaterials: updatedRawMaterials };
+      const nextRawSavedComponents = componentName
+        ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
+        : getNormalizedRawSavedComponents(stepData);
+      return withUpdatedIpcSavedState(
+        {
+          ...stepData,
+          rawMaterials: updatedRawMaterials,
+          rawSavedComponents: nextRawSavedComponents,
+        },
+        { raw: false }
+      );
     });
     if (componentName) {
       setStep2SavedComponents(prev => {
@@ -3975,6 +4089,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const removeWorkOrder = (materialIndex, workOrderIndex) => {
+    const stepDataBefore = getSelectedSkuStepData();
+    const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       if (updatedRawMaterials[materialIndex] && updatedRawMaterials[materialIndex].workOrders.length > 1) {
@@ -3983,8 +4099,25 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           workOrders: updatedRawMaterials[materialIndex].workOrders.filter((_, idx) => idx !== workOrderIndex)
         };
       }
-      return { ...stepData, rawMaterials: updatedRawMaterials };
+      const nextRawSavedComponents = componentName
+        ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
+        : getNormalizedRawSavedComponents(stepData);
+      return withUpdatedIpcSavedState(
+        {
+          ...stepData,
+          rawMaterials: updatedRawMaterials,
+          rawSavedComponents: nextRawSavedComponents,
+        },
+        { raw: false }
+      );
     });
+    if (componentName) {
+      setStep2SavedComponents(prev => {
+        const next = new Set(prev);
+        next.delete(componentName);
+        return next;
+      });
+    }
   };
 
   const removeComponent = (productIndex, componentIndex) => {
@@ -4003,7 +4136,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           components: filteredComponents
         };
       }
-      return { ...stepData, products: updatedProducts };
+      return withUpdatedIpcSavedState({ ...stepData, products: updatedProducts }, { cut: false });
     });
   };
 
@@ -4384,17 +4517,31 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     }
   }, [currentStep, formData.skus?.length, flowPhase]);
 
-  // Reset step saved states when switching IPC (selectedSku changes in ipcFlow)
+  // Restore per-IPC save states when entering/switching IPC flow
   const prevSelectedSkuRef = useRef(selectedSku);
+  const prevFlowPhaseRef = useRef(flowPhase);
   useEffect(() => {
-    if (flowPhase === 'ipcFlow' && prevSelectedSkuRef.current !== selectedSku) {
+    const justEnteredIpcFlow = prevFlowPhaseRef.current !== 'ipcFlow' && flowPhase === 'ipcFlow';
+    prevFlowPhaseRef.current = flowPhase;
+
+    if (flowPhase !== 'ipcFlow') {
       prevSelectedSkuRef.current = selectedSku;
-      setStep1Saved(false);
-      setStep2SavedComponents(new Set());
-      setStep3Saved(false);
-    } else {
-      prevSelectedSkuRef.current = selectedSku;
+      return;
     }
+
+    const shouldSync = prevSelectedSkuRef.current !== selectedSku || justEnteredIpcFlow;
+    prevSelectedSkuRef.current = selectedSku;
+    if (!shouldSync) return;
+
+    const stepData = getSelectedSkuStepData();
+    const savedState = getNormalizedIpcSavedState(stepData);
+    const rawSavedComponents = getNormalizedRawSavedComponents(stepData);
+
+    setStep1Saved(savedState.cut);
+    setStep2SavedComponents(new Set(rawSavedComponents));
+    setStep3Saved(savedState.artwork);
+    setStep3SaveStatus('idle');
+    setShowSaveMessage(false);
   }, [selectedSku, flowPhase]);
 
 
@@ -4671,14 +4818,12 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       } else if (parts[0] === 'subproduct' && parts[1] !== undefined && parts[2] !== undefined) {
         stepData = formData.skus?.[parseInt(parts[1])]?.subproducts?.[parseInt(parts[2])]?.stepData;
       }
-      // Cut: only true if at least one component has productComforter filled (not just default empty component)
-      const hasCut = (stepData?.products?.[0]?.components || []).some(c => c?.productComforter?.trim());
-      const hasRaw = (stepData?.rawMaterials?.length || 0) > 0;
-      const materials = stepData?.artworkMaterials || [];
-      const withData = materials.filter((m) => artworkMaterialHasData(m));
-      // Artwork ✓ if any material has data, or all empty (no component / no add material = complete)
-      const hasArt = withData.length > 0 || materials.every((m) => !artworkMaterialHasData(m));
-      return { cut: hasCut, raw: hasRaw, artwork: hasArt };
+      const savedState = getNormalizedIpcSavedState(stepData);
+      return {
+        cut: savedState.cut,
+        raw: savedState.raw,
+        artwork: savedState.artwork,
+      };
     };
 
     return (

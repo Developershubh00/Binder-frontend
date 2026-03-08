@@ -195,13 +195,17 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                   />
                                 </div>
                                 <div className="flex flex-col">
-                                  <label className="text-xs text-gray-600 mb-1">UNIT</label>
+                                  <label className={`text-xs mb-1 ${errors?.[`${errorKeyPrefix}_cartonBoxDimensionsUnit`] ? 'text-red-600' : 'text-gray-600'}`}>
+                                    UNIT <span className="text-red-500">*</span>
+                                  </label>
                                   <UnitDropdown
                                     value={material.cartonBoxDimensionsUnit ?? ''}
                                     onChange={(v) => onChange('cartonBoxDimensionsUnit', v)}
-                                    className="border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none border-[#e5e7eb]"
+                                    placeholder="Select Unit"
+                                    className={`border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxDimensionsUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                                     style={{ height: '44px', width: '100%' }}
                                   />
+                                  {errors?.[`${errorKeyPrefix}_cartonBoxDimensionsUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxDimensionsUnit`]}</span>}
                                 </div>
                               </div>
                             </div>
@@ -213,7 +217,9 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER SIZE (L x W) <span className="text-red-500">*</span></label>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">L</label>
+                              <label className={`text-xs mb-1 ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerLength`] ? 'text-red-600' : 'text-gray-600'}`}>
+                                L <span className="text-red-500">*</span>
+                              </label>
                               <input
                                 type="text"
                                 value={material.cartonBoxStiffenerLength || ''}
@@ -225,7 +231,9 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerLength`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerLength`]}</span>}
                             </div>
                             <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">W</label>
+                              <label className={`text-xs mb-1 ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerWidth`] ? 'text-red-600' : 'text-gray-600'}`}>
+                                W <span className="text-red-500">*</span>
+                              </label>
                               <input
                                 type="text"
                                 value={material.cartonBoxStiffenerWidth || ''}
@@ -237,10 +245,13 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerWidth`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerWidth`]}</span>}
                             </div>
                             <div className="flex flex-col">
-                              <label className="text-xs text-gray-600 mb-1">UNIT</label>
+                              <label className={`text-xs mb-1 ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] ? 'text-red-600' : 'text-gray-600'}`}>
+                                UNIT <span className="text-red-500">*</span>
+                              </label>
                               <UnitDropdown
-                                value={material.cartonBoxStiffenerUnit ?? material.cartonBoxDimensionsUnit ?? ''}
+                                value={material.cartonBoxStiffenerUnit ?? ''}
                                 onChange={(v) => onChange('cartonBoxStiffenerUnit', v)}
+                                placeholder="Select Unit"
                                 className={`border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_cartonBoxStiffenerUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                                 style={{ height: '44px', width: '100%' }}
                               />
@@ -1762,7 +1773,9 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <label className={`text-sm font-semibold mb-2 ${(errors?.[`${errorKeyPrefix}_dividerCellSizeLength`] || errors?.[`${errorKeyPrefix}_dividerCellSizeWidth`] || errors?.[`${errorKeyPrefix}_dividerCellSizeUnit`]) ? 'text-red-600' : 'text-gray-700'}`}>CELL SIZE <span className="text-red-500">*</span></label>
                         <div className="flex items-end gap-4">
                           <div className="flex flex-col flex-1">
-                            <label className="text-xs text-gray-600 mb-1">LENGTH</label>
+                            <label className={`text-xs mb-1 ${errors?.[`${errorKeyPrefix}_dividerCellSizeLength`] ? 'text-red-600' : 'text-gray-600'}`}>
+                              LENGTH <span className="text-red-500">*</span>
+                            </label>
                             <input
                               type="text"
                               value={material.dividerCellSizeLength || ''}
@@ -1773,7 +1786,9 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             />
                           </div>
                           <div className="flex flex-col flex-1">
-                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
+                            <label className={`text-xs mb-1 ${errors?.[`${errorKeyPrefix}_dividerCellSizeWidth`] ? 'text-red-600' : 'text-gray-600'}`}>
+                              WIDTH <span className="text-red-500">*</span>
+                            </label>
                             <input
                               type="text"
                               value={material.dividerCellSizeWidth || ''}
@@ -1784,10 +1799,13 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             />
                           </div>
                           <div className="flex flex-col">
-                            <label className="text-xs text-gray-600 mb-1">UNIT</label>
+                            <label className={`text-xs mb-1 ${errors?.[`${errorKeyPrefix}_dividerCellSizeUnit`] ? 'text-red-600' : 'text-gray-600'}`}>
+                              UNIT <span className="text-red-500">*</span>
+                            </label>
                             <UnitDropdown
                               value={material.dividerCellSizeUnit ?? ''}
                               onChange={(v) => onChange('dividerCellSizeUnit', v)}
+                              placeholder="Select Unit"
                               className={`border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_dividerCellSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                               style={{ height: '44px', width: '120px' }}
                             />

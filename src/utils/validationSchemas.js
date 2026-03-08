@@ -593,7 +593,7 @@ export const PACKAGING_COMMON_SCHEMA = {
 
 export const PACKAGING_MATERIAL_SCHEMAS = {
   'CARTON BOX': {
-    required: ['cartonBoxType', 'cartonBoxNoOfPlys', 'cartonBoxBoardGrade', 'cartonBoxJointType', 'cartonBoxBurstingStrength', 'cartonBoxStiffenerRequired', 'cartonBoxTestingRequirements', 'cartonBoxSurplus', 'cartonBoxWastage'],
+    required: ['cartonBoxType', 'cartonBoxNoOfPlys', 'cartonBoxBoardGrade', 'cartonBoxJointType', 'cartonBoxBurstingStrength', 'cartonBoxDimensionsUnit', 'cartonBoxStiffenerRequired', 'cartonBoxTestingRequirements', 'cartonBoxSurplus', 'cartonBoxWastage'],
     advanced: [],
     // Stiffener size (L x W) required only when Stiffener is YES; form uses Length + Width, not a single Dimensions field
     conditional: {
