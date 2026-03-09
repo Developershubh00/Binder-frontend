@@ -1035,3 +1035,61 @@ export const deleteFactoryCode = async (id) => {
   if (response.status === 204) return { success: true };
   return await response.json();
 };
+
+// Factory code draft (save/load per step - PostgreSQL, sync across devices)
+export const getFactoryCodeDraft = async () => {
+  const response = await apiRequest('ims/factory-codes/draft/');
+  return await response.json();
+};
+
+export const saveFactoryCodeDraft = async (payload) => {
+  const response = await apiRequest('ims/factory-codes/draft/', {
+    method: 'PUT',
+    body: JSON.stringify({ payload }),
+  });
+  return await response.json();
+};
+
+// ============================================================================
+// PUBLIC COMPANY ESSENTIAL (share link - no auth)
+// ============================================================================
+
+export const getPublicEssentialByToken = async (token) => {
+  const response = await fetch(`${API_BASE_URL}public/essentials/${token}/`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.error || 'Invalid or expired link');
+  return data;
+};
+
+export const markPublicEssentialTaken = async (token, data) => {
+  const response = await fetch(`${API_BASE_URL}public/essentials/${token}/taken/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const json = await response.json();
+  if (!response.ok) throw new Error(json?.detail || json?.error || 'Failed to submit');
+  return json;
+};
+
+// ============================================================================
+// UQR FORMS (save/load draft, filled indicator)
+// ============================================================================
+
+export const getUQRFormsList = async () => {
+  const response = await apiRequest('ims/uqr-forms/');
+  return await response.json();
+};
+
+export const getUQRFormDraft = async (formId) => {
+  const response = await apiRequest(`ims/uqr-forms/${encodeURIComponent(formId)}/`);
+  return await response.json();
+};
+
+export const saveUQRFormDraft = async (formId, payload) => {
+  const response = await apiRequest(`ims/uqr-forms/${encodeURIComponent(formId)}/`, {
+    method: 'PUT',
+    body: JSON.stringify({ payload }),
+  });
+  return await response.json();
+};

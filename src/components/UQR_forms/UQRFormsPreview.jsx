@@ -56,7 +56,8 @@ import {
 } from './index';
 
 import { FullscreenContent, FormCard } from '@/components/ui/form-layout';
-import { useState, useMemo } from 'react';
+import { getUQRFormsList } from '../../services/integration';
+import { useState, useMemo, useEffect } from 'react';
 
 // Category → form key → Component registry
 const CATEGORIES = [
@@ -136,6 +137,16 @@ const dropdownStyle = {
 const UQRFormsPreview = () => {
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0].id);
   const [selectedFormKey, setSelectedFormKey] = useState('');
+  const [filledFormIds, setFilledFormIds] = useState(new Set());
+
+  useEffect(() => {
+    getUQRFormsList()
+      .then((res) => {
+        const list = res?.results || res?.data || [];
+        setFilledFormIds(new Set(list.map((r) => r.form_id)));
+      })
+      .catch(() => {});
+  }, []);
 
   const formsInCategory = useMemo(
     () => FORM_REGISTRY.filter((f) => f.categoryId === selectedCategory),
@@ -207,6 +218,7 @@ const UQRFormsPreview = () => {
             {formsInCategory.map(({ formKey }) => (
               <option key={formKey} value={formKey}>
                 {formsConfig[formKey]?.title ?? formKey}
+                {filledFormIds.has(formKey) ? ' ✓ Filled' : ''}
               </option>
             ))}
           </select>
@@ -214,7 +226,7 @@ const UQRFormsPreview = () => {
 
         {FormComponent ? (
           <FormCard style={{ padding: '20px' }}>
-            <FormComponent />
+            <FormComponent formId={selectedFormKey} />
           </FormCard>
         ) : (
           <div

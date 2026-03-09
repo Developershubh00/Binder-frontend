@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Community from './pages/Community'; // Add this import
+import EssentialsViewPage from './pages/EssentialsViewPage';
 
 // Protected Route Components
 const ProtectedRoute = ({ children }) => {
@@ -39,6 +40,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/essentials/view/:token" element={<EssentialsViewPage />} />
           
           {/* Community Route - Add this */}
           <Route

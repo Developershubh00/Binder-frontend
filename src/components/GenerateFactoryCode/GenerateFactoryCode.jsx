@@ -33,7 +33,8 @@ import { FormCard } from '@/components/ui/form-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { saveFactoryCodeWizard } from '../../services/integration';
+import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft } from '../../services/integration';
+import { replaceFilesWithBlobUrls } from '../../services/blobUpload';
 
 // ─── IMAGE COMPRESSION UTILITY ───────────────────────────────────────────────
 // Compresses image to maxKB. Quality never drops below (1 - maxQualityDrop).
@@ -534,6 +535,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       if (data?.ipoCode) {
         localStorage.setItem(getStorageKey(data.ipoCode), payload);
       }
+      saveFactoryCodeDraft(cloned).catch((e) => console.warn('Draft save failed', e));
     } catch (e) {
       console.warn('Failed to save to localStorage:', e);
     }
@@ -576,35 +578,61 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   useEffect(() => {
-    // Try ipoCode-specific key first, then fallback to generic key
-    let savedData = loadFromLocalStorage(initialFormData?.ipoCode);
-    if (!savedData && initialFormData?.ipoCode) {
-      savedData = loadFromLocalStorage(null); // Fallback: generic key (legacy)
-    }
-    if (!savedData) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getFactoryCodeDraft();
+        const draft = res?.payload;
+        if (cancelled) return;
+        if (draft && (draft.skus?.length || Object.keys(draft).some((k) => k !== 'skus' && draft[k] != null))) {
+          const data = { ...draft };
+          (data.skus || []).forEach((sku) => {
+            if (sku.imageBase64) {
+              sku.image = base64ToFile(sku.imageBase64);
+              sku.imagePreview = sku.imageBase64.data;
+            }
+            (sku.subproducts || []).forEach((sub) => {
+              if (sub?.imageBase64) {
+                sub.image = base64ToFile(sub.imageBase64);
+                sub.imagePreview = sub.imageBase64.data;
+              }
+            });
+          });
+          setFormData((prev) => ({ ...prev, ...data }));
+          return;
+        }
+      } catch (e) {
+        if (!cancelled) console.warn('Failed to load draft', e);
+      }
+      if (cancelled) return;
+      // Fallback: localStorage
+      let savedData = loadFromLocalStorage(initialFormData?.ipoCode);
+      if (!savedData && initialFormData?.ipoCode) {
+        savedData = loadFromLocalStorage(null);
+      }
+      if (!savedData) return;
 
-    const hasInitialFromIPO = initialFormData?.ipoCode || (initialFormData?.programName && (initialFormData?.buyerCode || initialFormData?.type));
+      const hasInitialFromIPO = initialFormData?.ipoCode || (initialFormData?.programName && (initialFormData?.buyerCode || initialFormData?.type));
 
-    if (!hasInitialFromIPO) {
-      setFormData(prev => ({ ...prev, ...savedData }));
-      return;
-    }
+      if (!hasInitialFromIPO) {
+        setFormData((prev) => ({ ...prev, ...savedData }));
+        return;
+      }
 
-    // When loading by ipoCode, the storage key is unique - data belongs to this IPO.
-    // Use relaxed matching: ipoCode match + programName/buyerCode|type (with normalize for edge cases)
-    const norm = (v) => String(v ?? '').trim().toLowerCase();
-    const ipoMatch = !initialFormData?.ipoCode || (savedData.ipoCode && norm(savedData.ipoCode) === norm(initialFormData.ipoCode));
-    const programMatch = norm(savedData.programName) === norm(initialFormData.programName);
-    const contextMatch = initialFormData.orderType === 'Company'
-      ? norm(savedData.type) === norm(initialFormData.type)
-      : norm(savedData.buyerCode) === norm(initialFormData.buyerCode);
+      const norm = (v) => String(v ?? '').trim().toLowerCase();
+      const ipoMatch = !initialFormData?.ipoCode || (savedData.ipoCode && norm(savedData.ipoCode) === norm(initialFormData.ipoCode));
+      const programMatch = norm(savedData.programName) === norm(initialFormData.programName);
+      const contextMatch = initialFormData.orderType === 'Company'
+        ? norm(savedData.type) === norm(initialFormData.type)
+        : norm(savedData.buyerCode) === norm(initialFormData.buyerCode);
 
-    if (ipoMatch && programMatch && contextMatch) {
-      setFormData(prev => ({ ...prev, ...savedData }));
-    } else if (ipoMatch) {
-      // IPO codes match (we loaded from ipoCode-specific key) - trust it even if metadata drifted
-      setFormData(prev => ({ ...prev, ...savedData }));
-    }
+      if (ipoMatch && programMatch && contextMatch) {
+        setFormData((prev) => ({ ...prev, ...savedData }));
+      } else if (ipoMatch) {
+        setFormData((prev) => ({ ...prev, ...savedData }));
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const totalSteps = 4;
@@ -5544,30 +5572,56 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
                       // ─── SAVE ALL STEPS TO DATABASE ───
                       try {
-                        const wizardPayload = {
+                        const stepData = getSelectedSkuStepData();
+                        const parsed = parseSelectedSku();
+                        const skuItem = formData.skus?.[parsed.skuIndex];
+                        const productName = parsed.type === 'subproduct' && skuItem?.subproducts?.[parsed.subproductIndex]
+                          ? skuItem.subproducts[parsed.subproductIndex].subproduct
+                          : skuItem?.product;
+
+                        const rawPayload = {
                           step0: {
-                            sku: formData.skus?.[0]?.sku || '',
-                            product_name: formData.skus?.[0]?.product || '',
-                            notes: formData.ipoCode || '',
+                            sku: skuItem?.sku ?? '',
+                            product_name: productName ?? '',
+                            buyer_code: formData.buyerCode || null,
+                            notes: formData.ipoCode ?? '',
                           },
-                          products: (formData.products || []).map(p => ({
-                            name: p.name || '',
-                            components: (p.components || []).map(c => ({
-                              name: c.name || '',
-                              sizeWidth: c.size?.width || '',
-                              sizeLength: c.size?.length || '',
-                              sizeHeight: c.size?.height || '',
-                              sizeUnit: c.size?.unit || '',
+                          products: (stepData?.products || []).map((p) => ({
+                            name: p.name ?? '',
+                            placement: p.placement ?? '',
+                            components: (p.components || []).map((c) => ({
+                              name: c.productComforter ?? c.name ?? '',
+                              placement: c.placement ?? '',
+                              remarks: c.remarks ?? '',
+                              surplus: c.surplus ?? '',
+                              sizeWidth: c.cuttingSize?.width ?? c.sewSize?.width ?? c.size?.width ?? '',
+                              sizeLength: c.cuttingSize?.length ?? c.sewSize?.length ?? c.size?.length ?? '',
+                              sizeHeight: c.size?.height ?? '',
+                              sizeUnit: c.size?.unit ?? c.cuttingSize?.unit ?? c.sewSize?.unit ?? '',
+                              unit: c.unit ?? '',
+                              quantity: c.quantity ?? '',
                             })),
                           })),
-                          rawMaterials: formData.rawMaterials || [],
-                          consumptionMaterials: formData.consumptionMaterials || [],
-                          artworkMaterials: formData.artworkMaterials || [],
-                          packaging: formData.packaging || null,
+                          rawMaterials: stepData?.rawMaterials ?? [],
+                          consumptionMaterials: stepData?.consumptionMaterials ?? [],
+                          artworkMaterials: stepData?.artworkMaterials ?? [],
+                          packaging: stepData?.packaging ?? null,
                         };
 
+                        const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
+                        // Backend expects referenceImageUrl for blob URLs (referenceImage is FileField)
+                        (wizardPayload.artworkMaterials || []).forEach((m) => {
+                          if (typeof m.referenceImage === 'string' && m.referenceImage) {
+                            m.referenceImageUrl = m.referenceImage;
+                            delete m.referenceImage;
+                          }
+                        });
                         const result = await saveFactoryCodeWizard(wizardPayload);
-                        console.log('✅ Factory code saved to DB:', result);
+                        if (result?.id || result?.code) {
+                          console.log('✅ Factory code saved to DB:', result);
+                        } else if (result?.status !== 'success' && result?.detail) {
+                          console.warn('Factory code save response:', result);
+                        }
                       } catch (err) {
                         console.error('❌ Failed to save factory code to DB:', err);
                         // Don't block the user — still show popup even if DB save fails

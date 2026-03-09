@@ -240,8 +240,9 @@
 // export default BaseFormTemplate;
 
 import React, { useState, useEffect } from 'react';
+import { getUQRFormDraft, saveUQRFormDraft } from '../../services/integration';
 
-const BaseFormTemplate = ({ title, sections, tableConfig }) => {
+const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
   
   // --- 1. State Management ---
   const getInitialState = () => {
@@ -267,6 +268,24 @@ const BaseFormTemplate = ({ title, sections, tableConfig }) => {
   const [tableRows, setTableRows] = useState(() => 
     tableConfig ? [getEmptyRow()] : []
   );
+
+  // Load draft from API when formId is set
+  useEffect(() => {
+    if (!formId) return;
+    getUQRFormDraft(formId)
+      .then((res) => {
+        const payload = res?.payload;
+        if (payload && typeof payload === 'object') {
+          if (payload.formData && Object.keys(payload.formData).length > 0) {
+            setFormData((prev) => ({ ...prev, ...payload.formData }));
+          }
+          if (Array.isArray(payload.tableRows) && payload.tableRows.length > 0) {
+            setTableRows(payload.tableRows);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [formId]);
 
   // --- 2. Handlers ---
   const handleChange = (e) => {
@@ -486,7 +505,21 @@ const BaseFormTemplate = ({ title, sections, tableConfig }) => {
       )}
 
       <div style={styles.actions}>
-        <button type="button" style={styles.btnPrimary} onClick={() => console.log('Form:', formData, 'Table:', tableRows)}>
+        <button
+          type="button"
+          style={styles.btnPrimary}
+          onClick={async () => {
+            const payload = { formData, tableRows };
+            if (formId) {
+              try {
+                await saveUQRFormDraft(formId, payload);
+              } catch (e) {
+                console.warn('Save failed', e);
+              }
+            }
+            console.log('Form:', formData, 'Table:', tableRows);
+          }}
+        >
           Submit
         </button>
       </div>
