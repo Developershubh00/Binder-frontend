@@ -14,7 +14,7 @@ import {
   Menu,
   Home,
   Calculator,
-  FileText
+  Search
 } from 'lucide-react';
 import './Dashboard.css';
 
@@ -212,10 +212,9 @@ const Dashboard = () => {
   const getMenuItems = () => {
     return [
       { id: 'home', label: 'Home', icon: Home },
-      { id: 'uqr-forms', label: 'UQR Forms', icon: FileText },
       { id: 'tasks', label: 'Tasks', icon: Stack3Icon },
       { id: 'code-creation', label: 'Code Creation', icon: FingerprintScanIcon },
-      { id: 'ipo-issued', label: 'IPO Issued', icon: ReceiptIcon },
+      { id: 'ipo-issued', label: 'IPO Management', icon: ReceiptIcon },
       { id: 'purchase', label: 'Purchase', icon: ShoppingBagIcon },
       { id: 'ims', label: 'IMS', icon: StorefrontIcon },
     ];
@@ -554,6 +553,18 @@ const Dashboard = () => {
               >
                 Outward Store Sheet
               </button>
+              <button
+                type="button"
+                className={`hover-panel-item ${activePage === 'uqr-forms' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: null, action: null, category: null })}
+                onClick={() => {
+                  setActivePage('uqr-forms');
+                  setHoveredSubmenu(null);
+                  setHoveredMenu(null);
+                }}
+              >
+                UQR Forms
+              </button>
             </div>
           </div>
           {activeSection && (
@@ -643,18 +654,6 @@ const Dashboard = () => {
               <div className="hover-panel-title">Tasks</div>
               <button
                 type="button"
-                className={`hover-panel-item ${activeAction === 'assign' ? 'active' : ''}`}
-                onMouseEnter={() => setHoveredSubmenu({ menu: 'tasks', action: 'assign', type: null, ipo: null, department: null, user: null })}
-                onClick={() => {
-                  setTasksView('assign');
-                  setActivePage('tasks');
-                  setHoveredMenu(null);
-                }}
-              >
-                Assign Tasks
-              </button>
-              <button
-                type="button"
                 className={`hover-panel-item ${activeAction === 'assigned' ? 'active' : ''}`}
                 onMouseEnter={() => setHoveredSubmenu({ menu: 'tasks', action: 'assigned', type: null, ipo: null, department: null, user: null })}
                 onClick={() => {
@@ -664,6 +663,18 @@ const Dashboard = () => {
                 }}
               >
                 Tasks Assigned To You
+              </button>
+              <button
+                type="button"
+                className={`hover-panel-item ${activeAction === 'assign' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'tasks', action: 'assign', type: null, ipo: null, department: null, user: null })}
+                onClick={() => {
+                  setTasksView('assign');
+                  setActivePage('tasks');
+                  setHoveredMenu(null);
+                }}
+              >
+                Assign Tasks
               </button>
             </div>
           </div>
@@ -819,7 +830,7 @@ const Dashboard = () => {
               key={item.id}
               className={`nav-item ${activePage === item.id ? 'active' : ''}`}
               onClick={() => {
-                if (item.id === 'home' || item.id === 'tasks' || item.id === 'uqr-forms' || item.id === 'purchase') {
+                if (item.id === 'home' || item.id === 'tasks' || item.id === 'purchase') {
                   setActivePage(item.id);
                   setHoveredMenu(null);
                   return;
@@ -845,7 +856,16 @@ const Dashboard = () => {
       <main className="main-content">
         <header className="top-bar">
           <div className="top-bar-left">
-            <h2 className="page-title">Binder Dashboard</h2>
+            <label className="dashboard-search" htmlFor="dashboard-search-input">
+              <Search size={16} className="dashboard-search-icon" aria-hidden="true" />
+              <input
+                id="dashboard-search-input"
+                type="search"
+                className="dashboard-search-input"
+                placeholder="Search"
+                aria-label="Search dashboard"
+              />
+            </label>
           </div>
           <div className="top-bar-right" ref={profileMenuRef}>
             <button

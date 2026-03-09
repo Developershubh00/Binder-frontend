@@ -423,7 +423,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
 
             {/* Program Name */}
             <Field 
-              label="PROGRAM NAME" 
+              label="PO NAME" 
               required 
               error={errors.programName}
               width="md"
@@ -433,7 +433,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
                 type="text"
                 value={initialData.programName}
                 onChange={handleProgramNameChange}
-                placeholder="Enter program name"
+                placeholder="Enter PO name"
                 aria-invalid={!!errors.programName}
               />
             </Field>

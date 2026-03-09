@@ -214,17 +214,17 @@ const TasksContent = ({ initialView = 'assign' }) => {
       <div className="tasks-tabs">
         <button
           type="button"
-          className={`tasks-tab${activeView === 'assign' ? ' active' : ''}`}
-          onClick={() => setActiveView('assign')}
-        >
-          Assign Tasks
-        </button>
-        <button
-          type="button"
           className={`tasks-tab${activeView === 'assigned' ? ' active' : ''}`}
           onClick={() => setActiveView('assigned')}
         >
           Tasks Assigned To You
+        </button>
+        <button
+          type="button"
+          className={`tasks-tab${activeView === 'assign' ? ' active' : ''}`}
+          onClick={() => setActiveView('assign')}
+        >
+          Assign Tasks
         </button>
       </div>
 
