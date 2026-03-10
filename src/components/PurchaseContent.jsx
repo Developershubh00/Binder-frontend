@@ -7,6 +7,9 @@ const PURCHASE_ISSUED_KEY = 'purchaseIssuedItems';
 const normalizeTypeLabel = (value) => {
   const v = (value || '').toLowerCase();
   if (v === 'company essentials' || v === 'company-essentials') return 'Company Essentials';
+  if (v === 'self') return 'Company';
+  if (v === 'sam') return 'Sampling';
+  if (v === 'pd') return 'Production';
   if (v === 'company') return 'Company';
   if (v === 'sampling') return 'Sampling';
   if (v === 'production') return 'Production';

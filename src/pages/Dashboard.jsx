@@ -17,6 +17,7 @@ import {
   Search
 } from 'lucide-react';
 import './Dashboard.css';
+import { normalizeOrderType } from '../utils/orderType';
 
 const FingerprintScanIcon = ({ size = 18 }) => (
   <svg
@@ -321,10 +322,13 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
+  const loadSidebarData = () => {
     try {
       const stored = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
-      setExistingIPOs(stored);
+      const normalized = Array.isArray(stored)
+        ? stored.map((ipo) => ({ ...ipo, orderType: normalizeOrderType(ipo.orderType || ipo.order_type) }))
+        : [];
+      setExistingIPOs(normalized);
     } catch (e) {
       setExistingIPOs([]);
     }
@@ -334,7 +338,17 @@ const Dashboard = () => {
     } catch (e) {
       setExistingCompanyEssentials([]);
     }
+  };
+
+  useEffect(() => {
+    loadSidebarData();
   }, [hoveredMenu]);
+
+  useEffect(() => {
+    const handleIpoUpdate = () => loadSidebarData();
+    window.addEventListener('internalPurchaseOrdersUpdated', handleIpoUpdate);
+    return () => window.removeEventListener('internalPurchaseOrdersUpdated', handleIpoUpdate);
+  }, []);
 
   useEffect(() => {
     if (!hoveredMenu) {
@@ -363,10 +377,12 @@ const Dashboard = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [hoveredMenu]);
 
-  const ipoByType = (type) =>
-    existingIPOs.filter((ipo) =>
-      (ipo.orderType || '').toLowerCase() === type.toLowerCase() && ipo.ipoCode
+  const ipoByType = (type) => {
+    const normalizedType = normalizeOrderType(type);
+    return existingIPOs.filter((ipo) =>
+      normalizeOrderType(ipo.orderType || ipo.order_type) === normalizedType && (ipo.ipoCode || ipo.code)
     );
+  };
 
   const getCompanyEssentialsItems = () =>
     existingCompanyEssentials.map((entry, index) => {
@@ -378,7 +394,7 @@ const Dashboard = () => {
     });
 
   const getIpoItems = (orderType) => {
-    const normalizedType = String(orderType || '').trim();
+    const normalizedType = normalizeOrderType(orderType);
     const prefixByType = {
       Production: 'CHD/PD/',
       Sampling: 'CHD/SAM/',
@@ -393,7 +409,7 @@ const Dashboard = () => {
         return code.startsWith(expectedPrefix);
       })
       .map((ipo, index) => ({
-        key: ipo.ipoCode || `${type}-${index}`,
+        key: ipo.ipoCode || ipo.code || `${normalizedType}-${index}`,
         label: ipo.ipoCode || ipo.code || 'IPO'
       }));
   };

@@ -648,6 +648,66 @@
   color: var(--foreground);
   resize: vertical;
 }
+.tasks-image-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.tasks-image-upload-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tasks-image-upload-trigger:hover {
+  background: var(--muted);
+}
+.tasks-image-clear {
+  border: 1px solid var(--destructive);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--destructive) 12%, transparent);
+  color: var(--destructive);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.tasks-image-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.tasks-image-preview {
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--muted);
+  overflow: hidden;
+}
+.tasks-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tasks-image-link {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
 .tasks-priority {
   display: flex;
   gap: 8px;

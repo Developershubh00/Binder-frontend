@@ -6,6 +6,9 @@ import { FullscreenContent } from '@/components/ui/form-layout';
 import { SearchableCombobox } from '@/components/ui/searchable-combobox';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { createTask } from '../services/integration';
+import { uploadToBlob } from '../services/blobUpload';
+import { normalizeOrderType } from '../utils/orderType';
 
 const TasksContent = ({ initialView = 'assign' }) => {
   const [activeView, setActiveView] = useState(initialView);
@@ -16,6 +19,9 @@ const TasksContent = ({ initialView = 'assign' }) => {
   const [task, setTask] = useState('');
   const [subTask, setSubTask] = useState('');
   const [remarks, setRemarks] = useState('');
+  const [taskImage, setTaskImage] = useState(null);
+  const [taskImagePreview, setTaskImagePreview] = useState('');
+  const [taskImageInputKey, setTaskImageInputKey] = useState(0);
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('');
   const [existingIPOs, setExistingIPOs] = useState([]);
@@ -41,7 +47,10 @@ const TasksContent = ({ initialView = 'assign' }) => {
     const loadIPOs = () => {
       try {
         const stored = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
-        setExistingIPOs(Array.isArray(stored) ? stored : []);
+        const normalized = Array.isArray(stored)
+          ? stored.map((ipo) => ({ ...ipo, orderType: normalizeOrderType(ipo.orderType || ipo.order_type) }))
+          : [];
+        setExistingIPOs(normalized);
       } catch (error) {
         console.error('Error loading IPOs:', error);
         setExistingIPOs([]);
@@ -54,8 +63,13 @@ const TasksContent = ({ initialView = 'assign' }) => {
         loadIPOs();
       }
     };
+    const handleIpoUpdate = () => loadIPOs();
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('internalPurchaseOrdersUpdated', handleIpoUpdate);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('internalPurchaseOrdersUpdated', handleIpoUpdate);
+    };
   }, []);
 
   useEffect(() => {
@@ -79,6 +93,18 @@ const TasksContent = ({ initialView = 'assign' }) => {
     } catch (error) {
       console.error('Error saving assigned tasks:', error);
     }
+  };
+
+  const resetTaskForm = () => {
+    setTask('');
+    setSubTask('');
+    setRemarks('');
+    setTaskImage(null);
+    setTaskImagePreview('');
+    setTaskImageInputKey((prev) => prev + 1);
+    setDueDate('');
+    setPriority('');
+    setSelectedUsers([]);
   };
 
   const updateTask = (taskId, updater) => {
@@ -159,36 +185,109 @@ const TasksContent = ({ initialView = 'assign' }) => {
 
   const userOptions = [];
 
-  const handleAssignTask = () => {
+  const handleTaskImageChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setTaskImage(null);
+      setTaskImagePreview('');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setTaskImage(null);
+      setTaskImagePreview('');
+      setTaskImageInputKey((prev) => prev + 1);
+      return;
+    }
+
+    setTaskImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setTaskImagePreview(typeof reader.result === 'string' ? reader.result : '');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleClearTaskImage = () => {
+    setTaskImage(null);
+    setTaskImagePreview('');
+    setTaskImageInputKey((prev) => prev + 1);
+  };
+
+  const handleAssignTask = async () => {
     if (isAssigning) return;
     setIsAssigning(true);
-    const newTask = {
-      id: `task-${Date.now()}`,
-      user: selectedUsers.length > 0 ? selectedUsers[0] : 'Unassigned',
-      department: selectedDepartment,
-      ipo: selectedIpo || '',
-      task: task.trim() || 'Task',
-      remarks: remarks.trim(),
-      dueDate: dueDate || todayDate,
-      priority: priority || 'Low',
-      status: 'pending',
-      assignees: selectedUsers
-    };
-    const nextTasks = [newTask, ...assignedTasks];
-    persistAssignedTasks(nextTasks);
-    setTask('');
-    setSubTask('');
-    setRemarks('');
-    setDueDate('');
-    setPriority('');
-    setSelectedUsers([]);
-    setShowAssignedDialog(true);
+    try {
+      const primaryAssignee = selectedUsers.length > 0 ? selectedUsers[0] : 'Unassigned';
+      let uploadedTaskImageUrl = '';
+
+      if (taskImage) {
+        try {
+          uploadedTaskImageUrl = (await uploadToBlob(taskImage, 'tasks')) || '';
+        } catch (error) {
+          console.error('Error uploading task image:', error);
+        }
+      }
+
+      const taskPayload = {
+        po_type: selectedType || '',
+        ipo_code: selectedIpo || '',
+        department: selectedDepartment || '',
+        task: task.trim() || 'Task',
+        sub_task: subTask.trim(),
+        remarks: remarks.trim(),
+        due_date: dueDate || todayDate,
+        priority: priority || 'Low',
+        status: 'pending',
+        assigned_to: primaryAssignee,
+        assignees: selectedUsers,
+        image_url: uploadedTaskImageUrl || '',
+        image_name: taskImage?.name || ''
+      };
+
+      let serverTask = null;
+      try {
+        const response = await createTask(taskPayload);
+        serverTask = response?.data ?? response;
+      } catch (error) {
+        console.warn('Task API save failed, keeping local copy only:', error);
+      }
+
+      const persistedTaskId = serverTask?.id ?? serverTask?.task_id ?? Date.now();
+      const normalizedTaskId = String(persistedTaskId).startsWith('task-')
+        ? String(persistedTaskId)
+        : `task-${persistedTaskId}`;
+      const newTask = {
+        id: normalizedTaskId,
+        dbId: serverTask?.id ?? serverTask?.task_id ?? null,
+        user: primaryAssignee,
+        department: selectedDepartment,
+        ipo: selectedIpo || '',
+        task: task.trim() || 'Task',
+        subTask: subTask.trim(),
+        remarks: remarks.trim(),
+        dueDate: dueDate || todayDate,
+        priority: priority || 'Low',
+        imageUrl: uploadedTaskImageUrl || serverTask?.image_url || serverTask?.image || '',
+        imageName: taskImage?.name || serverTask?.image_name || '',
+        status: 'pending',
+        assignees: selectedUsers
+      };
+
+      const nextTasks = [newTask, ...assignedTasks];
+      persistAssignedTasks(nextTasks);
+      resetTaskForm();
+      setShowAssignedDialog(true);
+    } catch (error) {
+      console.error('Error assigning task:', error);
+    } finally {
+      setIsAssigning(false);
+    }
   };
 
   const ipoOptions = useMemo(() => {
-    const normalizedType = (selectedType || '').toLowerCase();
+    const normalizedType = normalizeOrderType(selectedType);
     return existingIPOs
-      .filter((ipo) => (ipo.orderType || '').toLowerCase() === normalizedType && (ipo.ipoCode || ipo.code))
+      .filter((ipo) => normalizeOrderType(ipo.orderType || ipo.order_type) === normalizedType && (ipo.ipoCode || ipo.code))
       .map((ipo) => ipo.ipoCode || ipo.code)
       .filter(Boolean);
   }, [existingIPOs, selectedType]);
@@ -299,6 +398,40 @@ const TasksContent = ({ initialView = 'assign' }) => {
                 onChange={(e) => setRemarks(e.target.value)}
               />
             </Field>
+            <Field label="Image Upload" width="md">
+              <div className="tasks-image-upload">
+                <input
+                  key={taskImageInputKey}
+                  id="task-image-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleTaskImageChange}
+                />
+                <label htmlFor="task-image-upload" className="tasks-image-upload-trigger">
+                  {taskImage ? 'Change Image' : 'Upload Image'}
+                </label>
+                {taskImage && (
+                  <button
+                    type="button"
+                    className="tasks-image-clear"
+                    onClick={handleClearTaskImage}
+                  >
+                    Remove
+                  </button>
+                )}
+                {taskImage && (
+                  <span className="tasks-image-name" title={taskImage.name}>
+                    {taskImage.name}
+                  </span>
+                )}
+                {taskImagePreview && (
+                  <div className="tasks-image-preview">
+                    <img src={taskImagePreview} alt="Task upload preview" />
+                  </div>
+                )}
+              </div>
+            </Field>
             <Field label="Due Date" width="md">
               <Input
                 type="date"
@@ -327,8 +460,9 @@ const TasksContent = ({ initialView = 'assign' }) => {
               variant="default"
               style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
               onClick={handleAssignTask}
+              disabled={isAssigning}
             >
-              Assign
+              {isAssigning ? 'Assigning...' : 'Assign'}
             </Button>
           </div>
         </div>
@@ -367,6 +501,23 @@ const TasksContent = ({ initialView = 'assign' }) => {
                       <div className="tasks-right-row">
                         <span className="tasks-assigned-label">Remarks</span>
                         <span className="tasks-assigned-value">{taskItem.remarks || '-'}</span>
+                      </div>
+                      <div className="tasks-right-row">
+                        <span className="tasks-assigned-label">Image</span>
+                        <span className="tasks-assigned-value">
+                          {taskItem.imageUrl ? (
+                            <a
+                              href={taskItem.imageUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="tasks-image-link"
+                            >
+                              View Image
+                            </a>
+                          ) : (
+                            taskItem.imageName || '-'
+                          )}
+                        </span>
                       </div>
                       <div className="tasks-right-row">
                         <span className="tasks-assigned-label">Due Date</span>
@@ -589,12 +740,7 @@ const TasksContent = ({ initialView = 'assign' }) => {
         onOpenChange={(open) => {
           setShowAssignedDialog(open);
           if (!open) {
-            setTask('');
-            setSubTask('');
-            setRemarks('');
-            setDueDate('');
-            setPriority('');
-            setSelectedUsers([]);
+            resetTaskForm();
             setIsAssigning(false);
           }
         }}

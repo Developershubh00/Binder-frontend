@@ -948,6 +948,37 @@ export const getNextPOCode = async () => {
 };
 
 // ============================================================================
+// TASKS
+// ============================================================================
+
+export const createTask = async (taskData) => {
+  const endpoints = ['ims/tasks/', 'ims/task-assignments/'];
+  let lastError = null;
+
+  for (const endpoint of endpoints) {
+    const response = await apiRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
+
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+
+    if (response.ok || data?.status === 'success' || data?.id || data?.data?.id) {
+      return data;
+    }
+
+    lastError = new Error(data?.detail || data?.error || data?.message || `Failed to create task at ${endpoint}`);
+  }
+
+  throw lastError || new Error('Failed to create task');
+};
+
+// ============================================================================
 // COMPANY ESSENTIALS
 // ============================================================================
 

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 // Dialog removed: IPO success is shown inline like Buyer/Vendor
 import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 import { getIPOs, createIPO, getBuyerCodes } from '../../services/integration';
+import { normalizeOrderType, toOrderTypeApiValue } from '../../utils/orderType';
 
 const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const [showInitialScreen, setShowInitialScreen] = useState(true);
@@ -39,7 +40,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         const ipos = response.results || response.data || response || [];
         const mapped = Array.isArray(ipos) ? ipos.map(item => ({
           ipoCode: item.ipo_code || item.ipoCode || '',
-          orderType: item.order_type || item.orderType || '',
+          orderType: normalizeOrderType(item.order_type || item.orderType || ''),
           buyerCode: item.buyer_code_text || item.buyerCode || '',
           type: item.company_type || item.type || '',
           programName: item.program_name || item.programName || '',
@@ -48,10 +49,14 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         })) : [];
         setExistingIPOs(mapped);
         localStorage.setItem('internalPurchaseOrders', JSON.stringify(mapped));
+        window.dispatchEvent(new Event('internalPurchaseOrdersUpdated'));
       } catch (error) {
         console.warn('Failed to load IPOs from API, using localStorage:', error);
         const stored = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
-        setExistingIPOs(stored);
+        const normalizedStored = Array.isArray(stored)
+          ? stored.map((item) => ({ ...item, orderType: normalizeOrderType(item.orderType) }))
+          : [];
+        setExistingIPOs(normalizedStored);
       }
     };
     loadIPOs();
@@ -61,10 +66,11 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   const companyTypeOptions = ['STOCK', 'SAM'];
   const normalizeKey = (value) => String(value || '').trim().toLowerCase();
   const findExistingIPO = (data, list) => {
+    const dataOrderType = normalizeOrderType(data.orderType);
     return (list || []).find((ipo) => {
-      if (normalizeKey(ipo.orderType) !== normalizeKey(data.orderType)) return false;
+      if (normalizeKey(normalizeOrderType(ipo.orderType)) !== normalizeKey(dataOrderType)) return false;
       if (normalizeKey(ipo.programName) !== normalizeKey(data.programName)) return false;
-      if (data.orderType === 'Company') {
+      if (dataOrderType === 'Company') {
         return normalizeKey(ipo.type) === normalizeKey(data.type);
       }
       return normalizeKey(ipo.buyerCode) === normalizeKey(data.buyerCode);
@@ -135,10 +141,11 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   const getNextIPOSrNo = (data) => {
     try {
       const existingIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
+      const dataOrderType = normalizeOrderType(data.orderType);
       const sameGroupIPOs = existingIPOs.filter((ipo) => {
-        if (normalizeKey(ipo.orderType) !== normalizeKey(data.orderType)) return false;
+        if (normalizeKey(normalizeOrderType(ipo.orderType)) !== normalizeKey(dataOrderType)) return false;
         if (normalizeKey(ipo.programName) !== normalizeKey(data.programName)) return false;
-        if (data.orderType === 'Company') {
+        if (dataOrderType === 'Company') {
           return normalizeKey(ipo.type) === normalizeKey(data.type);
         }
         return normalizeKey(ipo.buyerCode) === normalizeKey(data.buyerCode);
@@ -211,10 +218,8 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         : initialData.buyerCode;
       
       // Map frontend label → backend DB value (matches image: PD / SAM / SELF)
-      const ORDER_TYPE_MAP = { 'Production': 'PD', 'Sampling': 'SAM', 'Company': 'SELF' };
-
       const response = await createIPO({
-        order_type: ORDER_TYPE_MAP[initialData.orderType] || 'PD',
+        order_type: toOrderTypeApiValue(initialData.orderType),
         buyer_code_text: initialData.orderType !== 'Company' ? (initialData.buyerCode || '') : '',
         company_type: initialData.orderType === 'Company' ? initialData.type : null,
         program_name: initialData.programName.trim(),
@@ -242,10 +247,11 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
 
       // Update localStorage cache
       try {
-        const existingIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
+        const existingIPOs = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]')
+          .map((item) => ({ ...item, orderType: normalizeOrderType(item.orderType) }));
         const newIPO = {
           ipoCode,
-          orderType: initialData.orderType,
+          orderType: normalizeOrderType(initialData.orderType),
           buyerCode: initialData.buyerCode || null,
           type: initialData.type || null,
           programName: initialData.programName,
@@ -255,6 +261,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         existingIPOs.push(newIPO);
         localStorage.setItem('internalPurchaseOrders', JSON.stringify(existingIPOs));
         setExistingIPOs(existingIPOs);
+        window.dispatchEvent(new Event('internalPurchaseOrdersUpdated'));
       } catch (cacheError) {
         console.error('Error updating localStorage cache:', cacheError);
       }
@@ -272,7 +279,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   const handleOpenExistingIPO = (item) => {
     if (!item) return;
     setInitialData({
-      orderType: item.orderType || '',
+      orderType: normalizeOrderType(item.orderType || ''),
       buyerCode: item.buyerCode || '',
       type: item.type || '',
       programName: item.programName || '',
