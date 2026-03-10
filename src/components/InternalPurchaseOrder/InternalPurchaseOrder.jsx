@@ -9,7 +9,7 @@ import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 import { getIPOs, createIPO, getBuyerCodes } from '../../services/integration';
 import { normalizeOrderType, toOrderTypeApiValue } from '../../utils/orderType';
 
-const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO }) => {
+const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO, initialOpenIpo = null }) => {
   const [showInitialScreen, setShowInitialScreen] = useState(true);
   const [showIPOPopup, setShowIPOPopup] = useState(false);
   const [generatedIPOCode, setGeneratedIPOCode] = useState('');
@@ -31,7 +31,6 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   });
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
   const [errors, setErrors] = useState({});
-  const [existingIPOs, setExistingIPOs] = useState([]);
 
   useEffect(() => {
     const loadIPOs = async () => {
@@ -47,7 +46,6 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
           poSrNo: item.po_sr_no || item.poSrNo || 1,
           createdAt: item.created_at || item.createdAt || '',
         })) : [];
-        setExistingIPOs(mapped);
         localStorage.setItem('internalPurchaseOrders', JSON.stringify(mapped));
         window.dispatchEvent(new Event('internalPurchaseOrdersUpdated'));
       } catch (error) {
@@ -56,7 +54,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         const normalizedStored = Array.isArray(stored)
           ? stored.map((item) => ({ ...item, orderType: normalizeOrderType(item.orderType) }))
           : [];
-        setExistingIPOs(normalizedStored);
+        localStorage.setItem('internalPurchaseOrders', JSON.stringify(normalizedStored));
       }
     };
     loadIPOs();
@@ -260,7 +258,6 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         };
         existingIPOs.push(newIPO);
         localStorage.setItem('internalPurchaseOrders', JSON.stringify(existingIPOs));
-        setExistingIPOs(existingIPOs);
         window.dispatchEvent(new Event('internalPurchaseOrdersUpdated'));
       } catch (cacheError) {
         console.error('Error updating localStorage cache:', cacheError);
@@ -288,6 +285,11 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     });
     setShowInitialScreen(false);
   };
+
+  useEffect(() => {
+    if (!initialOpenIpo?.ipoCode) return;
+    handleOpenExistingIPO(initialOpenIpo);
+  }, [initialOpenIpo]);
 
   // Handle Next from IPO popup
   const handleNextFromPopup = () => {
@@ -454,51 +456,6 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
           </div>
         </FormCard>
 
-        {existingIPOs.length > 0 && (
-          <div
-            className="w-fit"
-            style={{
-              marginTop: '16px',
-              border: '1px solid rgb(34 197 94)',
-              borderRadius: '8px',
-              padding: '16px 20px',
-              maxWidth: '480px'
-            }}
-          >
-            <span style={{ fontSize: '12px', fontWeight: '500', color: '#000', letterSpacing: '0.5px' }}>
-              Existing codes
-            </span>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '8px',
-                marginTop: '12px'
-              }}
-            >
-              {[...existingIPOs].reverse().map((item, idx) => (
-                <button
-                  type="button"
-                  key={(item.ipoCode || '') + '-' + (item.createdAt || idx)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '6px 10px',
-                    backgroundColor: 'var(--muted)',
-                    borderRadius: '6px',
-                    fontSize: '13px'
-                  }}
-                  onClick={() => handleOpenExistingIPO(item)}
-                  title="Open IPO"
-                >
-                  <span style={{ fontFamily: 'ui-monospace, monospace', fontWeight: '600', color: 'var(--foreground)' }}>
-                    {item.ipoCode || 'N/A'}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* IPO success is shown inline (no modal) */}

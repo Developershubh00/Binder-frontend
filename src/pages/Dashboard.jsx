@@ -124,6 +124,7 @@ const Dashboard = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [hoveredSubmenu, setHoveredSubmenu] = useState(null);
   const [existingIPOs, setExistingIPOs] = useState([]);
+  const [selectedIpoForManagement, setSelectedIpoForManagement] = useState(null);
   const [existingCompanyEssentials, setExistingCompanyEssentials] = useState([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [calcInput, setCalcInput] = useState('');
@@ -244,9 +245,10 @@ const Dashboard = () => {
         if (codeCreationView === 'internal-purchase-order') {
           return (
             <InternalPurchaseOrder
-              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
-              onNavigateToCodeCreation={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              onBack={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              onNavigateToCodeCreation={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
               onNavigateToIPO={() => setActivePage('code-creation')}
+              initialOpenIpo={selectedIpoForManagement}
             />
           );
         }
@@ -421,6 +423,18 @@ const Dashboard = () => {
     return getIpoItems(categoryType);
   };
 
+  const handleOpenIpoFromManagement = (ipo) => {
+    if (!ipo) return;
+    setSelectedIpoForManagement({
+      ...ipo,
+      orderType: normalizeOrderType(ipo.orderType || ipo.order_type || ''),
+    });
+    setCodeCreationView('internal-purchase-order');
+    setActivePage('code-creation');
+    setHoveredSubmenu(null);
+    setHoveredMenu(null);
+  };
+
   const renderHoverPanel = () => {
     if (!hoveredMenu) return null;
 
@@ -438,7 +452,7 @@ const Dashboard = () => {
               <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('company-essentials'); setHoveredMenu(null); }}>
                 Company Essentials
               </button>
-              <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); }}>
+              <button className="hover-panel-item" onClick={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); }}>
                 Internal Purchase Order
               </button>
             </div>
@@ -478,7 +492,14 @@ const Dashboard = () => {
               <div className="hover-panel-column">
                 <div className="hover-panel-title">{categories.find((c) => c.key === activeCategory)?.label}</div>
                 {items.map((ipo) => (
-                  <div key={ipo.ipoCode} className="hover-panel-subitem">{ipo.ipoCode}</div>
+                  <button
+                    key={ipo.ipoCode || ipo.code}
+                    type="button"
+                    className="hover-panel-item"
+                    onClick={() => handleOpenIpoFromManagement(ipo)}
+                  >
+                    {ipo.ipoCode || ipo.code}
+                  </button>
                 ))}
                 {items.length === 0 && <div className="hover-panel-subitem muted">No IPOs</div>}
               </div>
@@ -852,6 +873,7 @@ const Dashboard = () => {
                   return;
                 }
                 if (item.id === 'code-creation') {
+                  setSelectedIpoForManagement(null);
                   setCodeCreationView(null);
                 }
                 setActivePage(item.id);
