@@ -6,17 +6,19 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormCard, FormRow, FullscreenContent } from '@/components/ui/form-layout';
 import { cn } from '@/lib/utils';
-import { getCompanyEssentials, createCompanyEssential } from '../services/integration';
+import { getCompanyEssentials, createCompanyEssential, markPublicEssentialTaken } from '../services/integration';
 
 const CompanyEssentials = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [commonDate, setCommonDate] = useState(new Date().toISOString().split('T')[0]);
   const [forms, setForms] = useState([{ id: 1, srNo: 1, data: getInitialFormData() }]);
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPreviewPopup, setShowPreviewPopup] = useState(false);
+  const [previewPersonName, setPreviewPersonName] = useState('');
+  const [previewPaymentMethod, setPreviewPaymentMethod] = useState('');
+  const [previewErrors, setPreviewErrors] = useState({});
   const [errors, setErrors] = useState({}); // { [formId]: { [fieldName]: string } }
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [isSaved, setIsSaved] = useState(false);
-  const [shareTokens, setShareTokens] = useState([]); // share_token(s) from last submit
   const [existingEssentials, setExistingEssentials] = useState([]);
 
   useEffect(() => {
@@ -31,6 +33,8 @@ const CompanyEssentials = ({ onBack }) => {
           date: item.entry_date || item.date || '',
           department: item.department || '',
           poNumber: item.sr_no ? `PO-${item.sr_no}` : '',
+          takenByName: item.taken_by_name || item.person_name || '',
+          paymentMethod: item.payment_method || item.payment_mode || '',
           item: {
             srNo: item.sr_no || '',
             itemDescription: item.item_description || item.item || '',
@@ -61,7 +65,8 @@ const CompanyEssentials = ({ onBack }) => {
     'MACHINERY',
     'HOUSEKEEPING',
     'ELECTRICALS',
-    'HARDWARE_CHEMICALS',
+    'HARDWARE',
+    'CHEMICALS',
     'AUDIT_COMPLIANCE',
     'IT',
     'QC_TOOLS',
@@ -73,6 +78,11 @@ const CompanyEssentials = ({ onBack }) => {
   const unitOptions = ['METER', 'KGS', 'PCS', 'LITRE'];
   const forOptions = ['COMPANY', 'GUEST', 'COMPANY/GUEST'];
   const departmentOptions = ['BRAIDING', 'CARPET', 'CUTTING', 'DYEING', 'EMBROIDERY', 'KNITTING', 'PRINTING', 'QUILTING', 'SEWING', 'TUFTING', 'WEAVING'];
+  const paymentMethodOptions = [
+    { value: 'cash', label: 'Cash' },
+    { value: 'upi', label: 'UPI' },
+    { value: 'bank_transfer', label: 'Bank Transfer' },
+  ];
 
   function getInitialFormData() {
     return {
@@ -131,6 +141,9 @@ const CompanyEssentials = ({ onBack }) => {
     setSelectedCategory(value);
     setCommonDate(new Date().toISOString().split('T')[0]);
     setForms([{ id: 1, srNo: 1, data: getInitialFormData() }]);
+    setPreviewPersonName('');
+    setPreviewPaymentMethod('');
+    setPreviewErrors({});
   };
 
   // Handle remove form
@@ -188,8 +201,23 @@ const CompanyEssentials = ({ onBack }) => {
     setForms(prevForms => [...prevForms, newForm]);
   };
 
+  const validatePreviewFields = () => {
+    const newPreviewErrors = {};
+
+    if (!previewPersonName.trim()) {
+      newPreviewErrors.personName = 'Required';
+    }
+
+    if (!previewPaymentMethod) {
+      newPreviewErrors.paymentMethod = 'Required';
+    }
+
+    setPreviewErrors(newPreviewErrors);
+    return Object.keys(newPreviewErrors).length === 0;
+  };
+
   // Handle form submit for a specific form; returns created essential (with share_token) or null
-  const submitForm = async (formId) => {
+  const submitForm = async (formId, previewMeta) => {
     const form = forms.find(f => f.id === formId);
     if (!form) return null;
 
@@ -207,15 +235,32 @@ const CompanyEssentials = ({ onBack }) => {
         unit: form.data.unit || '',
         for_field: form.data.forField || '',
         remarks: form.data.remarks || '',
+        taken_by_name: previewMeta?.personName || '',
+        payment_method: previewMeta?.paymentMethod || '',
       });
 
       const data = response.data ?? response;
       if (data && (response.status === 'success' || data.code || data.id)) {
+        const shareToken = data.share_token || data.shareToken || '';
+        if (shareToken && previewMeta?.personName) {
+          try {
+            await markPublicEssentialTaken(shareToken, {
+              taken_by_name: previewMeta.personName,
+              person_name: previewMeta.personName,
+              payment_method: previewMeta.paymentMethod || undefined,
+            });
+          } catch (markError) {
+            console.warn('Failed to mark essential as taken during submit:', markError);
+          }
+        }
+
         const existingData = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
         existingData.push({
           category: selectedCategory,
           code: data.code,
           date: commonDate,
+          takenByName: previewMeta?.personName || '',
+          paymentMethod: previewMeta?.paymentMethod || '',
           timestamp: new Date().toISOString()
         });
         localStorage.setItem('companyEssentials', JSON.stringify(existingData));
@@ -229,6 +274,8 @@ const CompanyEssentials = ({ onBack }) => {
         category: selectedCategory,
         date: commonDate,
         department: form.data.department,
+        takenByName: previewMeta?.personName || '',
+        paymentMethod: previewMeta?.paymentMethod || '',
         item: {
           srNo: form.srNo,
           itemDescription: form.data.itemDescription || form.data.item || form.data.machineType,
@@ -259,17 +306,41 @@ const CompanyEssentials = ({ onBack }) => {
       return;
     }
     setErrors({});
-    setShareTokens([]);
+    setPreviewErrors({});
+    setShowPreviewPopup(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!validatePreviewFields()) {
+      return;
+    }
+
+    const previewMeta = {
+      personName: previewPersonName.trim(),
+      paymentMethod: previewPaymentMethod,
+    };
+
+    setShowPreviewPopup(false);
     try {
-      const tokens = [];
+      let hasFailedSubmission = false;
       for (const form of forms) {
-        const created = await submitForm(form.id);
-        if (created?.share_token) tokens.push(created.share_token);
+        const saved = await submitForm(form.id, previewMeta);
+        if (!saved) {
+          hasFailedSubmission = true;
+        }
       }
-      setShareTokens(tokens);
+
+      if (hasFailedSubmission) {
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus('idle'), 3000);
+        return;
+      }
+
       setSaveStatus('success');
       setIsSaved(true);
-      setShowPopup(true);
+      setPreviewPersonName('');
+      setPreviewPaymentMethod('');
+      setPreviewErrors({});
     } catch (error) {
       console.error('Error submitting forms:', error);
       setSaveStatus('error');
@@ -277,10 +348,15 @@ const CompanyEssentials = ({ onBack }) => {
     }
   };
 
-  // Handle Add More from popup
-  const handleAddMoreFromPopup = () => {
-    setShowPopup(false);
-    handleAddMore();
+  const handleDiscardPreview = () => {
+    setShowPreviewPopup(false);
+    setForms([{ id: Date.now(), srNo: 1, data: getInitialFormData() }]);
+    setErrors({});
+    setPreviewPersonName('');
+    setPreviewPaymentMethod('');
+    setPreviewErrors({});
+    setSaveStatus('idle');
+    setIsSaved(false);
   };
 
   // Prevent Enter key from submitting form when typing in input fields
@@ -718,48 +794,107 @@ const CompanyEssentials = ({ onBack }) => {
         </div>
       )}
 
-      {/* Popup Modal */}
-      <Dialog open={showPopup} onOpenChange={setShowPopup}>
+      {/* Preview Modal */}
+      <Dialog open={showPreviewPopup} onOpenChange={setShowPreviewPopup}>
         <DialogContent
           showCloseButton={true}
-          className="max-w-sm min-h-[240px] rounded-xl border-2 border-border shadow-xl bg-card pt-12 pb-8 px-8"
+          className="max-w-2xl rounded-xl border-2 border-border shadow-xl bg-card pt-8 pb-6 px-6"
         >
-          <div className="flex flex-col items-center justify-center text-center gap-5">
-            <DialogHeader className="p-0 flex flex-col items-center gap-2">
-              <DialogTitle className="text-xl font-semibold text-foreground">
-                Request Submitted
-              </DialogTitle>
+          <div className="flex flex-col gap-4">
+            <DialogHeader className="p-0">
+              <DialogTitle className="text-xl font-semibold text-foreground">Preview Entry</DialogTitle>
             </DialogHeader>
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-[260px]">
-              Your request has been saved successfully.
-            </p>
-            {shareTokens.length > 0 && (
-              <div className="flex flex-col gap-2 w-full max-w-[260px]">
-                <span className="text-xs font-medium text-foreground/80">Share link (send to confirm project taken)</span>
-                {shareTokens.map((token, i) => {
-                  const url = `${window.location.origin}/essentials/view/${token}`;
-                  return (
-                    <div key={token} className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-2">
-                      <span className="text-xs truncate flex-1 font-mono">{url}</span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(url);
-                          // optional: toast or brief "Copied!"
-                        }}
-                      >
-                        Copy
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            <DialogFooter className="p-0 mt-2 flex justify-center">
-              <Button onClick={handleAddMoreFromPopup} type="button" variant="default" className="min-w-[120px]">
-                Add More
+            <div className="max-h-[55vh] overflow-y-auto pr-1 space-y-3">
+              {forms.map((form) => (
+                <div key={form.id} className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="text-sm font-semibold mb-2">Entry #{form.srNo}</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                    <div><span className="font-medium">Category:</span> {selectedCategory || '-'}</div>
+                    <div><span className="font-medium">Date:</span> {needsDepartment ? '-' : (commonDate || '-')}</div>
+                    {needsDepartment && (
+                      <div><span className="font-medium">Department:</span> {form.data.department || '-'}</div>
+                    )}
+                    {needsMachineFields ? (
+                      <>
+                        <div><span className="font-medium">Machine Type:</span> {form.data.machineType || '-'}</div>
+                        <div><span className="font-medium">Component Spec:</span> {form.data.componentSpec || '-'}</div>
+                      </>
+                    ) : (
+                      <div>
+                        <span className="font-medium">
+                          {needsItem ? 'Item' : needsJobWork ? 'Job Work' : 'Item Description'}:
+                        </span>{' '}
+                        {needsItem ? (form.data.item || '-') : (form.data.itemDescription || '-')}
+                      </div>
+                    )}
+                    <div><span className="font-medium">{needsAmount ? 'Amount' : 'Qty'}:</span> {needsAmount ? (form.data.amount || '-') : (form.data.qty || '-')}</div>
+                    {!needsAmount && <div><span className="font-medium">Unit:</span> {form.data.unit || '-'}</div>}
+                    {needsForField && <div><span className="font-medium">For:</span> {form.data.forField || '-'}</div>}
+                    <div className="md:col-span-2"><span className="font-medium">Remarks:</span> {form.data.remarks || '-'}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Field label="YOUR NAME" error={previewErrors.personName}>
+                <Input
+                  type="text"
+                  value={previewPersonName}
+                  onChange={(e) => {
+                    setPreviewPersonName(e.target.value);
+                    if (previewErrors.personName) {
+                      setPreviewErrors((prev) => ({ ...prev, personName: undefined }));
+                    }
+                  }}
+                  placeholder="Enter your name"
+                  className={previewErrors.personName ? 'border-destructive' : ''}
+                />
+              </Field>
+              <Field label="PAYMENT MODE" error={previewErrors.paymentMethod}>
+                <select
+                  value={previewPaymentMethod}
+                  onChange={(e) => {
+                    setPreviewPaymentMethod(e.target.value);
+                    if (previewErrors.paymentMethod) {
+                      setPreviewErrors((prev) => ({ ...prev, paymentMethod: undefined }));
+                    }
+                  }}
+                  className={cn(
+                    'w-full h-11 rounded-md border bg-background px-3 text-sm',
+                    previewErrors.paymentMethod ? 'border-destructive' : 'border-input'
+                  )}
+                >
+                  <option value="">Select payment mode</option>
+                  {paymentMethodOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <DialogFooter className="p-0 mt-2 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowPreviewPopup(false)}
+              >
+                Edit
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="text-destructive border-destructive hover:bg-destructive/10"
+                onClick={handleDiscardPreview}
+              >
+                Discard
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                onClick={handleConfirmSubmit}
+              >
+                Submit
               </Button>
             </DialogFooter>
           </div>

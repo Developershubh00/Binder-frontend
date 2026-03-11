@@ -16,6 +16,7 @@ export const initializeRawMaterials = (formData) => {
         unit: component.unit || '',
         qualityVerification: '',
         materialType: '', // 'Yarn' or 'Fabric'
+        procurementDate: '',
         fiberType: '',
         yarnType: '',
         spinningMethod: '',

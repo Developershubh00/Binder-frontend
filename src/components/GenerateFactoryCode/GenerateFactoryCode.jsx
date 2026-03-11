@@ -7870,6 +7870,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         netConsumption: '',
         unit: '',
         materialType: materialType,
+        procurementDate: '',
         qualityVerification: '',
         workOrders: [{
           workOrder: '',
@@ -10035,6 +10036,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     let isValid = false;
     setErrors(prevErrors => {
       const newErrors = { ...prevErrors };
+      const todayLocal = new Date();
+      const today = new Date(todayLocal.getTime() - todayLocal.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split('T')[0];
       
       // Material fields
       if (fieldKey.includes('materialType')) {
@@ -10060,6 +10065,18 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         const unitValue = value?.toString().trim();
         if (!unitValue || unitValue === '') {
           newErrors[fieldKey] = 'Unit is required';
+        } else {
+          delete newErrors[fieldKey];
+        }
+      } else if (fieldKey.includes('procurementDate')) {
+        const dateValue = value?.toString().trim();
+        const isDateFormatValid = /^\d{4}-\d{2}-\d{2}$/.test(dateValue);
+        if (!dateValue) {
+          newErrors[fieldKey] = 'Procurement Date is required';
+        } else if (!isDateFormatValid) {
+          newErrors[fieldKey] = 'Procurement Date is invalid';
+        } else if (dateValue < today) {
+          newErrors[fieldKey] = 'Procurement Date cannot be in the past';
         } else {
           delete newErrors[fieldKey];
         }
@@ -10121,6 +10138,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
   const validateStep2 = () => {
     const newErrors = {};
+    const todayLocal = new Date();
+    const today = new Date(todayLocal.getTime() - todayLocal.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split('T')[0];
 
     const stepData = getSelectedSkuStepData();
     const materials = (stepData && stepData.rawMaterials) || [];
@@ -10137,11 +10158,13 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
     const isMaterialComplete = (m) => {
       const unitValue = m?.unit?.toString().trim();
+      const procurementDate = m?.procurementDate?.toString().trim();
       return Boolean(
         m?.materialType?.toString().trim() &&
           m?.materialDescription?.toString().trim() &&
           m?.netConsumption?.toString().trim() &&
-          unitValue
+          unitValue &&
+          procurementDate
       );
     };
 
@@ -10164,6 +10187,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       const unitValue = material.unit?.toString().trim();
       if (!unitValue || unitValue === '') {
         newErrors[`rawMaterial_${keyIndex}_unit`] = 'Unit is required';
+      }
+      const procurementDate = material.procurementDate?.toString().trim();
+      if (!procurementDate) {
+        newErrors[`rawMaterial_${keyIndex}_procurementDate`] = 'Procurement Date is required';
+      } else if (!/^\d{4}-\d{2}-\d{2}$/.test(procurementDate)) {
+        newErrors[`rawMaterial_${keyIndex}_procurementDate`] = 'Procurement Date is invalid';
+      } else if (procurementDate < today) {
+        newErrors[`rawMaterial_${keyIndex}_procurementDate`] = 'Procurement Date cannot be in the past';
       }
     });
     
@@ -10199,6 +10230,10 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   // Validate materials for a specific component only
   const validateComponentMaterials = (componentName) => {
     const newErrors = {};
+    const todayLocal = new Date();
+    const today = new Date(todayLocal.getTime() - todayLocal.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split('T')[0];
 
     const stepData = getSelectedSkuStepData();
     const allMaterials = (stepData && stepData.rawMaterials) || [];
@@ -10236,6 +10271,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         if (isEmpty(material.unit)) {
           newErrors[`${errorPrefix}_unit`] = 'Unit is required';
         }
+      }
+      const procurementDate = material.procurementDate?.toString().trim();
+      if (!procurementDate) {
+        newErrors[`${errorPrefix}_procurementDate`] = 'Procurement Date is required';
+      } else if (!/^\d{4}-\d{2}-\d{2}$/.test(procurementDate)) {
+        newErrors[`${errorPrefix}_procurementDate`] = 'Procurement Date is invalid';
+      } else if (procurementDate < today) {
+        newErrors[`${errorPrefix}_procurementDate`] = 'Procurement Date cannot be in the past';
       }
       
       // === FABRIC SPECIFIC FIELDS ===
@@ -10751,7 +10794,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 </div>
                 <div className="flex gap-3 text-xs shrink-0">
                   <span className={comp.cut ? 'text-green-600 font-medium' : 'text-muted-foreground'}>Cut {comp.cut ? '✓' : '○'}</span>
-                  <span className={comp.raw ? 'text-green-600 font-medium' : 'text-muted-foreground'}>Raw {comp.raw ? '✓' : '○'}</span>
+                  <span className={comp.raw ? 'text-green-600 font-medium' : 'text-muted-foreground'}>BOM & WIP {comp.raw ? '✓' : '○'}</span>
                   <span className={comp.artwork ? 'text-green-600 font-medium' : 'text-muted-foreground'}>Artwork {comp.artwork ? '✓' : '○'}</span>
                 </div>
               </button>
