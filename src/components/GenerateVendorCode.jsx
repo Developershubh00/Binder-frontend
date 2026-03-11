@@ -577,269 +577,277 @@ const GenerateVendorCode = ({ onBack }) => {
       <div className="w-full max-w-6xl mx-auto">
         <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: '24px 20px' }}>
         <form onSubmit={handleSubmit} noValidate>
-          {/* Explicit rows with explicit spacing (match row1->row2 everywhere) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            {/* Row 1 */}
-            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
-              {/* Basic Details */}
-            <Field 
-              label="VENDOR NAME" 
-              required 
-              error={errors.vendorName}
-              width="md"
-              className="flex-shrink-0"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="vendorName"
-                name="vendorName"
-                value={formData.vendorName}
-                onChange={handleInputChange}
-                placeholder="Enter vendor name"
-                required
-                aria-invalid={!!errors.vendorName}
-              />
-            </Field>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h2 className="text-sm font-semibold text-foreground/80" style={{ margin: 0 }}>VENDOR DETAILS:</h2>
+              <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
+                <Field 
+                  label="VENDOR NAME" 
+                  required 
+                  error={errors.vendorName}
+                  width="md"
+                  className="flex-shrink-0"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="vendorName"
+                    name="vendorName"
+                    value={formData.vendorName}
+                    onChange={handleInputChange}
+                    placeholder="Enter vendor name"
+                    required
+                    aria-invalid={!!errors.vendorName}
+                  />
+                </Field>
 
-            <Field 
-              label="GST NUMBER" 
-              required 
-              error={errors.gst}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="gst"
-                name="gst"
-                value={formData.gst}
-                onChange={handleInputChange}
-                placeholder="22AAAAA0000A1Z5"
-                maxLength={15}
-                required
-                aria-invalid={!!errors.gst}
-              />
-            </Field>
+                <Field 
+                  label="GST NUMBER" 
+                  required 
+                  error={errors.gst}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="gst"
+                    name="gst"
+                    value={formData.gst}
+                    onChange={handleInputChange}
+                    placeholder="22AAAAA0000A1Z5"
+                    maxLength={15}
+                    required
+                    aria-invalid={!!errors.gst}
+                  />
+                </Field>
 
-            <Field 
-              label="ADDRESS" 
-              required 
-              error={errors.address}
-              width="lg"
-              className="md:col-span-2"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Enter complete vendor address"
-                required
-                aria-invalid={!!errors.address}
-              />
-            </Field>
-            </div>
+                <Field 
+                  label="ADDRESS" 
+                  required 
+                  error={errors.address}
+                  width="lg"
+                  className="md:col-span-2"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Enter complete vendor address"
+                    required
+                    aria-invalid={!!errors.address}
+                  />
+                </Field>
+              </div>
+            </section>
 
-            {/* Row 2 */}
-            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
-            {/* Banking Details */}
-            <Field 
-              label="BANK NAME" 
-              required 
-              error={errors.bankName}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="bankName"
-                name="bankName"
-                value={formData.bankName}
-                onChange={handleInputChange}
-                placeholder="Enter bank name"
-                required
-                aria-invalid={!!errors.bankName}
-              />
-            </Field>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h2 className="text-sm font-semibold text-foreground/80" style={{ margin: 0 }}>ACCOUNT DETAILS:</h2>
+              <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
+                <Field 
+                  label="BANK NAME" 
+                  required 
+                  error={errors.bankName}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="bankName"
+                    name="bankName"
+                    value={formData.bankName}
+                    onChange={handleInputChange}
+                    placeholder="Enter bank name"
+                    required
+                    aria-invalid={!!errors.bankName}
+                  />
+                </Field>
 
-            <Field 
-              label="ACCOUNT NUMBER" 
-              required 
-              error={errors.accNo}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="accNo"
-                name="accNo"
-                value={formData.accNo}
-                onChange={handleInputChange}
-                placeholder="Enter account number"
-                required
-                aria-invalid={!!errors.accNo}
-              />
-            </Field>
+                <Field 
+                  label="ACCOUNT NUMBER" 
+                  required 
+                  error={errors.accNo}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="accNo"
+                    name="accNo"
+                    value={formData.accNo}
+                    onChange={handleInputChange}
+                    placeholder="Enter account number"
+                    required
+                    aria-invalid={!!errors.accNo}
+                  />
+                </Field>
 
-            <Field 
-              label="IFSC CODE" 
-              required 
-              error={errors.ifscCode}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="ifscCode"
-                name="ifscCode"
-                value={formData.ifscCode}
-                onChange={handleInputChange}
-                placeholder="SBIN0000123"
-                maxLength={11}
-                required
-                aria-invalid={!!errors.ifscCode}
-              />
-            </Field>
+                <Field 
+                  label="IFSC CODE" 
+                  required 
+                  error={errors.ifscCode}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="ifscCode"
+                    name="ifscCode"
+                    value={formData.ifscCode}
+                    onChange={handleInputChange}
+                    placeholder="SBIN0000123"
+                    maxLength={11}
+                    required
+                    aria-invalid={!!errors.ifscCode}
+                  />
+                </Field>
+              </div>
+            </section>
 
-            {/* Job Work Categories - Premium Multi-Select */}
-            <Field 
-              label="JOB WORK CATEGORY" 
-              required 
-              error={errors.jobWorkCategory}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <PremiumMultiSelect
-                options={jobWorkCategories.filter(opt => opt !== 'categories')}
-                selectedValues={formData.jobWorkCategory}
-                onChange={(values) => handleDropdownChange('jobWorkCategory', values)}
-                placeholder="Select categories"
-                error={errors.jobWorkCategory}
-              />
-            </Field>
-            </div>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h2 className="text-sm font-semibold text-foreground/80" style={{ margin: 0 }}>JOB WORK:</h2>
+              <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
+                <Field 
+                  label="JOB WORK CATEGORY" 
+                  required 
+                  error={errors.jobWorkCategory}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <PremiumMultiSelect
+                    options={jobWorkCategories.filter(opt => opt !== 'categories')}
+                    selectedValues={formData.jobWorkCategory}
+                    onChange={(values) => handleDropdownChange('jobWorkCategory', values)}
+                    placeholder="Select categories"
+                    error={errors.jobWorkCategory}
+                  />
+                </Field>
 
-            {/* Row 3 */}
-            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
-            <Field 
-              label="JOB WORK SUB-CATEGORY" 
-              required 
-              error={errors.jobWorkSubCategory}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <PremiumMultiSelect
-                options={jobWorkSubCategories.filter(opt => opt !== 'subcategory')}
-                selectedValues={formData.jobWorkSubCategory}
-                onChange={(values) => handleDropdownChange('jobWorkSubCategory', values)}
-                placeholder="Select sub-categories"
-                error={errors.jobWorkSubCategory}
-              />
-            </Field>
+                <Field 
+                  label="JOB WORK SUB-CATEGORY" 
+                  required 
+                  error={errors.jobWorkSubCategory}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <PremiumMultiSelect
+                    options={jobWorkSubCategories.filter(opt => opt !== 'subcategory')}
+                    selectedValues={formData.jobWorkSubCategory}
+                    onChange={(values) => handleDropdownChange('jobWorkSubCategory', values)}
+                    placeholder="Select sub-categories"
+                    error={errors.jobWorkSubCategory}
+                  />
+                </Field>
+              </div>
+            </section>
 
-            {/* Contact Details */}
-            <Field 
-              label="CONTACT PERSON" 
-              required 
-              error={errors.contactPerson}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="contactPerson"
-                name="contactPerson"
-                value={formData.contactPerson}
-                onChange={handleInputChange}
-                placeholder="Enter contact person name"
-                required
-                aria-invalid={!!errors.contactPerson}
-              />
-            </Field>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h2 className="text-sm font-semibold text-foreground/80" style={{ margin: 0 }}>CONTACT DETAILS:</h2>
+              <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
+                <Field 
+                  label="CONTACT PERSON" 
+                  required 
+                  error={errors.contactPerson}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="contactPerson"
+                    name="contactPerson"
+                    value={formData.contactPerson}
+                    onChange={handleInputChange}
+                    placeholder="Enter contact person name"
+                    required
+                    aria-invalid={!!errors.contactPerson}
+                  />
+                </Field>
 
-            <Field 
-              label="EMAIL" 
-              required 
-              error={errors.email}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Enter email address"
-                required
-                aria-invalid={!!errors.email}
-              />
-            </Field>
+                <Field 
+                  label="EMAIL" 
+                  required 
+                  error={errors.email}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter email address"
+                    required
+                    aria-invalid={!!errors.email}
+                  />
+                </Field>
 
-            <Field 
-              label="WHATSAPP NUMBER" 
-              required 
-              error={errors.whatsappNo}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="tel"
-                id="whatsappNo"
-                name="whatsappNo"
-                value={formData.whatsappNo}
-                onChange={handleInputChange}
-                placeholder="9876543210"
-                maxLength={10}
-                required
-                aria-invalid={!!errors.whatsappNo}
-              />
-            </Field>
-            </div>
+                <Field 
+                  label="WHATSAPP NUMBER" 
+                  required 
+                  error={errors.whatsappNo}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="tel"
+                    id="whatsappNo"
+                    name="whatsappNo"
+                    value={formData.whatsappNo}
+                    onChange={handleInputChange}
+                    placeholder="9876543210"
+                    maxLength={10}
+                    required
+                    aria-invalid={!!errors.whatsappNo}
+                  />
+                </Field>
 
-            {/* Row 4 */}
-            <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
-            <Field 
-              label="ALTERNATIVE WHATSAPP NO."
-              error={errors.altWhatsappNo}
-              width="md"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="tel"
-                id="altWhatsappNo"
-                name="altWhatsappNo"
-                value={formData.altWhatsappNo}
-                onChange={handleInputChange}
-                placeholder="9876543210 (Optional)"
-                maxLength={10}
-                aria-invalid={!!errors.altWhatsappNo}
-              />
-            </Field>
+                <Field 
+                  label="ALTERNATIVE WHATSAPP NO."
+                  error={errors.altWhatsappNo}
+                  width="md"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="tel"
+                    id="altWhatsappNo"
+                    name="altWhatsappNo"
+                    value={formData.altWhatsappNo}
+                    onChange={handleInputChange}
+                    placeholder="9876543210 (Optional)"
+                    maxLength={10}
+                    aria-invalid={!!errors.altWhatsappNo}
+                  />
+                </Field>
+              </div>
+            </section>
 
-            <Field 
-              label="PAYMENT TERMS" 
-              required 
-              error={errors.paymentTerms}
-              width="lg"
-              className="md:col-span-2"
-              style={{ marginBottom: 0 }}
-            >
-              <Input
-                type="text"
-                id="paymentTerms"
-                name="paymentTerms"
-                value={formData.paymentTerms}
-                onChange={handleInputChange}
-                placeholder="Enter payment terms and conditions"
-                required
-                aria-invalid={!!errors.paymentTerms}
-              />
-            </Field>
-            </div>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* <h2 className="text-sm font-semibold text-foreground/80" style={{ margin: 0 }}>Payment Terms</h2> */}
+              <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
+                <Field 
+                  label="PAYMENT TERMS" 
+                  required 
+                  error={errors.paymentTerms}
+                  width="lg"
+                  className="md:col-span-2"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="paymentTerms"
+                    name="paymentTerms"
+                    value={formData.paymentTerms}
+                    onChange={handleInputChange}
+                    placeholder="Enter payment terms and conditions"
+                    required
+                    aria-invalid={!!errors.paymentTerms}
+                  />
+                </Field>
+              </div>
+            </section>
           </div>
 
           <div className="flex justify-start" style={{ marginTop: '32px' }}>

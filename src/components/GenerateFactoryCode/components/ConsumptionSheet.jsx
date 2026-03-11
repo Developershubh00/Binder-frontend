@@ -1,5 +1,10 @@
 import React, { useMemo, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TRIM_ACCESSORY_SCHEMAS } from '@/utils/validationSchemas';
+import {
+  isQualityYes,
+  mapArtworkCategoryToFormKey,
+  mapRawMaterialToFormKey,
+} from '@/utils/uqrMappings';
 
 /**
  * ConsumptionSheet Component
@@ -742,6 +747,33 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
 
   const buildPurchaseSharePayload = () => {
     const ipcs = [];
+    const getUqrFormsForStepData = (stepData) => {
+      const formKeys = new Set();
+      const sd = stepData || {};
+
+      (sd.rawMaterials || []).forEach((material) => {
+        const hasMaterialQualityYes = isQualityYes(material?.qualityVerification);
+        const hasWorkOrderQualityYes = Array.isArray(material?.workOrders)
+          && material.workOrders.some((workOrder) => isQualityYes(workOrder?.qualityVerification));
+        if (!hasMaterialQualityYes && !hasWorkOrderQualityYes) return;
+
+        const formKey = mapRawMaterialToFormKey(material);
+        if (formKey) formKeys.add(formKey);
+      });
+
+      (sd.artworkMaterials || []).forEach((material) => {
+        const artworkCategory = material?.artworkCategory;
+        const qualityValue =
+          material?.qualityVerificationByCategory?.[artworkCategory] ?? material?.qualityVerification;
+        if (!isQualityYes(qualityValue)) return;
+
+        const formKey = mapArtworkCategoryToFormKey(artworkCategory);
+        if (formKey) formKeys.add(formKey);
+      });
+
+      return Array.from(formKeys).sort();
+    };
+
     const addIpc = (ipcCode, stepData) => {
       if (!ipcCode) return;
       const sd = stepData || {};
@@ -773,6 +805,7 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
 
       ipcs.push({
         ipcCode,
+        uqrForms: getUqrFormsForStepData(sd),
         categories: {
           rawMaterials: Array.from(rawSet),
           trimsAccessory: Array.from(trimSet),

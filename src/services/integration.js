@@ -1124,3 +1124,45 @@ export const saveUQRFormDraft = async (formId, payload) => {
   });
   return await response.json();
 };
+
+// Contextual UQR draft APIs (Section/IPO/IPC/Form scoped)
+// DRF-ready contract:
+// GET  ims/uqr-forms/contextual/?order_type=...&ipo_code=...&ipc_code=...&form_id=...
+// PUT  ims/uqr-forms/contextual/
+// body: { order_type, ipo_code, ipc_code, form_id, payload }
+export const getContextualUQRFormDraft = async ({
+  orderType = '',
+  ipoCode = '',
+  ipcCode = '',
+  formId = '',
+}) => {
+  const query = new URLSearchParams({
+    order_type: orderType,
+    ipo_code: ipoCode,
+    ipc_code: ipcCode,
+    form_id: formId,
+  }).toString();
+
+  const response = await apiRequest(`ims/uqr-forms/contextual/${query ? `?${query}` : ''}`);
+  return await response.json();
+};
+
+export const saveContextualUQRFormDraft = async ({
+  orderType = '',
+  ipoCode = '',
+  ipcCode = '',
+  formId = '',
+  payload = {},
+}) => {
+  const response = await apiRequest('ims/uqr-forms/contextual/', {
+    method: 'PUT',
+    body: JSON.stringify({
+      order_type: orderType,
+      ipo_code: ipoCode,
+      ipc_code: ipcCode,
+      form_id: formId,
+      payload,
+    }),
+  });
+  return await response.json();
+};

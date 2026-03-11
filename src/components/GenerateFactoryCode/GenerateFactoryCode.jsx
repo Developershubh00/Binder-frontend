@@ -6322,6 +6322,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     },
   });
   const [errors, setErrors] = useState({});
+  const latestFormDataRef = useRef(formData);
+  latestFormDataRef.current = formData;
 
   const STORAGE_KEY = 'factoryCodeFormData';
   const getStorageKey = (ipoCode) =>
@@ -6380,11 +6382,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       if (data?.ipoCode) {
         localStorage.setItem(getStorageKey(data.ipoCode), payload);
       }
+      window.dispatchEvent(new Event('factoryCodeFormDataUpdated'));
       saveFactoryCodeDraft(cloned).catch((e) => console.warn('Draft save failed', e));
     } catch (e) {
       console.warn('Failed to save to localStorage:', e);
     }
   };
+
+  const saveCurrentFormState = () => saveToLocalStorage(latestFormDataRef.current);
 
   const loadFromLocalStorage = (ipoCode) => {
     try {
@@ -8384,7 +8389,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         return updated;
       });
     }
-    saveToLocalStorage(formData);
+    saveCurrentFormState();
   };
 
   const handleSaveStep3 = () => {
@@ -8419,7 +8424,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     updateSelectedSkuStepData((stepData) => withUpdatedIpcSavedState(stepData, { artwork: true }));
     setStep3SaveStatus('success');
     setShowSaveMessage(false);
-    saveToLocalStorage(formData);
+    saveCurrentFormState();
   };
 
   const handleSaveStep4 = () => {
@@ -8437,7 +8442,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     setStep4Saved(true);
     setStep4SaveStatus('success');
     setShowSaveMessage(false);
-    saveToLocalStorage(formData);
+    saveCurrentFormState();
   };
 
   // Generate IPC code for SKUs and subproducts
@@ -8538,7 +8543,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     setStep1Saved(true);
     updateSelectedSkuStepData((stepData) => withUpdatedIpcSavedState(stepData, { cut: true }));
     setShowSaveMessage(false);
-    saveToLocalStorage(formData);
+    saveCurrentFormState();
   };
 
   const validateStep3 = () => {
@@ -10656,7 +10661,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       }
     } else if (stepIndex === -3) {
       // IPO clicked - save first, then navigate to IPO screen
-      saveToLocalStorage(formData);
+      saveCurrentFormState();
       if (onNavigateToIPO) {
         onNavigateToIPO();
       } else {
@@ -10837,7 +10842,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     <button
       type="button"
       onClick={() => {
-        saveToLocalStorage(formData);
+        saveCurrentFormState();
         setFlowPhase('ipcSelector');
         setCurrentStep(0);
         setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 100);

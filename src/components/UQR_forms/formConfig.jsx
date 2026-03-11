@@ -1,41 +1,3 @@
-const PROCUREMENT_DATE_FIELD = {
-  name: 'procurementDate',
-  label: 'PROCUREMENT DATE',
-  type: 'date'
-};
-
-const MATERIAL_FORM_PREFIXES = ['trims', 'foam', 'fiber'];
-
-const shouldIncludeProcurementDate = (formKey) =>
-  MATERIAL_FORM_PREFIXES.some((prefix) => formKey.startsWith(prefix)) ||
-  formKey === 'yarn' ||
-  formKey === 'fabric';
-
-const insertProcurementDateField = (formConfig) => {
-  const basicInfoSection = formConfig.sections?.find(
-    (section) => section.title === 'Basic Information'
-  );
-
-  if (!basicInfoSection?.fields) {
-    return;
-  }
-
-  const hasProcurementDate = basicInfoSection.fields.some(
-    (field) => field.name === PROCUREMENT_DATE_FIELD.name
-  );
-
-  if (hasProcurementDate) {
-    return;
-  }
-
-  const dateFieldIndex = basicInfoSection.fields.findIndex(
-    (field) => field.name === 'date'
-  );
-
-  const insertIndex = dateFieldIndex >= 0 ? dateFieldIndex + 1 : 0;
-  basicInfoSection.fields.splice(insertIndex, 0, { ...PROCUREMENT_DATE_FIELD });
-};
-
 export const formsConfig = {
 
     // ═══════════════════════════════════════════════════════════
@@ -2933,9 +2895,3 @@ export const formsConfig = {
   }
   
 };
-
-Object.entries(formsConfig).forEach(([formKey, formConfig]) => {
-  if (shouldIncludeProcurementDate(formKey)) {
-    insertProcurementDateField(formConfig);
-  }
-});

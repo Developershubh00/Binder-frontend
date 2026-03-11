@@ -240,9 +240,22 @@
 // export default BaseFormTemplate;
 
 import React, { useState, useEffect } from 'react';
-import { getUQRFormDraft, saveUQRFormDraft } from '../../services/integration';
+import {
+  getUQRFormDraft,
+  saveUQRFormDraft,
+  getContextualUQRFormDraft,
+  saveContextualUQRFormDraft,
+} from '../../services/integration';
 
-const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
+const BaseFormTemplate = ({
+  formId,
+  title,
+  sections,
+  tableConfig,
+  draftStorageKey = '',
+  onSubmitSuccess,
+  apiContext = null,
+}) => {
   
   // --- 1. State Management ---
   const getInitialState = () => {
@@ -268,24 +281,99 @@ const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
   const [tableRows, setTableRows] = useState(() => 
     tableConfig ? [getEmptyRow()] : []
   );
+  const [submitMessage, setSubmitMessage] = useState('');
 
-  // Load draft from API when formId is set
+  const applyPersistedPayload = (payload, initialFormState, initialTableRows) => {
+    if (!payload || typeof payload !== 'object') return false;
+
+    const directDraft = payload.formData || Array.isArray(payload.tableRows) ? payload : null;
+    const nestedDraft =
+      payload.payload && typeof payload.payload === 'object'
+        ? payload.payload
+        : payload.data?.payload && typeof payload.data.payload === 'object'
+          ? payload.data.payload
+          : payload.data && (payload.data.formData || Array.isArray(payload.data.tableRows))
+            ? payload.data
+            : null;
+
+    const draft = directDraft || nestedDraft;
+    if (!draft) return false;
+
+    const nextFormData =
+      draft.formData && typeof draft.formData === 'object'
+        ? { ...initialFormState, ...draft.formData }
+        : initialFormState;
+    const nextTableRows =
+      Array.isArray(draft.tableRows) && draft.tableRows.length > 0
+        ? draft.tableRows
+        : initialTableRows;
+
+    setFormData(nextFormData);
+    setTableRows(nextTableRows);
+    return true;
+  };
+
+  // Load draft from local storage when a contextual key is provided.
+  // Otherwise use API draft flow keyed by formId.
   useEffect(() => {
-    if (!formId) return;
-    getUQRFormDraft(formId)
-      .then((res) => {
-        const payload = res?.payload;
-        if (payload && typeof payload === 'object') {
-          if (payload.formData && Object.keys(payload.formData).length > 0) {
-            setFormData((prev) => ({ ...prev, ...payload.formData }));
-          }
-          if (Array.isArray(payload.tableRows) && payload.tableRows.length > 0) {
-            setTableRows(payload.tableRows);
-          }
-        }
-      })
-      .catch(() => {});
-  }, [formId]);
+    const initialFormState = getInitialState();
+    const initialTableRows = tableConfig ? [getEmptyRow()] : [];
+    let cancelled = false;
+
+    // Always reset when context changes so one form cannot prefill another.
+    setFormData(initialFormState);
+    setTableRows(initialTableRows);
+    setSubmitMessage('');
+
+    const loadFromLocal = () => {
+      if (!draftStorageKey) return false;
+      try {
+        const storedPayload = JSON.parse(localStorage.getItem(draftStorageKey) || 'null');
+        return applyPersistedPayload(storedPayload, initialFormState, initialTableRows);
+      } catch {
+        // no-op: invalid local payload should not block form usage
+        return false;
+      }
+    };
+
+    const loadFromApi = async () => {
+      if (!formId) return false;
+      try {
+        const response = apiContext?.orderType && apiContext?.ipoCode && apiContext?.ipcCode
+          ? await getContextualUQRFormDraft({
+              orderType: apiContext.orderType,
+              ipoCode: apiContext.ipoCode,
+              ipcCode: apiContext.ipcCode,
+              formId,
+            })
+          : await getUQRFormDraft(formId);
+
+        if (cancelled) return false;
+        return applyPersistedPayload(response, initialFormState, initialTableRows);
+      } catch {
+        return false;
+      }
+    };
+
+    (async () => {
+      const loadedFromApi = await loadFromApi();
+      if (!loadedFromApi) {
+        loadFromLocal();
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    formId,
+    draftStorageKey,
+    sections,
+    tableConfig,
+    apiContext?.orderType,
+    apiContext?.ipoCode,
+    apiContext?.ipcCode,
+  ]);
 
   // --- 2. Handlers ---
   const handleChange = (e) => {
@@ -305,21 +393,19 @@ const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
 
   // Remove Row Handler
   const handleRemoveRow = (rowIndex) => {
-    const updatedRows = tableRows.filter((_, index) => index !== rowIndex);
-    setTableRows(updatedRows);
+    setTableRows((prev) => {
+      if (prev.length <= 1) return prev;
+      const updatedRows = prev.filter((_, index) => index !== rowIndex);
+      return updatedRows.length > 0 ? updatedRows : [getEmptyRow()];
+    });
   };
 
-  // Auto-add row logic
-  useEffect(() => {
-    if (!tableConfig || tableRows.length === 0) return;
-    const lastRow = tableRows[tableRows.length - 1];
-    const hasValue = Object.values(lastRow).some(val => 
-      String(val ?? '').trim() !== ''
-    );
-    if (hasValue && tableRows.length < 50) {
-      setTableRows(prev => [...prev, getEmptyRow()]);
-    }
-  }, [tableRows, tableConfig]);
+  const handleAddRow = () => {
+    setTableRows((prev) => {
+      if (!tableConfig || prev.length >= 50) return prev;
+      return [...prev, getEmptyRow()];
+    });
+  };
 
   // --- 3. Styles ---
   const styles = {
@@ -406,6 +492,16 @@ const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
       padding: '10px 24px', border: 'none', borderRadius: 'var(--radius)',
       background: 'var(--primary)', color: 'var(--primary-foreground)',
       cursor: 'pointer', fontWeight: '600'
+    },
+    btnSecondary: {
+      padding: '8px 14px',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius)',
+      background: 'var(--background)',
+      color: 'var(--foreground)',
+      cursor: 'pointer',
+      fontWeight: '600',
+      fontSize: '12px'
     }
   };
 
@@ -431,6 +527,55 @@ const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
     </div>
   );
 
+  const handleSubmit = async () => {
+    const payload = { formData, tableRows };
+    let remoteSaved = false;
+    let localSaved = false;
+
+    if (formId && apiContext?.orderType && apiContext?.ipoCode && apiContext?.ipcCode) {
+      try {
+        await saveContextualUQRFormDraft({
+          orderType: apiContext.orderType,
+          ipoCode: apiContext.ipoCode,
+          ipcCode: apiContext.ipcCode,
+          formId,
+          payload,
+        });
+        remoteSaved = true;
+      } catch (error) {
+        console.warn('Contextual UQR draft API save failed', error);
+      }
+    } else if (formId && !draftStorageKey) {
+      try {
+        await saveUQRFormDraft(formId, payload);
+        remoteSaved = true;
+      } catch (error) {
+        console.warn('UQR draft API save failed', error);
+      }
+    }
+
+    if (draftStorageKey) {
+      try {
+        localStorage.setItem(draftStorageKey, JSON.stringify(payload));
+        localSaved = true;
+      } catch (error) {
+        console.warn('Local UQR draft save failed', error);
+      }
+    }
+
+    const saved = remoteSaved || localSaved;
+    if (saved) {
+      if (remoteSaved) {
+        setSubmitMessage('Form submitted successfully.');
+      } else {
+        setSubmitMessage('Form saved locally. API sync pending.');
+      }
+      onSubmitSuccess?.({ formId, payload, draftStorageKey });
+    } else {
+      setSubmitMessage('Unable to submit form. Please try again.');
+    }
+  };
+
   return (
     <form>
       <h2 style={styles.header}>{title}</h2>
@@ -449,13 +594,10 @@ const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
           <h3 style={styles.sectionTitle}>{tableConfig.title}</h3>
           <div style={styles.cardGrid}>
             {tableRows.map((row, rowIndex) => {
-              // Check if this is the last row (empty row for adding new)
-              const isLastRow = rowIndex === tableRows.length - 1;
-              
               return (
                 <div key={rowIndex} style={styles.cardRow}>
-                  {/* Delete Button - Only show if NOT the last row */}
-                  {!isLastRow && (
+                  {/* Delete Button - Keep at least one row */}
+                  {tableRows.length > 1 && (
                     <button 
                       type="button" 
                       style={styles.deleteBtn}
@@ -501,24 +643,35 @@ const BaseFormTemplate = ({ formId, title, sections, tableConfig }) => {
               );
             })}
           </div>
+          <div style={{ marginTop: '12px' }}>
+            <button
+              type="button"
+              style={styles.btnSecondary}
+              onClick={handleAddRow}
+            >
+              + Add Row
+            </button>
+          </div>
         </div>
       )}
 
       <div style={styles.actions}>
+        {submitMessage && (
+          <div
+            style={{
+              marginRight: 'auto',
+              fontSize: '13px',
+              fontWeight: 600,
+              color: submitMessage.startsWith('Form submitted') ? '#15803d' : '#b91c1c',
+            }}
+          >
+            {submitMessage}
+          </div>
+        )}
         <button
           type="button"
           style={styles.btnPrimary}
-          onClick={async () => {
-            const payload = { formData, tableRows };
-            if (formId) {
-              try {
-                await saveUQRFormDraft(formId, payload);
-              } catch (e) {
-                console.warn('Save failed', e);
-              }
-            }
-            console.log('Form:', formData, 'Table:', tableRows);
-          }}
+          onClick={handleSubmit}
         >
           Submit
         </button>

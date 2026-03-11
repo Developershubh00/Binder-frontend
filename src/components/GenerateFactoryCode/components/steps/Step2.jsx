@@ -9037,25 +9037,25 @@ const Step2 = ({
           </div>
         </div>
       )}
-    <div className="w-full max-w-sm" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-      <Field
-        label="PROCUREMENT DATE"
-        required
-        width="sm"
-        error={errors[`rawMaterial_${actualIndex}_procurementDate`]}
-      >
-        <Input
-          type="date"
-          min={todayDate}
-          value={material.procurementDate || ''}
-          aria-invalid={errors[`rawMaterial_${actualIndex}_procurementDate`] ? true : undefined}
-          onChange={(e) => handleProcurementDateChange(actualIndex, e.target.value)}
-        />
-      </Field>
-    </div>
     </div>
   </div>
 )}
+                  <div className="w-full max-w-sm" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                    <Field
+                      label="PROCUREMENT DATE"
+                      required
+                      width="sm"
+                      error={errors[`rawMaterial_${actualIndex}_procurementDate`]}
+                    >
+                      <Input
+                        type="date"
+                        min={todayDate}
+                        value={material.procurementDate || ''}
+                        aria-invalid={errors[`rawMaterial_${actualIndex}_procurementDate`] ? true : undefined}
+                        onChange={(e) => handleProcurementDateChange(actualIndex, e.target.value)}
+                      />
+                    </Field>
+                  </div>
 
 
 

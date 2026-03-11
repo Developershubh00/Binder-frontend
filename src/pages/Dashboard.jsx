@@ -600,7 +600,7 @@ const Dashboard = () => {
                   setHoveredMenu(null);
                 }}
               >
-                UQR Forms
+                UQR
               </button>
             </div>
           </div>
