@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import SearchableDropdown from './SearchableDropdown';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
@@ -178,7 +178,7 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
               ))
             ) : (
               <div className="p-6 text-center text-muted-foreground text-sm">
-                {searchTerm ? 'No matching options' : 'All options selected'}
+                {searchTerm ? 'No matching options' : options.length === 0 ? 'No options available' : 'All options selected'}
               </div>
             )}
           </div>
@@ -213,6 +213,185 @@ const PremiumMultiSelect = ({ options, selectedValues = [], onChange, placeholde
     </div>
   );
 };
+
+const JOB_WORK_CATEGORY_SUB_CATEGORY_MAP = {
+  'Greige Yarn': [
+    'Coarse Count UV 2Ne to 20Ne',
+    'Fine Count UV 24Ne to 60Ne',
+    'Linen Yarn',
+    'Viscose Yarn',
+    'Jute Yarn',
+    'Polyester Yarn',
+    'Wool Yarn',
+    'Chenille Yarn',
+    'Silk Yarn',
+    'Pet Yarn',
+    'Fancy Yarn',
+    'Acrylic Yarn',
+    'Slub yarn',
+    'Roto Yarn',
+    'Stitching Yarn',
+    'Hemp Yarn',
+    'Rafiya Yarn',
+    'Others'
+  ],
+  'Recycled Yarn': [
+    'Coarse Count 2Ne to 20Ne',
+    'Fine Count 24Ne to 40Ne',
+    'Non UV Natural',
+    'Melange yarn',
+    'Others'
+  ],
+  Fabric: [
+    'Plain Fabric',
+    'Recycled Fabric',
+    'Designer Fabric',
+    'Non Wooven',
+    'Fancy Fabric',
+    'Others'
+  ],
+  Dye: [
+    'Natural Yarn',
+    'Artifical Yarn',
+    'Natural Fabric',
+    'Artifical Fabric',
+    'Cotton Bathmat',
+    'Polyester Bathmat',
+    'Stonewash',
+    'Others'
+  ],
+  Knitting: [
+    'Crochet',
+    'Circular',
+    'Flat Bed',
+    'Others'
+  ],
+  Quilting: [
+    'Hand Quilting',
+    'Single Needle',
+    'Multi Needle',
+    'Multi Needle+Embroidery',
+    'Others'
+  ],
+  Embroidery: [
+    'Rice Stitch',
+    'Dori',
+    'Single Thread',
+    'Multi Thread',
+    'Aari Embroidery',
+    'Others'
+  ],
+  'Cut&Sew': [
+    'Machine/Material Supplier',
+    'Stitching Contractor',
+    'Stitching Centre',
+    'Complete Packaging Unit',
+    'Others'
+  ],
+  'Artworks&Trims': [
+    'Tyvek Labels',
+    'Taffta Labels',
+    'Woven Labels',
+    'Embossing Labels',
+    'Carton Marking',
+    'Insert Cards',
+    'Belly Bands',
+    'Ribbon',
+    'Others',
+    'Zip'
+  ],
+  'Packaging Material': [
+    'Cartons',
+    'Tape',
+    'Packaging Accessories',
+    'Others'
+  ],
+  'Factory Supplies': [
+    'Admin Stationery',
+    'Quality Accessories',
+    'Sharp Tools',
+    'Maintenance',
+    'Others'
+  ],
+  Fiber: [
+    'Conjugated',
+    'Mix',
+    'Virgin',
+    'Only Bale',
+    'Fiber Sheets',
+    'Foam',
+    'Others'
+  ],
+  Weaving: [
+    'Pitloom',
+    'Frameloom',
+    'Powerloom',
+    'Shuttleless',
+    'Dobby',
+    'Jacquard',
+    'Jumbo Jacquard',
+    'Airjet',
+    'Others'
+  ],
+  Braided: [
+    'Hand Braided',
+    'Machine Braided',
+    'Others'
+  ],
+  Printing: [
+    'Screen Print',
+    'Lamination Polyester digital Print',
+    'Rotary Print',
+    'Block Print',
+    'Cotton digital Print',
+    'Others'
+  ],
+  'Job Card Service': [
+    'Flocking',
+    'Tassle Making',
+    'Applique',
+    'Lamination',
+    'Gel Backing',
+    'TPR',
+    'Latex',
+    'Niwar Backing',
+    'Niwar',
+    'Beads Work',
+    'Others'
+  ],
+  Tufting: [
+    'Table Tufting',
+    'Multi Needle',
+    'Computerised',
+    'Others'
+  ],
+  Carpet: [
+    'Hand Tufting',
+    'Broadloom',
+    'Machine Made - Vandewiele',
+    'Others'
+  ],
+  Manpower: [
+    'Marketing',
+    'Sales',
+    'Production Operations',
+    'Quality Operations',
+    'Research & Development',
+    'Designing',
+    'Accounts',
+    'H.R',
+    'Auditory Compliances',
+    'Merchandising',
+    'Security',
+    'Trader',
+    'Machine Manufacturing',
+    'Management',
+    'IT'
+  ],
+  Others: []
+};
+
+const JOB_WORK_CATEGORIES = Object.keys(JOB_WORK_CATEGORY_SUB_CATEGORY_MAP);
 
 const GenerateVendorCode = ({ onBack }) => {
   const [formData, setFormData] = useState({
@@ -269,44 +448,40 @@ const GenerateVendorCode = ({ onBack }) => {
     loadVendorCodes();
   }, [generatedCode]);
 
-  const jobWorkCategories = [
-    'categories',
-    'Greige Yarn',
-    'Recycled Yarn',
-    'Fabric',
-    'DYE',
-    'Knitting',
-    'Quilting',
-    'Embroidery',
-    'Cut&Sew',
-    'Artworks&Trims',
-    'Packaging & Product Material',
-    'Factory Supplies',
-    'Fiber',
-    'Weaving',
-    'Braided',
-    'Printing',
-    'Job Card Service',
-    'Tufting',
-    'Carpet',
-    'Man Power'
-  ];
+  const availableJobWorkSubCategories = useMemo(() => {
+    if (!Array.isArray(formData.jobWorkCategory) || formData.jobWorkCategory.length === 0) {
+      return [];
+    }
 
-  const jobWorkSubCategories = [
-    'subcategory',
-    'Coarse Count UV 2Ne to 20Ne',
-    'Fine Count UV 24Ne to 60Ne',
-    'Linen Yarn',
-    'Viscose Yarn',
-    'Cotton Yarn',
-    'Jute Yarn',
-    'Polyester Yarn',
-    'Wool Yarn',
-    'Chenille Yarn',
-    'Silk Yarn',
-    'Pet Yarn',
-    'Fancy Yarn'
-  ];
+    const uniqueSubCategories = [];
+    formData.jobWorkCategory.forEach((category) => {
+      const mappedSubCategories = JOB_WORK_CATEGORY_SUB_CATEGORY_MAP[category] || [];
+      mappedSubCategories.forEach((subCategory) => {
+        if (!uniqueSubCategories.includes(subCategory)) {
+          uniqueSubCategories.push(subCategory);
+        }
+      });
+    });
+
+    return uniqueSubCategories;
+  }, [formData.jobWorkCategory]);
+
+  useEffect(() => {
+    if (!Array.isArray(formData.jobWorkSubCategory) || formData.jobWorkSubCategory.length === 0) {
+      return;
+    }
+
+    const validSubCategories = formData.jobWorkSubCategory.filter((subCategory) =>
+      availableJobWorkSubCategories.includes(subCategory)
+    );
+
+    if (validSubCategories.length !== formData.jobWorkSubCategory.length) {
+      setFormData((prev) => ({
+        ...prev,
+        jobWorkSubCategory: validSubCategories
+      }));
+    }
+  }, [formData.jobWorkSubCategory, availableJobWorkSubCategories]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -354,7 +529,10 @@ const GenerateVendorCode = ({ onBack }) => {
     if (!formData.jobWorkCategory || formData.jobWorkCategory.length === 0) {
       newErrors.jobWorkCategory = 'Job Work Category is required';
     }
-    if (!formData.jobWorkSubCategory || formData.jobWorkSubCategory.length === 0) {
+    if (
+      availableJobWorkSubCategories.length > 0 &&
+      (!formData.jobWorkSubCategory || formData.jobWorkSubCategory.length === 0)
+    ) {
       newErrors.jobWorkSubCategory = 'Job Work Sub-Category is required';
     }
 
@@ -703,6 +881,26 @@ const GenerateVendorCode = ({ onBack }) => {
                     aria-invalid={!!errors.ifscCode}
                   />
                 </Field>
+
+                <Field 
+                  label="PAYMENT TERMS" 
+                  required 
+                  error={errors.paymentTerms}
+                  width="lg"
+                  className="md:col-span-2"
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input
+                    type="text"
+                    id="paymentTerms"
+                    name="paymentTerms"
+                    value={formData.paymentTerms}
+                    onChange={handleInputChange}
+                    placeholder="Enter payment terms and conditions"
+                    required
+                    aria-invalid={!!errors.paymentTerms}
+                  />
+                </Field>
               </div>
             </section>
 
@@ -717,7 +915,7 @@ const GenerateVendorCode = ({ onBack }) => {
                   style={{ marginBottom: 0 }}
                 >
                   <PremiumMultiSelect
-                    options={jobWorkCategories.filter(opt => opt !== 'categories')}
+                    options={JOB_WORK_CATEGORIES}
                     selectedValues={formData.jobWorkCategory}
                     onChange={(values) => handleDropdownChange('jobWorkCategory', values)}
                     placeholder="Select categories"
@@ -727,16 +925,22 @@ const GenerateVendorCode = ({ onBack }) => {
 
                 <Field 
                   label="JOB WORK SUB-CATEGORY" 
-                  required 
+                  required={availableJobWorkSubCategories.length > 0}
                   error={errors.jobWorkSubCategory}
                   width="md"
                   style={{ marginBottom: 0 }}
                 >
                   <PremiumMultiSelect
-                    options={jobWorkSubCategories.filter(opt => opt !== 'subcategory')}
+                    options={availableJobWorkSubCategories}
                     selectedValues={formData.jobWorkSubCategory}
                     onChange={(values) => handleDropdownChange('jobWorkSubCategory', values)}
-                    placeholder="Select sub-categories"
+                    placeholder={
+                      formData.jobWorkCategory.length === 0
+                        ? 'Select category first'
+                        : availableJobWorkSubCategories.length === 0
+                          ? 'No sub-categories available'
+                          : 'Select sub-categories'
+                    }
                     error={errors.jobWorkSubCategory}
                   />
                 </Field>
@@ -824,30 +1028,6 @@ const GenerateVendorCode = ({ onBack }) => {
               </div>
             </section>
 
-            <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* <h2 className="text-sm font-semibold text-foreground/80" style={{ margin: 0 }}>Payment Terms</h2> */}
-              <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
-                <Field 
-                  label="PAYMENT TERMS" 
-                  required 
-                  error={errors.paymentTerms}
-                  width="lg"
-                  className="md:col-span-2"
-                  style={{ marginBottom: 0 }}
-                >
-                  <Input
-                    type="text"
-                    id="paymentTerms"
-                    name="paymentTerms"
-                    value={formData.paymentTerms}
-                    onChange={handleInputChange}
-                    placeholder="Enter payment terms and conditions"
-                    required
-                    aria-invalid={!!errors.paymentTerms}
-                  />
-                </Field>
-              </div>
-            </section>
           </div>
 
           <div className="flex justify-start" style={{ marginTop: '32px' }}>

@@ -6,6 +6,175 @@ import {
   mapRawMaterialToFormKey,
 } from '@/utils/uqrMappings';
 
+const ARTWORK_DESCRIPTION_FIELD_MAP = {
+  'LABELS (BRAND/MAIN)': {
+    typeKey: 'labelsBrandType',
+    typeTextKey: 'labelsBrandTypeText',
+    materialKey: 'labelsBrandMaterial',
+    materialTextKey: 'labelsBrandMaterialText',
+  },
+  'CARE & COMPOSITION': {
+    typeKey: 'careCompositionType',
+    typeTextKey: 'careCompositionTypeText',
+    materialKey: 'careCompositionMaterial',
+    materialTextKey: 'careCompositionMaterialText',
+  },
+  'RFID / SECURITY TAGS': {
+    typeKey: 'rfidType',
+    typeTextKey: 'rfidTypeText',
+    materialKey: 'rfidFormFactor',
+    materialTextKey: 'rfidFormFactorText',
+  },
+  'LAW LABEL / CONTENTS TAG': {
+    typeKey: 'lawLabelType',
+    typeTextKey: 'lawLabelTypeText',
+    materialKey: 'lawLabelMaterial',
+    materialTextKey: 'lawLabelMaterialText',
+  },
+  'HANG TAG SEALS / STRINGS': {
+    typeKey: 'hangTagSealsType',
+    typeTextKey: 'hangTagSealsTypeText',
+    materialKey: 'hangTagSealsMaterial',
+    materialTextKey: 'hangTagSealsMaterialText',
+  },
+  'HEAT TRANSFER LABELS': {
+    typeKey: 'heatTransferType',
+    typeTextKey: 'heatTransferTypeText',
+    materialKey: 'heatTransferMaterialBase',
+    materialTextKey: 'heatTransferMaterialBaseText',
+  },
+  'UPC LABEL / BARCODE STICKER': {
+    typeKey: 'upcBarcodeType',
+    typeTextKey: 'upcBarcodeTypeText',
+    materialKey: 'upcBarcodeMaterial',
+    materialTextKey: 'upcBarcodeMaterialText',
+  },
+  'PRICE TICKET / BARCODE TAG': {
+    typeKey: 'priceTicketType',
+    typeTextKey: 'priceTicketTypeText',
+    materialKey: 'priceTicketMaterial',
+    materialTextKey: 'priceTicketMaterialText',
+  },
+  'ANTI-COUNTERFEIT & HOLOGRAMS': {
+    typeKey: 'antiCounterfeitType',
+    typeTextKey: 'antiCounterfeitTypeText',
+    materialKey: 'antiCounterfeitMaterial',
+    materialTextKey: 'antiCounterfeitMaterialText',
+  },
+  'QC / INSPECTION LABELS': {
+    typeKey: 'qcInspectionType',
+    typeTextKey: 'qcInspectionTypeText',
+    materialKey: 'qcInspectionMaterial',
+    materialTextKey: 'qcInspectionMaterialText',
+  },
+  'BELLY BAND / WRAPPER': {
+    typeKey: 'bellyBandType',
+    typeTextKey: 'bellyBandTypeText',
+    materialKey: 'bellyBandMaterial',
+    materialTextKey: 'bellyBandMaterialText',
+  },
+  'SIZE LABELS (INDIVIDUAL)': {
+    typeKey: 'sizeLabelsType',
+    typeTextKey: 'sizeLabelsTypeText',
+    materialKey: 'sizeLabelsMaterial',
+    materialTextKey: 'sizeLabelsMaterialText',
+  },
+  'TAGS & SPECIAL LABELS': {
+    typeKey: 'tagsSpecialLabelsType',
+    typeTextKey: 'tagsSpecialLabelsTypeText',
+    materialKey: 'tagsSpecialLabelsMaterial',
+    materialTextKey: 'tagsSpecialLabelsMaterialText',
+  },
+  'FLAMMABILITY / SAFETY LABELS': {
+    typeKey: 'flammabilitySafetyType',
+    typeTextKey: 'flammabilitySafetyTypeText',
+    materialKey: 'flammabilitySafetyMaterial',
+    materialTextKey: 'flammabilitySafetyMaterialText',
+  },
+  'INSERT CARDS': {
+    typeKey: 'insertCardsType',
+    typeTextKey: 'insertCardsTypeText',
+    materialKey: 'insertCardsMaterial',
+    materialTextKey: 'insertCardsMaterialText',
+  },
+  'HEADER CARD': {
+    typeKey: 'headerCardType',
+    typeTextKey: 'headerCardTypeText',
+    materialKey: 'headerCardMaterial',
+    materialTextKey: 'headerCardMaterialText',
+  },
+  'RIBBONS': {
+    typeKey: 'ribbonsType',
+    typeTextKey: 'ribbonsTypeText',
+    materialKey: 'ribbonsMaterial',
+    materialTextKey: 'ribbonsMaterialText',
+  },
+};
+
+const PACKAGING_DESCRIPTION_FIELD_MAP = {
+  'CARTON BOX': [
+    { label: 'Material Type', keys: ['cartonBoxType'] },
+    { label: 'Plys', keys: ['cartonBoxNoOfPlys'] },
+    { label: 'Stiffener Plys', keys: ['cartonBoxStiffenerNoOfPlys'] },
+    { label: 'Board Grade', keys: ['cartonBoxBoardGrade'] },
+  ],
+  'CORNER PROTECTORS': [
+    { label: 'Type', keys: ['cornerProtectorType'] },
+    { label: 'Material', keys: ['cornerProtectorMaterial'] },
+  ],
+  'EDGE PROTECTORS': [
+    { label: 'Type', keys: ['edgeProtectorType'] },
+    { label: 'Material', keys: ['edgeProtectorMaterial'] },
+    { label: 'Ply Layers', keys: ['edgeProtectorPlyLayers'] },
+  ],
+  'FOAM INSERT': [
+    { label: 'Type', keys: ['foamInsertType'] },
+    { label: 'Material', keys: ['foamInsertMaterial'] },
+    { label: 'Density', keys: ['foamInsertDensity'] },
+  ],
+  'PALLET STRAP': [
+    { label: 'Type', keys: ['palletStrapType'] },
+    { label: 'Application', keys: ['palletStrapApplication'] },
+    { label: 'Width', keys: ['palletStrapWidth'] },
+  ],
+  'POLYBAG~Bale': [
+    { label: 'Packaging Type', keys: ['polybagBalePackagingType'] },
+    { label: 'Type', keys: ['polybagBaleType'] },
+    { label: 'Material', keys: ['polybagBaleMaterial'] },
+  ],
+  'POLYBAG~POLYBAG-FLAP': [
+    { label: 'Packaging Type', keys: ['polybagPolybagFlapPackagingType'] },
+    { label: 'Type', keys: ['polybagPolybagFlapType'] },
+    { label: 'Material', keys: ['polybagPolybagFlapMaterial'] },
+    { label: 'Flap Required', keys: ['polybagPolybagFlapFlapRequired'] },
+  ],
+  'SILICA GEL DESICCANT': [
+    { label: 'Type', keys: ['silicaGelDesiccantType'] },
+    { label: 'Form', keys: ['silicaGelDesiccantForm'] },
+    { label: 'Unit Size', keys: ['silicaGelDesiccantUnitSize'] },
+  ],
+  'SHRINK TAPE': [
+    { label: 'Type', keys: ['stretchWrapType'] },
+    { label: 'Material', keys: ['stretchWrapMaterial'] },
+    { label: 'Width', keys: ['stretchWrapWidth'] },
+  ],
+  'VOID~FILL': [
+    { label: 'Type', keys: ['voidFillType'] },
+    { label: 'Material', keys: ['voidFillMaterial'] },
+    { label: 'Paper Type', keys: ['voidFillPaperType'] },
+  ],
+  DIVIDER: [
+    { label: 'Type', keys: ['dividerType'] },
+    { label: 'Material', keys: ['dividerMaterial'] },
+    { label: 'Cell Config', keys: ['dividerCellConfiguration'] },
+  ],
+  TAPE: [
+    { label: 'Type', keys: ['tapeType'] },
+    { label: 'Material', keys: ['tapeMaterial'] },
+    { label: 'Width', keys: ['tapeWidth'] },
+  ],
+};
+
 /**
  * ConsumptionSheet Component
  *
@@ -743,6 +912,77 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
+  };
+
+  const normalizeDisplayValue = (value) => {
+    const normalized = String(value ?? '').trim();
+    if (!normalized || normalized === '-' || normalized === '–') return '';
+    return normalized;
+  };
+
+  const resolveSelectWithCustomText = (source, valueKey, textKey) => {
+    const selectedValue = normalizeDisplayValue(source?.[valueKey]);
+    if (!selectedValue) return '';
+    if (/^OTHERS?\s*\(TEXT\)$/i.test(selectedValue) && textKey) {
+      return normalizeDisplayValue(source?.[textKey]) || selectedValue;
+    }
+    return selectedValue;
+  };
+
+  const getArtworkDescription = (artwork) => {
+    if (!artwork) return '-';
+    const category = normalizeDisplayValue(artwork.artworkCategory);
+    const manualDescription = normalizeDisplayValue(artwork.materialDescription);
+    const fieldMap = ARTWORK_DESCRIPTION_FIELD_MAP[category] || {};
+
+    const typeValue = fieldMap.typeKey
+      ? resolveSelectWithCustomText(artwork, fieldMap.typeKey, fieldMap.typeTextKey)
+      : normalizeDisplayValue(artwork.specificType || artwork.type);
+    const materialValue = fieldMap.materialKey
+      ? resolveSelectWithCustomText(artwork, fieldMap.materialKey, fieldMap.materialTextKey)
+      : normalizeDisplayValue(artwork.material);
+
+    const parts = [];
+    if (category) parts.push(`Category: ${category}`);
+    if (typeValue) parts.push(`Type: ${typeValue}`);
+    if (materialValue) parts.push(`Material: ${materialValue}`);
+
+    if (parts.length > 0) return parts.join('\n');
+    return manualDescription || '-';
+  };
+
+  const getFirstDisplayValue = (source, keys = []) => {
+    for (const key of keys) {
+      const value = normalizeDisplayValue(source?.[key]);
+      if (!value) continue;
+      if (/^OTHERS?\s*\(TEXT\)$/i.test(value)) {
+        const customText = normalizeDisplayValue(source?.[`${key}Text`]);
+        return customText || value;
+      }
+      return value;
+    }
+    return '';
+  };
+
+  const getPackagingDescription = (packaging) => {
+    if (!packaging) return '-';
+    const manualDescription = normalizeDisplayValue(packaging.materialDescription);
+    const packagingType = normalizeDisplayValue(packaging.packagingMaterialType);
+    const detailFieldConfig = PACKAGING_DESCRIPTION_FIELD_MAP[packagingType] || [];
+
+    const detailParts = detailFieldConfig
+      .map(({ label, keys }) => {
+        const value = getFirstDisplayValue(packaging, keys);
+        return value ? `${label}: ${value}` : '';
+      })
+      .filter(Boolean);
+
+    if (detailParts.length === 0) return manualDescription || '-';
+    if (!manualDescription) return detailParts.join('\n');
+
+    const containsManual = detailParts.some((part) => part.toLowerCase().includes(manualDescription.toLowerCase()));
+    if (containsManual) return detailParts.join('\n');
+    return `${manualDescription}\n${detailParts.join('\n')}`;
   };
 
   const buildPurchaseSharePayload = () => {
@@ -1514,7 +1754,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                     <div key={idx} className="rounded-xl border border-border bg-white shadow-sm min-w-0">
                       <div style={{ padding: '16px 18px' }}>
                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Artwork {idx + 1}</span>
-                        <p className="mt-1.5 text-base font-semibold text-foreground leading-snug break-words">{artwork.materialDescription || '–'}</p>
+                        <p className="mt-1.5 text-base font-semibold text-foreground leading-snug break-words whitespace-pre-line">{getArtworkDescription(artwork) || '–'}</p>
                       </div>
                       <div className="border-t border-border bg-muted/20" style={{ padding: '14px 18px' }}>
                         <div className="space-y-3">
@@ -1600,7 +1840,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                   const artLastClass = 'min-w-0 border-border bg-muted/5';
                   return (
                     <div key={idx} className="grid grid-cols-2 sm:grid-cols-6 min-w-0 border-b border-border last:border-b-0">
-                      <div className={artCellClass} style={desktopTableCell}><span className="text-sm text-foreground break-words">{artwork.materialDescription || '-'}</span></div>
+                      <div className={artCellClass} style={desktopTableCell}><span className="text-sm text-foreground break-words whitespace-pre-line">{getArtworkDescription(artwork) || '-'}</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{getArtworkQtyWithUnit(artwork) || '-'}</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{artworkCompoundWastage}%</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-primary">{artworkGrossCns}</span></div>
@@ -1692,7 +1932,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
               {standardMats.map((packaging, idx) => {
                 const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
                 const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
-                const matDesc = (packaging.materialDescription || '').toString().trim();
+                const matDesc = getPackagingDescription(packaging);
                 const matType = formatPackagingTypeName(packaging.packagingMaterialType);
                 const matCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
                 const totalMatReqBase = isMerged
@@ -1702,7 +1942,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                 return (
                   <div key={`std-${idx}`} className="grid grid-cols-6 min-w-0 border-b border-border last:border-b-0">
                     <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matType || '-'}</span></div>
-                    <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matDesc || '-'}</span></div>
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words whitespace-pre-line">{matDesc || '-'}</span></div>
                     <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{ipcsDisplay || '-'}</span></div>
                     <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span></div>
                     <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matCasepack || '-'}</span></div>
@@ -1715,8 +1955,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
           {innerMats.map((packaging, idx) => {
             const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
             const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
-            const matDesc = (packaging.materialDescription || '').toString().trim();
-            const matName = matDesc || formatPackagingTypeName(packaging.packagingMaterialType);
+            const matDesc = getPackagingDescription(packaging);
             const matCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
             const polybagNum = parseFloat(String(packaging.polybagBalePolybagCount || '').trim()) || 0;
             const innerQty = polybagNum > 0 ? matCasepack / polybagNum : 0;
@@ -1735,7 +1974,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                 </div>
                 <div className="grid grid-cols-4 min-w-0 border-b border-border">
                   <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{formatPackagingTypeName(packaging.packagingMaterialType) || '-'}</span></div>
-                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matDesc || '-'}</span></div>
+                  <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words whitespace-pre-line">{matDesc || '-'}</span></div>
                   <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matCasepack || '-'}</span></div>
                   <div className={row4Last} style={desktopTableCell}><span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span></div>
                 </div>
@@ -1871,3 +2110,4 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
 ConsumptionSheet.displayName = 'ConsumptionSheet';
 
 export default ConsumptionSheet;
+

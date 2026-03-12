@@ -34,6 +34,8 @@ const parsePairDimensions = (value) => {
   };
 };
 
+const CARTON_PLY_OPTIONS = ['3 Ply', '5 Ply', '7 Ply', '9 Ply'];
+
 const getPoQtyAndImageForIpc = (skus, ipc) => {
   if (!ipc || !Array.isArray(skus)) return { poQty: '', imagePreview: null };
   const isSub = /\/SP-?\d+$/i.test(ipc);
@@ -82,7 +84,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cartonBoxNoOfPlys || ''}
                           onChange={(selectedValue) => onChange('cartonBoxNoOfPlys', selectedValue)}
-                          options={['3 Ply', '5 Ply', '7 Ply', '9 Ply']}
+                          options={CARTON_PLY_OPTIONS}
                           placeholder="Select or type # of Plys"
                           className={errors?.[`${errorKeyPrefix}_cartonBoxNoOfPlys`] ? 'border-red-600' : ''}
                         />
@@ -133,6 +135,19 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         />
                         {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerRequired`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerRequired`]}</span>}
                       </div>
+                      {material.cartonBoxStiffenerRequired === 'YES' && (
+                        <div className="flex flex-col">
+                          <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS <span className="text-red-500">*</span></label>
+                          <SearchableDropdown
+                            value={material.cartonBoxStiffenerNoOfPlys || ''}
+                            onChange={(selectedValue) => onChange('cartonBoxStiffenerNoOfPlys', selectedValue)}
+                            options={CARTON_PLY_OPTIONS}
+                            placeholder="Select or type # of Plys"
+                            className={errors?.[`${errorKeyPrefix}_cartonBoxStiffenerNoOfPlys`] ? 'border-red-600' : ''}
+                          />
+                          {errors?.[`${errorKeyPrefix}_cartonBoxStiffenerNoOfPlys`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_cartonBoxStiffenerNoOfPlys`]}</span>}
+                        </div>
+                      )}
                       {material.cartonBoxStiffenerRequired === 'YES' && (
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2">QUANTITY <span className="text-red-500">*</span></label>

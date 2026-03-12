@@ -5934,6 +5934,80 @@ const compressImage = (file, maxKB = 100, maxQualityDrop = 0.2) => {
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
+const STIFFENER_PLY_FIELD = 'cartonBoxStiffenerNoOfPlys';
+const STIFFENER_PLY_API_FIELD = 'carton_box_stiffener_no_of_plys';
+
+const normalizePackagingMaterialStiffenerPlys = (material) => {
+  if (!material || typeof material !== 'object' || Array.isArray(material)) return material;
+  const normalized = { ...material };
+  const value = normalized[STIFFENER_PLY_FIELD] ?? normalized[STIFFENER_PLY_API_FIELD];
+  if (value === undefined || value === null) return normalized;
+
+  normalized[STIFFENER_PLY_FIELD] = value;
+  if (String(value).trim() !== '') {
+    normalized[STIFFENER_PLY_API_FIELD] = value;
+  } else if (Object.prototype.hasOwnProperty.call(normalized, STIFFENER_PLY_API_FIELD)) {
+    delete normalized[STIFFENER_PLY_API_FIELD];
+  }
+
+  return normalized;
+};
+
+const normalizePackagingBlockStiffenerPlys = (packaging) => {
+  if (!packaging || typeof packaging !== 'object' || Array.isArray(packaging)) return packaging;
+
+  const normalizeMaterials = (materials) =>
+    Array.isArray(materials)
+      ? materials.map((material) => normalizePackagingMaterialStiffenerPlys(material))
+      : materials;
+
+  return {
+    ...packaging,
+    materials: normalizeMaterials(packaging.materials),
+    extraPacks: Array.isArray(packaging.extraPacks)
+      ? packaging.extraPacks.map((pack) =>
+          pack && typeof pack === 'object' && !Array.isArray(pack)
+            ? { ...pack, materials: normalizeMaterials(pack.materials) }
+            : pack
+        )
+      : packaging.extraPacks,
+  };
+};
+
+const normalizeFactoryCodePayloadStiffenerPlys = (payload) => {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
+
+  const normalizeStepData = (stepData) => {
+    if (!stepData || typeof stepData !== 'object' || Array.isArray(stepData)) return stepData;
+    return {
+      ...stepData,
+      packaging: normalizePackagingBlockStiffenerPlys(stepData.packaging),
+    };
+  };
+
+  return {
+    ...payload,
+    packaging: normalizePackagingBlockStiffenerPlys(payload.packaging),
+    skus: Array.isArray(payload.skus)
+      ? payload.skus.map((sku) =>
+          sku && typeof sku === 'object' && !Array.isArray(sku)
+            ? {
+                ...sku,
+                stepData: normalizeStepData(sku.stepData),
+                subproducts: Array.isArray(sku.subproducts)
+                  ? sku.subproducts.map((sub) =>
+                      sub && typeof sub === 'object' && !Array.isArray(sub)
+                        ? { ...sub, stepData: normalizeStepData(sub.stepData) }
+                        : sub
+                    )
+                  : sku.subproducts,
+              }
+            : sku
+        )
+      : payload.skus,
+  };
+};
+
 const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
   const { isSidebarCollapsed } = useSidebar();
   const scrollContainerRef = useRef(null);
@@ -6135,6 +6209,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             overage: '',
             grossConsumption: '',
             packagingMaterialType: '',
+            cartonBoxStiffenerNoOfPlys: '',
             noOfPlys: '',
             jointType: '',
             burstingStrength: '',
@@ -6301,6 +6376,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         overage: '',
         grossConsumption: '',
         packagingMaterialType: '',
+        cartonBoxStiffenerNoOfPlys: '',
         noOfPlys: '',
         jointType: '',
         burstingStrength: '',
@@ -6377,13 +6453,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         }
       }
 
-      const payload = JSON.stringify(cloned);
+      const normalizedPayload = normalizeFactoryCodePayloadStiffenerPlys(cloned);
+      const payload = JSON.stringify(normalizedPayload);
       localStorage.setItem(STORAGE_KEY, payload);
       if (data?.ipoCode) {
         localStorage.setItem(getStorageKey(data.ipoCode), payload);
       }
       window.dispatchEvent(new Event('factoryCodeFormDataUpdated'));
-      saveFactoryCodeDraft(cloned).catch((e) => console.warn('Draft save failed', e));
+      saveFactoryCodeDraft(normalizedPayload).catch((e) => console.warn('Draft save failed', e));
     } catch (e) {
       console.warn('Failed to save to localStorage:', e);
     }
@@ -6398,7 +6475,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         : localStorage.getItem(STORAGE_KEY);
       if (!saved) return null;
 
-      const data = JSON.parse(saved);
+      const data = normalizeFactoryCodePayloadStiffenerPlys(JSON.parse(saved));
 
       (data.skus || []).forEach((sku) => {
         if (sku.imageBase64) {
@@ -6453,7 +6530,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             // Draft is from a different IPO — do not apply it
             console.log('API draft belongs to a different IPO, skipping.');
           } else {
-            const data = { ...draft };
+            const data = normalizeFactoryCodePayloadStiffenerPlys({ ...draft });
             (data.skus || []).forEach((sku) => {
               if (sku.imageBase64) {
                 sku.image = base64ToFile(sku.imageBase64);
@@ -6780,6 +6857,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         overage: '',
         grossConsumption: '',
         packagingMaterialType: '',
+        cartonBoxStiffenerNoOfPlys: '',
         noOfPlys: '',
         jointType: '',
         burstingStrength: '',
@@ -9762,6 +9840,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           grossConsumption: '',
           // New conditional fields for Part 5
           packagingMaterialType: '',
+          cartonBoxStiffenerNoOfPlys: '',
           noOfPlys: '',
           jointType: '',
           burstingStrength: '',
@@ -9827,6 +9906,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     overage: '',
     grossConsumption: '',
     packagingMaterialType: '',
+    cartonBoxStiffenerNoOfPlys: '',
     noOfPlys: '',
     jointType: '',
     burstingStrength: '',
@@ -11514,7 +11594,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                           rawMaterials: stepData?.rawMaterials ?? [],
                           consumptionMaterials: stepData?.consumptionMaterials ?? [],
                           artworkMaterials: stepData?.artworkMaterials ?? [],
-                          packaging: stepData?.packaging ?? null,
+                          packaging: normalizePackagingBlockStiffenerPlys(stepData?.packaging ?? null),
                         };
 
                         const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
@@ -11751,3 +11831,4 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 };
 
 export default GenerateFactoryCode;
+
