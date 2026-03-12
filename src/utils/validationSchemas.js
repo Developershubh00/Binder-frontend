@@ -562,7 +562,7 @@ export const ARTWORK_SCHEMAS = {
     }
   },
   'HEADER CARD': {
-    required: ['headerCardType', 'headerCardMaterial', 'headerCardArtworkSpecFile', 'headerCardSizeLength', 'headerCardSizeWidth', 'headerCardSizeGusset', 'headerCardSizeUnit', 'headerCardPlacement', 'headerCardTestingRequirements', 'headerCardQty', 'headerCardQtyUnit', 'headerCardSurplus', 'headerCardApproval'],
+    required: ['headerCardType', 'headerCardMaterial', 'headerCardArtworkSpecFile', 'headerCardSizeLength', 'headerCardSizeWidth', 'headerCardSizeGusset', 'headerCardSizeUnit', 'headerCardPlacement', 'headerCardTestingRequirements', 'headerCardQty', 'headerCardQtyUnit', 'headerCardCasepackQty', 'headerCardSurplus', 'headerCardApproval'],
     advanced: ['headerCardFunction', 'headerCardContent', 'headerCardPrinting', 'headerCardFinish', 'headerCardStiffness', 'headerCardAcidFree', 'headerCardBranding'],
     conditional: {
       'headerCardTypeText': { when: 'headerCardType', equals: 'OTHERS (TEXT)' },

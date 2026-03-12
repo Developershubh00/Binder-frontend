@@ -12265,9 +12265,9 @@ const Step4 = ({
                           )}
                         </div>
 
-                        {/* QTY, UNIT, SURPLUS % */}
+                        {/* QTY, UNIT, CASEPACK QTY, SURPLUS % */}
                         <div className="col-span-full flex flex-col">
-                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(130px,1fr)] gap-x-5 gap-y-5">
+                          <div className="grid grid-cols-1 md:grid-cols-[minmax(140px,1fr)_minmax(100px,100px)_minmax(140px,1fr)_minmax(130px,1fr)] gap-x-5 gap-y-5">
                             {/* QTY - Pieces */}
                             <div className="flex flex-col min-w-0">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>QTY <span className="text-red-500">*</span></label>
@@ -12294,6 +12294,19 @@ const Step4 = ({
                                 {ARTWORK_QTY_UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
                               </select>
                               {errors[`artworkMaterial_${actualIndex}_headerCardQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardQtyUnit`]}</span>}
+                            </div>
+                            {/* CASEPACK QTY */}
+                            <div className="flex flex-col min-w-0">
+                              <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CASEPACK QTY <span className="text-red-500">*</span></label>
+                              <input
+                                type="number"
+                                value={material.headerCardCasepackQty || ''}
+                                onChange={(e) => handleArtworkMaterialChange(actualIndex, 'headerCardCasepackQty', e.target.value)}
+                                className={`border-2 rounded-lg text-sm transition-all bg-background text-foreground focus:border-primary focus:outline-none w-full ${errors[`artworkMaterial_${actualIndex}_headerCardCasepackQty`] ? 'border-red-600' : 'border-border'}`}
+                                style={{ padding: '10px 14px', height: '44px' }}
+                                placeholder="10"
+                              />
+                              {errors[`artworkMaterial_${actualIndex}_headerCardCasepackQty`] && <span className="text-red-600 text-xs mt-1">{errors[`artworkMaterial_${actualIndex}_headerCardCasepackQty`]}</span>}
                             </div>
                             {/* SURPLUS % */}
                             <div className="flex flex-col min-w-0">

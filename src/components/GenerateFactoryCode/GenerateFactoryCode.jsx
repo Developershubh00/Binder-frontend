@@ -9410,7 +9410,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           labelsBrandQtyUnit: '', careCompositionQtyUnit: '', rfidQtyUnit: '', lawLabelQtyUnit: '',
           hangTagSealsQtyUnit: '', heatTransferQtyUnit: '', upcBarcodeQtyUnit: '', priceTicketQtyUnit: '',
           antiCounterfeitQtyUnit: '', qcInspectionQtyUnit: '', bellyBandQtyUnit: '', sizeLabelsQtyUnit: '',
-          tagsSpecialLabelsQtyUnit: '', flammabilitySafetyQtyUnit: '', insertCardsQtyUnit: '', headerCardQtyUnit: '', ribbonsQtyUnit: ''
+          tagsSpecialLabelsQtyUnit: '', flammabilitySafetyQtyUnit: '', insertCardsQtyUnit: '', headerCardQtyUnit: '', headerCardCasepackQty: '', ribbonsQtyUnit: ''
         };
         updatedMaterials[materialIndex] = {
           ...updatedMaterials[materialIndex],
@@ -9548,6 +9548,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           flammabilitySafetyQtyUnit: '',
           insertCardsQtyUnit: '',
           headerCardQtyUnit: '',
+          headerCardCasepackQty: '',
           ribbonsQtyUnit: ''
         }
           ]
