@@ -488,6 +488,37 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
     return val != null && val !== '' ? String(val).trim() : '';
   };
 
+  const parseNumericValue = (value) => {
+    if (value === null || value === undefined || value === '') return 0;
+    const parsed = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const getArtworkCasepackQty = (artwork, fallbackCasepack = 0) => {
+    if (!artwork) return 0;
+    const cat = (artwork.artworkCategory || '').trim();
+    if (cat !== 'HEADER CARD') return 0;
+    const headerCardCasepack = parseNumericValue(artwork.headerCardCasepackQty);
+    if (headerCardCasepack > 0) return headerCardCasepack;
+    return fallbackCasepack > 0 ? fallbackCasepack : 0;
+  };
+
+  const formatCasepackDisplay = (value) => {
+    if (!value || value <= 0) return '-';
+    if (Number.isInteger(value)) return String(value);
+    return value.toFixed(3).replace(/\.?0+$/, '');
+  };
+
+  // Header Card is consumed per casepack in CNS; others remain per-piece.
+  const getArtworkEffectiveNetCns = (artwork, fallbackCasepack = 0) => {
+    const qty = parseNumericValue(getArtworkQuantity(artwork));
+    if (!artwork) return qty;
+    const cat = (artwork.artworkCategory || '').trim();
+    if (cat !== 'HEADER CARD') return qty;
+    const casepackQty = getArtworkCasepackQty(artwork, fallbackCasepack);
+    return casepackQty > 0 ? (qty / casepackQty) : qty;
+  };
+
   // Helper: Get quantity + unit display string for artwork (e.g. "100 pcs")
   const getArtworkQtyWithUnit = (artwork) => {
     const qty = getArtworkQuantity(artwork);
@@ -658,6 +689,7 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
   // Helper: Get total net CNS for a component from Step-2, Step-3 AND Step-4 (used only where full total is needed)
   const getTotalNetCNS = (componentName, stepData, productComponents) => {
     const consumptions = [];
+    const artworkFallbackCasepack = parseNumericValue(getPackagingConfigForProduct(stepData, formData)?.casepackQty);
 
     const rawMats = getRawMaterialsForComponent(componentName, stepData);
     rawMats.forEach((m) => {
@@ -673,11 +705,8 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
 
     const artworkMats = getArtworkMaterialsForComponent(componentName, stepData);
     artworkMats.forEach((m) => {
-      const qty = getArtworkQuantity(m);
-      if (qty) {
-        const n = parseFloat(String(qty).replace(/[^0-9.-]/g, ''));
-        if (!isNaN(n)) consumptions.push(n);
-      }
+      const n = getArtworkEffectiveNetCns(m, artworkFallbackCasepack);
+      if (n) consumptions.push(n);
     });
 
     return calculateNetConsumption(consumptions);
@@ -1148,6 +1177,7 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
     const allConsumptionMats = getConsumptionMaterialsForComponent(componentName, stepData, productComponents);
     const componentDetails = component || getComponentDetails(componentName, productComponents);
     const artworkMats = getArtworkMaterialsForComponent(componentName, stepData);
+    const artworkFallbackCasepack = parseNumericValue(getPackagingConfigForProduct(stepData, formData)?.casepackQty);
     const overageQty = calculateOverageQty(product.poQty || 0, product.overagePercentage || '0');
     const setOfNumber = parseFloat(String(product.setOf || '').trim()) || 1;
 
@@ -1735,7 +1765,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
             </div>
           </div>
 
-          {/* ARTWORK SECTION – One row per artwork, original 5 columns only */}
+          {/* ARTWORK SECTION */}
           {artworkMats.length > 0 && (
             <div className="border-b border-border bg-muted/5 min-w-0" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }}>
               <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Artwork</span>
@@ -1744,12 +1774,13 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {artworkMats.map((artwork, idx) => {
                   const artworkQty = getArtworkQuantity(artwork);
-                  const artworkQtyNum = parseFloat(String(artworkQty).replace(/[^0-9.-]/g, '')) || 0;
+                  const artworkCasepack = getArtworkCasepackQty(artwork, artworkFallbackCasepack);
+                  const artworkQtyNum = getArtworkEffectiveNetCns(artwork, artworkFallbackCasepack);
                   const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
                   const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
                   const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkQtyNum);
                   const artworkGrossCnsSet = (parseFloat(artworkGrossCns) || 0) * setOfNumber;
-                  const artUnit = (artwork.unit || '-').toString().toUpperCase();
+                  const artUnit = (getArtworkQtyUnit(artwork) || artwork.unit || '-').toString().toUpperCase();
                   return (
                     <div key={idx} className="rounded-xl border border-border bg-white shadow-sm min-w-0">
                       <div style={{ padding: '16px 18px' }}>
@@ -1766,6 +1797,12 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                           </div>
                           <div className="flex justify-between items-baseline gap-3">
                             <span className="text-xs font-medium text-muted-foreground shrink-0 inline-flex items-center gap-2">
+                              {renderInfoIcon('Header Card casepack from Artwork; falls back to Packaging casepack when blank', { size: 'sm' })} Casepack
+                            </span>
+                            <span className="text-sm font-semibold text-foreground tabular-nums">{formatCasepackDisplay(artworkCasepack)}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline gap-3">
+                            <span className="text-xs font-medium text-muted-foreground shrink-0 inline-flex items-center gap-2">
                               {renderInfoIcon('Sum of all wastage/surplus values for this artwork material', { size: 'sm' })} Wastage
                             </span>
                             <span className="text-sm font-semibold text-foreground tabular-nums">{artworkCompoundWastage}%</span>
@@ -1778,7 +1815,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                           </div>
                           <div className="flex justify-between items-baseline gap-3 pt-2 mt-1 border-t border-border/60">
                             <span className="text-xs font-semibold text-muted-foreground shrink-0 inline-flex items-center gap-2">
-                              {renderInfoIcon('Gross CNS per piece multiplied by overage quantity', { size: 'sm' })} Gross CNS
+                              {renderInfoIcon('Gross CNS per piece multiplied by overage quantity. For HEADER CARD, effective qty = qty / casepack.', { size: 'sm' })} Gross CNS
                             </span>
                             <span className="text-base font-bold text-primary tabular-nums">{artworkGrossCns}</span>
                           </div>
@@ -1798,11 +1835,16 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
               ) : (
               /* Desktop: table with header row + data rows */
               <div className="min-w-0 rounded-lg border border-border overflow-hidden bg-card">
-                <div className="grid grid-cols-2 sm:grid-cols-6 min-w-0 border-b border-border bg-muted/30">
+                <div className="grid grid-cols-2 sm:grid-cols-7 min-w-0 border-b border-border bg-muted/30">
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Material Description</span></div>
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}>
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider inline-flex items-center gap-2">
                       Quantity {renderInfoIcon('Quantity from artwork material')}
+                    </span>
+                  </div>
+                  <div className="min-w-0 border-r border-border" style={desktopHeaderCell}>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider inline-flex items-center gap-2">
+                      Casepack {renderInfoIcon('Header Card casepack from Artwork; falls back to Packaging casepack when blank')}
                     </span>
                   </div>
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}>
@@ -1812,7 +1854,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                   </div>
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}>
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider inline-flex items-center gap-2">
-                      Gross CNS {renderInfoIcon('Gross CNS per piece multiplied by overage quantity')}
+                      Gross CNS {renderInfoIcon('Gross CNS per piece multiplied by overage quantity. For HEADER CARD, effective qty = qty / casepack.')}
                     </span>
                   </div>
                   <div className="min-w-0 border-r border-border" style={desktopHeaderCell}>
@@ -1831,7 +1873,8 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                 </div>
                 {artworkMats.map((artwork, idx) => {
                   const artworkQty = getArtworkQuantity(artwork);
-                  const artworkQtyNum = parseFloat(String(artworkQty).replace(/[^0-9.-]/g, '')) || 0;
+                  const artworkCasepack = getArtworkCasepackQty(artwork, artworkFallbackCasepack);
+                  const artworkQtyNum = getArtworkEffectiveNetCns(artwork, artworkFallbackCasepack);
                   const artworkWastageSurplus = extractArtworkWastageSurplus(artwork);
                   const artworkCompoundWastage = calculateCompoundWastage(artworkWastageSurplus);
                   const artworkGrossCns = calculateGrossCns(overageQty, artworkWastageSurplus, artworkQtyNum);
@@ -1839,13 +1882,14 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                   const artCellClass = 'min-w-0 border-r border-border bg-muted/5';
                   const artLastClass = 'min-w-0 border-border bg-muted/5';
                   return (
-                    <div key={idx} className="grid grid-cols-2 sm:grid-cols-6 min-w-0 border-b border-border last:border-b-0">
+                    <div key={idx} className="grid grid-cols-2 sm:grid-cols-7 min-w-0 border-b border-border last:border-b-0">
                       <div className={artCellClass} style={desktopTableCell}><span className="text-sm text-foreground break-words whitespace-pre-line">{getArtworkDescription(artwork) || '-'}</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{getArtworkQtyWithUnit(artwork) || '-'}</span></div>
+                      <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{formatCasepackDisplay(artworkCasepack)}</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-foreground">{artworkCompoundWastage}%</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-primary">{artworkGrossCns}</span></div>
                       <div className={artCellClass} style={desktopTableCell}><span className="text-base font-bold text-primary">{artworkGrossCnsSet.toFixed(3)}</span></div>
-                      <div className={artLastClass} style={desktopTableCell}><span className="text-base font-bold text-foreground uppercase">{artwork.unit || '-'}</span></div>
+                      <div className={artLastClass} style={desktopTableCell}><span className="text-base font-bold text-foreground uppercase">{getArtworkQtyUnit(artwork) || artwork.unit || '-'}</span></div>
                     </div>
                   );
                 })}
