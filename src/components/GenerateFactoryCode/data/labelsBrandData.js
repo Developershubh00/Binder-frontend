@@ -28,33 +28,33 @@ export const LABELS_BRAND_MATERIALS = [
 
 // PLACEMENT options
 export const LABELS_BRAND_PLACEMENT_OPTIONS = [
-  'Neck seam (center back)',
-  'Side seam',
-  'Hem',
-  'Sleeve',
   'Corner (bedding)',
   'Custom',
+  'Hem',
+  'Neck seam (center back)',
+  'Side seam',
+  'Sleeve',
   'OTHERS (TEXT)'
 ];
 
 // ATTACHMENT options
 export const LABELS_BRAND_ATTACHMENT_OPTIONS = [
-  'Sew-in',
-  'Heat Seal',
   'Adhesive Back',
+  'Heat Seal',
+  'Sew-in',
   'OTHERS (TEXT)'
 ];
 
 // TESTING REQUIREMENTS options (simple dropdown)
 export const LABELS_BRAND_TESTING_REQUIREMENTS = [
   'Colour Fastness (Wash/Rubbing)',
-  'Shrinkage',
   'Needle Detection (metallic thread)',
+  'Shrinkage',
   'OTHERS (TEXT)'
 ];
 
 // SIZE UNITS
-export const LABELS_BRAND_SIZE_UNITS = ['MM', 'CM', 'INCHES'];
+export const LABELS_BRAND_SIZE_UNITS = ['CM', 'INCHES', 'MM'];
 
 // APPROVAL options
 export const LABELS_BRAND_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;

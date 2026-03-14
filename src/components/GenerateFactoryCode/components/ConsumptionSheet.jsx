@@ -175,6 +175,60 @@ const PACKAGING_DESCRIPTION_FIELD_MAP = {
   ],
 };
 
+const PACKAGING_SIZE_FIELD_MAP = {
+  'CARTON BOX': [
+    { label: 'L', keys: ['cartonBoxLength'], unitKeys: ['cartonBoxDimensionsUnit'] },
+    { label: 'W', keys: ['cartonBoxWidth'], unitKeys: ['cartonBoxDimensionsUnit'] },
+    { label: 'H', keys: ['cartonBoxHeight'], unitKeys: ['cartonBoxDimensionsUnit'] },
+  ],
+  'CORNER PROTECTORS': [
+    { label: 'Leg L', keys: ['cornerProtectorLegLength'], unitKeys: ['cornerProtectorLegLengthUnit'] },
+    { label: 'Thickness', keys: ['cornerProtectorThickness'], unitKeys: ['cornerProtectorThicknessUnit'] },
+    { label: 'Height L', keys: ['cornerProtectorHeightLength'], unitKeys: ['cornerProtectorHeightLengthUnit'] },
+  ],
+  'EDGE PROTECTORS': [
+    { label: 'Wing Size', keys: ['edgeProtectorWingSize'] },
+    { label: 'Thickness', keys: ['edgeProtectorThickness'] },
+    { label: 'Length', keys: ['edgeProtectorLength'] },
+  ],
+  'FOAM INSERT': [
+    { label: 'L', keys: ['foamInsertLength'], unitKeys: ['foamInsertDimensionsUnit'] },
+    { label: 'W', keys: ['foamInsertWidth'], unitKeys: ['foamInsertDimensionsUnit'] },
+    { label: 'H', keys: ['foamInsertHeight'], unitKeys: ['foamInsertDimensionsUnit'] },
+  ],
+  'PALLET STRAP': [
+    { label: 'Width', keys: ['palletStrapWidth'] },
+  ],
+  'POLYBAG~Bale': [
+    { label: 'Roll Width', keys: ['polybagBaleRollWidth'], unitKeys: ['polybagBaleRollWidthUnit'] },
+  ],
+  'POLYBAG~POLYBAG-FLAP': [
+    { label: 'L', keys: ['polybagPolybagFlapLength'] },
+    { label: 'W', keys: ['polybagPolybagFlapWidth'] },
+  ],
+  'SILICA GEL DESICCANT': [
+    { label: 'Unit Size', keys: ['silicaGelDesiccantUnitSize'] },
+  ],
+  'SHRINK TAPE': [
+    { label: 'Width', keys: ['stretchWrapWidth'] },
+    { label: 'Thickness', keys: ['stretchWrapThicknessGauge'] },
+  ],
+  'VOID~FILL': [
+    { label: 'Pillow Size', keys: ['voidFillPillowSize'] },
+    { label: 'Bubble Size', keys: ['voidFillBubbleSize'] },
+  ],
+  DIVIDER: [
+    { label: 'Cell L', keys: ['dividerCellSizeLength'], unitKeys: ['dividerCellSizeUnit'] },
+    { label: 'Cell W', keys: ['dividerCellSizeWidth'], unitKeys: ['dividerCellSizeUnit'] },
+    { label: 'Height', keys: ['dividerHeight'], unitKeys: ['dividerHeightUnit'] },
+  ],
+  TAPE: [
+    { label: 'Thickness', keys: ['tapeGaugeThickness'] },
+    { label: 'Width', keys: ['tapeWidth'], unitKeys: ['tapeWidthUnit'] },
+    { label: 'Length', keys: ['tapeLength'], unitKeys: ['tapeLengthUnit'] },
+  ],
+};
+
 /**
  * ConsumptionSheet Component
  *
@@ -1014,6 +1068,74 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
     return `${manualDescription}\n${detailParts.join('\n')}`;
   };
 
+  const getPackagingSize = (packaging) => {
+    if (!packaging) return '-';
+    const packagingType = normalizeDisplayValue(packaging.packagingMaterialType);
+    const sizeFieldConfig = PACKAGING_SIZE_FIELD_MAP[packagingType] || [];
+
+    if (sizeFieldConfig.length === 0) return '-';
+
+    const sizeParts = sizeFieldConfig
+      .map(({ label, keys, unitKeys }) => {
+        const value = getFirstDisplayValue(packaging, keys);
+        if (!value) return '';
+        
+        // Get unit if available
+        let unit = '';
+        if (unitKeys && unitKeys.length > 0) {
+          unit = getFirstDisplayValue(packaging, unitKeys);
+        }
+        
+        return unit ? `${value}${unit}` : value;
+      })
+      .filter(Boolean);
+
+    if (sizeParts.length === 0) return '-';
+    return sizeParts.join(' x ');
+  };
+
+  const getStiffenerQuantityForCartonBox = (packaging, totalMatReq) => {
+    if (!packaging) return null;
+    const packagingType = normalizeDisplayValue(packaging.packagingMaterialType);
+    
+    // Only for CARTON BOX material type
+    if (packagingType !== 'CARTON BOX') return null;
+    
+    // Check if stiffener is required
+    const stiffenerRequired = normalizeDisplayValue(packaging.cartonBoxStiffenerRequired);
+    if (stiffenerRequired !== 'YES') return null;
+    
+    // Get stiffener quantity from form (quantity per piece)
+    const stiffenerQtyPerPiece = parseFloat(String(packaging.cartonBoxQuantity || '').trim()) || 0;
+    
+    // If no stiffener quantity in form, return null
+    if (stiffenerQtyPerPiece === 0) return null;
+    
+    // Calculate total stiffener quantity: per piece × total material requirement
+    const reqMatNum = typeof totalMatReq === 'string' ? parseFloat(totalMatReq) : totalMatReq;
+    const totalStiffenerQty = Math.round(stiffenerQtyPerPiece * reqMatNum);
+    
+    return totalStiffenerQty;
+  };
+
+  const getPackagingDescriptionWithStiffener = (packaging, totalMatReq) => {
+    const baseDesc = getPackagingDescription(packaging);
+    
+    // Check if this is CARTON BOX with stiffener quantity
+    const stiffenerQty = getStiffenerQuantityForCartonBox(packaging, totalMatReq);
+    
+    if (stiffenerQty === null) {
+      return baseDesc;
+    }
+    
+    // Append stiffener quantity to description
+    const stiffenerInfo = `Stiffener Quantity: ${stiffenerQty}`;
+    if (baseDesc === '-') {
+      return stiffenerInfo;
+    }
+    return `${baseDesc}\n${stiffenerInfo}`;
+  };
+
   const buildPurchaseSharePayload = () => {
     const ipcs = [];
     const getUqrFormsForStepData = (stepData) => {
@@ -1578,7 +1700,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`, { size: 'sm' 
     };
 
     return (
-      <div className="w-full min-w-0 mb-8">
+      <div className="w-full min-w-0">
         <div className="border border-border rounded-xl bg-card shadow-sm min-w-0" style={{ padding: '20px' }}>
           {/* ROW 1: IPC */}
           <div className="border-b border-border bg-gradient-to-r from-muted/40 to-muted/20" style={{ padding: '16px 20px' }}>
@@ -1948,7 +2070,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
     const innerMats = packagingMats.filter(isPolybagInner);
 
     return (
-      <div className="w-full min-w-0 mb-8">
+      <div className="w-full min-w-0">
         <div className="border border-border rounded-xl bg-card shadow-sm min-w-0" style={{ padding: isMobile ? '18px 16px' : '20px' }}>
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xs font-bold text-foreground uppercase tracking-wider">{blockLabel}</span>
@@ -1965,32 +2087,40 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
           <div className="min-w-0 rounded-lg border border-border overflow-hidden bg-card">
           {standardMats.length > 0 && (
             <>
-              <div className="grid grid-cols-6 min-w-0 border-b border-border bg-muted/30">
+              <div className="grid grid-cols-8 min-w-0 border-b border-border bg-muted/30">
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mat</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mat Desc</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Size</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">IPCs</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Wastage/Surplus</span></div>
                 <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Casepack</span></div>
-                <div className={row4Last} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total mat req</span></div>
+                <div className={row4Cell} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total mat req</span></div>
+                <div className={row4Last} style={desktopHeaderCell}><span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gross Total mat req</span></div>
               </div>
               {standardMats.map((packaging, idx) => {
                 const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
                 const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
-                const matDesc = getPackagingDescription(packaging);
                 const matType = formatPackagingTypeName(packaging.packagingMaterialType);
                 const matCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
                 const totalMatReqBase = isMerged
                   ? totalPoSetQtyForMerged
                   : (poQtyForStandalone * setOfForStandalone);
                 const reqMat = matCasepack > 0 ? (totalMatReqBase / matCasepack).toFixed(2) : '-';
+                const matDesc = getPackagingDescriptionWithStiffener(packaging, reqMat);
+                const matSize = getPackagingSize(packaging);
+                const reqMatNum = typeof reqMat === 'string' ? parseFloat(reqMat) : reqMat;
+                const wastagePercent = parseFloat(packagingCompoundWastage) || 0;
+                const grossTotalMatReq = reqMatNum !== '-' && !isNaN(reqMatNum) ? Math.floor((reqMatNum + (reqMatNum * wastagePercent / 100)) + 0.6) : '-';
                 return (
-                  <div key={`std-${idx}`} className="grid grid-cols-6 min-w-0 border-b border-border last:border-b-0">
+                  <div key={`std-${idx}`} className="grid grid-cols-8 min-w-0 border-b border-border last:border-b-0">
                     <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matType || '-'}</span></div>
                     <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words whitespace-pre-line">{matDesc || '-'}</span></div>
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{matSize || '-'}</span></div>
                     <div className={row4Cell} style={desktopTableCell}><span className="text-sm text-foreground break-words">{ipcsDisplay || '-'}</span></div>
                     <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{packagingCompoundWastage}%</span></div>
                     <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-foreground">{matCasepack || '-'}</span></div>
-                    <div className={row4Last} style={desktopTableCell}><span className="text-base font-bold text-primary">{reqMat}</span></div>
+                    <div className={row4Cell} style={desktopTableCell}><span className="text-base font-bold text-primary">{reqMat}</span></div>
+                    <div className={row4Last} style={desktopTableCell}><span className="text-base font-bold text-primary">{grossTotalMatReq}</span></div>
                   </div>
                 );
               })}
@@ -2063,11 +2193,10 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
   };
 
   return (
-    <div>
+    <div className="w-full h-full flex flex-col">
       <div
-        className="w-full min-w-0 overflow-y-auto overflow-x-auto"
+        className="w-full min-w-0 overflow-y-auto overflow-x-auto flex-1"
         style={{
-          maxHeight: 'calc(100vh - 250px)',
           WebkitOverflowScrolling: 'touch',
           touchAction: 'pan-y',
           overscrollBehavior: 'contain',

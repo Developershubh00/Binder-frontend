@@ -41,38 +41,38 @@ export const HEADER_CARDS_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // FUNCTION options
 export const HEADER_CARDS_FUNCTION_OPTIONS = [
-  'Product Support/Shape',
-  'Promotional',
   'Brand Story',
   'Care Information',
+  'Product Support/Shape',
+  'Promotional',
   'OTHERS (TEXT)'
 ];
 
 // CONTENT options
 export const HEADER_CARDS_CONTENT_OPTIONS = [
-  'Promotional Text',
-  'Product Features',
-  'Brand Story',
   'Barcode Placement',
+  'Brand Story',
+  'Product Features',
+  'Promotional Text',
   'QR Code',
   'OTHERS (TEXT)'
 ];
 
 // PRINTING options
 export const HEADER_CARDS_PRINTING_OPTIONS = [
-  'Single Side',
+  'Black & White',
   'Double Side',
   'Full Color',
-  'Black & White',
+  'Single Side',
   'OTHERS (TEXT)'
 ];
 
 // FINISH options
 export const HEADER_CARDS_FINISH_OPTIONS = [
-  'Matte',
   'Gloss Lamination',
-  'Varnished (prevent ink rub)',
+  'Matte',
   'Uncoated (eco)',
+  'Varnished (prevent ink rub)',
   'OTHERS (TEXT)'
 ];
 
@@ -91,8 +91,8 @@ export const HEADER_CARDS_ACID_FREE_OPTIONS = [
 
 // BRANDING options
 export const HEADER_CARDS_BRANDING_OPTIONS = [
-  'Logo',
   'Brand Colors',
   'Consistent with packaging',
+  'Logo',
   'OTHERS (TEXT)'
 ];

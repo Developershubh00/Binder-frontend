@@ -73,7 +73,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cartonBoxType || ''}
                           onChange={(selectedValue) => onChange('cartonBoxType', selectedValue)}
-                          options={['RSC (Regular Slotted Container)', 'HSC (Half Slotted)', 'FOL (Full Overlap)', 'Die-Cut', 'Telescope', 'Master Carton', 'Inner Carton']}
+                          options={['Die-Cut', 'FOL (Full Overlap)', 'HSC (Half Slotted)', 'Inner Carton', 'Master Carton', 'RSC (Regular Slotted Container)', 'Telescope']}
                           placeholder="Select or type Type"
                           className={errors?.[`${errorKeyPrefix}_cartonBoxType`] ? 'border-red-600' : ''}
                         />
@@ -95,7 +95,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cartonBoxBoardGrade || ''}
                           onChange={(selectedValue) => onChange('cartonBoxBoardGrade', selectedValue)}
-                          options={['Kraft (Brown)', 'White Top', 'Duplex', 'Test Liner', 'Virgin Kraft']}
+                          options={['Duplex', 'Kraft (Brown)', 'Test Liner', 'Virgin Kraft', 'White Top']}
                           placeholder="Select or type Board Grade"
                           className={errors?.[`${errorKeyPrefix}_cartonBoxBoardGrade`] ? 'border-red-600' : ''}
                         />
@@ -106,7 +106,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cartonBoxJointType || ''}
                           onChange={(selectedValue) => onChange('cartonBoxJointType', selectedValue)}
-                          options={['Staple/Stitched', 'Glued/Binded', 'Taped']}
+                          options={['Glued/Binded', 'Staple/Stitched', 'Taped']}
                           placeholder="Select or type Joint Type"
                           className={errors?.[`${errorKeyPrefix}_cartonBoxJointType`] ? 'border-red-600' : ''}
                         />
@@ -350,7 +350,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                     }
                                   }
                                 }}
-                                options={['Bursting Strength Test', 'ECT Test', 'Drop Test', 'Compression Test']}
+                                options={['Bursting Strength Test', 'Compression Test', 'Drop Test', 'ECT Test']}
                                 placeholder={(Array.isArray(material.cartonBoxTestingRequirements) && material.cartonBoxTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
                                 className="border-0 outline-none"
                                 style={{ 
@@ -439,7 +439,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cornerProtectorType || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorType', selectedValue)}
-                          options={['L-Shape', 'U-Shape', 'Edge Guard', 'Wrap-Around']}
+                          options={['Edge Guard', 'L-Shape', 'U-Shape', 'Wrap-Around']}
                           placeholder="Select or type Type"
                           className={errors?.[`${errorKeyPrefix}_cornerProtectorType`] ? 'border-red-600' : ''}
                         />
@@ -450,7 +450,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cornerProtectorMaterial || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorMaterial', selectedValue)}
-                          options={['Cardboard', 'Corrugated Board', 'Plastic (PP/PE)', 'Foam (EPE/EVA)', 'Wood']}
+                          options={['Cardboard', 'Corrugated Board', 'Foam (EPE/EVA)', 'Plastic (PP/PE)', 'Wood']}
                           placeholder="Select or type Material"
                           className={errors?.[`${errorKeyPrefix}_cornerProtectorMaterial`] ? 'border-red-600' : ''}
                         />
@@ -515,7 +515,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cornerProtectorLoadCapacity || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorLoadCapacity', selectedValue)}
-                          options={['Light (<10kg)', 'Medium (10-25kg)', 'Heavy (>25kg)']}
+                          options={['Heavy (>25kg)', 'Light (<10kg)', 'Medium (10-25kg)']}
                           placeholder="Select or type Load Capacity"
                           className={errors?.[`${errorKeyPrefix}_cornerProtectorLoadCapacity`] ? 'border-red-600' : ''}
                         />
@@ -526,7 +526,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.cornerProtectorColor || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorColor', selectedValue)}
-                          options={['Brown (Kraft)', 'White', 'Black', 'Custom']}
+                          options={['Black', 'Brown (Kraft)', 'Custom', 'White']}
                           placeholder="Select or type Color"
                           className={errors?.[`${errorKeyPrefix}_cornerProtectorColor`] ? 'border-red-600' : ''}
                         />
@@ -555,7 +555,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.edgeProtectorType || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorType', selectedValue)}
-                          options={['V-Board', 'L-Board', 'U-Channel', 'Flat Strip', 'Wrap-Around']}
+                          options={['Flat Strip', 'L-Board', 'U-Channel', 'V-Board', 'Wrap-Around']}
                           placeholder="Select or type Type"
                           className={errors?.[`${errorKeyPrefix}_edgeProtectorType`] ? 'border-red-600' : ''}
                         />
@@ -566,7 +566,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.edgeProtectorMaterial || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorMaterial', selectedValue)}
-                          options={['Solid Board', 'Corrugated', 'Laminated Board', 'Plastic', 'Metal (Aluminum)']}
+                          options={['Corrugated', 'Laminated Board', 'Metal (Aluminum)', 'Plastic', 'Solid Board']}
                           placeholder="Select or type Material"
                           className={errors?.[`${errorKeyPrefix}_edgeProtectorMaterial`] ? 'border-red-600' : ''}
                         />
@@ -577,7 +577,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.edgeProtectorWingSize || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorWingSize', selectedValue)}
-                          options={['30x30mm', '35x35mm', '40x40mm', '50x50mm', '50x35mm (unequal)']}
+                          options={['30x30mm', '35x35mm', '40x40mm', '50x35mm (unequal)', '50x50mm']}
                           placeholder="Select or type"
                           className={errors?.[`${errorKeyPrefix}_edgeProtectorWingSize`] ? 'border-red-600' : ''}
                         />
@@ -599,7 +599,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.edgeProtectorLength || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorLength', selectedValue)}
-                          options={['600mm (24")', '900mm (36")', '1200mm (48")', '2400mm', 'Custom']}
+                          options={['1200mm (48")', '2400mm', '600mm (24")', '900mm (36")', 'Custom']}
                           placeholder="Select or type"
                           className={errors?.[`${errorKeyPrefix}_edgeProtectorLength`] ? 'border-red-600' : ''}
                         />
@@ -610,7 +610,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.edgeProtectorPlyLayers || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorPlyLayers', selectedValue)}
-                          options={['Single Ply', 'Multi-Ply (laminated)']}
+                          options={['Multi-Ply (laminated)', 'Single Ply']}
                           placeholder="Select or type"
                           className={errors?.[`${errorKeyPrefix}_edgeProtectorPlyLayers`] ? 'border-red-600' : ''}
                         />
@@ -621,7 +621,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.edgeProtectorColor || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorColor', selectedValue)}
-                          options={['Brown', 'White', 'Custom Print']}
+                          options={['Brown', 'Custom Print', 'White']}
                           placeholder="Select or type Color"
                           className={errors?.[`${errorKeyPrefix}_edgeProtectorColor`] ? 'border-red-600' : ''}
                         />
@@ -649,7 +649,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.foamInsertType || ''}
                           onChange={(selectedValue) => onChange('foamInsertType', selectedValue)}
-                          options={['Die-Cut Insert', 'Convoluted (Egg Crate)', 'Sheet', 'Corner Block', 'Custom Molded']}
+                          options={['Convoluted (Egg Crate)', 'Corner Block', 'Custom Molded', 'Die-Cut Insert', 'Sheet']}
                           placeholder="Select or type Type"
                           className={errors?.[`${errorKeyPrefix}_foamInsertType`] ? 'border-red-600' : ''}
                         />
@@ -660,7 +660,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.foamInsertMaterial || ''}
                           onChange={(selectedValue) => onChange('foamInsertMaterial', selectedValue)}
-                          options={['EPE (Polyethylene)', 'EVA', 'PU (Polyurethane)', 'XPE (Cross-linked PE)', 'EPS (Styrofoam)']}
+                          options={['EPE (Polyethylene)', 'EPS (Styrofoam)', 'EVA', 'PU (Polyurethane)', 'XPE (Cross-linked PE)']}
                           placeholder="Select or type Material"
                           className={errors?.[`${errorKeyPrefix}_foamInsertMaterial`] ? 'border-red-600' : ''}
                         />
@@ -682,7 +682,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.foamInsertThickness || ''}
                           onChange={(selectedValue) => onChange('foamInsertThickness', selectedValue)}
-                          options={['5mm', '10mm', '15mm', '20mm', '25mm', '30mm', '50mm']}
+                          options={['10mm', '15mm', '20mm', '25mm', '30mm', '5mm', '50mm']}
                           placeholder="Select or type"
                           className={errors?.[`${errorKeyPrefix}_foamInsertThickness`] ? 'border-red-600' : ''}
                         />
@@ -750,7 +750,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.foamInsertColor || ''}
                           onChange={(selectedValue) => onChange('foamInsertColor', selectedValue)}
-                          options={['White', 'Black', 'Pink (Anti-Static)', 'Blue', 'Custom']}
+                          options={['Black', 'Blue', 'Custom', 'Pink (Anti-Static)', 'White']}
                           placeholder="Select or type Color"
                           className={errors?.[`${errorKeyPrefix}_foamInsertColor`] ? 'border-red-600' : ''}
                         />
@@ -779,7 +779,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.palletStrapType || ''}
                           onChange={(selectedValue) => onChange('palletStrapType', selectedValue)}
-                          options={['PP Strapping', 'PET Strapping', 'Steel Strapping', 'Composite (Woven)']}
+                          options={['Composite (Woven)', 'PET Strapping', 'PP Strapping', 'Steel Strapping']}
                           placeholder="Select or type Type"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_palletStrapType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -790,7 +790,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.palletStrapApplication || ''}
                           onChange={(selectedValue) => onChange('palletStrapApplication', selectedValue)}
-                          options={['Manual (Hand Tool)', 'Semi-Auto', 'Automatic Machine']}
+                          options={['Automatic Machine', 'Manual (Hand Tool)', 'Semi-Auto']}
                           placeholder="Select or type Application"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_palletStrapApplication`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -801,7 +801,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.palletStrapWidth || ''}
                           onChange={(selectedValue) => onChange('palletStrapWidth', selectedValue)}
-                          options={['9mm', '12mm', '15mm', '16mm', '19mm', '25mm', '32mm']}
+                          options={['12mm', '15mm', '16mm', '19mm', '25mm', '32mm', '9mm']}
                           placeholder="Select or type Width"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_palletStrapWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -812,7 +812,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.palletStrapSealType || ''}
                           onChange={(selectedValue) => onChange('palletStrapSealType', selectedValue)}
-                          options={['Metal Seals', 'Friction Weld', 'Heat Seal', 'Buckle']}
+                          options={['Buckle', 'Friction Weld', 'Heat Seal', 'Metal Seals']}
                           placeholder="Select or type Seal Type"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_palletStrapSealType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -834,7 +834,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.palletStrapColor || ''}
                           onChange={(selectedValue) => onChange('palletStrapColor', selectedValue)}
-                          options={['Black', 'Blue', 'Green', 'Yellow', 'White', 'Custom']}
+                          options={['Black', 'Blue', 'Custom', 'Green', 'White', 'Yellow']}
                           placeholder="Select or type Color"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_palletStrapColor`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -886,7 +886,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.polybagBaleType || ''}
                           onChange={(selectedValue) => onChange('polybagBaleType', selectedValue)}
-                          options={['Polysheet (Flat)', 'Bale Wrap (for shipping bales)', 'Pallet Wrap', 'Shrink Film', 'Stretch Film']}
+                          options={['Bale Wrap (for shipping bales)', 'Pallet Wrap', 'Polysheet (Flat)', 'Shrink Film', 'Stretch Film']}
                           placeholder="Select or type Type"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_polybagBaleType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -897,7 +897,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.polybagBaleMaterial || ''}
                           onChange={(selectedValue) => onChange('polybagBaleMaterial', selectedValue)}
-                          options={['LDPE', 'HDPE', 'LLDPE (Stretch)', 'PVC (Shrink)', 'Recycled PE']}
+                          options={['HDPE', 'LDPE', 'LLDPE (Stretch)', 'PVC (Shrink)', 'Recycled PE']}
                           placeholder="Select or type Material"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_polybagBaleMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -938,7 +938,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.polybagBaleColour || ''}
                           onChange={(selectedValue) => onChange('polybagBaleColour', selectedValue)}
-                          options={['Clear/Transparent', 'White', 'Black', 'Tinted (Blue)', 'Tinted (Green)']}
+                          options={['Black', 'Clear/Transparent', 'Tinted (Blue)', 'Tinted (Green)', 'White']}
                           placeholder="Select or type Colour"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_polybagBaleColour`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -1019,7 +1019,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                     }
                                   }
                                 }}
-                                options={['Tear Strength', 'Puncture Resistance', 'Stretch %']}
+                                options={['Puncture Resistance', 'Stretch %', 'Tear Strength']}
                                 placeholder={(Array.isArray(material.polybagBaleTestingRequirements) && material.polybagBaleTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
                                 className="border-0 outline-none"
                                 style={{ 
@@ -1149,7 +1149,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.polybagPolybagFlapType || ''}
                           onChange={(selectedValue) => onChange('polybagPolybagFlapType', selectedValue)}
-                          options={['Flat Bag (Open Top)', 'Gusseted Bag', 'Wicketed Bag', 'Zip Lock Bag', 'Drawstring Bag']}
+                          options={['Drawstring Bag', 'Flat Bag (Open Top)', 'Gusseted Bag', 'Wicketed Bag', 'Zip Lock Bag']}
                           placeholder="Select or type Type"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_polybagPolybagFlapType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -1160,7 +1160,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.polybagPolybagFlapMaterial || ''}
                           onChange={(selectedValue) => onChange('polybagPolybagFlapMaterial', selectedValue)}
-                          options={['LDPE (Low Density Polyethylene)', 'HDPE (High Density)', 'PP (Polypropylene)', 'CPP', 'Biodegradable', 'Recycled PE']}
+                          options={['Biodegradable', 'CPP', 'HDPE (High Density)', 'LDPE (Low Density Polyethylene)', 'PP (Polypropylene)', 'Recycled PE']}
                           placeholder="Select or type Material"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_polybagPolybagFlapMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -1311,7 +1311,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                                     }
                                   }
                                 }}
-                                options={['Seal Strength', 'Dart Drop Impact', 'Clarity Test']}
+                                options={['Clarity Test', 'Dart Drop Impact', 'Seal Strength']}
                                 placeholder={(Array.isArray(material.polybagPolybagFlapTestingRequirements) && material.polybagPolybagFlapTestingRequirements.length === 0) ? "Select testing requirements" : "Add more..."}
                                 className="border-0 outline-none"
                                 style={{ 
@@ -1418,7 +1418,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.silicaGelDesiccantType || ''}
                           onChange={(selectedValue) => onChange('silicaGelDesiccantType', selectedValue)}
-                          options={['Silica Gel', 'Clay (Montmorillonite)', 'Molecular Sieve', 'Calcium Chloride', 'Activated Carbon']}
+                          options={['Activated Carbon', 'Calcium Chloride', 'Clay (Montmorillonite)', 'Molecular Sieve', 'Silica Gel']}
                           placeholder="Select or type Type"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -1429,7 +1429,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.silicaGelDesiccantForm || ''}
                           onChange={(selectedValue) => onChange('silicaGelDesiccantForm', selectedValue)}
-                          options={['Sachets/Packets', 'Canisters', 'Strips', 'Sheets', 'Poles/Hanging']}
+                          options={['Canisters', 'Poles/Hanging', 'Sachets/Packets', 'Sheets', 'Strips']}
                           placeholder="Select or type Form"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantForm`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />
@@ -1441,7 +1441,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           <SearchableDropdown
                             value={material.silicaGelDesiccantUnitSize || ''}
                             onChange={(selectedValue) => onChange('silicaGelDesiccantUnitSize', selectedValue)}
-                            options={['1g', '2g', '5g', '10g', '25g', '50g', '100g', '200g', '500g']}
+                            options={['1g', '10g', '100g', '2g', '200g', '25g', '5g', '50g', '500g']}
                             placeholder="Select or type"
                             style={{ paddingRight: '60px' }}
                             className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none w-full ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantUnitSize`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
@@ -1455,7 +1455,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <SearchableDropdown
                           value={material.silicaGelDesiccantColor || ''}
                           onChange={(selectedValue) => onChange('silicaGelDesiccantColor', selectedValue)}
-                          options={['White', 'Blue', 'Orange (indicating)']}
+                          options={['Blue', 'Orange (indicating)', 'White']}
                           placeholder="Select or type Color"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantColor`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                         />

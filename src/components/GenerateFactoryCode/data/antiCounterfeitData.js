@@ -4,18 +4,18 @@ import { ARTWORK_APPROVAL_OPTIONS } from './approvalOptions';
 
 // TYPE options
 export const ANTI_COUNTERFEIT_TYPES = [
-  'Hologram Sticker',
-  'Void/Tamper-Evident Label',
   'Authenticity Patch',
+  'Hologram Sticker',
   'Invisible Ink Print',
   'Security Thread',
+  'Void/Tamper-Evident Label',
   'OTHERS (TEXT)'
 ];
 
 // MATERIAL options
 export const ANTI_COUNTERFEIT_MATERIALS = [
-  'Specialized Holographic Film',
   'Destructible Vinyl',
+  'Specialized Holographic Film',
   'Woven Patch with Micro-Text',
   'OTHERS (TEXT)'
 ];
@@ -23,19 +23,19 @@ export const ANTI_COUNTERFEIT_MATERIALS = [
 // SECURITY FEATURE options
 export const ANTI_COUNTERFEIT_SECURITY_FEATURES = [
   '3D Holography',
-  'Sequential Numbering',
-  'QR Code',
-  'UV-Sensitive Ink',
   'Destructible Substrate',
   'Micro-Text',
+  'QR Code',
+  'Sequential Numbering',
+  'UV-Sensitive Ink',
   'OTHERS (TEXT)'
 ];
 
 // HOLOGRAM TYPE options
 export const ANTI_COUNTERFEIT_HOLOGRAM_TYPES = [
   '2D',
-  '3D',
   '2D/3D Combination',
+  '3D',
   'Dot Matrix',
   'E-beam',
   'Flip-flop',
@@ -44,16 +44,16 @@ export const ANTI_COUNTERFEIT_HOLOGRAM_TYPES = [
 
 // NUMBERING options
 export const ANTI_COUNTERFEIT_NUMBERING_OPTIONS = [
-  'Sequential Serial Numbers',
-  'Random Numbers',
   'Encrypted Code',
+  'Random Numbers',
+  'Sequential Serial Numbers',
   'OTHERS (TEXT)'
 ];
 
 // TESTING REQUIREMENTS options (simple dropdown)
 export const ANTI_COUNTERFEIT_TESTING_REQUIREMENTS = [
-  'Tamper Evidence Test (visible destroy on removal)',
   'Adhesion Strength',
+  'Tamper Evidence Test (visible destroy on removal)',
   'UV Light Readability'
 ];
 
@@ -65,17 +65,17 @@ export const ANTI_COUNTERFEIT_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 // VERIFICATION options
 export const ANTI_COUNTERFEIT_VERIFICATION_OPTIONS = [
   'Consumer Verification Link (Website/App)',
-  'SMS Verification',
   'NFC Tap',
+  'SMS Verification',
   'OTHERS (TEXT)'
 ];
 
 // QR/CODE CONTENT options
 export const ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS = [
-  'URL',
-  'Product Info',
   'Authentication Code',
   'Batch/Lot Number',
+  'Product Info',
+  'URL',
   'OTHERS (TEXT)'
 ];
 
@@ -88,9 +88,9 @@ export const ANTI_COUNTERFEIT_APPLICATION_OPTIONS = [
 
 // TAMPER EVIDENCE options
 export const ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS = [
-  'Void Pattern on Removal',
-  'Destructible (breaks apart)',
   'Color Change',
+  'Destructible (breaks apart)',
+  'Void Pattern on Removal',
   'OTHERS (TEXT)'
 ];
 
@@ -102,8 +102,8 @@ export const ANTI_COUNTERFEIT_DATABASE_OPTIONS = [
 
 // GUMMING QUALITY options
 export const ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS = [
-  'Removable (peel cleanly)',
   'Permanent (shipping carton)',
+  'Removable (peel cleanly)',
   'OTHERS (TEXT)'
 ];
 

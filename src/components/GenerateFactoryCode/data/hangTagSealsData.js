@@ -42,52 +42,52 @@ export const HANG_TAG_SEALS_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // FASTENING options
 export const HANG_TAG_SEALS_FASTENING_OPTIONS = [
+  'Breakaway',
   'Permanent Lock (Non-reusable)',
   'Reusable (Rare)',
-  'Breakaway',
   'OTHERS (TEXT)'
 ];
 
 // PRE-STRINGING options
 export const HANG_TAG_SEALS_PRE_STRINGING_OPTIONS = [
-  'Supplied Pre-strung (Tags + strings attached)',
   'Separate Components',
+  'Supplied Pre-strung (Tags + strings attached)',
   'OTHERS (TEXT)'
 ];
 
 // STRING FINISH options
 export const HANG_TAG_SEALS_STRING_FINISH_OPTIONS = [
-  'Plain',
-  'Waxed (stiff)',
-  'Twisted',
   'Braided',
+  'Plain',
+  'Twisted',
+  'Waxed (stiff)',
   'OTHERS (TEXT)'
 ];
 
 // SEAL SHAPE options
 export const HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS = [
+  'Custom Logo Shape',
   'Paddle/Bullet Shape',
   'Rectangular',
-  'Custom Logo Shape',
   'Round',
   'OTHERS (TEXT)'
 ];
 
 // COLOUR options
 export const HANG_TAG_SEALS_COLOUR_OPTIONS = [
-  'DTM (Dyed to Match)',
-  'Clear (plastic)',
-  'Natural/Ecru (string)',
   'Black',
+  'Clear (plastic)',
   'Custom',
+  'DTM (Dyed to Match)',
+  'Natural/Ecru (string)',
   'OTHERS (TEXT)'
 ];
 
 // LOGO/BRANDING options
 export const HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS = [
-  'Plain',
-  'Embossed Logo on Seal',
   'Custom Molded Seal',
+  'Embossed Logo on Seal',
+  'Plain',
   'OTHERS (TEXT)'
 ];
 

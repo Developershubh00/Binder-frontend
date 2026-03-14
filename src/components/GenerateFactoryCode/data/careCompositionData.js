@@ -39,27 +39,27 @@ export const CARE_COMPOSITION_APPROVAL_OPTIONS = ARTWORK_APPROVAL_OPTIONS;
 
 // PRINT TYPE options
 export const CARE_COMPOSITION_PRINT_TYPE_OPTIONS = [
-  'Flexographic',
-  'Thermal Transfer',
   'Digital',
+  'Flexographic',
   'Screen Print',
+  'Thermal Transfer',
   'OTHERS (TEXT)'
 ];
 
 // INK TYPE options
 export const CARE_COMPOSITION_INK_TYPE_OPTIONS = [
-  'Water-based',
-  'Solvent-based (durable)',
   'Eco-friendly',
+  'Solvent-based (durable)',
+  'Water-based',
   'OTHERS (TEXT)'
 ];
 
 // MANUFACTURER ID options
 export const CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS = [
-  'RN# (USA)',
   'CA# (Canada)',
-  'Importer Name',
   'Factory ID',
+  'Importer Name',
+  'RN# (USA)',
   'OTHERS (TEXT)'
 ];
 
@@ -73,8 +73,8 @@ export const CARE_COMPOSITION_PERMANENCE_OPTIONS = [
 export const CARE_COMPOSITION_LANGUAGE_OPTIONS = [
   'English',
   'French',
-  'Spanish',
   'Multi-language (as required by market)',
+  'Spanish',
   'OTHERS (TEXT)'
 ];
 

@@ -335,7 +335,7 @@ const TasksContent = ({ initialView = 'assign' }) => {
               <SearchableCombobox
                 value={selectedType}
                 onChange={setSelectedType}
-                options={['Production', 'Sampling', 'Company']}
+                options={['Company', 'Production', 'Sampling']}
                 placeholder="Select PO type"
                 strictMode
                 className="h-10"

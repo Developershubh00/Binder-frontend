@@ -189,13 +189,13 @@ export const CARPET_MACHINE_TYPES = {
 
 // Knot Type options
 export const KNOT_TYPE_OPTIONS = [
-  'Persian Knot',
-  'Turkish Knot',
-  'Tibetan Knot',
-  'Jufti Knot',
-  'Single Knot',
   'Double Knot',
-  'N/A'
+  'Jufti Knot',
+  'N/A',
+  'Persian Knot',
+  'Single Knot',
+  'Tibetan Knot',
+  'Turkish Knot'
 ];
 
 // Approval options (common across all machine types)

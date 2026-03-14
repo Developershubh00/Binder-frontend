@@ -60,8 +60,8 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     loadIPOs();
   }, [showInitialScreen]);
 
-  const orderTypeOptions = ['Production', 'Sampling', 'Company'];
-  const companyTypeOptions = ['STOCK', 'SAM'];
+  const orderTypeOptions = ['Company', 'Production', 'Sampling'];
+  const companyTypeOptions = ['SAM', 'STOCK'];
   const normalizeKey = (value) => String(value || '').trim().toLowerCase();
   const findExistingIPO = (data, list) => {
     const dataOrderType = normalizeOrderType(data.orderType);

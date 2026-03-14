@@ -1,34 +1,34 @@
 export const MATERIAL_APPROVAL_OPTIONS = [
-  'Self',
-  'QA Approval',
   'Buyer Approval',
   'Initial Sample',
   'PP Sample',
+  'QA Approval',
+  'Self',
   'White Seal Sample'
 ];
 
 export const TRIMS_APPROVAL_OPTIONS = [
-  'Self',
-  'QA Approval',
   'Buyer Approval',
   'Initial Sample',
-  'PP Sample'
+  'PP Sample',
+  'QA Approval',
+  'Self'
 ];
 
 export const WORK_ORDER_APPROVAL_OPTIONS = [
+  'Buyer Approval',
   'Self',
-  'White Seal Sample',
-  'Buyer Approval'
+  'White Seal Sample'
 ];
 
 export const ARTWORK_APPROVAL_OPTIONS = [
-  'Self',
+  'Buyer Approval',
   'QA Approval',
-  'Buyer Approval'
+  'Self'
 ];
 
 export const PACKAGING_APPROVAL_OPTIONS = [
-  'Self',
+  'Buyer Approval',
   'QA Approval',
-  'Buyer Approval'
+  'Self'
 ];

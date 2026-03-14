@@ -34,7 +34,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -86,7 +86,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -138,7 +138,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -191,7 +191,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -243,7 +243,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -296,7 +296,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -349,7 +349,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -404,7 +404,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -459,7 +459,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -511,7 +511,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -564,7 +564,7 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'result', label: 'RESULT', type: 'text' },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
@@ -616,7 +616,7 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -668,7 +668,7 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -722,7 +722,7 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -776,7 +776,7 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -835,7 +835,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -886,7 +886,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -940,7 +940,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -991,7 +991,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -1041,7 +1041,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -1093,7 +1093,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -1145,7 +1145,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -1197,7 +1197,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -1252,7 +1252,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -1306,7 +1306,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -1359,7 +1359,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1413,7 +1413,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1465,7 +1465,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1518,7 +1518,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1570,7 +1570,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1622,7 +1622,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1674,7 +1674,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1727,7 +1727,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1781,7 +1781,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1834,7 +1834,7 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'result', label: 'RESULT', type: 'text' },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
@@ -1895,7 +1895,7 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -2785,7 +2785,7 @@ export const formsConfig = {
         fields: [
           { name: 'avgWeightDiff', label: 'AVG WEIGHT DIFFERENCE FOUND', type: 'text' },
           { name: 'moisturePercentage', label: 'MOISTURE %AGE', type: 'text' },
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
@@ -2858,7 +2858,7 @@ export const formsConfig = {
         title: 'Final Metrics',
         fields: [
           { name: 'moisturePercentage', label: 'MOISTURE %AGE', type: 'text' },
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['YES', 'NO', 'CONDITIONALLY APPROVED', 'MANAGEMENT'] },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'result', label: 'RESULT', type: 'text' },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]

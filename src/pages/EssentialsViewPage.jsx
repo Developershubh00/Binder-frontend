@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { FormCard } from '@/components/ui/form-layout';
 
 const PAYMENT_OPTIONS = [
+  { value: 'bank_transfer', label: 'Bank Transfer' },
   { value: 'cash', label: 'Cash' },
   { value: 'upi', label: 'UPI' },
-  { value: 'bank_transfer', label: 'Bank Transfer' },
 ];
 
 export default function EssentialsViewPage() {

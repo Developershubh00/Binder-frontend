@@ -75,13 +75,13 @@ const CompanyEssentials = ({ onBack }) => {
     'MAINTENANCE'
   ];
 
-  const unitOptions = ['METER', 'KGS', 'PCS', 'LITRE'];
-  const forOptions = ['COMPANY', 'GUEST', 'COMPANY/GUEST'];
+  const unitOptions = ['KGS', 'LITRE', 'METER', 'PCS'];
+  const forOptions = ['COMPANY', 'COMPANY/GUEST', 'GUEST'];
   const departmentOptions = ['BRAIDING', 'CARPET', 'CUTTING', 'DYEING', 'EMBROIDERY', 'KNITTING', 'PRINTING', 'QUILTING', 'SEWING', 'TUFTING', 'WEAVING'];
   const paymentMethodOptions = [
+    { value: 'bank_transfer', label: 'Bank Transfer' },
     { value: 'cash', label: 'Cash' },
     { value: 'upi', label: 'UPI' },
-    { value: 'bank_transfer', label: 'Bank Transfer' },
   ];
 
   function getInitialFormData() {

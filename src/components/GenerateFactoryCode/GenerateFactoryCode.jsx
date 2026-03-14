@@ -11739,38 +11739,32 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         </>
       )}
 
-      {/* Generate Factory Code Popup - Custom overlay: main area only, centered, full width */}
+      {/* Generate Factory Code Popup - Full screen modal maximized */}
       {showFactoryCodePopup && (
         <div
-          className="fixed z-50 flex items-center justify-center bg-black/50 right-0"
+          className="fixed z-50 right-0 bg-white flex flex-col"
           style={{ left: overlayLeft, top: '72px', bottom: 0 }}
           onClick={() => setShowFactoryCodePopup(false)}
           role="presentation"
         >
           <div
-            className="flex flex-col rounded-2xl border-2 border-border shadow-2xl bg-white overflow-hidden"
-            style={{
-              width: 'calc(100% - 48px)',
-              maxHeight: 'calc(100% - 48px)',
-            }}
+            className="flex flex-col bg-white overflow-hidden flex-1"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-5 pt-2 px-6 border-b border-border flex-shrink-0">
-              <h2 className="text-xl font-semibold text-foreground truncate">Factory Code Generation</h2>
+            <div className="flex items-center justify-between pb-6 pt-4 border-b border-border flex-shrink-0">
+              <h2 className="text-xl font-semibold text-foreground truncate text-left pl-20">Factory Code Generation</h2>
               <button
                 type="button"
                 onClick={() => setShowFactoryCodePopup(false)}
-                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity p-1"
+                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity p-2 pr-8 flex-shrink-0"
                 aria-label="Close"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
             </div>
 
-            <div className="flex flex-col gap-6 px-6 py-6 flex-1 overflow-y-auto overflow-x-auto min-h-0 min-w-0 items-center">
-              <div className="rounded-xl border border-border overflow-x-auto min-w-0 w-full max-w-[2400px]">
-                <ConsumptionSheet ref={consumptionSheetRef} formData={formData} />
-              </div>
+            <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0 min-w-0">
+              <ConsumptionSheet ref={consumptionSheetRef} formData={formData} />
             </div>
 
             <div className="flex justify-end gap-3 px-6 py-5 border-t border-border bg-white flex-shrink-0">

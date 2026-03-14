@@ -250,35 +250,35 @@ export const DYEING_TYPES = {
 
 // Color Reference options - Individual options separated by "/"
 export const COLOR_REF_OPTIONS = [
-  'PANTONE',
   'ARS',
+  'As Required',
+  'Color Sequence Reference',
   'CSI',
+  'Handle Reference',
+  'N/A (Process)',
+  'PANTONE',
   'PMS',
   'Visual Reference',
-  'White Shade Reference',
-  'Handle Reference',
-  'Color Sequence Reference',
-  'N/A (Process)',
-  'As Required'
+  'White Shade Reference'
 ];
 
 // Reference Type options - Individual options separated by "/"
 export const REFERENCE_TYPE_OPTIONS = [
-  'PANTONE CHIP',
-  'REF#',
-  'SWATCH',
-  'PHYSICAL SAMPLE',
-  'TPG',
-  'TCX',
   'COATED',
-  'UNCOATED',
-  'REFERENCE GARMENT',
-  'WHITENESS INDEX',
-  'SHADE BAND',
+  'COLOR SEQUENCE CHART',
   'DESIGN FILE',
   'HANDLE STANDARD',
-  'COLOR SEQUENCE CHART',
   'N/A',
+  'PANTONE CHIP',
+  'PHYSICAL SAMPLE',
+  'REF#',
+  'SHADE BAND',
+  'SWATCH',
+  'TCX',
+  'TPG',
+  'UNCOATED',
+  'WHITENESS INDEX',
+  'REFERENCE GARMENT',
   'As Required'
 ];
 
