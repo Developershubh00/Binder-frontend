@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import Community from './pages/Community'; // Add this import
+import Community from './pages/Community';
 import EssentialsViewPage from './pages/EssentialsViewPage';
+import Profile from './pages/Profile';
+import Onboarding from './pages/Onboarding';
 
 // Protected Route Components
 const ProtectedRoute = ({ children }) => {
@@ -41,6 +43,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/essentials/view/:token" element={<EssentialsViewPage />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           
           {/* Community Route - Add this */}
           <Route

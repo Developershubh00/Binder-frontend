@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SidebarContext } from '../context/SidebarContext';
 import HomeContent from '../components/HomeContent';
@@ -116,6 +117,7 @@ const StorefrontIcon = ({ size = 18 }) => (
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activePage, setActivePage] = useState('home');
   const [tasksView, setTasksView] = useState('assign');
   const [codeCreationView, setCodeCreationView] = useState(null);
@@ -149,6 +151,28 @@ const Dashboard = () => {
 
   const displayName = getDisplayName();
   const showEmailLine = Boolean(user?.email && displayName !== user?.email);
+
+  // Company name for header/sidebar: tenant company_name, else derive from email domain, default BINDER-OS
+  const getCompanyDisplayName = () => {
+    const fromTenant = user?.tenant_details?.company_name;
+    if (fromTenant && String(fromTenant).trim()) return String(fromTenant).trim();
+    const email = user?.email;
+    if (email && email.includes('@')) {
+      const domain = email.split('@')[1] || '';
+      const base = domain.replace(/\.(com|in|org|net)$/i, '').trim();
+      if (base) return base.split(/[-._]/).map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()).join(' ');
+    }
+    return 'BINDER-OS';
+  };
+  const companyDisplayName = getCompanyDisplayName();
+
+  // Redirect to onboarding if tenant exists and onboarding not completed
+  useEffect(() => {
+    const tenantDetails = user?.tenant_details;
+    if (tenantDetails && tenantDetails.onboarding_completed === false) {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [user?.tenant_details?.onboarding_completed, navigate]);
 
   const isOperator = (value) => ['+', '-', '*', '/'].includes(value);
 
@@ -857,7 +881,7 @@ const Dashboard = () => {
               <Menu size={18} />
             </button>
             <div className="logo-icon-dash">B</div>
-            <span className="logo-text-dash">Binder</span>
+            <span className="logo-text-dash">{companyDisplayName}</span>
           </div>
         </div>
         
@@ -894,16 +918,7 @@ const Dashboard = () => {
       <main className="main-content">
         <header className="top-bar">
           <div className="top-bar-left">
-            <label className="dashboard-search" htmlFor="dashboard-search-input">
-              <Search size={16} className="dashboard-search-icon" aria-hidden="true" />
-              <input
-                id="dashboard-search-input"
-                type="search"
-                className="dashboard-search-input"
-                placeholder="Search"
-                aria-label="Search dashboard"
-              />
-            </label>
+            <h2 className="page-title">{companyDisplayName} Dashboard</h2>
           </div>
           <div className="top-bar-right" ref={profileMenuRef}>
             <button
@@ -933,6 +948,10 @@ const Dashboard = () => {
                 <div className="profile-menu-header">
                   {showEmailLine && <div className="profile-menu-email">{user.email}</div>}
                 </div>
+                <div className="profile-menu-divider" />
+                <Link to="/profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
+                  Profile
+                </Link>
                 <div className="profile-menu-divider" />
                 <button type="button" className="profile-menu-logout" onClick={handleLogout}>
                   Logout

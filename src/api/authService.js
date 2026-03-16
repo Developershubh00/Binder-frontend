@@ -266,6 +266,78 @@ export const getCurrentUser = async () => {
 };
 
 /**
+ * Get organization summary (member count, owner, company name)
+ */
+export const getOrgSummary = async () => {
+  const response = await apiRequest('auth/me/org-summary/');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || 'Failed to load org summary');
+  return data?.data || data;
+};
+
+/**
+ * List members of current user's tenant (master admin / admin)
+ */
+export const getMembers = async () => {
+  const response = await apiRequest('auth/members/');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to load members');
+  return Array.isArray(data) ? data : data?.results || data?.data || [];
+};
+
+/**
+ * Get current tenant's feature flags (key -> bool) for plan-based feature gating
+ */
+export const getFeatureFlags = async () => {
+  const response = await apiRequest('auth/me/feature-flags/');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to load feature flags');
+  return data?.data || data;
+};
+
+/**
+ * Get onboarding state and saved data
+ */
+export const getOnboarding = async () => {
+  const response = await apiRequest('auth/me/onboarding/');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || 'Failed to load onboarding');
+  return data?.data || data;
+};
+
+/**
+ * Save onboarding step (2, 3, or 4). Step 1 is password set elsewhere.
+ */
+export const updateOnboarding = async (step, payload) => {
+  const response = await apiRequest('auth/me/onboarding/update/', {
+    method: 'PUT',
+    body: JSON.stringify({ step, ...payload }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || 'Failed to save');
+  return data;
+};
+
+/**
+ * Send invite email via Google Apps Script (deployment). Requires can_create_members.
+ */
+export const sendInviteEmail = async (params) => {
+  const response = await apiRequest('auth/send-invite/', {
+    method: 'POST',
+    body: JSON.stringify({
+      toEmail: params.toEmail,
+      memberName: params.memberName,
+      tempPassword: params.tempPassword,
+      companyName: params.companyName,
+      loginUrl: params.loginUrl,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || 'Failed to send invite');
+  return data;
+};
+
+/**
  * Verify email
  */
 export const verifyEmail = async (token) => {

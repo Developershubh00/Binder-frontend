@@ -1,0 +1,97 @@
+.onboarding-page {
+  min-height: 100vh;
+  padding: 24px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.onboarding-loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--muted-foreground);
+}
+
+.onboarding-header {
+  margin-bottom: 24px;
+}
+
+.onboarding-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.onboarding-subtitle {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  margin-top: 4px;
+}
+
+.onboarding-error {
+  background: var(--destructive/10);
+  color: var(--destructive);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.onboarding-card {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.onboarding-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.onboarding-desc,
+.onboarding-muted {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  margin-bottom: 16px;
+}
+
+.onboarding-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.onboarding-form input,
+.onboarding-form select,
+.onboarding-form textarea {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.onboarding-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.onboarding-unit {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.onboarding-unit h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.onboarding-shed {
+  margin-left: 16px;
+  margin-top: 8px;
+}
+
+.onboarding-add-unit {
+  margin-bottom: 16px;
+}

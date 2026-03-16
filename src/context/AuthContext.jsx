@@ -46,27 +46,11 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  // Login function - handles different user roles
-  const login = async (credentials, userRole) => {
+  // Login with email/password; backend returns user with role for redirect
+  const login = async (credentials) => {
     try {
-      let response;
-      
-      // Route to appropriate login endpoint based on role
-      switch (userRole) {
-        case 'master-admin':
-          response = await api.loginMasterAdmin(credentials);
-          break;
-        case 'manager':
-          response = await api.loginManager(credentials);
-          break;
-        case 'tenant':
-          response = await api.loginTenant(credentials);
-          break;
-        default:
-          response = await api.login(credentials);
-      }
+      const response = await api.login(credentials);
 
-      // Store token and user data (handled by authService.login)
       if (response.token) {
         setUser(response.user);
         setIsAuthenticated(true);
@@ -103,11 +87,25 @@ export const AuthProvider = ({ children }) => {
     authService.setUser(userData);
   };
 
+  // Refetch current user from backend (e.g. after completing onboarding)
+  const refreshUser = async () => {
+    try {
+      const userData = await api.getCurrentUser();
+      if (userData?.user) {
+        setUser(userData.user);
+        authService.setUser(userData.user);
+      }
+    } catch (err) {
+      console.error('refreshUser failed', err);
+    }
+  };
+
   const value = {
     user,
     login,
     logout,
     updateUser,
+    refreshUser,
     isAuthenticated,
     loading,
   };

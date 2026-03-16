@@ -5974,6 +5974,20 @@ const normalizePackagingBlockStiffenerPlys = (packaging) => {
   };
 };
 
+/** Map frontend packaging (camelCase) to backend Packaging API fields (snake_case). */
+const packagingToBackendShape = (packaging) => {
+  if (!packaging || typeof packaging !== 'object' || Array.isArray(packaging)) return packaging;
+  const ps = packaging.productSelection ?? packaging.product_selection;
+  const product_selection = Array.isArray(ps) ? ps.join(',') : (ps != null ? String(ps) : '');
+  return {
+    product_selection,
+    packaging_type: packaging.type ?? packaging.packaging_type ?? 'STANDARD',
+    casepack_qty: packaging.casepackQty ?? packaging.casepack_qty ?? null,
+    assorted_sku_link: packaging.assortedSkuLink ?? packaging.assorted_sku_link ?? '',
+    materials: packaging.materials ?? [],
+  };
+};
+
 const normalizeFactoryCodePayloadStiffenerPlys = (payload) => {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
 
@@ -11595,7 +11609,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                           rawMaterials: stepData?.rawMaterials ?? [],
                           consumptionMaterials: stepData?.consumptionMaterials ?? [],
                           artworkMaterials: stepData?.artworkMaterials ?? [],
-                          packaging: normalizePackagingBlockStiffenerPlys(stepData?.packaging ?? null),
+                          packaging: packagingToBackendShape(normalizePackagingBlockStiffenerPlys(stepData?.packaging ?? null)),
                         };
 
                         const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');

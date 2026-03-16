@@ -1,0 +1,158 @@
+.profile-page {
+  padding: 24px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.profile-loading,
+.profile-error {
+  text-align: center;
+  padding: 24px;
+  color: var(--muted-foreground);
+}
+
+.profile-error {
+  color: var(--destructive);
+  background: var(--destructive/10);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.profile-header {
+  margin-bottom: 24px;
+}
+
+.profile-back {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.profile-back:hover {
+  text-decoration: underline;
+}
+
+.profile-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.profile-card {
+  margin-bottom: 24px;
+  padding: 20px;
+}
+
+.profile-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--foreground);
+}
+
+.profile-section-desc {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.profile-dl {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 16px;
+  font-size: 14px;
+}
+
+.profile-dl dt {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.profile-dl dd {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.profile-muted {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  margin: 0;
+}
+
+.profile-members-list {
+  margin-top: 12px;
+}
+
+.profile-members-ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-member-item {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.profile-member-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.profile-member-email {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.profile-member-role {
+  display: inline-block;
+  background: var(--muted);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-right: 8px;
+}
+
+.profile-member-depts {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.profile-note {
+  margin-top: 16px;
+  font-size: 12px;
+}
+
+.profile-invite-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.profile-invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+  margin-top: 12px;
+}
+
+.profile-invite-success {
+  color: var(--primary);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.profile-invite-error {
+  color: var(--destructive);
+  font-size: 13px;
+  margin-top: 8px;
+}

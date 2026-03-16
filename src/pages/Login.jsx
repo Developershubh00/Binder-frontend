@@ -10,7 +10,6 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    userRole: 'tenant',
     rememberMe: false,
   });
 
@@ -21,37 +20,17 @@ const Login = () => {
   const [popupType, setPopupType] = useState('error');
   const [showPassword, setShowPassword] = useState(false);
 
-  const mockCredentials = {
-    'master-admin': { email: 'admin@binder.com', password: 'admin123' },
-    'manager': { email: 'manager@binder.com', password: 'manager123' },
-    'tenant': { email: 'tenant@binder.com', password: 'tenant123' },
-  };
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    // Auto-fill credentials when role changes
-    if (name === 'userRole') {
-      const credentials = mockCredentials[value];
-      setFormData((prev) => ({
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+    if (errors[name]) {
+      setErrors((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-        email: credentials.email,
-        password: credentials.password,
+        [name]: '',
       }));
-      // Clear any existing errors when auto-filling
-      setErrors({});
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-      }));
-      if (errors[name]) {
-        setErrors((prev) => ({
-          ...prev,
-          [name]: '',
-        }));
-      }
     }
   };
 
@@ -100,26 +79,22 @@ const Login = () => {
         password: formData.password,
       };
 
-      const result = await login(credentials, formData.userRole);
+      const result = await login(credentials);
 
       if (result.success) {
-        // displayPopup('Welcome back! Redirecting...', 'success');
         const username = result.user?.username || result.user?.name || result.username || 'User';
         displayPopup(`Welcome back, ${username}! Redirecting...`, 'success');
-        
+
+        const role = result.user?.highest_role || result.user?.role || result.user?.role_type;
         setTimeout(() => {
-          switch (formData.userRole) {
-            case 'master-admin':
-              navigate('/admin/dashboard');
-              break;
-            case 'manager':
-              navigate('/manager/dashboard');
-              break;
-            case 'tenant':
-              navigate('/tenant/dashboard');
-              break;
-            default:
-              navigate('/dashboard');
+          if (role === 'master-admin' || role === 'master_admin') {
+            navigate('/admin/dashboard');
+          } else if (role === 'manager') {
+            navigate('/manager/dashboard');
+          } else if (role === 'tenant') {
+            navigate('/tenant/dashboard');
+          } else {
+            navigate('/dashboard');
           }
         }, 1500);
       } else {
@@ -134,16 +109,7 @@ const Login = () => {
     }
   };
 
-  // Auto-fill tenant credentials on component mount
-  useState(() => {
-    const credentials = mockCredentials['tenant'];
-    setFormData(prev => ({
-      ...prev,
-      email: credentials.email,
-      password: credentials.password,
-    }));
-  });
-
+  // No prefilled data - user enters email and password only
   return (
     <div className="login-container">
       {/* Left Side - Gradient Background */}
@@ -171,29 +137,6 @@ const Login = () => {
           <div className="form-header">
             <h1 className="form-title">Welcome Back</h1>
             <p className="form-subtitle">Enter your email and password to access your account</p>
-          </div>
-
-          {/* Role Selector */}
-          <div className="role-selector">
-            <label htmlFor="userRole" className="role-label">Login As</label>
-            <div className="select-container">
-              <select
-                id="userRole"
-                name="userRole"
-                value={formData.userRole}
-                onChange={handleChange}
-                className="role-select"
-              >
-                <option value="tenant">Tenant</option>
-                <option value="manager">Manager</option>
-                <option value="master-admin">Master Admin</option>
-              </select>
-              <div className="select-arrow">
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
