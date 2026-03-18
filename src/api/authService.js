@@ -338,6 +338,28 @@ export const sendInviteEmail = async (params) => {
 };
 
 /**
+ * Create user and send invite email (combined endpoint)
+ */
+export const createUserAndSendInvite = async (params) => {
+  const response = await apiRequest('auth/create-user-invite/', {
+    method: 'POST',
+    body: JSON.stringify({
+      email: params.email,
+      memberName: params.memberName,
+      firstName: params.firstName,
+      lastName: params.lastName,
+      designation: params.designation,
+      tempPassword: params.tempPassword,
+      companyName: params.companyName,
+      loginUrl: params.loginUrl,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || 'Failed to create user');
+  return data;
+};
+
+/**
  * Verify email
  */
 export const verifyEmail = async (token) => {
