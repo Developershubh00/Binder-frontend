@@ -2,28 +2,163 @@
    PROFILE — sidebar + main layout
 ═══════════════════════════════════════════════════════════════ */
 
-/* ── Loading Screen ───────────────────────────────────────────── */
-.profile-loading-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  height: 100vh;
-  font-size: 15px;
-  color: var(--muted-foreground);
+/* ═══════════════════════════════════════════════════════════════
+   SKELETON LOADER
+   Mirrors the sidebar + main layout — no white-blank flash
+═══════════════════════════════════════════════════════════════ */
+
+/* Shimmer keyframe */
+@keyframes sk-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
 }
 
-.profile-spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--border);
-  border-top-color: var(--primary);
+/* Base shimmer mixin applied to every skeleton element */
+.sk-circle,
+.sk-line,
+.sk-box,
+.sk-btn,
+.sk-nav-item,
+.sk-field .sk-box {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.06) 0%,
+    rgba(255,255,255,0.18) 40%,
+    rgba(255,255,255,0.06) 80%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* Override shimmer colours for the white main area */
+.profile-main .sk-line,
+.profile-main .sk-box,
+.profile-main .sk-btn,
+.profile-main .sk-field .sk-box {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    color-mix(in srgb, var(--border) 60%, var(--background)) 40%,
+    var(--muted) 80%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Sidebar skeleton pieces ─────────────────────────────────── */
+.sk-avatar-lg {
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  animation: profileSpin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 
-@keyframes profileSpin { to { transform: rotate(360deg); } }
+/* Lines inside sidebar — light on primary bg */
+.profile-sidebar-top .sk-line {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.10) 0%,
+    rgba(255,255,255,0.25) 40%,
+    rgba(255,255,255,0.10) 80%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.sk-line--name {
+  width: 120px;
+  height: 14px;
+  margin-top: 4px;
+}
+
+.sk-line--role {
+  width: 80px;
+  height: 10px;
+  margin-top: 8px;
+}
+
+.sk-nav-item {
+  height: 42px;
+  border-radius: 10px;
+  margin-bottom: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.07) 0%,
+    rgba(255,255,255,0.16) 40%,
+    rgba(255,255,255,0.07) 80%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.6s ease-in-out infinite;
+}
+
+.sk-nav-item--sm {
+  width: 75%;
+  opacity: 0.65;
+}
+
+/* ── Main content skeleton pieces ────────────────────────────── */
+.sk-heading {
+  height: 28px;
+  width: 220px;
+  border-radius: 8px;
+  margin-bottom: 28px;
+}
+
+.sk-heading--sm {
+  width: 180px;
+  height: 22px;
+}
+
+.sk-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 28px;
+  margin-bottom: 4px;
+}
+
+.sk-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sk-label {
+  height: 12px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+.sk-box {
+  height: 48px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.sk-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 36px 0 32px;
+}
+
+.sk-btn {
+  height: 46px;
+  width: 160px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+/* Animation delay stagger so items don't all pulse in sync */
+.sk-field:nth-child(2) .sk-box  { animation-delay: 0.12s; }
+.sk-field:nth-child(3) .sk-box  { animation-delay: 0.22s; }
+.sk-field:nth-child(4) .sk-box  { animation-delay: 0.08s; }
+.sk-nav-item:nth-child(2)        { animation-delay: 0.15s; }
+.sk-nav-item:nth-child(3)        { animation-delay: 0.28s; }
+
+@media (max-width: 900px) {
+  .sk-grid { grid-template-columns: 1fr; }
+}
 
 /* ── Root Shell ───────────────────────────────────────────────── */
 .profile-root {

@@ -284,6 +284,438 @@
 //     </div>
 //   );
 // }
+// import { useState, useEffect } from 'react';
+// import { Link } from 'react-router-dom';
+// import { useAuth } from '../context/AuthContext';
+// import * as authService from '../api/authService';
+// import { Button } from '@/components/ui/button';
+// import { Input } from '@/components/ui/input';
+// import './Profile.css';
+
+// export default function Profile() {
+//   const { user } = useAuth();
+//   const [orgSummary, setOrgSummary]       = useState(null);
+//   const [members, setMembers]             = useState([]);
+//   const [loading, setLoading]             = useState(true);
+//   const [error, setError]                 = useState(null);
+//   const [activeNav, setActiveNav]         = useState('account');
+//   const [activeTab, setActiveTab]         = useState('invite');
+//   const [selectedMember, setSelectedMember] = useState(null);
+//   const [inviteForm, setInviteForm]       = useState({
+//     email: '', memberName: '', tempPassword: '',
+//     firstName: '', lastName: '', designation: '',
+//   });
+//   const [inviteSending, setInviteSending] = useState(false);
+//   const [inviteMessage, setInviteMessage] = useState(null);
+
+//   const isMasterAdmin =
+//     user?.highest_role === 'master_admin' ||
+//     user?.role         === 'master_admin' ||
+//     user?.is_primary_master;
+
+//   useEffect(() => {
+//     (async () => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const summary = await authService.getOrgSummary();
+//         setOrgSummary(summary);
+//         if (isMasterAdmin) {
+//           const list = await authService.getMembers();
+//           setMembers(Array.isArray(list) ? list : []);
+//         }
+//       } catch (e) {
+//         setError(e?.message || 'Failed to load profile');
+//       } finally {
+//         setLoading(false);
+//       }
+//     })();
+//   }, [isMasterAdmin]);
+
+//   const displayName =
+//     user?.name ||
+//     [user?.first_name, user?.last_name].filter(Boolean).join(' ') ||
+//     user?.email || 'User';
+
+//   const initials = (name, email) => {
+//     if (name)  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+//     if (email) return email[0].toUpperCase();
+//     return '?';
+//   };
+
+//   const navItems = [
+//     { id: 'account',  label: 'Account'      },
+//     { id: 'org',      label: 'Organization' },
+//     ...(isMasterAdmin ? [{ id: 'employees', label: 'Employees' }] : []),
+//   ];
+
+//   if (loading) return (
+//     <div className="profile-loading-screen">
+//       <span className="profile-spinner" /> Loading…
+//     </div>
+//   );
+
+//   return (
+//     <div className="profile-root">
+
+//       {/* ══════════════════════ SIDEBAR ══════════════════════════ */}
+//       <aside className="profile-sidebar">
+//         {/* Decorative bg shape */}
+//         <div className="profile-sidebar-bg" />
+
+//         {/* Avatar */}
+//         <div className="profile-sidebar-top">
+//           <div className="profile-avatar-wrap">
+//             <div className="profile-avatar-circle">
+//               {initials(displayName, user?.email)}
+//             </div>
+//           </div>
+//           <p className="profile-sidebar-name">{displayName}</p>
+//           <p className="profile-sidebar-role">
+//             {user?.highest_role || user?.role || 'member'}
+//           </p>
+//         </div>
+
+//         {/* Nav */}
+//         <nav className="profile-nav">
+//           {navItems.map(item => (
+//             <button
+//               key={item.id}
+//               className={`profile-nav-item${activeNav === item.id ? ' profile-nav-item--active' : ''}`}
+//               onClick={() => setActiveNav(item.id)}
+//             >
+//               {item.label}
+//             </button>
+//           ))}
+//           <div className="profile-nav-divider" />
+//           <Link to="/dashboard" className="profile-nav-back">← Dashboard</Link>
+//         </nav>
+//       </aside>
+
+//       {/* ══════════════════════ MAIN CONTENT ═════════════════════ */}
+//       <main className="profile-main">
+
+//         {error && <div className="profile-error">⚠ {error}</div>}
+
+//         {/* Onboarding pending banner */}
+//         {user?.tenant_details?.onboarding_completed === false && (
+//           <div className="profile-banner">
+//             <div>
+//               <span className="profile-banner-badge">Action required</span>
+//               <p className="profile-banner-text">
+//                 Complete the 4-step onboarding to set up your company profile.
+//               </p>
+//             </div>
+//             <Link to="/onboarding" className="profile-banner-btn">Set up →</Link>
+//           </div>
+//         )}
+
+//         {/* ── ACCOUNT ──────────────────────────────────────────── */}
+//         {activeNav === 'account' && (
+//           <div className="profile-content" key="account">
+//             {/* Account section */}
+//             <section className="profile-section">
+//               <h2 className="profile-section-heading">Account</h2>
+//               <div className="profile-form-grid">
+//                 <div className="profile-field">
+//                   <label className="profile-label">Name</label>
+//                   <div className="profile-input-static">{displayName}</div>
+//                 </div>
+//                 <div className="profile-field">
+//                   <label className="profile-label">Email</label>
+//                   <div className="profile-input-static">{user?.email || '—'}</div>
+//                 </div>
+//                 <div className="profile-field">
+//                   <label className="profile-label">Role</label>
+//                   <div className="profile-input-static">{user?.highest_role || user?.role || '—'}</div>
+//                 </div>
+//                 {user?.designation && (
+//                   <div className="profile-field">
+//                     <label className="profile-label">Designation</label>
+//                     <div className="profile-input-static">{user.designation}</div>
+//                   </div>
+//                 )}
+//               </div>
+//             </section>
+
+//             <div className="profile-divider" />
+
+//             {/* Change Password section */}
+//             <section className="profile-section">
+//               <h2 className="profile-section-heading">Your Password</h2>
+//               <p className="profile-section-desc">To change your password, contact your administrator or use the forgot password flow on the login screen.</p>
+//               <div className="profile-form-grid">
+//                 <div className="profile-field">
+//                   <label className="profile-label">New Password</label>
+//                   <input type="password" className="profile-input" placeholder="••••••••••" disabled />
+//                 </div>
+//                 <div className="profile-field">
+//                   <label className="profile-label">Repeat New Password</label>
+//                   <input type="password" className="profile-input" placeholder="••••••••••" disabled />
+//                 </div>
+//               </div>
+//               <Button disabled className="profile-btn profile-btn--disabled">
+//                 Update Password
+//               </Button>
+//             </section>
+//           </div>
+//         )}
+
+//         {/* ── ORGANIZATION ─────────────────────────────────────── */}
+//         {activeNav === 'org' && (
+//           <div className="profile-content" key="org">
+//             <section className="profile-section">
+//               <h2 className="profile-section-heading">Organization</h2>
+
+//               {orgSummary ? (
+//                 <>
+//                   <div className="profile-stat-row">
+//                     <div className="profile-stat-card">
+//                       <span className="profile-stat-val">
+//                         {orgSummary.member_count ?? 0}
+//                         {orgSummary.max_users != null ? `/${orgSummary.max_users}` : ''}
+//                       </span>
+//                       <span className="profile-stat-lbl">Members / Slots</span>
+//                     </div>
+//                     <div className="profile-stat-card">
+//                       <span className="profile-stat-val profile-stat-val--sm">
+//                         {orgSummary.tenant_id || '—'}
+//                       </span>
+//                       <span className="profile-stat-lbl">Tenant ID</span>
+//                     </div>
+//                   </div>
+
+//                   <div className="profile-form-grid profile-form-grid--mt">
+//                     <div className="profile-field">
+//                       <label className="profile-label">Company name</label>
+//                       <div className="profile-input-static">{orgSummary.company_name || '—'}</div>
+//                     </div>
+//                     <div className="profile-field">
+//                       <label className="profile-label">Owner</label>
+//                       <div className="profile-input-static">{orgSummary.owner_name || '—'}</div>
+//                     </div>
+//                   </div>
+//                 </>
+//               ) : (
+//                 <div className="profile-empty">
+//                   <span className="profile-empty-icon">🏢</span>
+//                   <p>You are not assigned to an organization.</p>
+//                 </div>
+//               )}
+//             </section>
+//           </div>
+//         )}
+
+//         {/* ── EMPLOYEES ────────────────────────────────────────── */}
+//         {activeNav === 'employees' && isMasterAdmin && (
+//           <div className="profile-content" key="employees">
+//             <section className="profile-section">
+//               <h2 className="profile-section-heading">Employee Management</h2>
+
+//               {/* Sub-tabs */}
+//               <div className="profile-tabs">
+//                 {[
+//                   { id: 'invite',       label: 'Create & Invite' },
+//                   { id: 'list',         label: 'Members'         },
+//                   { id: 'roles',        label: 'Roles'           },
+//                   { id: 'restrictions', label: 'Restrictions'    },
+//                 ].map(t => (
+//                   <button
+//                     key={t.id}
+//                     className={`profile-tab${activeTab === t.id ? ' profile-tab--active' : ''}`}
+//                     onClick={() => setActiveTab(t.id)}
+//                   >
+//                     {t.label}
+//                   </button>
+//                 ))}
+//               </div>
+
+//               {/* ── Create & Invite ─────────────────────────────── */}
+//               {activeTab === 'invite' && (
+//                 <div className="profile-tab-body">
+//                   <h3 className="profile-tab-title">Create new user &amp; send invite</h3>
+//                   <p className="profile-section-desc">
+//                     Create a user account and send them login credentials via email.
+//                   </p>
+//                   <div className="profile-form-grid">
+//                     <div className="profile-field">
+//                       <label className="profile-label">Email address *</label>
+//                       <input className="profile-input" placeholder="user@company.com"
+//                         value={inviteForm.email}
+//                         onChange={e => setInviteForm(p => ({ ...p, email: e.target.value }))} />
+//                     </div>
+//                     <div className="profile-field">
+//                       <label className="profile-label">Full name *</label>
+//                       <input className="profile-input" placeholder="Jane Smith"
+//                         value={inviteForm.memberName}
+//                         onChange={e => setInviteForm(p => ({ ...p, memberName: e.target.value }))} />
+//                     </div>
+//                     <div className="profile-field">
+//                       <label className="profile-label">First name</label>
+//                       <input className="profile-input" placeholder="Jane"
+//                         value={inviteForm.firstName}
+//                         onChange={e => setInviteForm(p => ({ ...p, firstName: e.target.value }))} />
+//                     </div>
+//                     <div className="profile-field">
+//                       <label className="profile-label">Last name</label>
+//                       <input className="profile-input" placeholder="Smith"
+//                         value={inviteForm.lastName}
+//                         onChange={e => setInviteForm(p => ({ ...p, lastName: e.target.value }))} />
+//                     </div>
+//                     <div className="profile-field">
+//                       <label className="profile-label">Designation</label>
+//                       <input className="profile-input" placeholder="e.g. Production Manager"
+//                         value={inviteForm.designation}
+//                         onChange={e => setInviteForm(p => ({ ...p, designation: e.target.value }))} />
+//                     </div>
+//                     <div className="profile-field">
+//                       <label className="profile-label">Temporary password *</label>
+//                       <input type="password" className="profile-input" placeholder="Min. 8 characters"
+//                         value={inviteForm.tempPassword}
+//                         onChange={e => setInviteForm(p => ({ ...p, tempPassword: e.target.value }))} />
+//                     </div>
+//                   </div>
+
+//                   <Button
+//                     className="profile-btn"
+//                     disabled={inviteSending || !inviteForm.email || !inviteForm.memberName || !inviteForm.tempPassword}
+//                     onClick={async () => {
+//                       setInviteMessage(null);
+//                       setInviteSending(true);
+//                       try {
+//                         await authService.createUserAndSendInvite({
+//                           email: inviteForm.email, memberName: inviteForm.memberName,
+//                           firstName: inviteForm.firstName, lastName: inviteForm.lastName,
+//                           designation: inviteForm.designation, tempPassword: inviteForm.tempPassword,
+//                           companyName: orgSummary?.company_name,
+//                         });
+//                         setInviteMessage({ ok: true, text: 'User created and invite sent!' });
+//                         setInviteForm({ email:'', memberName:'', tempPassword:'', firstName:'', lastName:'', designation:'' });
+//                         const list = await authService.getMembers();
+//                         setMembers(Array.isArray(list) ? list : []);
+//                       } catch (e) {
+//                         setInviteMessage({ ok: false, text: e?.message || 'Failed to create user' });
+//                       } finally {
+//                         setInviteSending(false);
+//                       }
+//                     }}
+//                   >
+//                     {inviteSending ? 'Creating & Sending…' : 'Create User & Send Invite'}
+//                   </Button>
+
+//                   {inviteMessage && (
+//                     <div className={`profile-msg${inviteMessage.ok ? ' profile-msg--ok' : ' profile-msg--err'}`}>
+//                       {inviteMessage.ok ? '✓' : '⚠'} {inviteMessage.text}
+//                     </div>
+//                   )}
+//                 </div>
+//               )}
+
+//               {/* ── Members List ────────────────────────────────── */}
+//               {activeTab === 'list' && (
+//                 <div className="profile-tab-body">
+//                   <h3 className="profile-tab-title">
+//                     Team members
+//                     <span className="profile-count">{members.length}</span>
+//                   </h3>
+//                   {members.length === 0 ? (
+//                     <div className="profile-empty">
+//                       <span className="profile-empty-icon">👥</span>
+//                       <p>No members yet. Use <strong>Create &amp; Invite</strong> to add someone.</p>
+//                     </div>
+//                   ) : (
+//                     <ul className="profile-member-list">
+//                       {members.map(m => (
+//                         <li key={m.id} className="profile-member">
+//                           <div className="profile-member-av">{initials(m.full_name || m.name, m.email)}</div>
+//                           <div className="profile-member-info">
+//                             <strong>{m.full_name || m.name || m.email}</strong>
+//                             <span className="profile-member-email">{m.email}</span>
+//                             <div className="profile-member-tags">
+//                               <span className="profile-chip">{m.highest_role || m.role}</span>
+//                               {m.roles?.length > 0 && (
+//                                 <span className="profile-chip profile-chip--muted">
+//                                   {m.roles.map(r => r.department ? `${r.role} (${r.department})` : r.role).join(', ')}
+//                                 </span>
+//                               )}
+//                             </div>
+//                           </div>
+//                           <button className="profile-manage-btn"
+//                             onClick={() => { setSelectedMember(m); setActiveTab('roles'); }}>
+//                             Manage
+//                           </button>
+//                         </li>
+//                       ))}
+//                     </ul>
+//                   )}
+//                 </div>
+//               )}
+
+//               {/* ── Roles ───────────────────────────────────────── */}
+//               {activeTab === 'roles' && (
+//                 <div className="profile-tab-body">
+//                   <h3 className="profile-tab-title">Roles &amp; permissions</h3>
+//                   {selectedMember ? (
+//                     <>
+//                       <div className="profile-member profile-member--panel">
+//                         <div className="profile-member-av">
+//                           {initials(selectedMember.full_name || selectedMember.name, selectedMember.email)}
+//                         </div>
+//                         <div className="profile-member-info">
+//                           <strong>{selectedMember.full_name || selectedMember.name || selectedMember.email}</strong>
+//                           <span className="profile-member-email">{selectedMember.email}</span>
+//                         </div>
+//                       </div>
+//                       <div className="profile-info-box">
+//                         <p>📝 Role management is handled via <strong>Django Admin</strong>.<br />
+//                         Go to <code>Django Admin → Users → {selectedMember.email}</code> to assign or modify roles.</p>
+//                       </div>
+//                       <button className="profile-ghost-btn"
+//                         onClick={() => { setSelectedMember(null); setActiveTab('list'); }}>
+//                         ← Back to members
+//                       </button>
+//                     </>
+//                   ) : (
+//                     <div className="profile-empty">
+//                       <span className="profile-empty-icon">🔑</span>
+//                       <p>Select a member from <strong>Members</strong> tab and click <strong>Manage</strong>.</p>
+//                     </div>
+//                   )}
+//                 </div>
+//               )}
+
+//               {/* ── Restrictions ────────────────────────────────── */}
+//               {activeTab === 'restrictions' && (
+//                 <div className="profile-tab-body">
+//                   <h3 className="profile-tab-title">Department restrictions</h3>
+//                   <p className="profile-section-desc">Control which departments each user can access.</p>
+//                   <div className="profile-info-box">
+//                     <p>🔒 Managed via <strong>Django Admin → User Roles</strong>.</p>
+//                   </div>
+//                   <p className="profile-label" style={{marginTop:20,marginBottom:10}}>Example restrictions</p>
+//                   <ul className="profile-restriction-list">
+//                     {[
+//                       ['Raw Fabrics Manager', 'Raw Fabrics dept only'],
+//                       ['Production Manager',  'Production dept only' ],
+//                       ['Master Admin',        'All departments'      ],
+//                     ].map(([role, access]) => (
+//                       <li key={role} className="profile-restriction-item">
+//                         <span className="profile-restriction-role">{role}</span>
+//                         <span className="profile-restriction-arrow">→</span>
+//                         <span className="profile-restriction-access">{access}</span>
+//                       </li>
+//                     ))}
+//                   </ul>
+//                 </div>
+//               )}
+//             </section>
+//           </div>
+//         )}
+//       </main>
+//     </div>
+//   );
+// }
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -350,8 +782,47 @@ export default function Profile() {
   ];
 
   if (loading) return (
-    <div className="profile-loading-screen">
-      <span className="profile-spinner" /> Loading…
+    <div className="profile-root">
+      {/* ── Skeleton Sidebar ─────────────────────────── */}
+      <aside className="profile-sidebar">
+        <div className="profile-sidebar-bg" />
+        <div className="profile-sidebar-top">
+          <div className="profile-avatar-wrap">
+            <div className="sk-circle sk-avatar-lg" />
+          </div>
+          <div className="sk-line sk-line--name" />
+          <div className="sk-line sk-line--role" />
+        </div>
+        <nav className="profile-nav">
+          <div className="sk-nav-item" />
+          <div className="sk-nav-item sk-nav-item--sm" />
+          <div className="sk-nav-item sk-nav-item--sm" />
+        </nav>
+      </aside>
+
+      {/* ── Skeleton Main ────────────────────────────── */}
+      <main className="profile-main">
+        {/* Section heading */}
+        <div className="sk-line sk-heading" />
+
+        {/* 2-col form grid */}
+        <div className="sk-grid">
+          <div className="sk-field"><div className="sk-line sk-label" /><div className="sk-box" /></div>
+          <div className="sk-field"><div className="sk-line sk-label" /><div className="sk-box" /></div>
+          <div className="sk-field"><div className="sk-line sk-label" /><div className="sk-box" /></div>
+          <div className="sk-field"><div className="sk-line sk-label" /><div className="sk-box" /></div>
+        </div>
+
+        <div className="sk-divider" />
+
+        {/* Second section */}
+        <div className="sk-line sk-heading sk-heading--sm" />
+        <div className="sk-grid">
+          <div className="sk-field"><div className="sk-line sk-label" /><div className="sk-box" /></div>
+          <div className="sk-field"><div className="sk-line sk-label" /><div className="sk-box" /></div>
+        </div>
+        <div className="sk-btn" />
+      </main>
     </div>
   );
 
