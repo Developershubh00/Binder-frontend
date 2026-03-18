@@ -313,7 +313,12 @@ export const updateOnboarding = async (step, payload) => {
     method: 'PUT',
     body: JSON.stringify({ step, ...payload }),
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(`Server error (${response.status}). Please try again.`);
+  }
   if (!response.ok) throw new Error(data?.message || 'Failed to save');
   return data;
 };
