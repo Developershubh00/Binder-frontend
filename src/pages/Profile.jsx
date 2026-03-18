@@ -1,34 +1,320 @@
+// import { useState, useEffect } from 'react';
+// import { Link } from 'react-router-dom';
+// import { useAuth } from '../context/AuthContext';
+// import * as authService from '../api/authService';
+// import { Button } from '@/components/ui/button';
+// import { Input } from '@/components/ui/input';
+// import { FormCard } from '@/components/ui/form-layout';
+// import './Profile.css';
+
+// export default function Profile() {
+//   const { user } = useAuth();
+//   const [orgSummary, setOrgSummary] = useState(null);
+//   const [members, setMembers] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [inviteForm, setInviteForm] = useState({ email: '', memberName: '', tempPassword: '', firstName: '', lastName: '', designation: '' });
+//   const [inviteSending, setInviteSending] = useState(false);
+//   const [inviteMessage, setInviteMessage] = useState(null);
+//   const [activeTab, setActiveTab] = useState('invite');
+//   const [selectedMember, setSelectedMember] = useState(null);
+//   const [memberRoles, setMemberRoles] = useState([]);
+
+//   const isMasterAdmin = user?.highest_role === 'master_admin' || user?.role === 'master_admin' || user?.is_primary_master;
+
+//   useEffect(() => {
+//     const load = async () => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const summary = await authService.getOrgSummary();
+//         setOrgSummary(summary);
+//         if (isMasterAdmin) {
+//           const list = await authService.getMembers();
+//           setMembers(Array.isArray(list) ? list : []);
+//         }
+//       } catch (e) {
+//         setError(e?.message || 'Failed to load profile');
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     load();
+//   }, [isMasterAdmin]);
+
+//   const displayName = user?.name || [user?.first_name, user?.last_name].filter(Boolean).join(' ') || user?.email || 'User';
+
+//   if (loading) {
+//     return (
+//       <div className="profile-page">
+//         <div className="profile-loading">Loading...</div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="profile-page">
+//       <div className="profile-header">
+//         <Link to="/dashboard" className="profile-back">← Back to Dashboard</Link>
+//         <h1 className="profile-title">Profile</h1>
+//       </div>
+
+//       {error && <div className="profile-error">{error}</div>}
+
+//       {user?.tenant_details && user.tenant_details.onboarding_completed === false && (
+//         <FormCard className="profile-card" style={{ borderColor: 'var(--primary)', background: 'var(--primary)/5' }}>
+//           <h2 className="profile-section-title">Company setup pending</h2>
+//           <p className="profile-muted">Complete the 4-step onboarding to set up your company profile, units, and document config.</p>
+//           <Link to="/onboarding" className="profile-back" style={{ display: 'inline-block', marginTop: 8 }}>Go to onboarding →</Link>
+//         </FormCard>
+//       )}
+
+//       <FormCard className="profile-card">
+//         <h2 className="profile-section-title">Your details</h2>
+//         <dl className="profile-dl">
+//           <dt>Name</dt>
+//           <dd>{displayName}</dd>
+//           <dt>Email</dt>
+//           <dd>{user?.email || '—'}</dd>
+//           <dt>Role</dt>
+//           <dd>{user?.highest_role || user?.role || '—'}</dd>
+//           {user?.designation && (
+//             <>
+//               <dt>Designation</dt>
+//               <dd>{user.designation}</dd>
+//             </>
+//           )}
+//         </dl>
+//       </FormCard>
+
+//       <FormCard className="profile-card">
+//         <h2 className="profile-section-title">Organization</h2>
+//         {orgSummary ? (
+//           <dl className="profile-dl">
+//             <dt>Company</dt>
+//             <dd>{orgSummary.company_name || '—'}</dd>
+//             <dt>Tenant ID</dt>
+//             <dd>{orgSummary.tenant_id || '—'}</dd>
+//             <dt>Owner</dt>
+//             <dd>{orgSummary.owner_name || '—'}</dd>
+//             <dt>Members in this software</dt>
+//             <dd>{orgSummary.member_count ?? 0}{orgSummary.max_users != null ? ` / ${orgSummary.max_users} slots` : ''}</dd>
+//           </dl>
+//         ) : (
+//           <p className="profile-muted">You are not assigned to an organization.</p>
+//         )}
+//       </FormCard>
+
+//       {isMasterAdmin && (
+//         <FormCard className="profile-card profile-members">
+//           <h2 className="profile-section-title">Employee management</h2>
+          
+//           {/* Tab Navigation */}
+//           <div className="profile-tabs" style={{ display: 'flex', borderBottom: '1px solid #e5e5e5', marginBottom: '20px' }}>
+//             <button 
+//               onClick={() => setActiveTab('invite')}
+//               style={{
+//                 padding: '10px 15px',
+//                 border: 'none',
+//                 background: activeTab === 'invite' ? '#007bff' : 'transparent',
+//                 color: activeTab === 'invite' ? 'white' : '#666',
+//                 cursor: 'pointer',
+//                 borderBottom: activeTab === 'invite' ? '3px solid #0056b3' : 'none',
+//               }}
+//             >
+//               Create & Invite
+//             </button>
+//             <button 
+//               onClick={() => setActiveTab('list')}
+//               style={{
+//                 padding: '10px 15px',
+//                 border: 'none',
+//                 background: activeTab === 'list' ? '#007bff' : 'transparent',
+//                 color: activeTab === 'list' ? 'white' : '#666',
+//                 cursor: 'pointer',
+//                 borderBottom: activeTab === 'list' ? '3px solid #0056b3' : 'none',
+//               }}
+//             >
+//               Manage Members
+//             </button>
+//             <button 
+//               onClick={() => setActiveTab('roles')}
+//               style={{
+//                 padding: '10px 15px',
+//                 border: 'none',
+//                 background: activeTab === 'roles' ? '#007bff' : 'transparent',
+//                 color: activeTab === 'roles' ? 'white' : '#666',
+//                 cursor: 'pointer',
+//                 borderBottom: activeTab === 'roles' ? '3px solid #0056b3' : 'none',
+//               }}
+//             >
+//               Roles & Permissions
+//             </button>
+//             <button 
+//               onClick={() => setActiveTab('restrictions')}
+//               style={{
+//                 padding: '10px 15px',
+//                 border: 'none',
+//                 background: activeTab === 'restrictions' ? '#007bff' : 'transparent',
+//                 color: activeTab === 'restrictions' ? 'white' : '#666',
+//                 cursor: 'pointer',
+//                 borderBottom: activeTab === 'restrictions' ? '3px solid #0056b3' : 'none',
+//               }}
+//             >
+//               Restrictions
+//             </button>
+//           </div>
+
+//           {/* TAB 1: Create & Invite */}
+//           {activeTab === 'invite' && (
+//             <div className="profile-invite-section">
+//               <h3 className="profile-section-title">Create new user & send invite</h3>
+//               <p className="profile-section-desc">Create a new user account and automatically send them an invite email with login credentials.</p>
+//               <div className="profile-invite-form">
+//                 <Input placeholder="Email address" value={inviteForm.email} onChange={(e) => setInviteForm((p) => ({ ...p, email: e.target.value }))} />
+//                 <Input placeholder="Full name" value={inviteForm.memberName} onChange={(e) => setInviteForm((p) => ({ ...p, memberName: e.target.value }))} />
+//                 <Input placeholder="First name (optional)" value={inviteForm.firstName} onChange={(e) => setInviteForm((p) => ({ ...p, firstName: e.target.value }))} />
+//                 <Input placeholder="Last name (optional)" value={inviteForm.lastName} onChange={(e) => setInviteForm((p) => ({ ...p, lastName: e.target.value }))} />
+//                 <Input placeholder="Designation (optional)" value={inviteForm.designation} onChange={(e) => setInviteForm((p) => ({ ...p, designation: e.target.value }))} />
+//                 <Input type="password" placeholder="Temporary password" value={inviteForm.tempPassword} onChange={(e) => setInviteForm((p) => ({ ...p, tempPassword: e.target.value }))} />
+//                 <Button
+//                   disabled={inviteSending || !inviteForm.email || !inviteForm.memberName || !inviteForm.tempPassword}
+//                   onClick={async () => {
+//                     setInviteMessage(null);
+//                     setInviteSending(true);
+//                     try {
+//                       const response = await authService.createUserAndSendInvite({
+//                         email: inviteForm.email,
+//                         memberName: inviteForm.memberName,
+//                         firstName: inviteForm.firstName,
+//                         lastName: inviteForm.lastName,
+//                         designation: inviteForm.designation,
+//                         tempPassword: inviteForm.tempPassword,
+//                         companyName: orgSummary?.company_name,
+//                       });
+//                       setInviteMessage('✓ User created and invite email sent!');
+//                       setInviteForm({ email: '', memberName: '', tempPassword: '', firstName: '', lastName: '', designation: '' });
+//                       // Refresh members list
+//                       const list = await authService.getMembers();
+//                       setMembers(Array.isArray(list) ? list : []);
+//                     } catch (e) {
+//                       setInviteMessage(e?.message || 'Failed to create user');
+//                     } finally {
+//                       setInviteSending(false);
+//                     }
+//                   }}
+//                 >
+//                   {inviteSending ? 'Creating & Sending...' : 'Create User & Send Invite'}
+//                 </Button>
+//               </div>
+//               {inviteMessage && <p style={{ marginTop: '10px', color: inviteMessage.startsWith('✓') ? 'green' : 'red' }}>{inviteMessage}</p>}
+//             </div>
+//           )}
+
+//           {/* TAB 2: Manage Members */}
+//           {activeTab === 'list' && (
+//             <div>
+//               <p className="profile-section-desc">View and manage all team members</p>
+//               <div className="profile-members-list">
+//                 {members.length === 0 ? (
+//                   <p className="profile-muted">No members yet. Create one using the "Create & Invite" tab.</p>
+//                 ) : (
+//                   <ul className="profile-members-ul">
+//                     {members.map((m) => (
+//                       <li key={m.id} className="profile-member-item">
+//                         <div>
+//                           <strong>{m.full_name || m.name || m.email}</strong>
+//                           <span className="profile-member-email">{m.email}</span>
+//                           <span className="profile-member-role">{m.highest_role || m.role}</span>
+//                           {m.roles?.length > 0 && (
+//                             <span className="profile-member-depts">
+//                               {m.roles.map((r) => r.department ? `${r.role} (${r.department})` : r.role).join(', ')}
+//                             </span>
+//                           )}
+//                         </div>
+//                         <Button onClick={() => setSelectedMember(m)} style={{ fontSize: '12px', padding: '5px 10px' }}>Manage</Button>
+//                       </li>
+//                     ))}
+//                   </ul>
+//                 )}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* TAB 3: Roles & Permissions */}
+//           {activeTab === 'roles' && (
+//             <div>
+//               <p className="profile-section-desc">Select a member to manage their roles and permissions</p>
+//               {selectedMember ? (
+//                 <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '4px' }}>
+//                   <h4>{selectedMember.name}</h4>
+//                   <p style={{ fontSize: '12px', color: '#666' }}>{selectedMember.email}</p>
+//                   <p style={{ marginTop: '10px', fontSize: '13px', color: '#888' }}>
+//                     📝 Role management currently available via Django Admin.<br/>
+//                     Go to Django Admin → Users → {selectedMember.email} to assign/modify roles and permissions.
+//                   </p>
+//                   <Button onClick={() => setSelectedMember(null)} style={{ fontSize: '12px', marginTop: '10px' }}>Back</Button>
+//                 </div>
+//               ) : (
+//                 <p className="profile-muted">Select a member from the "Manage Members" tab first</p>
+//               )}
+//             </div>
+//           )}
+
+//           {/* TAB 4: Restrictions */}
+//           {activeTab === 'restrictions' && (
+//             <div>
+//               <p className="profile-section-desc">Restrict user access to specific departments</p>
+//               <div style={{ padding: '15px', background: '#f8f9fa', borderRadius: '4px' }}>
+//                 <p style={{ fontSize: '13px', color: '#888' }}>
+//                   🔒 Department restrictions and access controls are managed via Django Admin.<br/>
+//                   Visit Django Admin → User Roles to configure which departments each user can access.<br/><br/>
+//                   <strong>Examples:</strong>
+//                   <ul style={{ marginLeft: '20px', marginTop: '8px' }}>
+//                     <li>Raw Fabrics Manager - Access only Raw Fabrics department</li>
+//                     <li>Production Manager - Access only Production department</li>
+//                     <li>Master Admin - Access all departments</li>
+//                   </ul>
+//                 </p>
+//               </div>
+//             </div>
+//           )}
+//         </FormCard>
+//       )}
+//     </div>
+//   );
+// }
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import * as authService from '../api/authService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FormCard } from '@/components/ui/form-layout';
 import './Profile.css';
 
 export default function Profile() {
   const { user } = useAuth();
-  const [orgSummary, setOrgSummary] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [inviteForm, setInviteForm] = useState({
+  const [orgSummary, setOrgSummary]       = useState(null);
+  const [members, setMembers]             = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState(null);
+  const [activeNav, setActiveNav]         = useState('account');
+  const [activeTab, setActiveTab]         = useState('invite');
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [inviteForm, setInviteForm]       = useState({
     email: '', memberName: '', tempPassword: '',
     firstName: '', lastName: '', designation: '',
   });
   const [inviteSending, setInviteSending] = useState(false);
   const [inviteMessage, setInviteMessage] = useState(null);
-  const [activeTab, setActiveTab] = useState('invite');
-  const [selectedMember, setSelectedMember] = useState(null);
 
   const isMasterAdmin =
     user?.highest_role === 'master_admin' ||
-    user?.role === 'master_admin' ||
+    user?.role         === 'master_admin' ||
     user?.is_primary_master;
 
   useEffect(() => {
-    const load = async () => {
+    (async () => {
       setLoading(true);
       setError(null);
       try {
@@ -43,374 +329,389 @@ export default function Profile() {
       } finally {
         setLoading(false);
       }
-    };
-    load();
+    })();
   }, [isMasterAdmin]);
 
   const displayName =
     user?.name ||
     [user?.first_name, user?.last_name].filter(Boolean).join(' ') ||
-    user?.email ||
-    'User';
+    user?.email || 'User';
 
-  const getInitials = (name, email) => {
-    if (name) return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const initials = (name, email) => {
+    if (name)  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     if (email) return email[0].toUpperCase();
     return '?';
   };
 
-  if (loading) {
-    return (
-      <div className="profile-page">
-        <div className="profile-loading">
-          <span className="profile-loading-spinner" />
-          Loading...
-        </div>
-      </div>
-    );
-  }
+  const navItems = [
+    { id: 'account',  label: 'Account'      },
+    { id: 'org',      label: 'Organization' },
+    ...(isMasterAdmin ? [{ id: 'employees', label: 'Employees' }] : []),
+  ];
+
+  if (loading) return (
+    <div className="profile-loading-screen">
+      <span className="profile-spinner" /> Loading…
+    </div>
+  );
 
   return (
-    <div className="profile-page">
+    <div className="profile-root">
 
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="profile-header">
-        <Link to="/dashboard" className="profile-back">← Back to Dashboard</Link>
-        <h1 className="profile-title">Profile</h1>
-      </div>
+      {/* ══════════════════════ SIDEBAR ══════════════════════════ */}
+      <aside className="profile-sidebar">
+        {/* Decorative bg shape */}
+        <div className="profile-sidebar-bg" />
 
-      {error && <div className="profile-error">⚠ {error}</div>}
-
-      {/* ── Onboarding Pending Banner ───────────────────────────── */}
-      {user?.tenant_details && user.tenant_details.onboarding_completed === false && (
-        <div className="profile-card profile-pending-card">
-          <div className="profile-pending-badge">Action required</div>
-          <h2 className="profile-section-title">Company setup pending</h2>
-          <p className="profile-muted">
-            Complete the 4-step onboarding to set up your company profile, units, and document config.
-          </p>
-          <Link to="/onboarding" className="profile-pending-link">
-            Go to onboarding →
-          </Link>
-        </div>
-      )}
-
-      {/* ── Your Details ───────────────────────────────────────── */}
-      <FormCard className="profile-card">
-        <div className="profile-user-hero">
-          <div className="profile-avatar-lg">
-            {getInitials(displayName, user?.email)}
-          </div>
-          <div className="profile-user-meta">
-            <p className="profile-user-name">{displayName}</p>
-            <p className="profile-user-email">{user?.email}</p>
-            <span className="profile-role-badge">
-              {user?.highest_role || user?.role || 'member'}
-            </span>
-          </div>
-        </div>
-
-        <div className="profile-divider" />
-
-        <h2 className="profile-section-title">Your details</h2>
-        <dl className="profile-dl">
-          <dt>Full name</dt>
-          <dd>{displayName}</dd>
-          <dt>Email</dt>
-          <dd>{user?.email || '—'}</dd>
-          <dt>Role</dt>
-          <dd>{user?.highest_role || user?.role || '—'}</dd>
-          {user?.designation && (
-            <>
-              <dt>Designation</dt>
-              <dd>{user.designation}</dd>
-            </>
-          )}
-        </dl>
-      </FormCard>
-
-      {/* ── Organization ───────────────────────────────────────── */}
-      <FormCard className="profile-card">
-        <h2 className="profile-section-title">Organization</h2>
-        {orgSummary ? (
-          <>
-            <div className="profile-org-grid">
-              <div className="profile-org-stat">
-                <span className="profile-org-stat-value">
-                  {orgSummary.member_count ?? 0}
-                  {orgSummary.max_users != null ? `/${orgSummary.max_users}` : ''}
-                </span>
-                <span className="profile-org-stat-label">Members</span>
-              </div>
-              <div className="profile-org-stat">
-                <span className="profile-org-stat-value">{orgSummary.tenant_id || '—'}</span>
-                <span className="profile-org-stat-label">Tenant ID</span>
-              </div>
+        {/* Avatar */}
+        <div className="profile-sidebar-top">
+          <div className="profile-avatar-wrap">
+            <div className="profile-avatar-circle">
+              {initials(displayName, user?.email)}
             </div>
-            <dl className="profile-dl" style={{ marginTop: 16 }}>
-              <dt>Company</dt>
-              <dd>{orgSummary.company_name || '—'}</dd>
-              <dt>Owner</dt>
-              <dd>{orgSummary.owner_name || '—'}</dd>
-            </dl>
-          </>
-        ) : (
-          <p className="profile-muted">You are not assigned to an organization.</p>
-        )}
-      </FormCard>
-
-      {/* ── Employee Management ─────────────────────────────────── */}
-      {isMasterAdmin && (
-        <FormCard className="profile-card profile-members">
-          <h2 className="profile-section-title">Employee management</h2>
-
-          {/* Tab Bar */}
-          <div className="profile-tab-bar">
-            {[
-              { id: 'invite',       label: 'Create & Invite', icon: '＋' },
-              { id: 'list',         label: 'Members',         icon: '👥' },
-              { id: 'roles',        label: 'Roles',           icon: '🔑' },
-              { id: 'restrictions', label: 'Restrictions',    icon: '🔒' },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                className={`profile-tab-btn${activeTab === tab.id ? ' active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                <span className="profile-tab-icon">{tab.icon}</span>
-                <span className="profile-tab-label">{tab.label}</span>
-              </button>
-            ))}
           </div>
+          <p className="profile-sidebar-name">{displayName}</p>
+          <p className="profile-sidebar-role">
+            {user?.highest_role || user?.role || 'member'}
+          </p>
+        </div>
 
-          {/* ── TAB 1: Create & Invite ──────────────────────────── */}
-          {activeTab === 'invite' && (
-            <div className="profile-tab-content">
-              <h3 className="profile-tab-title">Create new user &amp; send invite</h3>
-              <p className="profile-section-desc">
-                Create a new user account and automatically send them an invite email with login credentials.
+        {/* Nav */}
+        <nav className="profile-nav">
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              className={`profile-nav-item${activeNav === item.id ? ' profile-nav-item--active' : ''}`}
+              onClick={() => setActiveNav(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+          <div className="profile-nav-divider" />
+          <Link to="/dashboard" className="profile-nav-back">← Dashboard</Link>
+        </nav>
+      </aside>
+
+      {/* ══════════════════════ MAIN CONTENT ═════════════════════ */}
+      <main className="profile-main">
+
+        {error && <div className="profile-error">⚠ {error}</div>}
+
+        {/* Onboarding pending banner */}
+        {user?.tenant_details?.onboarding_completed === false && (
+          <div className="profile-banner">
+            <div>
+              <span className="profile-banner-badge">Action required</span>
+              <p className="profile-banner-text">
+                Complete the 4-step onboarding to set up your company profile.
               </p>
-              <div className="profile-invite-form">
-                <div className="profile-form-row">
-                  <div className="profile-form-group">
-                    <label className="profile-form-label">Email address *</label>
-                    <Input
-                      placeholder="user@company.com"
-                      value={inviteForm.email}
-                      onChange={(e) => setInviteForm(p => ({ ...p, email: e.target.value }))}
-                    />
-                  </div>
-                  <div className="profile-form-group">
-                    <label className="profile-form-label">Full name *</label>
-                    <Input
-                      placeholder="Jane Smith"
-                      value={inviteForm.memberName}
-                      onChange={(e) => setInviteForm(p => ({ ...p, memberName: e.target.value }))}
-                    />
-                  </div>
+            </div>
+            <Link to="/onboarding" className="profile-banner-btn">Set up →</Link>
+          </div>
+        )}
+
+        {/* ── ACCOUNT ──────────────────────────────────────────── */}
+        {activeNav === 'account' && (
+          <div className="profile-content" key="account">
+            {/* Account section */}
+            <section className="profile-section">
+              <h2 className="profile-section-heading">Account</h2>
+              <div className="profile-form-grid">
+                <div className="profile-field">
+                  <label className="profile-label">Name</label>
+                  <div className="profile-input-static">{displayName}</div>
                 </div>
-                <div className="profile-form-row">
-                  <div className="profile-form-group">
-                    <label className="profile-form-label">First name</label>
-                    <Input
-                      placeholder="Jane"
-                      value={inviteForm.firstName}
-                      onChange={(e) => setInviteForm(p => ({ ...p, firstName: e.target.value }))}
-                    />
-                  </div>
-                  <div className="profile-form-group">
-                    <label className="profile-form-label">Last name</label>
-                    <Input
-                      placeholder="Smith"
-                      value={inviteForm.lastName}
-                      onChange={(e) => setInviteForm(p => ({ ...p, lastName: e.target.value }))}
-                    />
-                  </div>
+                <div className="profile-field">
+                  <label className="profile-label">Email</label>
+                  <div className="profile-input-static">{user?.email || '—'}</div>
                 </div>
-                <div className="profile-form-row">
-                  <div className="profile-form-group">
-                    <label className="profile-form-label">Designation</label>
-                    <Input
-                      placeholder="e.g. Production Manager"
-                      value={inviteForm.designation}
-                      onChange={(e) => setInviteForm(p => ({ ...p, designation: e.target.value }))}
-                    />
-                  </div>
-                  <div className="profile-form-group">
-                    <label className="profile-form-label">Temporary password *</label>
-                    <Input
-                      type="password"
-                      placeholder="Min. 8 characters"
-                      value={inviteForm.tempPassword}
-                      onChange={(e) => setInviteForm(p => ({ ...p, tempPassword: e.target.value }))}
-                    />
-                  </div>
+                <div className="profile-field">
+                  <label className="profile-label">Role</label>
+                  <div className="profile-input-static">{user?.highest_role || user?.role || '—'}</div>
                 </div>
-                <div className="profile-invite-action">
+                {user?.designation && (
+                  <div className="profile-field">
+                    <label className="profile-label">Designation</label>
+                    <div className="profile-input-static">{user.designation}</div>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <div className="profile-divider" />
+
+            {/* Change Password section */}
+            <section className="profile-section">
+              <h2 className="profile-section-heading">Your Password</h2>
+              <p className="profile-section-desc">To change your password, contact your administrator or use the forgot password flow on the login screen.</p>
+              <div className="profile-form-grid">
+                <div className="profile-field">
+                  <label className="profile-label">New Password</label>
+                  <input type="password" className="profile-input" placeholder="••••••••••" disabled />
+                </div>
+                <div className="profile-field">
+                  <label className="profile-label">Repeat New Password</label>
+                  <input type="password" className="profile-input" placeholder="••••••••••" disabled />
+                </div>
+              </div>
+              <Button disabled className="profile-btn profile-btn--disabled">
+                Update Password
+              </Button>
+            </section>
+          </div>
+        )}
+
+        {/* ── ORGANIZATION ─────────────────────────────────────── */}
+        {activeNav === 'org' && (
+          <div className="profile-content" key="org">
+            <section className="profile-section">
+              <h2 className="profile-section-heading">Organization</h2>
+
+              {orgSummary ? (
+                <>
+                  <div className="profile-stat-row">
+                    <div className="profile-stat-card">
+                      <span className="profile-stat-val">
+                        {orgSummary.member_count ?? 0}
+                        {orgSummary.max_users != null ? `/${orgSummary.max_users}` : ''}
+                      </span>
+                      <span className="profile-stat-lbl">Members / Slots</span>
+                    </div>
+                    <div className="profile-stat-card">
+                      <span className="profile-stat-val profile-stat-val--sm">
+                        {orgSummary.tenant_id || '—'}
+                      </span>
+                      <span className="profile-stat-lbl">Tenant ID</span>
+                    </div>
+                  </div>
+
+                  <div className="profile-form-grid profile-form-grid--mt">
+                    <div className="profile-field">
+                      <label className="profile-label">Company name</label>
+                      <div className="profile-input-static">{orgSummary.company_name || '—'}</div>
+                    </div>
+                    <div className="profile-field">
+                      <label className="profile-label">Owner</label>
+                      <div className="profile-input-static">{orgSummary.owner_name || '—'}</div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="profile-empty">
+                  <span className="profile-empty-icon">🏢</span>
+                  <p>You are not assigned to an organization.</p>
+                </div>
+              )}
+            </section>
+          </div>
+        )}
+
+        {/* ── EMPLOYEES ────────────────────────────────────────── */}
+        {activeNav === 'employees' && isMasterAdmin && (
+          <div className="profile-content" key="employees">
+            <section className="profile-section">
+              <h2 className="profile-section-heading">Employee Management</h2>
+
+              {/* Sub-tabs */}
+              <div className="profile-tabs">
+                {[
+                  { id: 'invite',       label: 'Create & Invite' },
+                  { id: 'list',         label: 'Members'         },
+                  { id: 'roles',        label: 'Roles'           },
+                  { id: 'restrictions', label: 'Restrictions'    },
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    className={`profile-tab${activeTab === t.id ? ' profile-tab--active' : ''}`}
+                    onClick={() => setActiveTab(t.id)}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* ── Create & Invite ─────────────────────────────── */}
+              {activeTab === 'invite' && (
+                <div className="profile-tab-body">
+                  <h3 className="profile-tab-title">Create new user &amp; send invite</h3>
+                  <p className="profile-section-desc">
+                    Create a user account and send them login credentials via email.
+                  </p>
+                  <div className="profile-form-grid">
+                    <div className="profile-field">
+                      <label className="profile-label">Email address *</label>
+                      <input className="profile-input" placeholder="user@company.com"
+                        value={inviteForm.email}
+                        onChange={e => setInviteForm(p => ({ ...p, email: e.target.value }))} />
+                    </div>
+                    <div className="profile-field">
+                      <label className="profile-label">Full name *</label>
+                      <input className="profile-input" placeholder="Jane Smith"
+                        value={inviteForm.memberName}
+                        onChange={e => setInviteForm(p => ({ ...p, memberName: e.target.value }))} />
+                    </div>
+                    <div className="profile-field">
+                      <label className="profile-label">First name</label>
+                      <input className="profile-input" placeholder="Jane"
+                        value={inviteForm.firstName}
+                        onChange={e => setInviteForm(p => ({ ...p, firstName: e.target.value }))} />
+                    </div>
+                    <div className="profile-field">
+                      <label className="profile-label">Last name</label>
+                      <input className="profile-input" placeholder="Smith"
+                        value={inviteForm.lastName}
+                        onChange={e => setInviteForm(p => ({ ...p, lastName: e.target.value }))} />
+                    </div>
+                    <div className="profile-field">
+                      <label className="profile-label">Designation</label>
+                      <input className="profile-input" placeholder="e.g. Production Manager"
+                        value={inviteForm.designation}
+                        onChange={e => setInviteForm(p => ({ ...p, designation: e.target.value }))} />
+                    </div>
+                    <div className="profile-field">
+                      <label className="profile-label">Temporary password *</label>
+                      <input type="password" className="profile-input" placeholder="Min. 8 characters"
+                        value={inviteForm.tempPassword}
+                        onChange={e => setInviteForm(p => ({ ...p, tempPassword: e.target.value }))} />
+                    </div>
+                  </div>
+
                   <Button
+                    className="profile-btn"
                     disabled={inviteSending || !inviteForm.email || !inviteForm.memberName || !inviteForm.tempPassword}
                     onClick={async () => {
                       setInviteMessage(null);
                       setInviteSending(true);
                       try {
                         await authService.createUserAndSendInvite({
-                          email: inviteForm.email,
-                          memberName: inviteForm.memberName,
-                          firstName: inviteForm.firstName,
-                          lastName: inviteForm.lastName,
-                          designation: inviteForm.designation,
-                          tempPassword: inviteForm.tempPassword,
+                          email: inviteForm.email, memberName: inviteForm.memberName,
+                          firstName: inviteForm.firstName, lastName: inviteForm.lastName,
+                          designation: inviteForm.designation, tempPassword: inviteForm.tempPassword,
                           companyName: orgSummary?.company_name,
                         });
-                        setInviteMessage({ type: 'success', text: 'User created and invite email sent!' });
-                        setInviteForm({ email: '', memberName: '', tempPassword: '', firstName: '', lastName: '', designation: '' });
+                        setInviteMessage({ ok: true, text: 'User created and invite sent!' });
+                        setInviteForm({ email:'', memberName:'', tempPassword:'', firstName:'', lastName:'', designation:'' });
                         const list = await authService.getMembers();
                         setMembers(Array.isArray(list) ? list : []);
                       } catch (e) {
-                        setInviteMessage({ type: 'error', text: e?.message || 'Failed to create user' });
+                        setInviteMessage({ ok: false, text: e?.message || 'Failed to create user' });
                       } finally {
                         setInviteSending(false);
                       }
                     }}
                   >
-                    {inviteSending ? 'Creating & Sending...' : 'Create User & Send Invite'}
+                    {inviteSending ? 'Creating & Sending…' : 'Create User & Send Invite'}
                   </Button>
-                </div>
-                {inviteMessage && (
-                  <div className={`profile-invite-msg profile-invite-msg--${inviteMessage.type}`}>
-                    {inviteMessage.type === 'success' ? '✓' : '⚠'} {inviteMessage.text}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* ── TAB 2: Members List ─────────────────────────────── */}
-          {activeTab === 'list' && (
-            <div className="profile-tab-content">
-              <div className="profile-members-header">
-                <div>
-                  <h3 className="profile-tab-title">Team members</h3>
-                  <p className="profile-section-desc">
-                    {members.length} member{members.length !== 1 ? 's' : ''} in your organisation
-                  </p>
+                  {inviteMessage && (
+                    <div className={`profile-msg${inviteMessage.ok ? ' profile-msg--ok' : ' profile-msg--err'}`}>
+                      {inviteMessage.ok ? '✓' : '⚠'} {inviteMessage.text}
+                    </div>
+                  )}
                 </div>
-              </div>
-              {members.length === 0 ? (
-                <div className="profile-empty-state">
-                  <span className="profile-empty-icon">👥</span>
-                  <p>No members yet.</p>
-                  <p className="profile-muted">Use "Create &amp; Invite" to add someone.</p>
+              )}
+
+              {/* ── Members List ────────────────────────────────── */}
+              {activeTab === 'list' && (
+                <div className="profile-tab-body">
+                  <h3 className="profile-tab-title">
+                    Team members
+                    <span className="profile-count">{members.length}</span>
+                  </h3>
+                  {members.length === 0 ? (
+                    <div className="profile-empty">
+                      <span className="profile-empty-icon">👥</span>
+                      <p>No members yet. Use <strong>Create &amp; Invite</strong> to add someone.</p>
+                    </div>
+                  ) : (
+                    <ul className="profile-member-list">
+                      {members.map(m => (
+                        <li key={m.id} className="profile-member">
+                          <div className="profile-member-av">{initials(m.full_name || m.name, m.email)}</div>
+                          <div className="profile-member-info">
+                            <strong>{m.full_name || m.name || m.email}</strong>
+                            <span className="profile-member-email">{m.email}</span>
+                            <div className="profile-member-tags">
+                              <span className="profile-chip">{m.highest_role || m.role}</span>
+                              {m.roles?.length > 0 && (
+                                <span className="profile-chip profile-chip--muted">
+                                  {m.roles.map(r => r.department ? `${r.role} (${r.department})` : r.role).join(', ')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button className="profile-manage-btn"
+                            onClick={() => { setSelectedMember(m); setActiveTab('roles'); }}>
+                            Manage
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-              ) : (
-                <ul className="profile-members-ul">
-                  {members.map((m) => (
-                    <li key={m.id} className="profile-member-item">
-                      <div className="profile-member-avatar">
-                        {getInitials(m.full_name || m.name, m.email)}
-                      </div>
-                      <div className="profile-member-info">
-                        <strong>{m.full_name || m.name || m.email}</strong>
-                        <span className="profile-member-email">{m.email}</span>
-                        <div className="profile-member-tags">
-                          <span className="profile-member-role">{m.highest_role || m.role}</span>
-                          {m.roles?.length > 0 && (
-                            <span className="profile-member-depts">
-                              {m.roles.map(r => r.department
-                                ? `${r.role} (${r.department})`
-                                : r.role).join(', ')}
-                            </span>
-                          )}
+              )}
+
+              {/* ── Roles ───────────────────────────────────────── */}
+              {activeTab === 'roles' && (
+                <div className="profile-tab-body">
+                  <h3 className="profile-tab-title">Roles &amp; permissions</h3>
+                  {selectedMember ? (
+                    <>
+                      <div className="profile-member profile-member--panel">
+                        <div className="profile-member-av">
+                          {initials(selectedMember.full_name || selectedMember.name, selectedMember.email)}
+                        </div>
+                        <div className="profile-member-info">
+                          <strong>{selectedMember.full_name || selectedMember.name || selectedMember.email}</strong>
+                          <span className="profile-member-email">{selectedMember.email}</span>
                         </div>
                       </div>
-                      <button
-                        className="profile-member-manage-btn"
-                        onClick={() => { setSelectedMember(m); setActiveTab('roles'); }}
-                      >
-                        Manage
+                      <div className="profile-info-box">
+                        <p>📝 Role management is handled via <strong>Django Admin</strong>.<br />
+                        Go to <code>Django Admin → Users → {selectedMember.email}</code> to assign or modify roles.</p>
+                      </div>
+                      <button className="profile-ghost-btn"
+                        onClick={() => { setSelectedMember(null); setActiveTab('list'); }}>
+                        ← Back to members
                       </button>
-                    </li>
-                  ))}
-                </ul>
+                    </>
+                  ) : (
+                    <div className="profile-empty">
+                      <span className="profile-empty-icon">🔑</span>
+                      <p>Select a member from <strong>Members</strong> tab and click <strong>Manage</strong>.</p>
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {/* ── TAB 3: Roles ────────────────────────────────────── */}
-          {activeTab === 'roles' && (
-            <div className="profile-tab-content">
-              <h3 className="profile-tab-title">Roles &amp; permissions</h3>
-              {selectedMember ? (
-                <div className="profile-role-panel">
-                  <div className="profile-role-panel-header">
-                    <div className="profile-member-avatar">
-                      {getInitials(selectedMember.full_name || selectedMember.name, selectedMember.email)}
-                    </div>
-                    <div>
-                      <p className="profile-role-panel-name">
-                        {selectedMember.full_name || selectedMember.name || selectedMember.email}
-                      </p>
-                      <p className="profile-role-panel-email">{selectedMember.email}</p>
-                    </div>
-                  </div>
+              {/* ── Restrictions ────────────────────────────────── */}
+              {activeTab === 'restrictions' && (
+                <div className="profile-tab-body">
+                  <h3 className="profile-tab-title">Department restrictions</h3>
+                  <p className="profile-section-desc">Control which departments each user can access.</p>
                   <div className="profile-info-box">
-                    <p className="profile-info-box-text">
-                      📝 Role management is handled via <strong>Django Admin</strong>.<br />
-                      Navigate to <code>Django Admin → Users → {selectedMember.email}</code> to assign or modify roles.
-                    </p>
+                    <p>🔒 Managed via <strong>Django Admin → User Roles</strong>.</p>
                   </div>
-                  <button
-                    className="profile-back-btn"
-                    onClick={() => { setSelectedMember(null); setActiveTab('list'); }}
-                  >
-                    ← Back to members
-                  </button>
-                </div>
-              ) : (
-                <div className="profile-empty-state">
-                  <span className="profile-empty-icon">🔑</span>
-                  <p>No member selected.</p>
-                  <p className="profile-muted">
-                    Go to "Members" and click <strong>Manage</strong> on any member.
-                  </p>
+                  <p className="profile-label" style={{marginTop:20,marginBottom:10}}>Example restrictions</p>
+                  <ul className="profile-restriction-list">
+                    {[
+                      ['Raw Fabrics Manager', 'Raw Fabrics dept only'],
+                      ['Production Manager',  'Production dept only' ],
+                      ['Master Admin',        'All departments'      ],
+                    ].map(([role, access]) => (
+                      <li key={role} className="profile-restriction-item">
+                        <span className="profile-restriction-role">{role}</span>
+                        <span className="profile-restriction-arrow">→</span>
+                        <span className="profile-restriction-access">{access}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
-            </div>
-          )}
-
-          {/* ── TAB 4: Restrictions ─────────────────────────────── */}
-          {activeTab === 'restrictions' && (
-            <div className="profile-tab-content">
-              <h3 className="profile-tab-title">Department restrictions</h3>
-              <p className="profile-section-desc">
-                Control which departments each user can access. Managers are restricted to their assigned department only.
-              </p>
-              <div className="profile-info-box">
-                <p className="profile-info-box-text">
-                  🔒 Access controls are managed via <strong>Django Admin</strong>.<br />
-                  Visit <code>Django Admin → User Roles</code> to configure department access per user.
-                </p>
-              </div>
-              <div className="profile-restriction-examples">
-                <p className="profile-restriction-examples-title">Example restrictions</p>
-                <ul className="profile-restriction-list">
-                  {[
-                    { role: 'Raw Fabrics Manager', access: 'Raw Fabrics dept only' },
-                    { role: 'Production Manager',  access: 'Production dept only' },
-                    { role: 'Master Admin',         access: 'All departments' },
-                  ].map(item => (
-                    <li key={item.role} className="profile-restriction-item">
-                      <span className="profile-restriction-role">{item.role}</span>
-                      <span className="profile-restriction-arrow">→</span>
-                      <span className="profile-restriction-access">{item.access}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-        </FormCard>
-      )}
+            </section>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
