@@ -10,6 +10,8 @@ import GenerateVendorCode from '../components/GenerateVendorCode';
 import CompanyEssentials from '../components/CompanyEssentials';
 import InternalPurchaseOrder from '../components/InternalPurchaseOrder/InternalPurchaseOrder';
 import GeneratePOCode from '../components/GeneratePOCode';
+import BuyerMasterSheet from '../components/BuyerMasterSheet';
+import VendorMasterSheet from '../components/VendorMasterSheet';
 import UQRFormsPreview from '../components/UQR_forms/UQRFormsPreview.jsx';
 import {
   Menu,
@@ -260,8 +262,14 @@ const Dashboard = () => {
         if (codeCreationView === 'buyer') {
           return <GenerateBuyerCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
         }
+        if (codeCreationView === 'buyer-existing') {
+          return <BuyerMasterSheet onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+        }
         if (codeCreationView === 'vendor') {
           return <GenerateVendorCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+        }
+        if (codeCreationView === 'vendor-existing') {
+          return <VendorMasterSheet onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
         }
         if (codeCreationView === 'company-essentials') {
           return <CompanyEssentials onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
@@ -463,24 +471,57 @@ const Dashboard = () => {
     if (!hoveredMenu) return null;
 
     if (hoveredMenu === 'code-creation') {
+      const activeCategory = hoveredSubmenu?.menu === 'code-creation' ? hoveredSubmenu.category : null;
       return (
         <div className="hover-panel-group" ref={hoverPanelRef} onMouseLeave={() => setHoveredSubmenu(null)}>
           <div className="hover-panel">
             <div className="hover-panel-column">
-              <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('buyer'); setHoveredMenu(null); }}>
+              <button
+                className={`hover-panel-item ${activeCategory === 'buyer' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'code-creation', category: 'buyer' })}
+              >
                 Buyer
               </button>
-              <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('vendor'); setHoveredMenu(null); }}>
+              <button
+                className={`hover-panel-item ${activeCategory === 'vendor' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'code-creation', category: 'vendor' })}
+              >
                 Vendor
               </button>
-              <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('company-essentials'); setHoveredMenu(null); }}>
+              <button className="hover-panel-item" onMouseEnter={() => setHoveredSubmenu(null)} onClick={() => { setActivePage('code-creation'); setCodeCreationView('company-essentials'); setHoveredMenu(null); }}>
                 Company Essentials
               </button>
-              <button className="hover-panel-item" onClick={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); }}>
+              <button className="hover-panel-item" onMouseEnter={() => setHoveredSubmenu(null)} onClick={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); }}>
                 Internal Purchase Order
               </button>
             </div>
           </div>
+          {activeCategory === 'buyer' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Buyer</div>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('buyer'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Generate Buyer Code
+                </button>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('buyer-existing'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Existing Buyer Codes
+                </button>
+              </div>
+            </div>
+          )}
+          {activeCategory === 'vendor' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Vendor</div>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('vendor'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Generate Vendor Code
+                </button>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('vendor-existing'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Existing Vendor Codes
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       );
     }

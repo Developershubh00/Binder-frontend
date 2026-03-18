@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getBuyerCodes } from '../services/integration';
+import { getBuyerCodes, deleteBuyerCode } from '../services/integration';
 
 const BuyerMasterSheet = ({ onBack }) => {
   const [buyers, setBuyers] = useState([]);
@@ -13,6 +13,7 @@ const BuyerMasterSheet = ({ onBack }) => {
   const [error, setError] = useState(null);
 
   const normalizeBuyer = (b) => ({
+    id: b.id || b.code || '',
     code: b.code || b.id || '',
     buyerName: b.buyer_name || b.buyerName || '',
     contactPerson: b.contact_person || b.contactPerson || '',
@@ -40,16 +41,28 @@ const BuyerMasterSheet = ({ onBack }) => {
           console.warn('API fetch failed:', apiError);
         }
 
-        // 2. Always merge with localStorage (codes created via Generate Buyer Code)
+        // 2. Merge with localStorage — fill in any fields the API didn't return
         const storedBuyers = JSON.parse(localStorage.getItem('buyerCodes') || '[]');
-        const codeSet = new Set(buyerList.map(b => (b.code || b.id || '').toString()));
+        const storedMap = {};
         storedBuyers.forEach(s => {
           const c = (s.code || s.id || '').toString();
-          if (c && !codeSet.has(c)) {
-            buyerList.push(s);
-            codeSet.add(c);
-          }
+          if (c) storedMap[c] = s;
         });
+
+        buyerList = buyerList.map(b => {
+          const c = (b.code || b.id || '').toString();
+          const stored = storedMap[c];
+          if (stored) {
+            const merged = { ...stored, ...Object.fromEntries(
+              Object.entries(b).filter(([, val]) => val !== '' && val !== null && val !== undefined)
+            )};
+            delete storedMap[c];
+            return merged;
+          }
+          return b;
+        });
+
+        Object.values(storedMap).forEach(s => buyerList.push(s));
 
         // 3. Normalize all buyer data
         const normalizedBuyers = buyerList.map(b => normalizeBuyer(b));
@@ -109,9 +122,18 @@ const BuyerMasterSheet = ({ onBack }) => {
     });
   };
 
-  const handleDeleteBuyer = (buyerCode) => {
+  const handleDeleteBuyer = async (buyer) => {
     if (window.confirm('Are you sure you want to delete this buyer?')) {
-      const updatedBuyers = buyers.filter(buyer => buyer.code !== buyerCode);
+      const idsToTry = [buyer.id, buyer.code].filter(Boolean);
+      for (const identifier of [...new Set(idsToTry)]) {
+        try {
+          await deleteBuyerCode(identifier);
+          break;
+        } catch (err) {
+          console.warn(`API delete with "${identifier}" failed:`, err);
+        }
+      }
+      const updatedBuyers = buyers.filter(b => b.code !== buyer.code);
       setBuyers(updatedBuyers);
       localStorage.setItem('buyerCodes', JSON.stringify(updatedBuyers));
     }
@@ -428,7 +450,7 @@ const BuyerMasterSheet = ({ onBack }) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDeleteBuyer(buyer.code)}
+                          onClick={() => handleDeleteBuyer(buyer)}
                           title="Delete Buyer"
                           className="h-8 w-8 text-destructive hover:text-destructive"
                         >

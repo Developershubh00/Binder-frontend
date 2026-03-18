@@ -350,7 +350,7 @@ const Step5 = ({
           {/* CASEPACK QTY */}
           <div className="flex flex-col">
             <label className="text-sm font-semibold text-gray-700 mb-2">
-              CASEPACK QTY <span className="text-red-600">*</span>
+              CASEPACK QTY (PCS) <span className="text-red-600">*</span>
             </label>
             <input
               type="number"

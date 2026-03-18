@@ -705,7 +705,10 @@ export const deleteBuyerCode = async (buyerCodeId) => {
   const response = await apiRequest(`ims/buyer-codes/${buyerCodeId}/`, {
     method: 'DELETE',
   });
-  
+
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return { status: 'success' };
+  }
   return await response.json();
 };
 
@@ -791,7 +794,11 @@ export const deleteVendorCode = async (vendorCodeId) => {
   const response = await apiRequest(`ims/vendor-codes/${vendorCodeId}/`, {
     method: 'DELETE',
   });
-  
+
+  // DELETE may return 204 No Content with empty body
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return { status: 'success' };
+  }
   return await response.json();
 };
 

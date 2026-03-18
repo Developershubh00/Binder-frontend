@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getVendorCodes } from '../services/integration';
+import { getVendorCodes, deleteVendorCode } from '../services/integration';
 
 const VendorMasterSheet = ({ onBack }) => {
   const [vendors, setVendors] = useState([]);
@@ -12,22 +12,25 @@ const VendorMasterSheet = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const joinArray = (val) => Array.isArray(val) ? val.join(', ') : (val || '');
+
   const normalizeVendor = (v) => ({
+    id: v.id || v.code || '',
     code: v.code || v.id || '',
-    vendorName: v.vendor_name || v.vendorName || '',
-    address: v.address || '',
-    gst: v.gst || '',
-    bankName: v.bank_name || v.bankName || '',
-    accNo: v.account_number || v.accNo || '',
-    ifscCode: v.ifsc_code || v.ifscCode || '',
-    jobWorkCategory: Array.isArray(v.job_work_category) ? v.job_work_category.join(', ') : (Array.isArray(v.jobWorkCategory) ? v.jobWorkCategory.join(', ') : (v.job_work_category || v.jobWorkCategory || '')),
-    jobWorkSubCategory: Array.isArray(v.job_work_sub_category) ? v.job_work_sub_category.join(', ') : (Array.isArray(v.jobWorkSubCategory) ? v.jobWorkSubCategory.join(', ') : (v.job_work_sub_category || v.jobWorkSubCategory || '')),
-    contactPerson: v.contact_person || v.contactPerson || '',
-    whatsappNo: v.whatsapp_number || v.whatsappNo || '',
-    altWhatsappNo: v.alt_whatsapp_number || v.altWhatsappNo || '',
-    email: v.email || '',
-    paymentTerms: v.payment_terms || v.paymentTerms || '',
-    createdAt: v.created_at || v.createdAt || new Date().toISOString()
+    vendorName: v.vendor_name || v.vendorName || v.name || '',
+    address: v.address || v.vendor_address || '',
+    gst: v.gst || v.gst_number || v.gstin || v.gst_no || '',
+    bankName: v.bank_name || v.bankName || v.bank || '',
+    accNo: v.account_number || v.accNo || v.acc_no || v.account_no || '',
+    ifscCode: v.ifsc_code || v.ifscCode || v.ifsc || '',
+    jobWorkCategory: joinArray(v.job_work_category) || joinArray(v.jobWorkCategory) || v.category || '',
+    jobWorkSubCategory: joinArray(v.job_work_sub_category) || joinArray(v.jobWorkSubCategory) || v.sub_category || v.subCategory || '',
+    contactPerson: v.contact_person || v.contactPerson || v.contact || '',
+    whatsappNo: v.whatsapp_number || v.whatsappNo || v.whatsapp_no || v.phone || v.phone_number || v.mobile || '',
+    altWhatsappNo: v.alt_whatsapp_number || v.altWhatsappNo || v.alt_whatsapp_no || v.alt_phone || '',
+    email: v.email || v.email_address || '',
+    paymentTerms: v.payment_terms || v.paymentTerms || v.payment_term || '',
+    createdAt: v.created_at || v.createdAt || v.date_created || new Date().toISOString()
   });
 
   useEffect(() => {
@@ -38,28 +41,47 @@ const VendorMasterSheet = ({ onBack }) => {
 
         let vendorList = [];
 
-        // 1. Try to fetch from API
+        // 1. Fetch vendor list from API
         try {
           const data = await getVendorCodes();
+          console.log('Raw API response for vendors:', JSON.stringify(data, null, 2));
           if (data && Array.isArray(data)) {
             vendorList = data;
           } else if (data && data.results && Array.isArray(data.results)) {
             vendorList = data.results;
+          } else if (data && data.data && Array.isArray(data.data)) {
+            vendorList = data.data;
+          }
+          if (vendorList.length > 0) {
+            console.log('First vendor raw fields:', Object.keys(vendorList[0]), vendorList[0]);
           }
         } catch (apiError) {
-          console.warn('API fetch failed:', apiError);
+          console.warn('API list fetch failed:', apiError);
         }
 
-        // 2. Always merge with localStorage (codes created via Generate Vendor Code)
+        // 2. Merge with localStorage to fill any gaps
         const storedVendors = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
-        const codeSet = new Set(vendorList.map(v => (v.code || v.id || '').toString()));
+        console.log('localStorage vendorCodes:', storedVendors);
+        const storedMap = {};
         storedVendors.forEach(s => {
           const c = (s.code || s.id || '').toString();
-          if (c && !codeSet.has(c)) {
-            vendorList.push(s);
-            codeSet.add(c);
-          }
+          if (c) storedMap[c] = s;
         });
+
+        vendorList = vendorList.map(v => {
+          const c = (v.code || v.id || '').toString();
+          const stored = storedMap[c];
+          if (stored) {
+            const merged = { ...stored, ...Object.fromEntries(
+              Object.entries(v).filter(([, val]) => val !== '' && val !== null && val !== undefined)
+            )};
+            delete storedMap[c];
+            return merged;
+          }
+          return v;
+        });
+
+        Object.values(storedMap).forEach(s => vendorList.push(s));
 
         // 3. Normalize all vendor data
         const normalizedVendors = vendorList.map(v => normalizeVendor(v));
@@ -122,9 +144,19 @@ const VendorMasterSheet = ({ onBack }) => {
     });
   };
 
-  const handleDeleteVendor = (vendorCode) => {
+  const handleDeleteVendor = async (vendor) => {
     if (window.confirm('Are you sure you want to delete this vendor?')) {
-      const updatedVendors = vendors.filter(vendor => vendor.code !== vendorCode);
+      // Try deleting from API using id first, then code
+      const idsToTry = [vendor.id, vendor.code].filter(Boolean);
+      for (const identifier of [...new Set(idsToTry)]) {
+        try {
+          await deleteVendorCode(identifier);
+          break;
+        } catch (err) {
+          console.warn(`API delete with "${identifier}" failed:`, err);
+        }
+      }
+      const updatedVendors = vendors.filter(v => v.code !== vendor.code);
       setVendors(updatedVendors);
       localStorage.setItem('vendorCodes', JSON.stringify(updatedVendors));
     }
@@ -499,17 +531,17 @@ const VendorMasterSheet = ({ onBack }) => {
                         fontFamily: 'var(--font-mono)',
                         letterSpacing: '0.5px'
                       }}>
-                        {vendor.code || 'N/A'}
+                        {vendor.code || '—'}
                       </span>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <strong style={{ fontSize: '14px', fontWeight: '600', color: 'var(--foreground)' }}>
-                        {vendor.vendorName || 'N/A'}
+                        {vendor.vendorName || '—'}
                       </strong>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <div style={{ fontSize: '12px', color: 'var(--foreground)', lineHeight: '1.4', maxWidth: '250px' }}>
-                        {vendor.address || 'N/A'}
+                        {vendor.address || '—'}
                       </div>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
@@ -522,17 +554,17 @@ const VendorMasterSheet = ({ onBack }) => {
                         borderRadius: 'var(--radius-sm)',
                         border: '1px solid var(--border)'
                       }}>
-                        {vendor.gst || 'N/A'}
+                        {vendor.gst || '—'}
                       </code>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <strong style={{ fontSize: '13px', fontWeight: '600', color: 'var(--foreground)' }}>
-                        {vendor.contactPerson || 'N/A'}
+                        {vendor.contactPerson || '—'}
                       </strong>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--foreground)' }}>
-                        {vendor.whatsappNo || 'N/A'}
+                        {vendor.whatsappNo || '—'}
                       </div>
                       {vendor.altWhatsappNo && (
                         <div style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '3px' }}>
@@ -542,7 +574,7 @@ const VendorMasterSheet = ({ onBack }) => {
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
-                        {vendor.email || 'N/A'}
+                        {vendor.email || '—'}
                       </span>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
@@ -555,17 +587,17 @@ const VendorMasterSheet = ({ onBack }) => {
                         fontSize: '12px',
                         fontWeight: '500'
                       }}>
-                        {vendor.jobWorkCategory || 'N/A'}
+                        {vendor.jobWorkCategory || '—'}
                       </span>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <span style={{ fontSize: '13px', color: 'var(--foreground)' }}>
-                        {vendor.jobWorkSubCategory || 'N/A'}
+                        {vendor.jobWorkSubCategory || '—'}
                       </span>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--foreground)' }}>
-                        {vendor.bankName || 'N/A'}
+                        {vendor.bankName || '—'}
                       </div>
                       {vendor.accNo && (
                         <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '2px' }}>
@@ -580,7 +612,7 @@ const VendorMasterSheet = ({ onBack }) => {
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
                       <div style={{ fontSize: '13px', color: 'var(--foreground)', lineHeight: '1.4', maxWidth: '200px' }}>
-                        {vendor.paymentTerms || 'N/A'}
+                        {vendor.paymentTerms || '—'}
                       </div>
                     </td>
                     <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
@@ -611,7 +643,7 @@ const VendorMasterSheet = ({ onBack }) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDeleteVendor(vendor.code)}
+                          onClick={() => handleDeleteVendor(vendor)}
                           title="Delete Vendor"
                           className="h-8 w-8 text-destructive hover:text-destructive"
                         >

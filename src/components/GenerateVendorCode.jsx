@@ -437,8 +437,30 @@ const GenerateVendorCode = ({ onBack }) => {
           paymentTerms: item.payment_terms || item.paymentTerms || '',
           createdAt: item.created_at || item.createdAt || '',
         })) : [];
-        setExistingVendorCodes(mapped);
-        localStorage.setItem('vendorCodes', JSON.stringify(mapped));
+
+        // Merge with existing localStorage to preserve fields the API doesn't return
+        const existing = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
+        const existingMap = {};
+        existing.forEach(e => { if (e.code) existingMap[e.code.toString()] = e; });
+
+        const merged = mapped.map(item => {
+          const prev = existingMap[item.code?.toString()];
+          if (prev) {
+            // Keep previous values for any field the API returned empty
+            const filled = { ...prev };
+            Object.entries(item).forEach(([k, v]) => {
+              if (v !== '' && v !== null && v !== undefined) filled[k] = v;
+            });
+            delete existingMap[item.code.toString()];
+            return filled;
+          }
+          return item;
+        });
+        // Keep any localStorage-only entries
+        Object.values(existingMap).forEach(e => merged.push(e));
+
+        setExistingVendorCodes(merged);
+        localStorage.setItem('vendorCodes', JSON.stringify(merged));
       } catch (error) {
         console.warn('Failed to load vendor codes from API, using localStorage:', error);
         const stored = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
