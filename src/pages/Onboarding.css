@@ -1,97 +1,364 @@
+/* ═══════════════════════════════════════════════════════════════
+   ONBOARDING PAGE
+═══════════════════════════════════════════════════════════════ */
+
 .onboarding-page {
   min-height: 100vh;
-  padding: 24px;
-  max-width: 640px;
+  padding: 32px 24px 60px;
+  max-width: 680px;
   margin: 0 auto;
 }
 
+/* ── Loading ──────────────────────────────────────────────────── */
+
 .onboarding-loading {
-  text-align: center;
-  padding: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 15px;
   color: var(--muted-foreground);
+  letter-spacing: 0.3px;
 }
 
+/* ── Page Header ──────────────────────────────────────────────── */
+
 .onboarding-header {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--border);
+  position: relative;
 }
 
 .onboarding-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   color: var(--foreground);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
 }
 
 .onboarding-subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted-foreground);
-  margin-top: 4px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
+
+/* Step indicator pill */
+.onboarding-header::after {
+  content: attr(data-step);
+}
+
+/* ── Progress Bar (visual step dots) ─────────────────────────── */
+
+.onboarding-progress {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 32px;
+}
+
+.onboarding-step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--muted);
+  border: 2px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.onboarding-step-dot.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.onboarding-step-dot.done {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  opacity: 0.6;
+}
+
+.onboarding-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+}
+
+.onboarding-step-line.done {
+  background: var(--primary);
+  opacity: 0.5;
+}
+
+/* ── Error Banner ─────────────────────────────────────────────── */
 
 .onboarding-error {
-  background: var(--destructive/10);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: color-mix(in srgb, var(--destructive) 10%, transparent);
   color: var(--destructive);
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 14px;
+  border: 1px solid color-mix(in srgb, var(--destructive) 30%, transparent);
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
+/* ── Card ─────────────────────────────────────────────────────── */
+
 .onboarding-card {
-  padding: 24px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 32px;
   margin-bottom: 24px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+  animation: cardFadeIn 0.3s ease;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .onboarding-card h2 {
   font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 18px;
 }
 
-.onboarding-desc,
-.onboarding-muted {
+.onboarding-desc {
   font-size: 14px;
   color: var(--muted-foreground);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.onboarding-muted {
+  font-size: 13px;
+  color: var(--muted-foreground);
   margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* ── Form ─────────────────────────────────────────────────────── */
+
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
 }
 
 .onboarding-form label {
   display: block;
-  font-size: 13px;
-  font-weight: 500;
-  margin-top: 12px;
-  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-top: 18px;
+  margin-bottom: 6px;
+}
+
+.onboarding-form label:first-child {
+  margin-top: 0;
 }
 
 .onboarding-form input,
 .onboarding-form select,
 .onboarding-form textarea {
   width: 100%;
-  margin-bottom: 8px;
+  padding: 11px 14px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--foreground);
+  background: var(--input);
+  transition: border-color 0.18s, box-shadow 0.18s;
+  outline: none;
+  font-family: inherit;
+  margin-bottom: 4px;
 }
+
+.onboarding-form input::placeholder,
+.onboarding-form textarea::placeholder {
+  color: var(--muted-foreground);
+}
+
+.onboarding-form input:focus,
+.onboarding-form select:focus,
+.onboarding-form textarea:focus {
+  border-color: var(--primary);
+  background: var(--background);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.onboarding-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.onboarding-form textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.5;
+}
+
+/* ── 2-col grid for narrow fields ────────────────────────────── */
+
+.onboarding-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+/* ── Actions Row ──────────────────────────────────────────────── */
 
 .onboarding-actions {
   display: flex;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
 }
 
+.onboarding-actions button:first-child {
+  margin-right: auto;
+}
+
+/* ── Unit Card ────────────────────────────────────────────────── */
+
 .onboarding-unit {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  background: var(--background);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
   margin-bottom: 16px;
+  position: relative;
+}
+
+.onboarding-unit:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+  transition: all 0.2s;
 }
 
 .onboarding-unit h3 {
-  font-size: 14px;
-  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
 }
+
+.onboarding-unit input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--foreground);
+  background: var(--input);
+  outline: none;
+  font-family: inherit;
+  margin-bottom: 8px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.onboarding-unit input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.onboarding-unit input::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* ── Shed ─────────────────────────────────────────────────────── */
 
 .onboarding-shed {
   margin-left: 16px;
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-left: 14px;
+  border-left: 2px solid var(--primary);
 }
 
+.onboarding-shed input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--foreground);
+  background: var(--input);
+  outline: none;
+  font-family: inherit;
+}
+
+.onboarding-shed input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.onboarding-shed input::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* ── Add unit button ─────────────────────────────────────────── */
+
 .onboarding-add-unit {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .onboarding-page {
+    padding: 20px 16px 48px;
+  }
+
+  .onboarding-card {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .onboarding-title {
+    font-size: 22px;
+  }
+
+  .onboarding-actions {
+    flex-wrap: wrap;
+  }
+
+  .onboarding-actions button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .onboarding-form-grid {
+    grid-template-columns: 1fr;
+  }
 }
