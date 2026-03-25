@@ -919,6 +919,94 @@ export const getNextIPOSrNo = async (programName) => {
 };
 
 // ============================================================================
+// COURIER RECORDS
+// ============================================================================
+
+const COURIER_API_PATH = (() => {
+  const configuredPath = String(import.meta.env.VITE_COURIER_API_PATH || 'ims/courier-records/').trim();
+  if (!configuredPath) return 'ims/courier-records/';
+  return configuredPath.endsWith('/') ? configuredPath : `${configuredPath}/`;
+})();
+
+const parseJsonIfPresent = async (response) => {
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return null;
+  }
+
+  try {
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+};
+
+const buildCourierApiEndpoint = (recordId = '', params = {}) => {
+  const basePath = recordId ? `${COURIER_API_PATH}${recordId}/` : COURIER_API_PATH;
+  const query = new URLSearchParams(params).toString();
+  return query ? `${basePath}?${query}` : basePath;
+};
+
+const buildCourierFallbackResult = (message, data = null, status = null) => ({
+  available: false,
+  source: 'local',
+  message,
+  data,
+  status,
+});
+
+const buildCourierSuccessResult = (data) => ({
+  available: true,
+  source: 'api',
+  data,
+  status: 200,
+});
+
+const tryCourierApiRequest = async (endpoint, options = {}) => {
+  try {
+    const response = await apiRequest(endpoint, options);
+    const data = await parseJsonIfPresent(response);
+
+    if (!response.ok) {
+      console.warn(`Courier API request failed (${response.status}). Falling back to local storage.`, data);
+      return buildCourierFallbackResult(`Courier API request failed (${response.status}).`, data, response.status);
+    }
+
+    return buildCourierSuccessResult(data);
+  } catch (error) {
+    console.warn('Courier API unavailable. Falling back to local storage.', error);
+    return buildCourierFallbackResult('Courier API unavailable.', { error: error.message || 'Unknown error' });
+  }
+};
+
+export const listCourierRecords = async (params = {}) => {
+  return await tryCourierApiRequest(buildCourierApiEndpoint('', params));
+};
+
+export const createCourierRecord = async (payload) => {
+  return await tryCourierApiRequest(COURIER_API_PATH, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+};
+
+export const updateCourierRecord = async (recordId, payload) => {
+  const endpoint = buildCourierApiEndpoint(recordId);
+  const patchResult = await tryCourierApiRequest(endpoint, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+
+  if (patchResult.available || patchResult.status !== 405) {
+    return patchResult;
+  }
+
+  return await tryCourierApiRequest(endpoint, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+};
+
+// ============================================================================
 // PURCHASE ORDERS (PO)
 // ============================================================================
 

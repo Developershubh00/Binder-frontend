@@ -13,6 +13,7 @@ import GeneratePOCode from '../components/GeneratePOCode';
 import BuyerMasterSheet from '../components/BuyerMasterSheet';
 import VendorMasterSheet from '../components/VendorMasterSheet';
 import UQRFormsPreview from '../components/UQR_forms/UQRFormsPreview.jsx';
+import CourierManagement from '../components/CourierManagement.jsx';
 import {
   Menu,
   Home,
@@ -265,6 +266,10 @@ const Dashboard = () => {
         return <UQRFormsPreview mode="forms" />;
       case 'uqr-database':
         return <UQRFormsPreview mode="database" />;
+      case 'courier-slip':
+        return <CourierManagement mode="slip" />;
+      case 'courier-master':
+        return <CourierManagement mode="master" />;
       case 'tasks':
         return <TasksContent initialView={tasksView} />;
       case 'purchase':
@@ -469,6 +474,8 @@ const Dashboard = () => {
       || activePage === 'tasks'
       || activePage === 'uqr-forms'
       || activePage === 'uqr-database'
+      || activePage === 'courier-slip'
+      || activePage === 'courier-master'
     ) {
       setHoveredMenu(null);
     }
@@ -738,6 +745,13 @@ const Dashboard = () => {
               >
                 UQR
               </button>
+              <button
+                type="button"
+                className={`hover-panel-item ${activeSection === 'courier' || activePage === 'courier-slip' || activePage === 'courier-master' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'courier', action: null, category: null })}
+              >
+                Courier
+              </button>
             </div>
           </div>
           {activeSection === 'uqr' && (
@@ -769,7 +783,36 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeSection && activeSection !== 'uqr' && (
+          {activeSection === 'courier' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Courier</div>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'courier-slip' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('courier-slip');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  Courier Slip
+                </button>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'courier-master' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('courier-master');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  Master Courier Sheet
+                </button>
+              </div>
+            </div>
+          )}
+          {activeSection && activeSection !== 'uqr' && activeSection !== 'courier' && (
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">
@@ -791,7 +834,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeAction && activeSection !== 'uqr' && (
+          {activeAction && activeSection !== 'uqr' && activeSection !== 'courier' && (
             <div className="hover-panel nested-panel second">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">Select Type</div>
@@ -813,7 +856,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeCategory && activeSection !== 'uqr' && (
+          {activeCategory && activeSection !== 'uqr' && activeSection !== 'courier' && (
             <div className="hover-panel nested-panel third">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">{activeCategoryMeta?.label}</div>
@@ -1038,7 +1081,12 @@ const Dashboard = () => {
           {getMenuItems().map((item) => (
             <button
               key={item.id}
-              className={`nav-item ${activePage === item.id ? 'active' : ''}`}
+              className={`nav-item ${
+                activePage === item.id
+                || (item.id === 'ims' && ['uqr-forms', 'uqr-database', 'courier-slip', 'courier-master'].includes(activePage))
+                  ? 'active'
+                  : ''
+              }`}
               onClick={() => {
                 if (item.id === 'home' || item.id === 'tasks' || item.id === 'purchase') {
                   setActivePage(item.id);
