@@ -7,6 +7,8 @@ import Community from './pages/Community';
 import EssentialsViewPage from './pages/EssentialsViewPage';
 import Profile from './pages/Profile';
 import Onboarding from './pages/Onboarding';
+import RegisterCompany from './pages/RegisterCompany';
+import SetPassword from './pages/SetPassword';
 
 // Protected Route Components
 const ProtectedRoute = ({ children }) => {
@@ -41,6 +43,8 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register-company" element={<RegisterCompany />} />
+          <Route path="/set-password" element={<SetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/essentials/view/:token" element={<EssentialsViewPage />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

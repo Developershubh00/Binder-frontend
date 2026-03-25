@@ -252,7 +252,7 @@
 // export default Login;
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
@@ -514,7 +514,7 @@ const Login = () => {
 
         <div className="signup-section">
           <span className="signup-text">Don't have an account? </span>
-          <a href="/register" className="signup-link">Sign Up</a>
+          <Link to="/register-company" className="signup-link">Register Company</Link>
         </div>
       </div>
 

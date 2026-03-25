@@ -739,6 +739,9 @@ export default function Profile() {
   });
   const [inviteSending, setInviteSending] = useState(false);
   const [inviteMessage, setInviteMessage] = useState(null);
+  const [featureOverrides, setFeatureOverrides] = useState([]);
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [memberPermissionDraft, setMemberPermissionDraft] = useState({ role: '', module: '', permission_level: 'view' });
 
   const isMasterAdmin =
     user?.highest_role === 'master_admin' ||
@@ -755,6 +758,14 @@ export default function Profile() {
         if (isMasterAdmin) {
           const list = await authService.getMembers();
           setMembers(Array.isArray(list) ? list : []);
+          if (user?.tenant) {
+            const [overrides, logs] = await Promise.all([
+              authService.getTenantFeatureOverrides(user.tenant),
+              authService.getTenantActivityLogs(),
+            ]);
+            setFeatureOverrides(Array.isArray(overrides) ? overrides : []);
+            setActivityLogs(Array.isArray(logs) ? logs : []);
+          }
         }
       } catch (e) {
         setError(e?.message || 'Failed to load profile');
@@ -779,7 +790,32 @@ export default function Profile() {
     { id: 'account',  label: 'Account'      },
     { id: 'org',      label: 'Organization' },
     ...(isMasterAdmin ? [{ id: 'employees', label: 'Employees' }] : []),
+    ...(isMasterAdmin ? [{ id: 'features', label: 'Features' }] : []),
+    ...(isMasterAdmin ? [{ id: 'roles-permissions', label: 'Roles & Permissions' }] : []),
+    ...(isMasterAdmin ? [{ id: 'activity-logs', label: 'Activity Logs' }] : []),
   ];
+
+  const exportActivityLogsCsv = () => {
+    if (!activityLogs.length) return;
+    const headers = ['timestamp', 'user_email', 'action', 'entity_type', 'entity_id', 'summary', 'ip_address'];
+    const rows = activityLogs.map((log) => ([
+      log.timestamp || '',
+      log.user_email || '',
+      log.action || '',
+      log.entity_type || '',
+      log.entity_id || '',
+      (log.summary || '').replaceAll('"', '""'),
+      log.ip_address || '',
+    ]));
+    const csv = [headers.join(','), ...rows.map((r) => r.map((v) => `"${v}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tenant_activity_logs.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (loading) return (
     <div className="profile-root">
@@ -1179,6 +1215,97 @@ export default function Profile() {
                   </ul>
                 </div>
               )}
+            </section>
+          </div>
+        )}
+
+        {activeNav === 'features' && isMasterAdmin && (
+          <div className="profile-content" key="features">
+            <section className="profile-section">
+              <h2 className="profile-section-heading">Features</h2>
+              <p className="profile-section-desc">Manage feature overrides for this tenant.</p>
+              {featureOverrides.length === 0 && <p className="profile-muted">No feature overrides configured.</p>}
+              {featureOverrides.map((item) => (
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <div>
+                    <strong>{item.feature_name || item.feature_key}</strong>
+                    <div style={{ fontSize: 12, color: '#666' }}>{item.feature_key}</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(item.enabled)}
+                    onChange={async (e) => {
+                      const enabled = e.target.checked;
+                      const next = featureOverrides.map((f) => f.id === item.id ? { ...f, enabled } : f);
+                      setFeatureOverrides(next);
+                      try {
+                        await authService.updateTenantFeatureOverrides(user.tenant, [{ feature: item.feature, enabled }]);
+                      } catch {
+                        setFeatureOverrides(featureOverrides);
+                      }
+                    }}
+                  />
+                </div>
+              ))}
+            </section>
+          </div>
+        )}
+
+        {activeNav === 'roles-permissions' && isMasterAdmin && (
+          <div className="profile-content" key="roles-permissions">
+            <section className="profile-section">
+              <h2 className="profile-section-heading">Roles & Permissions</h2>
+              <p className="profile-section-desc">Assign role and module-level permission to tenant members.</p>
+              {members.map((m) => (
+                <div key={m.id} style={{ border: '1px solid #ececec', borderRadius: 8, padding: 12, marginBottom: 10 }}>
+                  <div style={{ marginBottom: 8 }}><strong>{m.full_name || m.name || m.email}</strong> - {m.email}</div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <Input placeholder="Role (e.g. manager)" value={memberPermissionDraft.role} onChange={(e) => setMemberPermissionDraft((p) => ({ ...p, role: e.target.value }))} />
+                    <Input placeholder="Module (e.g. user_management)" value={memberPermissionDraft.module} onChange={(e) => setMemberPermissionDraft((p) => ({ ...p, module: e.target.value }))} />
+                    <Input placeholder="Permission (view/edit/full...)" value={memberPermissionDraft.permission_level} onChange={(e) => setMemberPermissionDraft((p) => ({ ...p, permission_level: e.target.value }))} />
+                    <Button onClick={async () => {
+                      await authService.updateMemberRolePermissions(m.id, {
+                        role: memberPermissionDraft.role,
+                        module_permissions: [{ module: memberPermissionDraft.module, permission_level: memberPermissionDraft.permission_level }],
+                      });
+                    }}>
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </section>
+          </div>
+        )}
+
+        {activeNav === 'activity-logs' && isMasterAdmin && (
+          <div className="profile-content" key="activity-logs">
+            <section className="profile-section">
+              <h2 className="profile-section-heading">Activity Logs</h2>
+              <div style={{ marginBottom: 12 }}>
+                <Button onClick={exportActivityLogsCsv}>Export CSV</Button>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      {['Time', 'User', 'Action', 'Module', 'Summary', 'IP'].map((h) => <th key={h} style={{ textAlign: 'left', borderBottom: '1px solid #eee', padding: 8 }}>{h}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activityLogs.map((log) => (
+                      <tr key={log.id}>
+                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.timestamp}</td>
+                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.user_email || '-'}</td>
+                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.action}</td>
+                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.entity_type}</td>
+                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.summary}</td>
+                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.ip_address || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </section>
           </div>
         )}

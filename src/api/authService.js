@@ -154,6 +154,36 @@ export const register = async (userData) => {
   return await response.json();
 };
 
+export const registerCompany = async (companyData) => {
+  const formData = new FormData();
+  Object.entries(companyData || {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      formData.append(key, value);
+    }
+  });
+  const response = await apiRequest('auth/register-company/', {
+    method: 'POST',
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || 'Company registration failed');
+  return data;
+};
+
+export const createTenantOwner = async ({ tenantId, email, password }) => {
+  const response = await apiRequest('auth/create-tenant-owner/', {
+    method: 'POST',
+    body: JSON.stringify({
+      tenant_id: tenantId,
+      email,
+      password,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || 'Failed to create tenant owner');
+  return data;
+};
+
 /**
  * Login user (direct login)
  */
@@ -232,6 +262,23 @@ export const verifyOTP = async (email, otp) => {
 };
 
 /**
+ * Set new password via welcome email token (first-time setup)
+ * Returns JWT tokens on success so the caller can auto-login.
+ */
+export const setPassword = async (token, password, passwordConfirm) => {
+  const response = await apiRequest('auth/set-password/', {
+    method: 'POST',
+    body: JSON.stringify({ token, password, password_confirm: passwordConfirm }),
+  });
+  const data = await response.json();
+  if (data.status === 'success' && data.data?.tokens) {
+    setTokens(data.data.tokens.access, data.data.tokens.refresh);
+    if (data.data?.user) setUser(data.data.user);
+  }
+  return data;
+};
+
+/**
  * Logout user
  */
 export const logout = async () => {
@@ -293,6 +340,47 @@ export const getFeatureFlags = async () => {
   const data = await response.json();
   if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to load feature flags');
   return data?.data || data;
+};
+
+export const getTenantActivityLogs = async () => {
+  const response = await apiRequest('auth/tenant-activity-logs/');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to load activity logs');
+  return Array.isArray(data) ? data : data?.results || data?.data || [];
+};
+
+export const updateTenantFeatureOverrides = async (tenantId, items) => {
+  const response = await apiRequest(`auth/tenants/${tenantId}/feature-overrides/`, {
+    method: 'PUT',
+    body: JSON.stringify({ items }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to update feature overrides');
+  return data;
+};
+
+export const getTenantFeatureOverrides = async (tenantId) => {
+  const response = await apiRequest(`auth/tenants/${tenantId}/feature-overrides/`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to load feature overrides');
+  return data?.data || [];
+};
+
+export const updateMemberRolePermissions = async (memberId, payload) => {
+  const response = await apiRequest(`auth/members/${memberId}/role-permissions/`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to update member role permissions');
+  return data;
+};
+
+export const getMemberRolePermissions = async (memberId) => {
+  const response = await apiRequest(`auth/members/${memberId}/role-permissions/`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to load member role permissions');
+  return data?.data || null;
 };
 
 /**
@@ -383,22 +471,6 @@ export const resendVerification = async (email) => {
   const response = await apiRequest('auth/resend-verification/', {
     method: 'POST',
     body: JSON.stringify({ email }),
-  });
-  
-  return await response.json();
-};
-
-/**
- * Set password (for new users)
- */
-export const setPassword = async (token, password, passwordConfirm) => {
-  const response = await apiRequest('auth/set-password/', {
-    method: 'POST',
-    body: JSON.stringify({
-      token,
-      password,
-      password_confirm: passwordConfirm,
-    }),
   });
   
   return await response.json();
