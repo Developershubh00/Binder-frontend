@@ -169,6 +169,13 @@ const Dashboard = () => {
     return 'BINDER-OS';
   };
   const companyDisplayName = getCompanyDisplayName();
+  const companyLogo = user?.tenant_details?.logo || null;
+  const companyInitials = companyDisplayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s.charAt(0).toUpperCase())
+    .join('') || 'B';
 
   // Redirect to onboarding if tenant exists and onboarding not completed
   useEffect(() => {
@@ -1015,7 +1022,15 @@ const Dashboard = () => {
               <Menu size={18} />
             </button>
             <div className="logo-icon-dash">B</div>
-            <span className="logo-text-dash">{companyDisplayName}</span>
+            {companyLogo ? (
+              <img src={companyLogo} alt={companyDisplayName} className="company-logo-dash" />
+            ) : (
+              <div className="logo-icon-dash">{companyInitials}</div>
+            )}
+            <div className="logo-text-wrap-dash">
+              <span className="logo-text-dash">{companyDisplayName}</span>
+              <span className="logo-subtitle-dash">Powered by Binder-OS</span>
+            </div>
           </div>
         </div>
         
