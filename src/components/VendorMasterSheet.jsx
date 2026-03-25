@@ -2,36 +2,75 @@ import { useState, useEffect } from 'react';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getVendorCodes, deleteVendorCode } from '../services/integration';
+import { getVendorCodes, getVendorCode, getVendorMasterSheet, deleteVendorCode } from '../services/integration';
 
-const VendorMasterSheet = ({ onBack }) => {
+const hasValue = (value) => {
+  if (Array.isArray(value)) return value.some((item) => hasValue(item));
+  if (value === null || value === undefined) return false;
+  return String(value).trim() !== '';
+};
+
+const extractItems = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.results)) return payload.data.results;
+  return [];
+};
+
+const getFirstValue = (source, keys) => {
+  for (const key of keys) {
+    const value = source?.[key];
+    if (hasValue(value)) {
+      return value;
+    }
+  }
+  return '';
+};
+
+const joinArray = (val) => Array.isArray(val) ? val.filter((item) => hasValue(item)).join(', ') : (val || '');
+
+const normalizeVendor = (vendor) => {
+  const source = vendor?.vendor && typeof vendor.vendor === 'object' ? { ...vendor.vendor, ...vendor } : vendor;
+
+  return {
+    id: getFirstValue(source, ['id', 'vendor_id', 'pk', 'code']),
+    code: getFirstValue(source, ['code', 'vendor_code', 'id']),
+    vendorName: getFirstValue(source, ['vendor_name', 'vendorName', 'name', 'vendor']),
+    address: getFirstValue(source, ['address', 'vendor_address', 'address_line_1', 'full_address']),
+    gst: getFirstValue(source, ['gst', 'gst_number', 'gstin', 'gst_no', 'gstin_number']),
+    bankName: getFirstValue(source, ['bank_name', 'bankName', 'bank', 'bank_name_branch']),
+    accNo: getFirstValue(source, ['account_number', 'accNo', 'acc_no', 'account_no', 'accountNumber']),
+    ifscCode: getFirstValue(source, ['ifsc_code', 'ifscCode', 'ifsc', 'bank_ifsc']),
+    jobWorkCategory: joinArray(getFirstValue(source, ['job_work_category', 'jobWorkCategory', 'job_work_categories', 'category', 'categories'])),
+    jobWorkSubCategory: joinArray(getFirstValue(source, ['job_work_sub_category', 'jobWorkSubCategory', 'job_work_sub_categories', 'sub_category', 'subCategory', 'sub_categories'])),
+    contactPerson: getFirstValue(source, ['contact_person', 'contactPerson', 'contact', 'contact_name']),
+    whatsappNo: getFirstValue(source, ['whatsapp_number', 'whatsappNo', 'whatsapp_no', 'phone', 'phone_number', 'mobile', 'mobile_number']),
+    altWhatsappNo: getFirstValue(source, ['alt_whatsapp_number', 'altWhatsappNo', 'alt_whatsapp_no', 'alt_phone', 'alternate_whatsapp_number', 'alternate_mobile']),
+    email: getFirstValue(source, ['email', 'email_address', 'mail']),
+    paymentTerms: getFirstValue(source, ['payment_terms', 'paymentTerms', 'payment_term', 'payment_terms_conditions']),
+    createdAt: getFirstValue(source, ['created_at', 'createdAt', 'date_created']) || new Date().toISOString()
+  };
+};
+
+const hasMissingVendorFields = (vendor) =>
+  !hasValue(vendor.address) ||
+  !hasValue(vendor.gst) ||
+  !hasValue(vendor.bankName) ||
+  !hasValue(vendor.accNo) ||
+  !hasValue(vendor.ifscCode) ||
+  !hasValue(vendor.contactPerson) ||
+  !hasValue(vendor.whatsappNo) ||
+  !hasValue(vendor.email) ||
+  !hasValue(vendor.paymentTerms);
+
+const VendorMasterSheet = ({ onBack, onEditVendor }) => {
   const [vendors, setVendors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const joinArray = (val) => Array.isArray(val) ? val.join(', ') : (val || '');
-
-  const normalizeVendor = (v) => ({
-    id: v.id || v.code || '',
-    code: v.code || v.id || '',
-    vendorName: v.vendor_name || v.vendorName || v.name || '',
-    address: v.address || v.vendor_address || '',
-    gst: v.gst || v.gst_number || v.gstin || v.gst_no || '',
-    bankName: v.bank_name || v.bankName || v.bank || '',
-    accNo: v.account_number || v.accNo || v.acc_no || v.account_no || '',
-    ifscCode: v.ifsc_code || v.ifscCode || v.ifsc || '',
-    jobWorkCategory: joinArray(v.job_work_category) || joinArray(v.jobWorkCategory) || v.category || '',
-    jobWorkSubCategory: joinArray(v.job_work_sub_category) || joinArray(v.jobWorkSubCategory) || v.sub_category || v.subCategory || '',
-    contactPerson: v.contact_person || v.contactPerson || v.contact || '',
-    whatsappNo: v.whatsapp_number || v.whatsappNo || v.whatsapp_no || v.phone || v.phone_number || v.mobile || '',
-    altWhatsappNo: v.alt_whatsapp_number || v.altWhatsappNo || v.alt_whatsapp_no || v.alt_phone || '',
-    email: v.email || v.email_address || '',
-    paymentTerms: v.payment_terms || v.paymentTerms || v.payment_term || '',
-    createdAt: v.created_at || v.createdAt || v.date_created || new Date().toISOString()
-  });
 
   useEffect(() => {
     const fetchVendors = async () => {
@@ -41,27 +80,56 @@ const VendorMasterSheet = ({ onBack }) => {
 
         let vendorList = [];
 
-        // 1. Fetch vendor list from API
+        // 1. Try the master-sheet endpoint first, then fall back to the list endpoint
         try {
-          const data = await getVendorCodes();
-          console.log('Raw API response for vendors:', JSON.stringify(data, null, 2));
-          if (data && Array.isArray(data)) {
-            vendorList = data;
-          } else if (data && data.results && Array.isArray(data.results)) {
-            vendorList = data.results;
-          } else if (data && data.data && Array.isArray(data.data)) {
-            vendorList = data.data;
-          }
-          if (vendorList.length > 0) {
-            console.log('First vendor raw fields:', Object.keys(vendorList[0]), vendorList[0]);
-          }
-        } catch (apiError) {
-          console.warn('API list fetch failed:', apiError);
+          const masterSheetData = await getVendorMasterSheet();
+          vendorList = extractItems(masterSheetData);
+        } catch (masterSheetError) {
+          console.warn('Vendor master sheet fetch failed:', masterSheetError);
         }
 
-        // 2. Merge with localStorage to fill any gaps
+        if (vendorList.length === 0) {
+          try {
+            const data = await getVendorCodes();
+            vendorList = extractItems(data);
+          } catch (apiError) {
+            console.warn('API list fetch failed:', apiError);
+          }
+        }
+
+        // 2. When list data is sparse, fetch the detail record to fill missing fields
+        if (vendorList.length > 0) {
+          vendorList = await Promise.all(
+            vendorList.map(async (vendor) => {
+              const normalized = normalizeVendor(vendor);
+              if (!hasMissingVendorFields(normalized)) {
+                return vendor;
+              }
+
+              const identifier = normalized.id || normalized.code;
+              if (!identifier) {
+                return vendor;
+              }
+
+              try {
+                const detail = await getVendorCode(identifier);
+                const detailData = detail?.data && typeof detail.data === 'object' ? detail.data : detail;
+                return {
+                  ...vendor,
+                  ...Object.fromEntries(
+                    Object.entries(detailData || {}).filter(([, value]) => hasValue(value))
+                  )
+                };
+              } catch (detailError) {
+                console.warn(`Vendor detail fetch failed for ${identifier}:`, detailError);
+                return vendor;
+              }
+            })
+          );
+        }
+
+        // 3. Merge with localStorage to fill any gaps
         const storedVendors = JSON.parse(localStorage.getItem('vendorCodes') || '[]');
-        console.log('localStorage vendorCodes:', storedVendors);
         const storedMap = {};
         storedVendors.forEach(s => {
           const c = (s.code || s.id || '').toString();
@@ -73,7 +141,7 @@ const VendorMasterSheet = ({ onBack }) => {
           const stored = storedMap[c];
           if (stored) {
             const merged = { ...stored, ...Object.fromEntries(
-              Object.entries(v).filter(([, val]) => val !== '' && val !== null && val !== undefined)
+              Object.entries(v).filter(([, val]) => hasValue(val))
             )};
             delete storedMap[c];
             return merged;
@@ -83,7 +151,7 @@ const VendorMasterSheet = ({ onBack }) => {
 
         Object.values(storedMap).forEach(s => vendorList.push(s));
 
-        // 3. Normalize all vendor data
+        // 4. Normalize all vendor data
         const normalizedVendors = vendorList.map(v => normalizeVendor(v));
         setVendors(normalizedVendors);
       } catch (err) {
@@ -164,6 +232,14 @@ const VendorMasterSheet = ({ onBack }) => {
 
   const handleViewDetails = (vendor) => {
     setSelectedVendor(vendor);
+  };
+
+  const handleEditVendor = (vendor) => {
+    if (typeof onEditVendor === 'function') {
+      onEditVendor(vendor);
+      return;
+    }
+    alert('Edit vendor handler is not configured.');
   };
 
   const getSortIcon = (columnKey) => {
@@ -634,7 +710,7 @@ const VendorMasterSheet = ({ onBack }) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => alert('Edit functionality to be implemented')}
+                          onClick={() => handleEditVendor(vendor)}
                           title="Edit Vendor"
                           className="h-8 w-8"
                         >

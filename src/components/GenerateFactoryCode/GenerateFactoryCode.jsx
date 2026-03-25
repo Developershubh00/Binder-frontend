@@ -5865,6 +5865,7 @@ import {
   isEmpty,
   validateMaterialAgainstSchema
 } from '@/utils/validationSchemas';
+import { SIMPLE_REQUIREMENT_WORK_ORDERS } from '@/utils/workOrderOptions';
 import Step0 from './components/steps/Step0';
 import Step1 from './components/steps/Step1';
 import Step2 from './components/steps/Step2';
@@ -7615,6 +7616,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
             if (field === 'workOrder') {
               updatedWO = {
                 workOrder: value,
+                isRequired: '',
                 wastage: wo.wastage,
                 forField: wo.forField,
                 approvalAgainst: '',
@@ -7811,12 +7813,21 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
       });
     }
     
-    // Clear error
+    // Clear current field error, or all work-order errors when the work-order type changes.
     const errorKey = `rawMaterial_${materialIndex}_workOrder_${workOrderIndex}_${field}`;
-    if (errors[errorKey]) {
+    const workOrderErrorPrefix = `rawMaterial_${materialIndex}_workOrder_${workOrderIndex}_`;
+    if (field === 'workOrder' || errors[errorKey]) {
       setErrors(prev => {
         const newErrors = { ...prev };
-        delete newErrors[errorKey];
+        if (field === 'workOrder') {
+          Object.keys(newErrors).forEach((key) => {
+            if (key.startsWith(workOrderErrorPrefix)) {
+              delete newErrors[key];
+            }
+          });
+        } else {
+          delete newErrors[errorKey];
+        }
         return newErrors;
       });
     }
@@ -7831,6 +7842,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         ...updatedRawMaterials[materialIndex],
         workOrders: [...updatedRawMaterials[materialIndex].workOrders, {
           workOrder: '',
+          isRequired: '',
           wastage: '',
           forField: '',
           approvalAgainst: '',
@@ -7971,6 +7983,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         qualityVerification: '',
         workOrders: [{
           workOrder: '',
+          isRequired: '',
           wastage: '',
           forField: '',
           approvalAgainst: '',
@@ -9722,10 +9735,19 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     });
     
     const errorKey = `packaging_material_${materialIndex}_${field}`;
-    if (errors[errorKey]) {
+    const materialErrorPrefix = `packaging_material_${materialIndex}_`;
+    if (field === 'packagingMaterialType' || errors[errorKey]) {
       setErrors(prev => {
         const newErrors = { ...prev };
-        delete newErrors[errorKey];
+        if (field === 'packagingMaterialType') {
+          Object.keys(newErrors).forEach((key) => {
+            if (key.startsWith(materialErrorPrefix)) {
+              delete newErrors[key];
+            }
+          });
+        } else {
+          delete newErrors[errorKey];
+        }
         return newErrors;
       });
     }
@@ -10005,6 +10027,24 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         packaging: { ...stepData.packaging, extraPacks },
       };
     });
+
+    const errorKey = `packaging_extra_${extraIndex}_material_${materialIndex}_${field}`;
+    const materialErrorPrefix = `packaging_extra_${extraIndex}_material_${materialIndex}_`;
+    if (field === 'packagingMaterialType' || errors[errorKey]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        if (field === 'packagingMaterialType') {
+          Object.keys(newErrors).forEach((key) => {
+            if (key.startsWith(materialErrorPrefix)) {
+              delete newErrors[key];
+            }
+          });
+        } else {
+          delete newErrors[errorKey];
+        }
+        return newErrors;
+      });
+    }
   };
 
   const addExtraPackMaterial = (extraIndex) => {

@@ -6,6 +6,22 @@ import PackagingMaterialTypeFields from '../PackagingMaterialTypeFields';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import { cn } from '@/lib/utils';
 
+const PACKAGING_MATERIAL_TYPE_OPTIONS = [
+  'CARTON BOX',
+  'CORNER PROTECTORS',
+  'EDGE PROTECTORS',
+  'FOAM INSERT',
+  'PALLET STRAP',
+  'DIVIDER',
+  'TAPE',
+  'POLYBAG~POLYBAG-FLAP',
+  'POLYBAG~Bale',
+  'SILICA GEL DESICCANT',
+  'SHRINK TAPE',
+  'VOID~FILL',
+  'SHIPPING MARK',
+];
+
 const Step5 = ({
   formData,
   errors,
@@ -405,7 +421,7 @@ const Step5 = ({
                 <SearchableDropdown
                   value={material.packagingMaterialType || ''}
                   onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', selectedValue)}
-                  options={['CARTON BOX', 'CORNER PROTECTORS', 'EDGE PROTECTORS', 'FOAM INSERT', 'PALLET STRAP', 'DIVIDER', 'TAPE', 'POLYBAG~POLYBAG-FLAP', 'POLYBAG~Bale', 'SILICA GEL DESICCANT', 'SHRINK TAPE', 'VOID~FILL']}
+                  options={PACKAGING_MATERIAL_TYPE_OPTIONS}
                   placeholder="Select or type Material Type"
                   style={{ width: '280px' }}
                   className={errors?.[`packaging_material_${materialIndex}_packagingMaterialType`] ? 'border-red-600' : ''}
@@ -662,7 +678,7 @@ const Step5 = ({
                         <SearchableDropdown
                           value={material.packagingMaterialType || ''}
                           onChange={(selectedValue) => handleExtraPackMaterialChange(extraIndex, materialIndex, 'packagingMaterialType', selectedValue)}
-                          options={['CARTON BOX', 'CORNER PROTECTORS', 'EDGE PROTECTORS', 'FOAM INSERT', 'PALLET STRAP', 'DIVIDER', 'TAPE', 'POLYBAG~POLYBAG-FLAP', 'POLYBAG~Bale', 'SILICA GEL DESICCANT', 'SHRINK TAPE', 'VOID~FILL']}
+                          options={PACKAGING_MATERIAL_TYPE_OPTIONS}
                           placeholder="Select or type Material Type"
                           style={{ width: '280px' }}
                           className={cn('border-2 rounded-lg', errors?.[`packaging_extra_${extraIndex}_material_${materialIndex}_packagingMaterialType`] ? 'border-red-600' : 'border-gray-200')}

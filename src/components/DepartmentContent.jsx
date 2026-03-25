@@ -20,6 +20,8 @@ const DepartmentContent = ({ resetKey }) => {
   const [showBuyerMasterSheet, setShowBuyerMasterSheet] = useState(false);
   const [showCompanyEssentials, setShowCompanyEssentials] = useState(false);
   const [showInternalPurchaseOrder, setShowInternalPurchaseOrder] = useState(false);
+  const [editingBuyer, setEditingBuyer] = useState(null);
+  const [editingVendor, setEditingVendor] = useState(null);
   
   const subMenuRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
@@ -429,6 +431,8 @@ const DepartmentContent = ({ resetKey }) => {
     setShowBuyerMasterSheet(false);
     setShowCompanyEssentials(false);
     setShowInternalPurchaseOrder(false);
+    setEditingBuyer(null);
+    setEditingVendor(null);
   };
 
   // Determine if submenu should be shown (hover only)
@@ -529,7 +533,10 @@ const DepartmentContent = ({ resetKey }) => {
       <div className="fullscreen-buttons">
         <button 
           className="fullscreen-action-button primary"
-          onClick={() => setShowGenerateBuyerCode(true)}
+          onClick={() => {
+            setEditingBuyer(null);
+            setShowGenerateBuyerCode(true);
+          }}
         >
           <div className="button-content">
             <span className="button-title">GENERATE BUYER CODE</span>
@@ -561,7 +568,10 @@ const DepartmentContent = ({ resetKey }) => {
       <div className="fullscreen-buttons">
         <button 
           className="fullscreen-action-button primary"
-          onClick={() => setShowGenerateVendorCode(true)}
+          onClick={() => {
+            setEditingVendor(null);
+            setShowGenerateVendorCode(true);
+          }}
         >
           <div className="button-content">
             <span className="button-title">GENERATE VENDOR CODE</span>
@@ -743,7 +753,19 @@ const DepartmentContent = ({ resetKey }) => {
     if (showGenerateBuyerCode) {
       return (
         <GenerateBuyerCode 
-          onBack={() => setShowGenerateBuyerCode(false)} 
+          initialData={editingBuyer}
+          onBack={() => {
+            setShowGenerateBuyerCode(false);
+            if (editingBuyer) {
+              setEditingBuyer(null);
+              setShowBuyerMasterSheet(true);
+            }
+          }}
+          onSaved={() => {
+            setShowGenerateBuyerCode(false);
+            setEditingBuyer(null);
+            setShowBuyerMasterSheet(true);
+          }}
         />
       );
     }
@@ -751,7 +773,19 @@ const DepartmentContent = ({ resetKey }) => {
     if (showGenerateVendorCode) {
       return (
         <GenerateVendorCode 
-          onBack={() => setShowGenerateVendorCode(false)} 
+          initialData={editingVendor}
+          onBack={() => {
+            setShowGenerateVendorCode(false);
+            if (editingVendor) {
+              setEditingVendor(null);
+              setShowVendorMasterSheet(true);
+            }
+          }}
+          onSaved={() => {
+            setShowGenerateVendorCode(false);
+            setEditingVendor(null);
+            setShowVendorMasterSheet(true);
+          }}
         />
       );
     }
@@ -788,7 +822,12 @@ const DepartmentContent = ({ resetKey }) => {
     if (showVendorMasterSheet) {
       return (
         <VendorMasterSheet 
-          onBack={() => setShowVendorMasterSheet(false)} 
+          onBack={() => setShowVendorMasterSheet(false)}
+          onEditVendor={(vendor) => {
+            setEditingVendor(vendor);
+            setShowVendorMasterSheet(false);
+            setShowGenerateVendorCode(true);
+          }}
         />
       );
     }
@@ -796,7 +835,12 @@ const DepartmentContent = ({ resetKey }) => {
     if (showBuyerMasterSheet) {
       return (
         <BuyerMasterSheet 
-          onBack={() => setShowBuyerMasterSheet(false)} 
+          onBack={() => setShowBuyerMasterSheet(false)}
+          onEditBuyer={(buyer) => {
+            setEditingBuyer(buyer);
+            setShowBuyerMasterSheet(false);
+            setShowGenerateBuyerCode(true);
+          }}
         />
       );
     }

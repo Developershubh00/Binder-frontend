@@ -133,6 +133,8 @@ const Dashboard = () => {
   const [showCalculator, setShowCalculator] = useState(false);
   const [calcInput, setCalcInput] = useState('');
   const [calcResult, setCalcResult] = useState('0');
+  const [editingBuyer, setEditingBuyer] = useState(null);
+  const [editingVendor, setEditingVendor] = useState(null);
   const profileMenuRef = useRef(null);
   const calculatorRef = useRef(null);
   const sidebarRef = useRef(null);
@@ -253,23 +255,85 @@ const Dashboard = () => {
       case 'home':
         return <HomeContent user={user} />;
       case 'uqr-forms':
-        return <UQRFormsPreview />;
+        return <UQRFormsPreview mode="forms" />;
+      case 'uqr-database':
+        return <UQRFormsPreview mode="database" />;
       case 'tasks':
         return <TasksContent initialView={tasksView} />;
       case 'purchase':
         return <PurchaseContent />;
       case 'code-creation':
         if (codeCreationView === 'buyer') {
-          return <GenerateBuyerCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+          return (
+            <GenerateBuyerCode
+              initialData={editingBuyer}
+              onBack={() => {
+                if (editingBuyer) {
+                  setEditingBuyer(null);
+                  setCodeCreationView('buyer-existing');
+                } else {
+                  setCodeCreationView(null);
+                }
+                setActivePage('code-creation');
+                setHoveredMenu('code-creation');
+              }}
+              onSaved={() => {
+                setEditingBuyer(null);
+                setActivePage('code-creation');
+                setCodeCreationView('buyer-existing');
+                setHoveredMenu('code-creation');
+              }}
+            />
+          );
         }
         if (codeCreationView === 'buyer-existing') {
-          return <BuyerMasterSheet onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+          return (
+            <BuyerMasterSheet
+              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              onEditBuyer={(buyer) => {
+                setEditingBuyer(buyer);
+                setActivePage('code-creation');
+                setCodeCreationView('buyer');
+                setHoveredMenu('code-creation');
+              }}
+            />
+          );
         }
         if (codeCreationView === 'vendor') {
-          return <GenerateVendorCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+          return (
+            <GenerateVendorCode
+              initialData={editingVendor}
+              onBack={() => {
+                if (editingVendor) {
+                  setEditingVendor(null);
+                  setCodeCreationView('vendor-existing');
+                } else {
+                  setCodeCreationView(null);
+                }
+                setActivePage('code-creation');
+                setHoveredMenu('code-creation');
+              }}
+              onSaved={() => {
+                setEditingVendor(null);
+                setActivePage('code-creation');
+                setCodeCreationView('vendor-existing');
+                setHoveredMenu('code-creation');
+              }}
+            />
+          );
         }
         if (codeCreationView === 'vendor-existing') {
-          return <VendorMasterSheet onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
+          return (
+            <VendorMasterSheet
+              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              onEditVendor={(vendor) => {
+                setEditingVendor(vendor);
+                setActivePage('code-creation');
+                setCodeCreationView('vendor');
+                setHoveredMenu('code-creation');
+              }}
+            />
+          );
         }
         if (codeCreationView === 'company-essentials') {
           return <CompanyEssentials onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
@@ -393,7 +457,12 @@ const Dashboard = () => {
   }, [hoveredMenu]);
 
   useEffect(() => {
-    if (activePage === 'home' || activePage === 'tasks' || activePage === 'uqr-forms') {
+    if (
+      activePage === 'home'
+      || activePage === 'tasks'
+      || activePage === 'uqr-forms'
+      || activePage === 'uqr-database'
+    ) {
       setHoveredMenu(null);
     }
   }, [activePage]);
@@ -500,7 +569,7 @@ const Dashboard = () => {
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">Buyer</div>
-                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('buyer'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                <button className="hover-panel-item" onClick={() => { setEditingBuyer(null); setActivePage('code-creation'); setCodeCreationView('buyer'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
                   Generate Buyer Code
                 </button>
                 <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('buyer-existing'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
@@ -513,7 +582,7 @@ const Dashboard = () => {
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">Vendor</div>
-                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('vendor'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                <button className="hover-panel-item" onClick={() => { setEditingVendor(null); setActivePage('code-creation'); setCodeCreationView('vendor'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
                   Generate Vendor Code
                 </button>
                 <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('vendor-existing'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
@@ -657,19 +726,43 @@ const Dashboard = () => {
               </button>
               <button
                 type="button"
-                className={`hover-panel-item ${activePage === 'uqr-forms' ? 'active' : ''}`}
-                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: null, action: null, category: null })}
-                onClick={() => {
-                  setActivePage('uqr-forms');
-                  setHoveredSubmenu(null);
-                  setHoveredMenu(null);
-                }}
+                className={`hover-panel-item ${activeSection === 'uqr' || activePage === 'uqr-forms' || activePage === 'uqr-database' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'uqr', action: null, category: null })}
               >
                 UQR
               </button>
             </div>
           </div>
-          {activeSection && (
+          {activeSection === 'uqr' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">UQR</div>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'uqr-forms' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('uqr-forms');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  UQR Forms
+                </button>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'uqr-database' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('uqr-database');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  UQR Database
+                </button>
+              </div>
+            </div>
+          )}
+          {activeSection && activeSection !== 'uqr' && (
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">
@@ -691,7 +784,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeAction && (
+          {activeAction && activeSection !== 'uqr' && (
             <div className="hover-panel nested-panel second">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">Select Type</div>
@@ -713,7 +806,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeCategory && (
+          {activeCategory && activeSection !== 'uqr' && (
             <div className="hover-panel nested-panel third">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">{activeCategoryMeta?.label}</div>

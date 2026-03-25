@@ -52,6 +52,7 @@ export const initializeRawMaterials = (formData) => {
         certifications: '',
         workOrders: [{
           workOrder: '',
+          isRequired: '',
           wastage: '',
           forField: '',
           approvalAgainst: '',

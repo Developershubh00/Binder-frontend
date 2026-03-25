@@ -35,6 +35,52 @@ const parsePairDimensions = (value) => {
 };
 
 const CARTON_PLY_OPTIONS = ['3 Ply', '5 Ply', '7 Ply', '9 Ply'];
+const SHIPPING_MARK_TYPE_OPTIONS = [
+  'Adhesive Sticker (on packaging/hang tag)',
+  'Pre-Printed on Carton',
+  'Pre-Printed Barcode Area',
+];
+const SHIPPING_MARK_MATERIAL_OPTIONS = [
+  'Thermal Transfer Paper',
+  'Direct Thermal Paper',
+  'White Matte Label Stock',
+  'Synthetic',
+];
+const SHIPPING_MARK_TESTING_OPTIONS = [
+  'Colour Fastness (Wash/Rubbing)',
+  'Shrinkage',
+  'Needle Detection (metallic thread)',
+  'Barcode Verification Report (Grade A/B)',
+  'Scan Rate Audit (100% POS)',
+];
+const SHIPPING_MARK_QUALITY_OPTIONS = [
+  'Print Contrast Ratio',
+  'Edge Definition',
+  'Minimum Grade A/B Check',
+];
+const SHIPPING_MARK_BARCODE_OPTIONS = [
+  'UPC-A (12 digit)',
+  'EAN-13 (13 digit)',
+  'Code 128',
+  'ITF-14 (carton)',
+];
+const SHIPPING_MARK_PRINT_METHOD_OPTIONS = [
+  'Thermal Transfer',
+  'Direct Thermal',
+  'Laser',
+  'Pre-Printed',
+];
+const SHIPPING_MARK_VARIABLE_DATA_OPTIONS = [
+  'SKU',
+  'Size',
+  'Color',
+  'Price',
+  'Sequential Number',
+];
+const SHIPPING_MARK_GUMMING_OPTIONS = [
+  'Removable (peel cleanly)',
+  'Permanent (shipping carton)',
+];
 
 const getPoQtyAndImageForIpc = (skus, ipc) => {
   if (!ipc || !Array.isArray(skus)) return { poQty: '', imagePreview: null };
@@ -2151,6 +2197,190 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     </>
                   )}
 
+                  {material.packagingMaterialType === 'SHIPPING MARK' && (
+                    <>
+                      <div className="flex flex-col">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
+                        <SearchableDropdown
+                          value={material.shippingMarkType || ''}
+                          onChange={(selectedValue) => onChange('shippingMarkType', selectedValue)}
+                          options={SHIPPING_MARK_TYPE_OPTIONS}
+                          placeholder="Select or type Type"
+                          strictMode={false}
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                        />
+                        {errors?.[`${errorKeyPrefix}_shippingMarkType`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkType`]}</span>}
+                      </div>
+                      <div className="flex flex-col">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
+                        <SearchableDropdown
+                          value={material.shippingMarkMaterial || ''}
+                          onChange={(selectedValue) => onChange('shippingMarkMaterial', selectedValue)}
+                          options={SHIPPING_MARK_MATERIAL_OPTIONS}
+                          placeholder="Select or type Material"
+                          strictMode={false}
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkMaterial`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                        />
+                        {errors?.[`${errorKeyPrefix}_shippingMarkMaterial`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkMaterial`]}</span>}
+                      </div>
+                      <div className="flex flex-col">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkArtworkSpecFile`] ? 'text-red-600' : 'text-gray-700'}`}>ARTWORK SPEC <span className="text-red-500">*</span></label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="file"
+                            onChange={(e) => onChange('shippingMarkArtworkSpecFile', e.target.files?.[0] || null)}
+                            className="hidden"
+                            id={`shipping-mark-artwork-${safeIndex}`}
+                          />
+                          <label
+                            htmlFor={`shipping-mark-artwork-${safeIndex}`}
+                            className={`border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 flex-shrink-0 ${errors?.[`${errorKeyPrefix}_shippingMarkArtworkSpecFile`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            style={{ padding: '10px 14px', height: '44px', width: '110px' }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="truncate">{material.shippingMarkArtworkSpecFile ? 'DONE' : 'UPLOAD'}</span>
+                          </label>
+                        </div>
+                        {errors?.[`${errorKeyPrefix}_shippingMarkArtworkSpecFile`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkArtworkSpecFile`]}</span>}
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+                        <label className={`text-sm font-semibold mb-2 ${(errors?.[`${errorKeyPrefix}_shippingMarkSizeUnit`] || errors?.[`${errorKeyPrefix}_shippingMarkSizeWidth`] || errors?.[`${errorKeyPrefix}_shippingMarkSizeHeight`]) ? 'text-red-600' : 'text-gray-700'}`}>SIZE <span className="text-red-500">*</span></label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">UNIT</label>
+                            <UnitDropdown
+                              value={material.shippingMarkSizeUnit ?? ''}
+                              onChange={(v) => onChange('shippingMarkSizeUnit', v)}
+                              placeholder="Select Unit"
+                              className={`border-2 rounded-lg transition-all bg-white focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkSizeUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              style={{ height: '44px', width: '100%' }}
+                            />
+                            {errors?.[`${errorKeyPrefix}_shippingMarkSizeUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkSizeUnit`]}</span>}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">WIDTH</label>
+                            <input
+                              type="text"
+                              value={material.shippingMarkSizeWidth || ''}
+                              onChange={(e) => onChange('shippingMarkSizeWidth', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkSizeWidth`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Width"
+                            />
+                            {errors?.[`${errorKeyPrefix}_shippingMarkSizeWidth`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkSizeWidth`]}</span>}
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-xs text-gray-600 mb-1">HEIGHT</label>
+                            <input
+                              type="text"
+                              value={material.shippingMarkSizeHeight || ''}
+                              onChange={(e) => onChange('shippingMarkSizeHeight', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkSizeHeight`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Height"
+                            />
+                            {errors?.[`${errorKeyPrefix}_shippingMarkSizeHeight`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkSizeHeight`]}</span>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkPlacementText`] ? 'text-red-600' : 'text-gray-700'}`}>PLACEMENT <span className="text-red-500">*</span></label>
+                        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_140px] gap-3 items-end">
+                          <div className="flex flex-col">
+                            <input
+                              type="text"
+                              value={material.shippingMarkPlacementText || ''}
+                              onChange={(e) => onChange('shippingMarkPlacementText', e.target.value)}
+                              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkPlacementText`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              style={{ padding: '10px 14px', height: '44px' }}
+                              placeholder="Enter placement"
+                            />
+                            {errors?.[`${errorKeyPrefix}_shippingMarkPlacementText`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkPlacementText`]}</span>}
+                          </div>
+                          <div className="flex flex-col">
+                            <input
+                              type="file"
+                              onChange={(e) => onChange('shippingMarkPlacementReferenceImage', e.target.files?.[0] || null)}
+                              className="hidden"
+                              id={`shipping-mark-placement-${safeIndex}`}
+                            />
+                            <label
+                              htmlFor={`shipping-mark-placement-${safeIndex}`}
+                              className="border-2 rounded-lg text-sm transition-all bg-white cursor-pointer hover:bg-gray-50 flex items-center justify-center gap-2 text-gray-600 border-[#e5e7eb]"
+                              style={{ padding: '10px 14px', height: '44px' }}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                              </svg>
+                              <span className="truncate">{material.shippingMarkPlacementReferenceImage ? 'DONE' : 'UPLOAD REF'}</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkTestingRequirements`] ? 'text-red-600' : 'text-gray-700'}`}>TESTING REQUIREMENTS <span className="text-red-500">*</span></label>
+                        <TestingRequirementsInput
+                          value={asArray(material.shippingMarkTestingRequirements)}
+                          onChange={(vals) => onChange('shippingMarkTestingRequirements', vals)}
+                          options={SHIPPING_MARK_TESTING_OPTIONS}
+                          placeholder="Type to search or select..."
+                          error={errors?.[`${errorKeyPrefix}_shippingMarkTestingRequirements`]}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkQty`] ? 'text-red-600' : 'text-gray-700'}`}>QTY <span className="text-red-500">*</span></label>
+                        <input
+                          type="text"
+                          value={material.shippingMarkQty || ''}
+                          onChange={(e) => onChange('shippingMarkQty', e.target.value)}
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkQty`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                          style={{ padding: '10px 14px', height: '44px' }}
+                          placeholder="Enter quantity"
+                        />
+                        {errors?.[`${errorKeyPrefix}_shippingMarkQty`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkQty`]}</span>}
+                      </div>
+                      <div className="flex flex-col">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkQtyUnit`] ? 'text-red-600' : 'text-gray-700'}`}>QTY UNIT <span className="text-red-500">*</span></label>
+                        <SearchableDropdown
+                          value={material.shippingMarkQtyUnit || ''}
+                          onChange={(selectedValue) => onChange('shippingMarkQtyUnit', selectedValue)}
+                          options={['Pieces', 'Rolls']}
+                          placeholder="Select or type Qty Unit"
+                          strictMode={false}
+                          className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkQtyUnit`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                        />
+                        {errors?.[`${errorKeyPrefix}_shippingMarkQtyUnit`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkQtyUnit`]}</span>}
+                      </div>
+                      <div className="flex flex-col">
+                        <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkSurplus`] ? 'text-red-600' : 'text-gray-700'}`}>SURPLUS % <span className="text-red-500">*</span></label>
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            value={material.shippingMarkSurplus || ''}
+                            onChange={(e) => onChange('shippingMarkSurplus', e.target.value.replace(/[^0-9.]/g, ''))}
+                            className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkSurplus`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                            style={{ padding: '10px 32px 10px 14px', height: '44px' }}
+                            placeholder="5"
+                          />
+                          <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
+                        </div>
+                        {errors?.[`${errorKeyPrefix}_shippingMarkSurplus`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkSurplus`]}</span>}
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
+                        <SearchableDropdown
+                          value={material.shippingMarkApproval || ''}
+                          onChange={(selectedValue) => onChange('shippingMarkApproval', selectedValue)}
+                          options={PACKAGING_APPROVAL_OPTIONS}
+                          placeholder="Select or type Approval"
+                          strictMode={false}
+                        />
+                      </div>
+                    </>
+                  )}
+
                   {/* PRINTING REF with UPLOAD for POLY BAG WITH FLAP */}
                   {material.packagingMaterialType === 'POLY BAG WITH FLAP' && (
                     <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col">
@@ -2181,7 +2411,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                 
 
                   {/* Surplus & For Section - Special handling for CARTON BOX, CORNER PROTECTORS, EDGE PROTECTORS, FOAM INSERT, PALLET STRAP, POLYBAG~Bale, POLYBAG~POLYBAG-FLAP, SILICA GEL DESICCANT, SHRINK TAPE, TAPE, VOID~FILL, and DIVIDER with absolute % signs */}
-                  {(material.packagingMaterialType === 'CARTON BOX' || material.packagingMaterialType === 'CORNER PROTECTORS' || material.packagingMaterialType === 'EDGE PROTECTORS' || material.packagingMaterialType === 'FOAM INSERT' || material.packagingMaterialType === 'PALLET STRAP' || material.packagingMaterialType === 'POLYBAG~Bale' || material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' || material.packagingMaterialType === 'SILICA GEL DESICCANT' || material.packagingMaterialType === 'SHRINK TAPE' || material.packagingMaterialType === 'TAPE' || material.packagingMaterialType === 'VOID~FILL' || material.packagingMaterialType === 'DIVIDER') ? (
+                  {material.packagingMaterialType === 'SHIPPING MARK' ? null : (material.packagingMaterialType === 'CARTON BOX' || material.packagingMaterialType === 'CORNER PROTECTORS' || material.packagingMaterialType === 'EDGE PROTECTORS' || material.packagingMaterialType === 'FOAM INSERT' || material.packagingMaterialType === 'PALLET STRAP' || material.packagingMaterialType === 'POLYBAG~Bale' || material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' || material.packagingMaterialType === 'SILICA GEL DESICCANT' || material.packagingMaterialType === 'SHRINK TAPE' || material.packagingMaterialType === 'TAPE' || material.packagingMaterialType === 'VOID~FILL' || material.packagingMaterialType === 'DIVIDER') ? (
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex items-end gap-4">
                         <div className="flex flex-col" style={{ width: `${typeFieldWidth}px` }}>
@@ -2358,7 +2588,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   )}
 
                   {/* Approval Against - Special handling for CARTON BOX, CORNER PROTECTORS, EDGE PROTECTORS, FOAM INSERT, PALLET STRAP, POLYBAG~Bale, POLYBAG~POLYBAG-FLAP, SILICA GEL DESICCANT, SHRINK TAPE, TAPE, VOID~FILL, and DIVIDER */}
-                  {material.packagingMaterialType === 'CARTON BOX' ? (
+                  {material.packagingMaterialType === 'SHIPPING MARK' ? null : material.packagingMaterialType === 'CARTON BOX' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
                       <SearchableDropdown
@@ -2502,6 +2732,106 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       placeholder="Additional notes..."
                     ></textarea>
                   </div>
+
+                  {/* SHIPPING MARK - Advance Data Button and Fields */}
+                  {material.packagingMaterialType === 'SHIPPING MARK' && (
+                    <div className="col-span-full w-full" style={{ marginTop: '20px' }}>
+                      <button
+                        type="button"
+                        onClick={() => onChange('showShippingMarkAdvancedData', !material.showShippingMarkAdvancedData)}
+                        style={{
+                          backgroundColor: material.showShippingMarkAdvancedData ? '#667eea' : '#ffffff',
+                          borderColor: material.showShippingMarkAdvancedData ? '#667eea' : '#e5e7eb',
+                          color: material.showShippingMarkAdvancedData ? '#ffffff' : '#374151',
+                          border: '2px solid',
+                          borderRadius: '8px',
+                          padding: '10px 20px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          width: '100%',
+                          transition: 'all 0.2s',
+                          boxShadow: material.showShippingMarkAdvancedData ? '0 0 0 3px rgba(102, 126, 234, 0.1)' : 'none'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!material.showShippingMarkAdvancedData) {
+                            e.target.style.backgroundColor = '#f9fafb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!material.showShippingMarkAdvancedData) {
+                            e.target.style.backgroundColor = '#ffffff';
+                          }
+                        }}
+                      >
+                        {material.showShippingMarkAdvancedData ? '▼ ADVANCE SPEC' : '▶ ADVANCE SPEC'}
+                      </button>
+                      {material.showShippingMarkAdvancedData && (
+                        <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">QUALITY</label>
+                              <SearchableDropdown
+                                value={material.shippingMarkQuality || ''}
+                                onChange={(selectedValue) => onChange('shippingMarkQuality', selectedValue)}
+                                options={SHIPPING_MARK_QUALITY_OPTIONS}
+                                placeholder="Select or type Quality"
+                                strictMode={false}
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkQuality`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              />
+                              {errors?.[`${errorKeyPrefix}_shippingMarkQuality`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkQuality`]}</span>}
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">BARCODE STANDARD</label>
+                              <SearchableDropdown
+                                value={material.shippingMarkBarcodeStandard || ''}
+                                onChange={(selectedValue) => onChange('shippingMarkBarcodeStandard', selectedValue)}
+                                options={SHIPPING_MARK_BARCODE_OPTIONS}
+                                placeholder="Select or type Barcode Standard"
+                                strictMode={false}
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkBarcodeStandard`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              />
+                              {errors?.[`${errorKeyPrefix}_shippingMarkBarcodeStandard`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkBarcodeStandard`]}</span>}
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">PRINT METHOD</label>
+                              <SearchableDropdown
+                                value={material.shippingMarkPrintMethod || ''}
+                                onChange={(selectedValue) => onChange('shippingMarkPrintMethod', selectedValue)}
+                                options={SHIPPING_MARK_PRINT_METHOD_OPTIONS}
+                                placeholder="Select or type Print Method"
+                                strictMode={false}
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkPrintMethod`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              />
+                              {errors?.[`${errorKeyPrefix}_shippingMarkPrintMethod`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkPrintMethod`]}</span>}
+                            </div>
+                            <div className="flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
+                              <SearchableDropdown
+                                value={material.shippingMarkGummingQuality || ''}
+                                onChange={(selectedValue) => onChange('shippingMarkGummingQuality', selectedValue)}
+                                options={SHIPPING_MARK_GUMMING_OPTIONS}
+                                placeholder="Select or type Gumming Quality"
+                                strictMode={false}
+                                className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.[`${errorKeyPrefix}_shippingMarkGummingQuality`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+                              />
+                              {errors?.[`${errorKeyPrefix}_shippingMarkGummingQuality`] && <span className="text-red-600 text-xs mt-1">{errors[`${errorKeyPrefix}_shippingMarkGummingQuality`]}</span>}
+                            </div>
+                            <div className="col-span-1 md:col-span-2 lg:col-span-4 flex flex-col">
+                              <label className="text-sm font-semibold text-gray-700 mb-2">VARIABLE DATA</label>
+                              <TestingRequirementsInput
+                                value={asArray(material.shippingMarkVariableData)}
+                                onChange={(vals) => onChange('shippingMarkVariableData', vals)}
+                                options={SHIPPING_MARK_VARIABLE_DATA_OPTIONS}
+                                placeholder="Type to search or select..."
+                                error={errors?.[`${errorKeyPrefix}_shippingMarkVariableData`]}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* POLYBAG~Bale INNER~CASEAPACK: Polybag count + summary + per-IPC table - placed after Remarks */}
                   {material.packagingMaterialType === 'POLYBAG~Bale' && material.polybagBalePackagingType === 'INNER~CASEAPACK' && (

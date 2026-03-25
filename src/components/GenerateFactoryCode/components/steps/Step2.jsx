@@ -148,6 +148,33 @@ import {
   getWeavingPickRange,
   getAllWeavingMachineTypes
 } from '../../data/weavingData';
+import {
+  RAW_MATERIAL_WORK_ORDER_OPTIONS,
+  SIMPLE_REQUIREMENT_WORK_ORDERS,
+} from '@/utils/workOrderOptions';
+
+const YARN_TESTING_REQUIREMENT_OPTIONS = [
+  'Linear density',
+  'Strength',
+  'Twist per unit length',
+  'Evenness/Irregularity',
+  'Yarn Hairiness',
+  'Moisture Regain/Content',
+];
+
+const FABRIC_TESTING_REQUIREMENT_OPTIONS = [
+  'Physical Properties',
+  'Tensile Strength',
+  'Tear strength',
+  'Bursting Strength',
+  'Abrasion Resistance',
+  'Pilling Resistance',
+  'Dimensional Stability',
+  'Color Fastness',
+];
+
+const isSimpleRequirementWorkOrder = (workOrderType) =>
+  SIMPLE_REQUIREMENT_WORK_ORDERS.includes(workOrderType);
 
 const Step2 = ({
   formData,
@@ -1292,8 +1319,8 @@ const Step2 = ({
                           <TestingRequirementsInput
                             value={Array.isArray(material.testingRequirements) ? material.testingRequirements : (material.testingRequirements ? [String(material.testingRequirements).trim()] : [])}
                             onChange={(arr) => handleRawMaterialChange(actualIndex, 'testingRequirements', arr)}
-                            options={[]}
-                            placeholder="Type to add Testing Requirements"
+                            options={YARN_TESTING_REQUIREMENT_OPTIONS}
+                            placeholder="Select or type Testing Requirements"
                             className={errors[`rawMaterial_${actualIndex}_testingRequirements`] ? 'border-red-600' : ''}
                             error={!!errors[`rawMaterial_${actualIndex}_testingRequirements`]}
                           />
@@ -1515,8 +1542,8 @@ const Step2 = ({
                     <TestingRequirementsInput
                       value={Array.isArray(material.fabricTestingRequirements) ? material.fabricTestingRequirements : (material.fabricTestingRequirements ? [String(material.fabricTestingRequirements).trim()] : [])}
                       onChange={(arr) => handleRawMaterialChange(actualIndex, 'fabricTestingRequirements', arr)}
-                      options={[]}
-                      placeholder="Type to add Testing Requirements"
+                      options={FABRIC_TESTING_REQUIREMENT_OPTIONS}
+                      placeholder="Select or type Testing Requirements"
                       className={errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`] ? 'border-red-600' : ''}
                       error={!!errors[`rawMaterial_${actualIndex}_fabricTestingRequirements`]}
                     />
@@ -9132,20 +9159,7 @@ const Step2 = ({
                         onChange={(selectedValue) => {
                           handleWorkOrderChange(actualIndex, woIndex, 'workOrder', selectedValue);
                         }}
-                        options={[
-                          'WEAVING',
-                          'TUFTING',
-                          'QUILTING',
-                          'PRINTING',
-                          'KNITTING',
-                          'EMBROIDERY',
-                          'DYEING',
-                          'BRAIDING',
-                          'CARPET',
-                          'CUTTING',
-                          'SEWING',
-                          'FRINGE/TASSELS',
-                        ]}
+                        options={RAW_MATERIAL_WORK_ORDER_OPTIONS}
                         placeholder="Select Work Order"
                         strictMode={true}
                         className={
@@ -9155,7 +9169,7 @@ const Step2 = ({
                     </Field>
                     
                     {/* WASTAGE field - Hidden for KNITTING, PRINTING, QUILTING, SEWING, TUFTING, WEAVING, and FRINGE/TASSELS as they have their own sections */}
-                    {workOrder.workOrder && workOrder.workOrder !== 'KNITTING' && workOrder.workOrder !== 'PRINTING' && workOrder.workOrder !== 'QUILTING' && workOrder.workOrder !== 'SEWING' && workOrder.workOrder !== 'TUFTING' && workOrder.workOrder !== 'WEAVING' && workOrder.workOrder !== 'FRINGE/TASSELS' && (
+                    {workOrder.workOrder && workOrder.workOrder !== 'KNITTING' && workOrder.workOrder !== 'PRINTING' && workOrder.workOrder !== 'QUILTING' && workOrder.workOrder !== 'SEWING' && workOrder.workOrder !== 'TUFTING' && workOrder.workOrder !== 'WEAVING' && workOrder.workOrder !== 'FRINGE/TASSELS' && !isSimpleRequirementWorkOrder(workOrder.workOrder) && (
                       <>
                         <Field
                           label={
@@ -9183,6 +9197,19 @@ const Step2 = ({
                   {/* Conditional Fields based on Work Order Type */}
                   {workOrder.workOrder && (
                     <div className="w-full flex flex-wrap items-start mt-14 pt-6 border-t border-gray-50" style={{ gap: '24px 32px', marginTop: '20px' }}>
+                      {isSimpleRequirementWorkOrder(workOrder.workOrder) && (
+                        <QualityVerificationToggle
+                          value={workOrder.isRequired}
+                          onChange={(value) => handleWorkOrderChange(actualIndex, woIndex, 'isRequired', value)}
+                          label="Is this required?"
+                          required
+                          error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_isRequired`]}
+                          width="sm"
+                        />
+                      )}
+
+                      {!isSimpleRequirementWorkOrder(workOrder.workOrder) && (
+                        <>
                       {/* Machine Type / Specific Type Dropdown */}
                       {(['WEAVING', 'TUFTING', 'KNITTING', 'EMBROIDERY', 'BRAIDING', 'CARPET', 'CUTTING'].includes(workOrder.workOrder)) && (
                         <Field
@@ -11579,6 +11606,8 @@ const Step2 = ({
                           className="w-full"
                         />
                       </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

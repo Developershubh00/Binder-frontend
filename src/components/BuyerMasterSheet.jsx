@@ -2,9 +2,23 @@ import { useState, useEffect } from 'react';
 import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getBuyerCodes, deleteBuyerCode } from '../services/integration';
+import { getBuyerCodes, getBuyerMasterSheet, deleteBuyerCode } from '../services/integration';
 
-const BuyerMasterSheet = ({ onBack }) => {
+const hasValue = (value) => {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value === null || value === undefined) return false;
+  return String(value).trim() !== '';
+};
+
+const extractItems = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.results)) return payload.data.results;
+  return [];
+};
+
+const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
   const [buyers, setBuyers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -16,6 +30,7 @@ const BuyerMasterSheet = ({ onBack }) => {
     id: b.id || b.code || '',
     code: b.code || b.id || '',
     buyerName: b.buyer_name || b.buyerName || '',
+    buyerAddress: b.buyer_address || b.buyerAddress || '',
     contactPerson: b.contact_person || b.contactPerson || '',
     retailer: b.retailer || b.end_customer || '',
     createdAt: b.created_at || b.createdAt || new Date().toISOString()
@@ -29,16 +44,21 @@ const BuyerMasterSheet = ({ onBack }) => {
 
         let buyerList = [];
 
-        // 1. Try to fetch from API
+        // 1. Try the master-sheet endpoint first, then fall back to the list endpoint
         try {
-          const data = await getBuyerCodes();
-          if (data && Array.isArray(data)) {
-            buyerList = data;
-          } else if (data && data.results && Array.isArray(data.results)) {
-            buyerList = data.results;
+          const masterSheetData = await getBuyerMasterSheet();
+          buyerList = extractItems(masterSheetData);
+        } catch (masterSheetError) {
+          console.warn('Buyer master sheet fetch failed:', masterSheetError);
+        }
+
+        if (buyerList.length === 0) {
+          try {
+            const data = await getBuyerCodes();
+            buyerList = extractItems(data);
+          } catch (apiError) {
+            console.warn('API fetch failed:', apiError);
           }
-        } catch (apiError) {
-          console.warn('API fetch failed:', apiError);
         }
 
         // 2. Merge with localStorage — fill in any fields the API didn't return
@@ -54,7 +74,7 @@ const BuyerMasterSheet = ({ onBack }) => {
           const stored = storedMap[c];
           if (stored) {
             const merged = { ...stored, ...Object.fromEntries(
-              Object.entries(b).filter(([, val]) => val !== '' && val !== null && val !== undefined)
+              Object.entries(b).filter(([, val]) => hasValue(val))
             )};
             delete storedMap[c];
             return merged;
@@ -141,6 +161,14 @@ const BuyerMasterSheet = ({ onBack }) => {
 
   const handleViewDetails = (buyer) => {
     setSelectedBuyer(buyer);
+  };
+
+  const handleEditBuyer = (buyer) => {
+    if (typeof onEditBuyer === 'function') {
+      onEditBuyer(buyer);
+      return;
+    }
+    alert('Edit buyer handler is not configured.');
   };
 
   const getSortIcon = (columnKey) => {
@@ -441,7 +469,7 @@ const BuyerMasterSheet = ({ onBack }) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => alert('Edit functionality to be implemented')}
+                          onClick={() => handleEditBuyer(buyer)}
                           title="Edit Buyer"
                           className="h-8 w-8"
                         >

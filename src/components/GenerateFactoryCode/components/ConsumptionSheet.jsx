@@ -173,6 +173,11 @@ const PACKAGING_DESCRIPTION_FIELD_MAP = {
     { label: 'Material', keys: ['tapeMaterial'] },
     { label: 'Width', keys: ['tapeWidth'] },
   ],
+  'SHIPPING MARK': [
+    { label: 'Type', keys: ['shippingMarkType'] },
+    { label: 'Material', keys: ['shippingMarkMaterial'] },
+    { label: 'Barcode', keys: ['shippingMarkBarcodeStandard'] },
+  ],
 };
 
 const PACKAGING_SIZE_FIELD_MAP = {
@@ -226,6 +231,10 @@ const PACKAGING_SIZE_FIELD_MAP = {
     { label: 'Thickness', keys: ['tapeGaugeThickness'] },
     { label: 'Width', keys: ['tapeWidth'], unitKeys: ['tapeWidthUnit'] },
     { label: 'Length', keys: ['tapeLength'], unitKeys: ['tapeLengthUnit'] },
+  ],
+  'SHIPPING MARK': [
+    { label: 'W', keys: ['shippingMarkSizeWidth'], unitKeys: ['shippingMarkSizeUnit'] },
+    { label: 'H', keys: ['shippingMarkSizeHeight'], unitKeys: ['shippingMarkSizeUnit'] },
   ],
 };
 
@@ -387,6 +396,7 @@ const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
       'SILICA GEL DESICCANT': { wastage: 'silicaGelDesiccantWastage', surplus: 'silicaGelDesiccantSurplus' },
       'SHRINK TAPE': { wastage: 'stretchWrapWastage', surplus: 'stretchWrapSurplus' },
       'TAPE': { wastage: 'tapeWastage', surplus: 'tapeSurplus' },
+      'SHIPPING MARK': { surplus: 'shippingMarkSurplus' },
       'VOID~FILL': { wastage: 'voidFillWastage', surplus: 'voidFillSurplus' },
       // Default/Divider
       'DIVIDER': { wastage: 'dividerWastage', surplus: 'dividerSurplus' },

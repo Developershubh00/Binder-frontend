@@ -447,28 +447,55 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-layout';
-import { getBuyerCodes, createBuyerCode } from '../services/integration';
+import { getBuyerCodes, createBuyerCode, updateBuyerCode } from '../services/integration';
 
-const GenerateBuyerCode = ({ onBack }) => {
-  const [formData, setFormData] = useState({
-    buyerName: '',
-    contactPerson: '',
-    retailer: ''
-  });
+const INITIAL_FORM_DATA = {
+  buyerName: '',
+  contactPerson: '',
+  retailer: ''
+};
+
+const extractItems = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.results)) return payload.data.results;
+  return [];
+};
+
+const GenerateBuyerCode = ({ onBack, initialData = null, onSaved }) => {
+  const isEditMode = Boolean(initialData);
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState({});
   const [generatedCode, setGeneratedCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [existingBuyerCodes, setExistingBuyerCodes] = useState([]);
 
   useEffect(() => {
+    if (initialData) {
+      setFormData({
+        buyerName: initialData.buyerName || initialData.buyer_name || '',
+        contactPerson: initialData.contactPerson || initialData.contact_person || '',
+        retailer: initialData.retailer || initialData.end_customer || ''
+      });
+    } else {
+      setFormData(INITIAL_FORM_DATA);
+    }
+    setErrors({});
+    setGeneratedCode('');
+    setIsGenerating(false);
+  }, [initialData]);
+
+  useEffect(() => {
     const loadBuyerCodes = async () => {
       try {
         const response = await getBuyerCodes();
-        // API returns paginated results or array
-        const codes = response.results || response.data || response || [];
+        const codes = extractItems(response);
         const mapped = Array.isArray(codes) ? codes.map(item => ({
-          code: item.code,
+          id: item.id || item.code || '',
+          code: item.code || item.id || '',
           buyerName: item.buyer_name || item.buyerName || '',
+          buyerAddress: item.buyer_address || item.buyerAddress || '',
           contactPerson: item.contact_person || item.contactPerson || '',
           retailer: item.retailer || '',
           createdAt: item.created_at || item.createdAt || '',
@@ -526,13 +553,16 @@ const GenerateBuyerCode = ({ onBack }) => {
   const checkIfCombinationExists = (existingCodes) => {
     const normalizedBuyerName = formData.buyerName.trim().toLowerCase();
     const normalizedRetailer = formData.retailer.trim().toLowerCase();
+    const currentCode = (initialData?.code || initialData?.id || '').toString().trim();
 
     // Check if exact buyer + end customer combination exists
     const existingEntry = existingCodes.find(item => {
       const itemBuyerName = (item.buyerName || '').trim().toLowerCase();
       const itemRetailer = (item.retailer || '').trim().toLowerCase();
+      const itemCode = (item.code || item.id || '').toString().trim();
 
       return (
+        itemCode !== currentCode &&
         itemBuyerName === normalizedBuyerName &&
         itemRetailer === normalizedRetailer
       );
@@ -605,18 +635,11 @@ const GenerateBuyerCode = ({ onBack }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    console.log('Form submitted with data:', formData);
-    
-    // Validate form
-    if (!validateForm()) {
-      console.log('Form validation failed:', errors);
-      return;
-    }
+
+    if (!validateForm()) return;
     
     try {
       setIsGenerating(true);
-      console.log('Starting code generation via API...');
       
       // Check if this exact buyer + end customer combination already exists
       const existingEntry = checkIfCombinationExists(existingBuyerCodes);
@@ -624,13 +647,57 @@ const GenerateBuyerCode = ({ onBack }) => {
       if (existingEntry) {
         setIsGenerating(false);
         setErrors({
-          buyerName: `This buyer-end customer combination already exists`,
+          buyerName: 'This buyer-end customer combination already exists',
           retailer: `Existing code: ${existingEntry.code}`
         });
         alert(`⚠️ This buyer-end customer combination already exists!\n\nExisting Code: ${existingEntry.code}\nBuyer: ${existingEntry.buyerName}\nEnd Customer: ${existingEntry.retailer}\n\nPlease use a different end customer or buyer name.`);
         return;
       }
       
+      if (isEditMode) {
+        const identifier = initialData?.id || initialData?.code;
+        if (!identifier) {
+          throw new Error('Buyer identifier is missing');
+        }
+
+        const response = await updateBuyerCode(identifier, {
+          buyer_name: formData.buyerName.trim(),
+          buyer_address: initialData?.buyerAddress || initialData?.buyer_address || formData.buyerName.trim(),
+          contact_person: formData.contactPerson.trim(),
+          retailer: formData.retailer.trim()
+        });
+
+        const responseData = response?.data && typeof response.data === 'object' ? response.data : response;
+        const updatedBuyerData = {
+          id: responseData?.id || initialData?.id || initialData?.code || '',
+          code: responseData?.code || initialData?.code || initialData?.id || '',
+          buyerName: responseData?.buyer_name || responseData?.buyerName || formData.buyerName.trim(),
+          buyerAddress: responseData?.buyer_address || responseData?.buyerAddress || initialData?.buyerAddress || initialData?.buyer_address || formData.buyerName.trim(),
+          contactPerson: responseData?.contact_person || responseData?.contactPerson || formData.contactPerson.trim(),
+          retailer: responseData?.retailer || formData.retailer.trim(),
+          createdAt: responseData?.created_at || responseData?.createdAt || initialData?.createdAt || new Date().toISOString()
+        };
+
+        const existingCodes = JSON.parse(localStorage.getItem('buyerCodes') || '[]');
+        const currentCode = (initialData?.code || initialData?.id || '').toString();
+        const updatedCodes = existingCodes.map((item) => {
+          const itemCode = (item.code || item.id || '').toString();
+          return itemCode === currentCode ? { ...item, ...updatedBuyerData } : item;
+        });
+
+        localStorage.setItem('buyerCodes', JSON.stringify(updatedCodes));
+        setExistingBuyerCodes(updatedCodes);
+        setIsGenerating(false);
+
+        if (typeof onSaved === 'function') {
+          onSaved(updatedBuyerData);
+        } else {
+          alert('Buyer updated successfully.');
+          onBack?.();
+        }
+        return;
+      }
+
       // Call backend API - code is auto-generated by the server
       const response = await createBuyerCode({
         buyerName: formData.buyerName.trim(),
@@ -647,8 +714,10 @@ const GenerateBuyerCode = ({ onBack }) => {
         
         // Update localStorage cache
         const newBuyerData = {
+          id: response.data.id || response.data.code || '',
           code: newCode,
           buyerName: formData.buyerName.trim(),
+          buyerAddress: formData.buyerName.trim(),
           contactPerson: formData.contactPerson.trim(),
           retailer: formData.retailer.trim(),
           createdAt: new Date().toISOString()
@@ -703,18 +772,14 @@ const GenerateBuyerCode = ({ onBack }) => {
   };
 
   const resetForm = () => {
-    setFormData({
-      buyerName: '',
-      contactPerson: '',
-      retailer: ''
-    });
+    setFormData(INITIAL_FORM_DATA);
     setErrors({});
     setGeneratedCode('');
     setIsGenerating(false);
   };
 
   // Success screen - only show generated code
-  if (generatedCode) {
+  if (generatedCode && !isEditMode) {
     return (
       <div className="fullscreen-content" style={{ overflowY: 'auto' }}>
         <div className="content-header">
@@ -800,8 +865,12 @@ const GenerateBuyerCode = ({ onBack }) => {
         >
           ← Back to Code Creation
         </Button>
-        <h1 className="fullscreen-title">Generate Buyer Code</h1>
-        <p className="fullscreen-description">Fill in the buyer details to generate a unique buyer code</p>
+        <h1 className="fullscreen-title">{isEditMode ? 'Edit Buyer Code' : 'Generate Buyer Code'}</h1>
+        <p className="fullscreen-description">
+          {isEditMode
+            ? `Update buyer details for code ${initialData?.code || initialData?.id || ''}`.trim()
+            : 'Fill in the buyer details to generate a unique buyer code'}
+        </p>
       </div>
 
       <div className="w-full max-w-6xl mx-auto">
@@ -871,10 +940,10 @@ const GenerateBuyerCode = ({ onBack }) => {
                 {isGenerating ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2"></span>
-                    Generating Code...
+                    {isEditMode ? 'Updating Buyer...' : 'Generating Code...'}
                   </>
                 ) : (
-                  'Generate Buyer Code'
+                  isEditMode ? 'Update Buyer' : 'Generate Buyer Code'
                 )}
               </Button>
             </div>

@@ -6,6 +6,8 @@ const QualityVerificationToggle = ({
   value,
   onChange,
   label = 'Do you want the goods to be quality inspected ?',
+  required = false,
+  error,
   width = 'sm',
   className
 }) => {
@@ -20,7 +22,13 @@ const QualityVerificationToggle = ({
   ];
 
   return (
-    <Field label={label} width={width} className={cn('w-fit', '[&>label]:whitespace-nowrap', className)}>
+    <Field
+      label={label}
+      required={required}
+      error={error}
+      width={width}
+      className={cn('w-fit', '[&>label]:whitespace-nowrap', className)}
+    >
       <div
         className="flex items-center gap-4"
         role="radiogroup"

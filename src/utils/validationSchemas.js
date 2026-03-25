@@ -8,6 +8,8 @@
  * - conditional: fields that are required based on other field values
  */
 
+import { SIMPLE_REQUIREMENT_WORK_ORDERS } from './workOrderOptions';
+
 // ==================== FABRIC SCHEMA ====================
 export const FABRIC_SCHEMA = {
   required: [
@@ -85,6 +87,15 @@ const WORK_ORDER_DATE_FIELDS = ['startDate', 'dateOfCompletion'];
 const WORK_ORDER_DATE_LABELS = { startDate: 'starting date', dateOfCompletion: 'completion date' };
 
 export const WORK_ORDER_SCHEMAS = {
+  ...Object.fromEntries(
+    SIMPLE_REQUIREMENT_WORK_ORDERS.map((workOrderType) => [
+      workOrderType,
+      {
+        required: ['isRequired'],
+        fieldLabels: { isRequired: 'Requirement selection' }
+      }
+    ])
+  ),
   'BRAIDING': {
     required: ['machineType', 'strandCount', 'widthDiameter', 'gsm', 'approval', 'remarks', ...WORK_ORDER_DATE_FIELDS],
     advanced: ['variants', 'braidingDesign', 'pattern'],
@@ -656,6 +667,21 @@ export const PACKAGING_MATERIAL_SCHEMAS = {
   'TAPE': {
     required: ['tapeType', 'tapeMaterial', 'tapeGaugeThickness', 'tapeWidth', 'tapeWidthUnit', 'tapeLength', 'tapeLengthUnit', 'tapeGummingQuality', 'tapeApplication', 'tapeTestingRequirements', 'tapeSurplus', 'tapeWastage'],
     advanced: []
+  },
+  'SHIPPING MARK': {
+    required: ['shippingMarkType', 'shippingMarkMaterial', 'shippingMarkArtworkSpecFile', 'shippingMarkSizeWidth', 'shippingMarkSizeHeight', 'shippingMarkSizeUnit', 'shippingMarkPlacementText', 'shippingMarkTestingRequirements', 'shippingMarkQty', 'shippingMarkQtyUnit', 'shippingMarkSurplus'],
+    advanced: ['shippingMarkPlacementReferenceImage', 'shippingMarkQuality', 'shippingMarkBarcodeStandard', 'shippingMarkPrintMethod', 'shippingMarkVariableData', 'shippingMarkGummingQuality'],
+    fieldLabels: {
+      shippingMarkArtworkSpecFile: 'Artwork spec',
+      shippingMarkSizeWidth: 'Width',
+      shippingMarkSizeHeight: 'Height',
+      shippingMarkSizeUnit: 'Size unit',
+      shippingMarkPlacementText: 'Placement',
+      shippingMarkTestingRequirements: 'Testing requirements',
+      shippingMarkQty: 'Qty',
+      shippingMarkQtyUnit: 'Qty unit',
+      shippingMarkSurplus: 'Surplus %'
+    }
   }
 };
 
