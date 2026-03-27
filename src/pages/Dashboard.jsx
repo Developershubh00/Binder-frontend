@@ -1064,14 +1064,19 @@ const Dashboard = () => {
             >
               <Menu size={18} />
             </button>
-            <div className="logo-icon-dash">B</div>
             {companyLogo ? (
-              <img src={companyLogo} alt={companyDisplayName} className="company-logo-dash" />
-            ) : (
-              <div className="logo-icon-dash">{companyInitials}</div>
-            )}
+              <img
+                src={companyLogo}
+                alt={companyDisplayName}
+                className="company-logo-dash"
+                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling && (e.target.nextSibling.style.display = ''); }}
+              />
+            ) : null}
+            <div className="logo-icon-dash" style={companyLogo ? { display: 'none' } : undefined}>
+              {companyInitials}
+            </div>
             <div className="logo-text-wrap-dash">
-              <span className="logo-text-dash">{companyDisplayName}</span>
+              <span className="logo-text-dash">{companyDisplayName.split(' ')[0]}</span>
               <span className="logo-subtitle-dash">Powered by Binder-OS</span>
             </div>
           </div>

@@ -73,15 +73,38 @@
   font-weight: 800;
   box-shadow: 0 4px 12px var(--shadow-sm);
 }
+.company-logo-dash {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.logo-text-wrap-dash {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .logo-text-dash {
   font-size: 22px;
   font-weight: 700;
   color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.logo-subtitle-dash {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
 }
 .sidebar.collapsed .logo-text-dash {
   display: none;
 }
-.sidebar.collapsed .logo-icon-dash {
+.sidebar.collapsed .logo-icon-dash,
+.sidebar.collapsed .company-logo-dash,
+.sidebar.collapsed .logo-text-wrap-dash {
   display: none;
 }
 /* Sidebar Navigation */
