@@ -1,9 +1,6 @@
 import React from 'react';
 
-const IMSContent = () => {
-  // Removed state management - buttons won't do anything when clicked
-
-  // Default view with two buttons (no click functionality)
+const IMSContent = ({ onOpenInwardStoreSheet }) => {
   return (
     <div className="fullscreen-content">
       <div className="content-header">
@@ -12,19 +9,19 @@ const IMSContent = () => {
           Manage your inventory with inward and outward store sheets
         </p>
       </div>
-      
+
       <div className="fullscreen-buttons">
-        <button 
+        <button
           className="fullscreen-action-button primary"
-          onClick={() => {}}
+          onClick={onOpenInwardStoreSheet}
         >
           <div className="button-content">
             <span className="button-title">INWARD STORE SHEETS</span>
             <span className="button-subtitle">Track and manage incoming inventory</span>
           </div>
         </button>
-        
-        <button 
+
+        <button
           className="fullscreen-action-button secondary"
           onClick={() => {}}
         >

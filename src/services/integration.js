@@ -919,6 +919,49 @@ export const getNextIPOSrNo = async (programName) => {
 };
 
 // ============================================================================
+// INWARD STORE SHEETS
+// ============================================================================
+
+export const getInwardStoreSheets = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await apiRequest(`ims/inward-store-sheets/${query ? '?' + query : ''}`);
+  return await response.json();
+};
+
+export const getInwardStoreSheet = async (id) => {
+  const response = await apiRequest(`ims/inward-store-sheets/${id}/`);
+  return await response.json();
+};
+
+export const createInwardStoreSheet = async (data) => {
+  const response = await apiRequest('ims/inward-store-sheets/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return await response.json();
+};
+
+export const deleteInwardStoreSheet = async (id) => {
+  const response = await apiRequest(`ims/inward-store-sheets/${id}/`, {
+    method: 'DELETE',
+  });
+  if (response.status === 204) return { success: true };
+  return await response.json();
+};
+
+export const getInwardStoreSheetChoices = async () => {
+  const response = await apiRequest('ims/inward-store-sheets/choices/');
+  return await response.json();
+};
+
+export const generateInwardStoreSheetCodes = async (id) => {
+  const response = await apiRequest(`ims/inward-store-sheets/${id}/generate-codes/`, {
+    method: 'POST',
+  });
+  return await response.json();
+};
+
+// ============================================================================
 // COURIER RECORDS
 // ============================================================================
 

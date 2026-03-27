@@ -14,6 +14,8 @@ import BuyerMasterSheet from '../components/BuyerMasterSheet';
 import VendorMasterSheet from '../components/VendorMasterSheet';
 import UQRFormsPreview from '../components/UQR_forms/UQRFormsPreview.jsx';
 import CourierManagement from '../components/CourierManagement.jsx';
+import InwardStoreSheet from '../components/InwardStoreSheet.jsx';
+import InwardStoreSheetDatabase from '../components/InwardStoreSheetDatabase.jsx';
 import {
   Menu,
   Home,
@@ -270,6 +272,10 @@ const Dashboard = () => {
         return <CourierManagement mode="slip" />;
       case 'courier-master':
         return <CourierManagement mode="master" />;
+      case 'inward-store-sheet':
+        return <InwardStoreSheet onBack={() => setActivePage('home')} />;
+      case 'inward-store-sheet-db':
+        return <InwardStoreSheetDatabase onBack={() => setActivePage('home')} onOpenForm={() => setActivePage('inward-store-sheet')} />;
       case 'tasks':
         return <TasksContent initialView={tasksView} />;
       case 'purchase':
@@ -476,6 +482,8 @@ const Dashboard = () => {
       || activePage === 'uqr-database'
       || activePage === 'courier-slip'
       || activePage === 'courier-master'
+      || activePage === 'inward-store-sheet'
+      || activePage === 'inward-store-sheet-db'
     ) {
       setHoveredMenu(null);
     }
@@ -726,7 +734,7 @@ const Dashboard = () => {
               <div className="hover-panel-title">IMS</div>
               <button
                 type="button"
-                className={`hover-panel-item ${activeSection === 'inward' ? 'active' : ''}`}
+                className={`hover-panel-item ${activeSection === 'inward' || ['inward-store-sheet', 'inward-store-sheet-db'].includes(activePage) ? 'active' : ''}`}
                 onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'inward', action: null, category: null })}
               >
                 Inward Store Sheet
@@ -754,6 +762,35 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
+          {activeSection === 'inward' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Inward Store Sheet</div>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'inward-store-sheet' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('inward-store-sheet');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  Inward Store Sheet Form
+                </button>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'inward-store-sheet-db' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('inward-store-sheet-db');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  Inward Store Sheet Database
+                </button>
+              </div>
+            </div>
+          )}
           {activeSection === 'uqr' && (
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
@@ -812,7 +849,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeSection && activeSection !== 'uqr' && activeSection !== 'courier' && (
+          {activeSection && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && (
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">
@@ -834,7 +871,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeAction && activeSection !== 'uqr' && activeSection !== 'courier' && (
+          {activeAction && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && (
             <div className="hover-panel nested-panel second">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">Select Type</div>
@@ -856,7 +893,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeCategory && activeSection !== 'uqr' && activeSection !== 'courier' && (
+          {activeCategory && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && (
             <div className="hover-panel nested-panel third">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">{activeCategoryMeta?.label}</div>
@@ -1088,7 +1125,7 @@ const Dashboard = () => {
               key={item.id}
               className={`nav-item ${
                 activePage === item.id
-                || (item.id === 'ims' && ['uqr-forms', 'uqr-database', 'courier-slip', 'courier-master'].includes(activePage))
+                || (item.id === 'ims' && ['uqr-forms', 'uqr-database', 'courier-slip', 'courier-master', 'inward-store-sheet', 'inward-store-sheet-db'].includes(activePage))
                   ? 'active'
                   : ''
               }`}
