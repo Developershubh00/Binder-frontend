@@ -27,7 +27,8 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     type: '',          // 'STOCK' | 'SAM' (for Company only)
     programName: '',
     ipoCode: '',      // Generated IPO code
-    poSrNo: null      // Sequential number
+    poSrNo: null,     // Sequential number
+    ipoId: null       // UUID from database
   });
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -38,6 +39,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
         const response = await getIPOs();
         const ipos = response.results || response.data || response || [];
         const mapped = Array.isArray(ipos) ? ipos.map(item => ({
+          ipoId: item.id || item.ipoId || null,
           ipoCode: item.ipo_code || item.ipoCode || '',
           orderType: normalizeOrderType(item.order_type || item.orderType || ''),
           buyerCode: item.buyer_code_text || item.buyerCode || '',
@@ -225,22 +227,25 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
       
       console.log('IPO API response:', response);
       
-      let ipoCode, poSrNo;
-      
+      let ipoCode, poSrNo, ipoId;
+
       if (response.status === 'success' && response.data) {
         ipoCode = response.data.ipo_code;
         poSrNo = response.data.po_sr_no;
+        ipoId = response.data.id;
       } else {
         // Fallback: generate code locally if API fails
         console.warn('API did not return success, generating locally');
         poSrNo = getNextIPOSrNo(initialData);
         ipoCode = generateIPOCode(initialData.orderType, buyerCodeOrType, initialData.programName, poSrNo);
+        ipoId = null;
       }
 
       const updatedData = {
         ...initialData,
         ipoCode,
-        poSrNo
+        poSrNo,
+        ipoId
       };
 
       // Update localStorage cache
@@ -249,6 +254,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
           .map((item) => ({ ...item, orderType: normalizeOrderType(item.orderType) }));
         const newIPO = {
           ipoCode,
+          ipoId: ipoId || null,
           orderType: normalizeOrderType(initialData.orderType),
           buyerCode: initialData.buyerCode || null,
           type: initialData.type || null,
@@ -281,7 +287,8 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
       type: item.type || '',
       programName: item.programName || '',
       ipoCode: item.ipoCode || '',
-      poSrNo: item.poSrNo ?? null
+      poSrNo: item.poSrNo ?? null,
+      ipoId: item.ipoId || item.id || null
     });
     setShowInitialScreen(false);
   };

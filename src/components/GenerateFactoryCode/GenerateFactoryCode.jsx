@@ -6077,6 +6077,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     orderType: initialFormData.orderType || '',
     programName: initialFormData.programName || '',
     ipoCode: initialFormData.ipoCode || '',
+    ipoId: initialFormData.ipoId || null,
     poSrNo: initialFormData.poSrNo ?? null,
     type: initialFormData.type || '', // Company orders: STOCK | SAM
     // Step 0 - Multiple SKUs
@@ -8599,39 +8600,14 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         ...prev,
         skus: updatedSkus
       }));
-      
-      // Save to localStorage
-      try {
-        const ipcCodes = {
-          ipoCode: formData.ipoCode,
-          poSrNo: poSrNo,
-          buyerCode: buyerCode,
-          skus: updatedSkus.map(sku => ({
-            sku: sku.sku,
-            ipcCode: sku.ipcCode,
-            subproducts: sku.subproducts?.map(sp => ({
-              subproduct: sp.subproduct,
-              ipcCode: sp.ipcCode
-            })) || []
-          })),
-          createdAt: new Date().toISOString()
-        };
-        
-        const existingIPCs = JSON.parse(localStorage.getItem('ipcCodes') || '[]');
-        existingIPCs.push(ipcCodes);
-        localStorage.setItem('ipcCodes', JSON.stringify(existingIPCs));
-        
-        // Store generated IPC codes for popup display
-        setGeneratedIPCCodes(updatedSkus);
-        setShowIPCPopup(true);
-        setStep0Saved(true); // Mark Step-0 as saved
-        setShowSaveMessage(false); // Hide save message after saving
-        console.log('Generated IPC codes:', ipcCodes);
-        saveToLocalStorage({ ...formData, skus: updatedSkus });
-      } catch (error) {
-        console.error('Error saving IPC codes:', error);
-        alert('IPC codes generated but failed to save');
-      }
+
+      // Store generated IPC codes for popup display
+      setGeneratedIPCCodes(updatedSkus);
+      setShowIPCPopup(true);
+      setStep0Saved(true); // Mark Step-0 as saved
+      setShowSaveMessage(false); // Hide save message after saving
+      console.log('Generated IPC codes for', updatedSkus.length, 'SKU(s)');
+      saveToLocalStorage({ ...formData, skus: updatedSkus });
       
     } catch (error) {
       console.error('Error generating IPC codes:', error);
@@ -11614,61 +11590,102 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                         return;
                       }
 
-                      // ─── SAVE ALL STEPS TO DATABASE ───
-                      try {
-                        const stepData = getSelectedSkuStepData();
-                        const parsed = parseSelectedSku();
-                        const skuItem = formData.skus?.[parsed.skuIndex];
-                        const productName = parsed.type === 'subproduct' && skuItem?.subproducts?.[parsed.subproductIndex]
-                          ? skuItem.subproducts[parsed.subproductIndex].subproduct
-                          : skuItem?.product;
-
-                        const rawPayload = {
-                          step0: {
-                            sku: skuItem?.sku ?? '',
-                            product_name: productName ?? '',
-                            buyer_code: formData.buyerCode || null,
-                            notes: formData.ipoCode ?? '',
-                          },
-                          products: (stepData?.products || []).map((p) => ({
-                            name: p.name ?? '',
-                            placement: p.placement ?? '',
-                            components: (p.components || []).map((c) => ({
-                              name: c.productComforter ?? c.name ?? '',
-                              placement: c.placement ?? '',
-                              remarks: c.remarks ?? '',
-                              surplus: c.surplus ?? '',
-                              sizeWidth: c.cuttingSize?.width ?? c.sewSize?.width ?? c.size?.width ?? '',
-                              sizeLength: c.cuttingSize?.length ?? c.sewSize?.length ?? c.size?.length ?? '',
-                              sizeHeight: c.size?.height ?? '',
-                              sizeUnit: c.size?.unit ?? c.cuttingSize?.unit ?? c.sewSize?.unit ?? '',
-                              unit: c.unit ?? '',
-                              quantity: c.quantity ?? '',
-                            })),
+                      // ─── SAVE ALL IPCs (all SKUs + subproducts) TO DATABASE ───
+                      const buildWizardPayload = (skuItem, productName, ipcCode, stepData) => ({
+                        step0: {
+                          sku: skuItem?.sku ?? '',
+                          product_name: productName ?? '',
+                          buyer_code: formData.buyerCode || null,
+                          notes: formData.ipoCode ?? '',
+                          ipo: formData.ipoId || null,
+                          ipc_code: ipcCode || '',
+                        },
+                        products: (stepData?.products || []).map((p) => ({
+                          name: p.name ?? '',
+                          placement: p.placement ?? '',
+                          components: (p.components || []).map((c) => ({
+                            name: c.productComforter ?? c.name ?? '',
+                            placement: c.placement ?? '',
+                            remarks: c.remarks ?? '',
+                            surplus: c.surplus ?? '',
+                            sizeWidth: c.cuttingSize?.width ?? c.sewSize?.width ?? c.size?.width ?? '',
+                            sizeLength: c.cuttingSize?.length ?? c.sewSize?.length ?? c.size?.length ?? '',
+                            sizeHeight: c.size?.height ?? '',
+                            sizeUnit: c.size?.unit ?? c.cuttingSize?.unit ?? c.sewSize?.unit ?? '',
+                            unit: c.unit ?? '',
+                            quantity: c.quantity ?? '',
                           })),
-                          rawMaterials: stepData?.rawMaterials ?? [],
-                          consumptionMaterials: stepData?.consumptionMaterials ?? [],
-                          artworkMaterials: stepData?.artworkMaterials ?? [],
-                          packaging: packagingToBackendShape(normalizePackagingBlockStiffenerPlys(stepData?.packaging ?? null)),
-                        };
+                        })),
+                        rawMaterials: stepData?.rawMaterials ?? [],
+                        consumptionMaterials: stepData?.consumptionMaterials ?? [],
+                        artworkMaterials: stepData?.artworkMaterials ?? [],
+                        packaging: packagingToBackendShape(normalizePackagingBlockStiffenerPlys(stepData?.packaging ?? null)),
+                      });
 
-                        const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
-                        // Backend expects referenceImageUrl for blob URLs (referenceImage is FileField)
-                        (wizardPayload.artworkMaterials || []).forEach((m) => {
-                          if (typeof m.referenceImage === 'string' && m.referenceImage) {
-                            m.referenceImageUrl = m.referenceImage;
-                            delete m.referenceImage;
+                      const errors = [];
+                      let savedCount = 0;
+
+                      for (let skuIndex = 0; skuIndex < formData.skus.length; skuIndex++) {
+                        const skuItem = formData.skus[skuIndex];
+                        if (!skuItem) continue;
+
+                        // Save the main product for this SKU
+                        try {
+                          const stepData = skuItem.stepData;
+                          const rawPayload = buildWizardPayload(skuItem, skuItem.product, skuItem.ipcCode, stepData);
+                          const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
+                          (wizardPayload.artworkMaterials || []).forEach((m) => {
+                            if (typeof m.referenceImage === 'string' && m.referenceImage) {
+                              m.referenceImageUrl = m.referenceImage;
+                              delete m.referenceImage;
+                            }
+                          });
+                          const result = await saveFactoryCodeWizard(wizardPayload);
+                          if (result?.id || result?.code) {
+                            console.log(`Factory code saved for SKU ${skuIndex + 1}:`, result);
+                            savedCount++;
+                          } else if (result?.detail || result?.error) {
+                            errors.push(`SKU "${skuItem.sku || skuIndex + 1}": ${result.detail || result.error || 'Unknown error'}`);
                           }
-                        });
-                        const result = await saveFactoryCodeWizard(wizardPayload);
-                        if (result?.id || result?.code) {
-                          console.log('✅ Factory code saved to DB:', result);
-                        } else if (result?.status !== 'success' && result?.detail) {
-                          console.warn('Factory code save response:', result);
+                        } catch (err) {
+                          console.error(`Failed to save SKU ${skuIndex + 1}:`, err);
+                          errors.push(`SKU "${skuItem.sku || skuIndex + 1}": ${err.message || 'Network error'}`);
                         }
-                      } catch (err) {
-                        console.error('❌ Failed to save factory code to DB:', err);
-                        // Don't block the user — still show popup even if DB save fails
+
+                        // Save each subproduct for this SKU
+                        if (skuItem.subproducts?.length) {
+                          for (let spIndex = 0; spIndex < skuItem.subproducts.length; spIndex++) {
+                            const sp = skuItem.subproducts[spIndex];
+                            if (!sp) continue;
+                            try {
+                              const spStepData = sp.stepData;
+                              const rawPayload = buildWizardPayload(skuItem, sp.subproduct, sp.ipcCode, spStepData);
+                              const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
+                              (wizardPayload.artworkMaterials || []).forEach((m) => {
+                                if (typeof m.referenceImage === 'string' && m.referenceImage) {
+                                  m.referenceImageUrl = m.referenceImage;
+                                  delete m.referenceImage;
+                                }
+                              });
+                              const result = await saveFactoryCodeWizard(wizardPayload);
+                              if (result?.id || result?.code) {
+                                console.log(`Factory code saved for SKU ${skuIndex + 1} SP ${spIndex + 1}:`, result);
+                                savedCount++;
+                              } else if (result?.detail || result?.error) {
+                                errors.push(`SKU "${skuItem.sku || skuIndex + 1}" SP "${sp.subproduct || spIndex + 1}": ${result.detail || result.error || 'Unknown error'}`);
+                              }
+                            } catch (err) {
+                              console.error(`Failed to save SKU ${skuIndex + 1} SP ${spIndex + 1}:`, err);
+                              errors.push(`SKU "${skuItem.sku || skuIndex + 1}" SP "${sp.subproduct || spIndex + 1}": ${err.message || 'Network error'}`);
+                            }
+                          }
+                        }
+                      }
+
+                      if (errors.length > 0) {
+                        alert(`Saved ${savedCount} IPC(s) to database.\n\nFailed to save ${errors.length} IPC(s):\n${errors.join('\n')}`);
+                      } else {
+                        console.log(`All ${savedCount} IPC(s) saved to database successfully.`);
                       }
 
                       setShowFactoryCodePopup(true);
