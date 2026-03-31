@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import {
   getIPOs,
   getInwardStoreSheetChoices,
@@ -65,7 +65,8 @@ const InwardStoreSheet = ({ onBack }) => {
     getIPOs({ order_type: orderType })
       .then((data) => {
         const results = data?.results || data || [];
-        setIpoList(Array.isArray(results) ? results : []);
+        const normalizedResults = Array.isArray(results) ? results : [];
+        setIpoList(normalizedResults.filter((ipo) => ipo.order_type === orderType));
       })
       .catch(() => setIpoList([]));
   }, [ipoType]);

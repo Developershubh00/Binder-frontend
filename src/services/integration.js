@@ -962,6 +962,42 @@ export const generateInwardStoreSheetCodes = async (id) => {
 };
 
 // ============================================================================
+// OUTWARD STORE SHEETS
+// ============================================================================
+
+export const getOutwardStoreSheets = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await apiRequest(`ims/outward-store-sheets/${query ? '?' + query : ''}`);
+  return await response.json();
+};
+
+export const getOutwardStoreSheet = async (id) => {
+  const response = await apiRequest(`ims/outward-store-sheets/${id}/`);
+  return await response.json();
+};
+
+export const createOutwardStoreSheet = async (data) => {
+  const response = await apiRequest('ims/outward-store-sheets/', {
+    method: 'POST',
+    body: data,
+  });
+  return await response.json();
+};
+
+export const deleteOutwardStoreSheet = async (id) => {
+  const response = await apiRequest(`ims/outward-store-sheets/${id}/`, {
+    method: 'DELETE',
+  });
+  if (response.status === 204) return { success: true };
+  return await response.json();
+};
+
+export const getOutwardStoreSheetChoices = async () => {
+  const response = await apiRequest('ims/outward-store-sheets/choices/');
+  return await response.json();
+};
+
+// ============================================================================
 // COURIER RECORDS
 // ============================================================================
 
