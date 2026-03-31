@@ -156,7 +156,10 @@ export const register = async (userData) => {
 
 export const registerCompany = async (companyData) => {
   const formData = new FormData();
+  // confirm_password is frontend-only validation — do not send to backend
+  const skipKeys = new Set(['confirm_password']);
   Object.entries(companyData || {}).forEach(([key, value]) => {
+    if (skipKeys.has(key)) return;
     if (value !== undefined && value !== null && value !== '') {
       formData.append(key, value);
     }
@@ -166,7 +169,7 @@ export const registerCompany = async (companyData) => {
     body: formData,
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data?.message || 'Company registration failed');
+  if (!response.ok) throw new Error(data?.message || data?.detail || 'Company registration failed');
   return data;
 };
 
@@ -394,7 +397,7 @@ export const getOnboarding = async () => {
 };
 
 /**
- * Save onboarding step (2, 3, or 4). Step 1 is password set elsewhere.
+ * Save onboarding step (2 or 3). Step 1 is password set elsewhere.
  */
 export const updateOnboarding = async (step, payload) => {
   const response = await apiRequest('auth/me/onboarding/update/', {

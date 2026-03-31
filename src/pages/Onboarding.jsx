@@ -8,7 +8,6 @@ import { FormCard } from '@/components/ui/form-layout';
 import './Onboarding.css';
 
 const BUSINESS_CATEGORIES = ['Manufacturer', 'Exporter', 'Job Worker', 'Trader'];
-const FY_MONTHS = [{ value: 4, label: 'April' }, { value: 1, label: 'January' }];
 
 export default function Onboarding() {
   const { user, refreshUser } = useAuth();
@@ -19,7 +18,6 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [step2, setStep2] = useState({ legal_name: '', trade_name: '', business_categories: [], gst_number: '', pan_number: '', iec_code: '', msme_number: '', factory_license: '', registered_address: { line1: '', line2: '', city: '', state: '', pin_code: '', country: 'India' } });
   const [units, setUnits] = useState([]);
-  const [step4, setStep4] = useState({ challan_format: '', invoice_format: '', po_format: '', fy_start_month: 4, serial_start: 1, phone_on_docs: [], email_on_docs: '', website_on_docs: '', signatory_name: '', challan_footer: '', invoice_footer: '' });
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -31,9 +29,16 @@ export default function Onboarding() {
       .then((res) => {
         setData(res);
         setStep(res?.onboarding_step || 1);
-        if (res?.company) setStep2((prev) => ({ ...prev, ...res.company, registered_address: { ...prev.registered_address, ...res.company?.registered_address } }));
+        if (res?.company) {
+          const company = { ...res.company };
+          // Auto-fill from registration data if onboarding fields are empty
+          if (!company.legal_name && res?.tenant?.company_name) company.legal_name = res.tenant.company_name;
+          if (!company.registered_address?.line1 && res?.tenant?.company_address) {
+            company.registered_address = { ...company.registered_address, line1: res.tenant.company_address };
+          }
+          setStep2((prev) => ({ ...prev, ...company, registered_address: { ...prev.registered_address, ...company?.registered_address } }));
+        }
         if (res?.units?.length) setUnits(res.units);
-        if (res?.document_config) setStep4((prev) => ({ ...prev, ...res.document_config }));
       })
       .catch(() => setError('Failed to load onboarding'))
       .finally(() => setLoading(false));
@@ -67,31 +72,6 @@ export default function Onboarding() {
     setError(null);
     try {
       await authService.updateOnboarding(3, { units });
-      setStep(4);
-    } catch (e) {
-      setError(e?.message || 'Save failed');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleStep4Save = async () => {
-    setSaving(true);
-    setError(null);
-    try {
-      await authService.updateOnboarding(4, {
-        challan_format: step4.challan_format,
-        invoice_format: step4.invoice_format,
-        po_format: step4.po_format,
-        fy_start_month: step4.fy_start_month,
-        serial_start: step4.serial_start,
-        phone_on_docs: Array.isArray(step4.phone_on_docs) ? step4.phone_on_docs : [step4.phone_on_docs].filter(Boolean),
-        email_on_docs: step4.email_on_docs,
-        website_on_docs: step4.website_on_docs,
-        signatory_name: step4.signatory_name,
-        challan_footer: step4.challan_footer,
-        invoice_footer: step4.invoice_footer,
-      });
       await refreshUser();
       navigate('/dashboard');
     } catch (e) {
@@ -126,7 +106,7 @@ export default function Onboarding() {
     <div className="onboarding-page">
       <div className="onboarding-header">
         <h1 className="onboarding-title">Company setup</h1>
-        <p className="onboarding-subtitle">Step {step} of 4 · Binder ERP onboarding</p>
+        <p className="onboarding-subtitle">Step {step} of 3 · Binder ERP onboarding</p>
       </div>
       {error && <div className="onboarding-error">{error}</div>}
 
@@ -188,38 +168,12 @@ export default function Onboarding() {
           {units.length > 0 && <Button variant="outline" onClick={addUnit} className="onboarding-add-unit">Add another unit</Button>}
           <div className="onboarding-actions">
             <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
-            <Button onClick={handleStep3Save} disabled={saving}>{saving ? 'Saving...' : 'Save & continue'}</Button>
+            <Button onClick={handleStep3Save} disabled={saving}>{saving ? 'Saving...' : 'Complete setup'}</Button>
           </div>
         </FormCard>
       )}
 
-      {step === 4 && (
-        <FormCard className="onboarding-card">
-          <h2>Step 4 · Document configuration</h2>
-          <div className="onboarding-form">
-            <label>Challan / Invoice / PO format</label>
-            <Input value={step4.challan_format} onChange={(e) => setStep4((p) => ({ ...p, challan_format: e.target.value }))} placeholder="Challan format" />
-            <Input value={step4.invoice_format} onChange={(e) => setStep4((p) => ({ ...p, invoice_format: e.target.value }))} placeholder="Invoice format" />
-            <Input value={step4.po_format} onChange={(e) => setStep4((p) => ({ ...p, po_format: e.target.value }))} placeholder="PO format" />
-            <label>Financial year start</label>
-            <select value={step4.fy_start_month} onChange={(e) => setStep4((p) => ({ ...p, fy_start_month: Number(e.target.value) }))}>
-              {FY_MONTHS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-            </select>
-            <label>Starting serial number</label>
-            <Input type="number" value={step4.serial_start} onChange={(e) => setStep4((p) => ({ ...p, serial_start: Number(e.target.value) || 1 }))} />
-            <label>Contact on documents</label>
-            <Input value={step4.email_on_docs} onChange={(e) => setStep4((p) => ({ ...p, email_on_docs: e.target.value }))} placeholder="Email on docs" />
-            <Input value={step4.website_on_docs} onChange={(e) => setStep4((p) => ({ ...p, website_on_docs: e.target.value }))} placeholder="Website" />
-            <Input value={step4.signatory_name} onChange={(e) => setStep4((p) => ({ ...p, signatory_name: e.target.value }))} placeholder="Authorized signatory" />
-            <textarea value={step4.challan_footer} onChange={(e) => setStep4((p) => ({ ...p, challan_footer: e.target.value }))} placeholder="Challan footer" rows={2} />
-            <textarea value={step4.invoice_footer} onChange={(e) => setStep4((p) => ({ ...p, invoice_footer: e.target.value }))} placeholder="Invoice footer" rows={2} />
-            <div className="onboarding-actions">
-              <Button variant="outline" onClick={() => setStep(3)}>Back</Button>
-              <Button onClick={handleStep4Save} disabled={saving}>{saving ? 'Saving...' : 'Complete setup'}</Button>
-            </div>
-          </div>
-        </FormCard>
-      )}
+
     </div>
   );
 }
