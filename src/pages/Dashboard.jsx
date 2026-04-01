@@ -1164,7 +1164,7 @@ const Dashboard = () => {
             </div>
             <div className="logo-text-wrap-dash">
               <span className="logo-text-dash">{companyDisplayName.split(' ')[0]}</span>
-              <span className="logo-subtitle-dash">Powered by Binder-OS</span>
+              {/* <span className="logo-subtitle-dash">Powered by Binder-OS</span> */}
             </div>
           </div>
         </div>
