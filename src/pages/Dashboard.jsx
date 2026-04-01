@@ -150,10 +150,11 @@ const Dashboard = () => {
     const firstLast = [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim();
     const firstLastAlt = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
     return (
-      user?.name?.trim() ||
-      user?.username?.trim() ||
       firstLast ||
       firstLastAlt ||
+      user?.full_name?.trim() ||
+      user?.name?.trim() ||
+      user?.username?.trim() ||
       user?.email ||
       'User'
     );
@@ -1237,8 +1238,12 @@ const Dashboard = () => {
                   {showEmailLine && <div className="profile-menu-email">{user.email}</div>}
                 </div>
                 <div className="profile-menu-divider" />
-                <Link to="/profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
+                <Link to="/company-profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
                   Profile
+                </Link>
+                <div className="profile-menu-divider" />
+                <Link to="/profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
+                  Master Panel
                 </Link>
                 <div className="profile-menu-divider" />
                 <button type="button" className="profile-menu-logout" onClick={handleLogout}>

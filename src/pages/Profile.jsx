@@ -731,7 +731,8 @@ export default function Profile() {
   const [loading, setLoading]             = useState(true);
   const [error, setError]                 = useState(null);
   const [activeNav, setActiveNav]         = useState('account');
-  const [activeTab, setActiveTab]         = useState('invite');
+  const [activeTab, setActiveTab]         = useState('list');
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [inviteForm, setInviteForm]       = useState({
     email: '', memberName: '', tempPassword: '',
@@ -753,18 +754,21 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       try {
-        const summary = await authService.getOrgSummary();
-        setOrgSummary(summary);
+        const promises = [authService.getOrgSummary()];
         if (isMasterAdmin) {
-          const list = await authService.getMembers();
-          setMembers(Array.isArray(list) ? list : []);
+          promises.push(authService.getMembers());
           if (user?.tenant) {
-            const [overrides, logs] = await Promise.all([
-              authService.getTenantFeatureOverrides(user.tenant),
-              authService.getTenantActivityLogs(),
-            ]);
-            setFeatureOverrides(Array.isArray(overrides) ? overrides : []);
-            setActivityLogs(Array.isArray(logs) ? logs : []);
+            promises.push(authService.getTenantFeatureOverrides(user.tenant));
+            promises.push(authService.getTenantActivityLogs());
+          }
+        }
+        const results = await Promise.all(promises);
+        setOrgSummary(results[0]);
+        if (isMasterAdmin) {
+          setMembers(Array.isArray(results[1]) ? results[1] : []);
+          if (user?.tenant) {
+            setFeatureOverrides(Array.isArray(results[2]) ? results[2] : []);
+            setActivityLogs(Array.isArray(results[3]) ? results[3] : []);
           }
         }
       } catch (e) {
@@ -1022,7 +1026,6 @@ export default function Profile() {
               {/* Sub-tabs */}
               <div className="profile-tabs">
                 {[
-                  { id: 'invite',       label: 'Create & Invite' },
                   { id: 'list',         label: 'Members'         },
                   { id: 'roles',        label: 'Roles'           },
                   { id: 'restrictions', label: 'Restrictions'    },
@@ -1037,98 +1040,22 @@ export default function Profile() {
                 ))}
               </div>
 
-              {/* ── Create & Invite ─────────────────────────────── */}
-              {activeTab === 'invite' && (
-                <div className="profile-tab-body">
-                  <h3 className="profile-tab-title">Create new user &amp; send invite</h3>
-                  <p className="profile-section-desc">
-                    Create a user account and send them login credentials via email.
-                  </p>
-                  <div className="profile-form-grid">
-                    <div className="profile-field">
-                      <label className="profile-label">Email address *</label>
-                      <input className="profile-input" placeholder="user@company.com"
-                        value={inviteForm.email}
-                        onChange={e => setInviteForm(p => ({ ...p, email: e.target.value }))} />
-                    </div>
-                    <div className="profile-field">
-                      <label className="profile-label">Full name *</label>
-                      <input className="profile-input" placeholder="Jane Smith"
-                        value={inviteForm.memberName}
-                        onChange={e => setInviteForm(p => ({ ...p, memberName: e.target.value }))} />
-                    </div>
-                    <div className="profile-field">
-                      <label className="profile-label">First name</label>
-                      <input className="profile-input" placeholder="Jane"
-                        value={inviteForm.firstName}
-                        onChange={e => setInviteForm(p => ({ ...p, firstName: e.target.value }))} />
-                    </div>
-                    <div className="profile-field">
-                      <label className="profile-label">Last name</label>
-                      <input className="profile-input" placeholder="Smith"
-                        value={inviteForm.lastName}
-                        onChange={e => setInviteForm(p => ({ ...p, lastName: e.target.value }))} />
-                    </div>
-                    <div className="profile-field">
-                      <label className="profile-label">Designation</label>
-                      <input className="profile-input" placeholder="e.g. Production Manager"
-                        value={inviteForm.designation}
-                        onChange={e => setInviteForm(p => ({ ...p, designation: e.target.value }))} />
-                    </div>
-                    <div className="profile-field">
-                      <label className="profile-label">Temporary password *</label>
-                      <input type="password" className="profile-input" placeholder="Min. 8 characters"
-                        value={inviteForm.tempPassword}
-                        onChange={e => setInviteForm(p => ({ ...p, tempPassword: e.target.value }))} />
-                    </div>
-                  </div>
-
-                  <Button
-                    className="profile-btn"
-                    disabled={inviteSending || !inviteForm.email || !inviteForm.memberName || !inviteForm.tempPassword}
-                    onClick={async () => {
-                      setInviteMessage(null);
-                      setInviteSending(true);
-                      try {
-                        await authService.createUserAndSendInvite({
-                          email: inviteForm.email, memberName: inviteForm.memberName,
-                          firstName: inviteForm.firstName, lastName: inviteForm.lastName,
-                          designation: inviteForm.designation, tempPassword: inviteForm.tempPassword,
-                          companyName: orgSummary?.company_name,
-                        });
-                        setInviteMessage({ ok: true, text: 'User created and invite sent!' });
-                        setInviteForm({ email:'', memberName:'', tempPassword:'', firstName:'', lastName:'', designation:'' });
-                        const list = await authService.getMembers();
-                        setMembers(Array.isArray(list) ? list : []);
-                      } catch (e) {
-                        setInviteMessage({ ok: false, text: e?.message || 'Failed to create user' });
-                      } finally {
-                        setInviteSending(false);
-                      }
-                    }}
-                  >
-                    {inviteSending ? 'Creating & Sending…' : 'Create User & Send Invite'}
-                  </Button>
-
-                  {inviteMessage && (
-                    <div className={`profile-msg${inviteMessage.ok ? ' profile-msg--ok' : ' profile-msg--err'}`}>
-                      {inviteMessage.ok ? '✓' : '⚠'} {inviteMessage.text}
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* ── Members List ────────────────────────────────── */}
               {activeTab === 'list' && (
                 <div className="profile-tab-body">
                   <h3 className="profile-tab-title">
                     Team members
                     <span className="profile-count">{members.length}</span>
+                    <button
+                      className="profile-add-btn"
+                      title="Create & Invite"
+                      onClick={() => { setShowInviteModal(true); setInviteForm({ email:'', memberName:'', tempPassword:'', firstName:'', lastName:'', designation:'' }); setInviteMessage(null); }}
+                    >+</button>
                   </h3>
                   {members.length === 0 ? (
                     <div className="profile-empty">
                       <span className="profile-empty-icon">👥</span>
-                      <p>No members yet. Use <strong>Create &amp; Invite</strong> to add someone.</p>
+                      <p>No members yet. Click <strong>+</strong> to create &amp; invite someone.</p>
                     </div>
                   ) : (
                     <ul className="profile-member-list">
@@ -1155,6 +1082,7 @@ export default function Profile() {
                       ))}
                     </ul>
                   )}
+
                 </div>
               )}
 
@@ -1310,6 +1238,96 @@ export default function Profile() {
           </div>
         )}
       </main>
+
+      {/* ── Invite Modal (portal-level, outside main/sidebar) ── */}
+      {showInviteModal && (
+        <div className="profile-modal-backdrop" onClick={() => setShowInviteModal(false)}>
+          <div className="profile-modal" onClick={e => e.stopPropagation()}>
+            <div className="profile-modal-header">
+              <h3 className="profile-modal-title">Create New User & Send Invite</h3>
+              <button className="profile-modal-close" onClick={() => setShowInviteModal(false)}>✕</button>
+            </div>
+            <p className="profile-section-desc" style={{ marginBottom: 16 }}>
+              Create a user account and send them login credentials via email.
+            </p>
+            <div className="profile-form-grid">
+              <div className="profile-field">
+                <label className="profile-label">Email address *</label>
+                <input className="profile-input" placeholder="user@company.com"
+                  value={inviteForm.email}
+                  onChange={e => setInviteForm(p => ({ ...p, email: e.target.value }))} />
+              </div>
+              <div className="profile-field">
+                <label className="profile-label">Full name *</label>
+                <input className="profile-input" placeholder="Jane Smith"
+                  value={inviteForm.memberName}
+                  onChange={e => setInviteForm(p => ({ ...p, memberName: e.target.value }))} />
+              </div>
+              <div className="profile-field">
+                <label className="profile-label">First name</label>
+                <input className="profile-input" placeholder="Jane"
+                  value={inviteForm.firstName}
+                  onChange={e => setInviteForm(p => ({ ...p, firstName: e.target.value }))} />
+              </div>
+              <div className="profile-field">
+                <label className="profile-label">Last name</label>
+                <input className="profile-input" placeholder="Smith"
+                  value={inviteForm.lastName}
+                  onChange={e => setInviteForm(p => ({ ...p, lastName: e.target.value }))} />
+              </div>
+              <div className="profile-field">
+                <label className="profile-label">Designation</label>
+                <input className="profile-input" placeholder="e.g. Production Manager"
+                  value={inviteForm.designation}
+                  onChange={e => setInviteForm(p => ({ ...p, designation: e.target.value }))} />
+              </div>
+              <div className="profile-field">
+                <label className="profile-label">Temporary password *</label>
+                <input type="password" className="profile-input" placeholder="Min. 8 characters"
+                  value={inviteForm.tempPassword}
+                  onChange={e => setInviteForm(p => ({ ...p, tempPassword: e.target.value }))} />
+              </div>
+            </div>
+
+            <div className="profile-modal-actions">
+              <Button
+                className="profile-btn"
+                disabled={inviteSending || !inviteForm.email || !inviteForm.memberName || !inviteForm.tempPassword}
+                onClick={async () => {
+                  setInviteMessage(null);
+                  setInviteSending(true);
+                  try {
+                    await authService.createUserAndSendInvite({
+                      email: inviteForm.email, memberName: inviteForm.memberName,
+                      firstName: inviteForm.firstName, lastName: inviteForm.lastName,
+                      designation: inviteForm.designation, tempPassword: inviteForm.tempPassword,
+                      companyName: orgSummary?.company_name,
+                    });
+                    setInviteMessage({ ok: true, text: 'User created and invite sent!' });
+                    setInviteForm({ email:'', memberName:'', tempPassword:'', firstName:'', lastName:'', designation:'' });
+                    const list = await authService.getMembers();
+                    setMembers(Array.isArray(list) ? list : []);
+                    setTimeout(() => setShowInviteModal(false), 1200);
+                  } catch (e) {
+                    setInviteMessage({ ok: false, text: e?.message || 'Failed to create user' });
+                  } finally {
+                    setInviteSending(false);
+                  }
+                }}
+              >
+                {inviteSending ? 'Creating & Sending...' : 'Create User & Send Invite'}
+              </Button>
+              <button className="profile-ghost-btn" onClick={() => setShowInviteModal(false)}>Cancel</button>
+            </div>
+
+            {inviteMessage && (
+              <div className={`profile-msg${inviteMessage.ok ? ' profile-msg--ok' : ' profile-msg--err'}`}>
+                {inviteMessage.ok ? '✓' : '⚠'} {inviteMessage.text}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

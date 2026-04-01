@@ -67,10 +67,11 @@ const HomeContent = ({ user }) => {
   );
 
   const displayName = (
-    user?.name?.trim() ||
-    user?.username?.trim() ||
     [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim() ||
     [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() ||
+    user?.full_name?.trim() ||
+    user?.name?.trim() ||
+    user?.username?.trim() ||
     user?.email ||
     'User'
   );

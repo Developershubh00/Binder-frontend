@@ -629,6 +629,109 @@
   letter-spacing: -0.2px;
 }
 
+.profile-add-btn {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.profile-add-btn:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transform: scale(1.1);
+}
+
+/* ── Invite Modal ──────────────────────────────────────────── */
+.profile-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: profile-fade-in 0.2s ease-out;
+  padding: 16px;
+}
+
+@keyframes profile-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.profile-modal {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 28px 32px 24px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  animation: profile-modal-in 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes profile-modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.profile-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.profile-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.profile-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--muted);
+  border: none;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+
+.profile-modal-close:hover {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  transform: rotate(90deg);
+}
+
+.profile-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
 .profile-count {
   display: inline-flex;
   align-items: center;

@@ -117,6 +117,8 @@ body, html {
 
 .landing-action {
   padding-bottom: 10px;
+  display: flex;
+  gap: 16px;
 }
 
 .landing-login-btn {
@@ -140,6 +142,30 @@ body, html {
 }
 
 .landing-login-btn:active {
+  transform: translateY(0);
+}
+
+.landing-register-btn {
+  padding: 12px 52px;
+  background: var(--primary-foreground);
+  border: 2px solid var(--primary-foreground);
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  border-radius: 4px;
+}
+
+.landing-register-btn:hover {
+  background: transparent;
+  color: var(--primary-foreground);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.landing-register-btn:active {
   transform: translateY(0);
 }
 
@@ -441,30 +467,7 @@ body, html {
   to { transform: rotate(360deg); }
 }
 
-/* ── Sign Up Section ────────────────────────────────────────── */
-
-.signup-section {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.signup-text {
-  font-size: 13px;
-  color: var(--muted-foreground);
-}
-
-.signup-link {
-  font-size: 13px;
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 700;
-  transition: opacity 0.2s;
-}
-
-.signup-link:hover {
-  opacity: 0.8;
-  text-decoration: underline;
-}
+/* (signup-section removed — register button is now inline) */
 
 /* ═══════════════════════════════════════════════════════════════
    POPUP / MODAL SHARED
@@ -786,7 +789,8 @@ body, html {
     max-width: 100%;
   }
 
-  .signup-section {
-    margin-top: 16px;
+  .landing-action {
+    flex-direction: column;
+    gap: 12px;
   }
 }

@@ -412,6 +412,12 @@ const Login = () => {
             >
               LOGIN
             </button>
+            <button
+              className="landing-register-btn"
+              onClick={() => navigate('/register-company')}
+            >
+              REGISTER
+            </button>
           </div>
         </div>
       </div>
@@ -511,11 +517,6 @@ const Login = () => {
             )}
           </button>
         </form>
-
-        <div className="signup-section">
-          <span className="signup-text">Don't have an account? </span>
-          <Link to="/register-company" className="signup-link">Register Company</Link>
-        </div>
       </div>
 
       {/* ── FORGOT PASSWORD MODAL ─────────────────────────────────────────── */}
