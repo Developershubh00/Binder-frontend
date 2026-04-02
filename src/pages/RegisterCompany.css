@@ -1,0 +1,376 @@
+/* ═══════════════════════════════════════════════════════════════
+   REGISTER COMPANY PAGE
+   Matches Login page design system (CSS variables + pattern)
+═══════════════════════════════════════════════════════════════ */
+
+.register-page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--primary);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  overflow-y: auto;
+  padding: 24px 16px;
+}
+
+/* pattern overlay — same as login */
+.register-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+
+/* ── Back Button ───────────────────────────────────────────── */
+
+.register-back-btn {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: var(--primary-foreground);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 10;
+  letter-spacing: 0.5px;
+}
+
+.register-back-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ── Card ──────────────────────────────────────────────────── */
+
+.register-card {
+  position: relative;
+  z-index: 1;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 36px 40px;
+  width: 100%;
+  max-width: 680px;
+  margin-top: 48px;
+  margin-bottom: 24px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+  animation: regCardSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes regCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+
+.register-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.register-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.register-logo .logo-dots {
+  font-size: 13px;
+  color: var(--primary);
+  letter-spacing: 2px;
+}
+
+.register-logo .logo-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: 1px;
+}
+
+.register-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 6px;
+}
+
+.register-subtitle {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Section titles ────────────────────────────────────────── */
+
+.register-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 14px;
+  margin-top: 24px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 8px;
+}
+
+/* ── Grid ──────────────────────────────────────────────────── */
+
+.register-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+  margin-bottom: 4px;
+}
+
+.register-full {
+  grid-column: 1 / -1;
+}
+
+/* ── Form fields ───────────────────────────────────────────── */
+
+.register-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.register-input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--foreground);
+  background: var(--input);
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.register-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.register-input:focus {
+  border-color: var(--primary);
+  background: var(--background);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.register-hint {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* ── Error ─────────────────────────────────────────────────── */
+
+.register-error {
+  background: var(--muted);
+  border: 1px solid var(--destructive);
+  color: var(--destructive);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+/* ── Submit Button ─────────────────────────────────────────── */
+
+.register-submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--primary);
+  border: none;
+  border-radius: 12px;
+  color: var(--primary-foreground);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 20px;
+}
+
+.register-submit-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.register-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.register-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+
+.register-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+
+.register-footer a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-footer a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* ── Success Popup ─────────────────────────────────────────── */
+
+.register-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: regFadeIn 0.2s ease-out;
+  padding: 16px;
+}
+
+@keyframes regFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.register-popup {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 40px 36px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 28px 60px rgba(0,0,0,0.25);
+  animation: regPopScale 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes regPopScale {
+  from { opacity: 0; transform: scale(0.75); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.register-popup-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 30px;
+  color: var(--primary-foreground);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.register-popup-title {
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 10px;
+}
+
+.register-popup-text {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  margin-bottom: 24px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.register-popup-btn {
+  padding: 14px 40px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.register-popup-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .register-card {
+    padding: 32px 28px;
+    border-radius: 18px;
+  }
+
+  .register-back-btn {
+    top: 14px;
+    left: 16px;
+    font-size: 12px;
+    padding: 7px 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-page {
+    padding: 16px 12px;
+  }
+
+  .register-card {
+    padding: 28px 20px;
+    border-radius: 16px;
+    margin-top: 44px;
+  }
+
+  .register-title {
+    font-size: 22px;
+  }
+
+  .register-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .register-input {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+}
