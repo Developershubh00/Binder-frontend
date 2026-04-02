@@ -352,6 +352,20 @@ export const getTenantActivityLogs = async () => {
   return Array.isArray(data) ? data : data?.results || data?.data || [];
 };
 
+export const getFilteredActivityLogs = async (filters = {}) => {
+  const params = new URLSearchParams();
+  if (filters.user) params.append('user', filters.user);
+  if (filters.action) params.append('action', filters.action);
+  if (filters.entity_type) params.append('entity_type', filters.entity_type);
+  if (filters.from_date) params.append('from_date', filters.from_date);
+  if (filters.to_date) params.append('to_date', filters.to_date);
+  const query = params.toString();
+  const response = await apiRequest(`auth/tenant-activity-logs/${query ? '?' + query : ''}`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.detail || data?.message || 'Failed to load activity logs');
+  return Array.isArray(data) ? data : data?.results || data?.data || [];
+};
+
 export const updateTenantFeatureOverrides = async (tenantId, items) => {
   const response = await apiRequest(`auth/tenants/${tenantId}/feature-overrides/`, {
     method: 'PUT',

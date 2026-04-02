@@ -905,6 +905,14 @@ export const createIPO = async (ipoData) => {
   return await response.json();
 };
 
+export const updateIPO = async (ipoId, updates) => {
+  const response = await apiRequest(`ims/ipos/${ipoId}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+  return await response.json();
+};
+
 export const deleteIPO = async (ipoId) => {
   const response = await apiRequest(`ims/ipos/${ipoId}/`, {
     method: 'DELETE',

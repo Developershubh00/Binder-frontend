@@ -722,6 +722,7 @@ import { useAuth } from '../context/AuthContext';
 import * as authService from '../api/authService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import ActivityLogs from '../components/ActivityLogs.jsx';
 import './Profile.css';
 
 export default function Profile() {
@@ -741,7 +742,6 @@ export default function Profile() {
   const [inviteSending, setInviteSending] = useState(false);
   const [inviteMessage, setInviteMessage] = useState(null);
   const [featureOverrides, setFeatureOverrides] = useState([]);
-  const [activityLogs, setActivityLogs] = useState([]);
   const [memberPermissionDraft, setMemberPermissionDraft] = useState({ role: '', module: '', permission_level: 'view' });
 
   const isMasterAdmin =
@@ -759,7 +759,6 @@ export default function Profile() {
           promises.push(authService.getMembers());
           if (user?.tenant) {
             promises.push(authService.getTenantFeatureOverrides(user.tenant));
-            promises.push(authService.getTenantActivityLogs());
           }
         }
         const results = await Promise.all(promises);
@@ -768,7 +767,6 @@ export default function Profile() {
           setMembers(Array.isArray(results[1]) ? results[1] : []);
           if (user?.tenant) {
             setFeatureOverrides(Array.isArray(results[2]) ? results[2] : []);
-            setActivityLogs(Array.isArray(results[3]) ? results[3] : []);
           }
         }
       } catch (e) {
@@ -798,28 +796,6 @@ export default function Profile() {
     ...(isMasterAdmin ? [{ id: 'roles-permissions', label: 'Roles & Permissions' }] : []),
     ...(isMasterAdmin ? [{ id: 'activity-logs', label: 'Activity Logs' }] : []),
   ];
-
-  const exportActivityLogsCsv = () => {
-    if (!activityLogs.length) return;
-    const headers = ['timestamp', 'user_email', 'action', 'entity_type', 'entity_id', 'summary', 'ip_address'];
-    const rows = activityLogs.map((log) => ([
-      log.timestamp || '',
-      log.user_email || '',
-      log.action || '',
-      log.entity_type || '',
-      log.entity_id || '',
-      (log.summary || '').replaceAll('"', '""'),
-      log.ip_address || '',
-    ]));
-    const csv = [headers.join(','), ...rows.map((r) => r.map((v) => `"${v}"`).join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'tenant_activity_logs.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   if (loading) return (
     <div className="profile-root">
@@ -1208,33 +1184,7 @@ export default function Profile() {
 
         {activeNav === 'activity-logs' && isMasterAdmin && (
           <div className="profile-content" key="activity-logs">
-            <section className="profile-section">
-              <h2 className="profile-section-heading">Activity Logs</h2>
-              <div style={{ marginBottom: 12 }}>
-                <Button onClick={exportActivityLogsCsv}>Export CSV</Button>
-              </div>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      {['Time', 'User', 'Action', 'Module', 'Summary', 'IP'].map((h) => <th key={h} style={{ textAlign: 'left', borderBottom: '1px solid #eee', padding: 8 }}>{h}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activityLogs.map((log) => (
-                      <tr key={log.id}>
-                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.timestamp}</td>
-                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.user_email || '-'}</td>
-                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.action}</td>
-                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.entity_type}</td>
-                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.summary}</td>
-                        <td style={{ padding: 8, borderBottom: '1px solid #f5f5f5' }}>{log.ip_address || '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+            <ActivityLogs />
           </div>
         )}
       </main>
