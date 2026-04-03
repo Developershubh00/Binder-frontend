@@ -156,10 +156,7 @@ export const register = async (userData) => {
 
 export const registerCompany = async (companyData) => {
   const formData = new FormData();
-  // confirm_password is frontend-only validation — do not send to backend
-  const skipKeys = new Set(['confirm_password']);
   Object.entries(companyData || {}).forEach(([key, value]) => {
-    if (skipKeys.has(key)) return;
     if (value !== undefined && value !== null && value !== '') {
       formData.append(key, value);
     }
