@@ -9932,7 +9932,7 @@ const Step2 = ({
                       {workOrder.workOrder === 'FRINGE/TASSELS' && (
                         <>
                           {/* TYPE */}
-                          <Field label="TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeType`]}>
+                          <Field label="TYPE" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeType`]}>
                             <SearchableDropdown
                               value={workOrder.fringeType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeType', selectedValue)}
@@ -9942,8 +9942,20 @@ const Step2 = ({
                             />
                           </Field>
 
-                          {/* MATERIAL */}
-                          <Field label="MATERIAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeMaterial`]}>
+                          {/* ATTACHMENT METHOD */}
+                          <Field label="ATTACHMENT METHOD" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeAttachmentMethod`]}>
+                            <SearchableDropdown
+                              value={workOrder.fringeAttachmentMethod || ''}
+                              onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeAttachmentMethod', selectedValue)}
+                              options={['Self-Knotted (through-fabric)', 'Sewn header/tape', 'Lace/cord tied', 'Slip-stitch attached', 'Glued/bonded']}
+                              placeholder="Select or type"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeAttachmentMethod`] ? 'border-red-600' : ''}
+                            />
+                          </Field>
+
+                          {/* MATERIAL - hidden for Self-Knotted */}
+                          {workOrder.fringeAttachmentMethod !== 'Self-Knotted (through-fabric)' && (
+                          <Field label="MATERIAL" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeMaterial`]}>
                             <SearchableDropdown
                               value={workOrder.fringeMaterial || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeMaterial', selectedValue)}
@@ -9952,9 +9964,10 @@ const Step2 = ({
                               className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeMaterial`] ? 'border-red-600' : ''}
                             />
                           </Field>
+                          )}
 
                           {/* DROP LENGTH */}
-                          <Field label="DROP LENGTH" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dropLength`]}>
+                          <Field label="DROP LENGTH" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dropLength`]}>
                             <SearchableDropdown
                               value={workOrder.dropLength || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'dropLength', selectedValue)}
@@ -9964,8 +9977,9 @@ const Step2 = ({
                             />
                           </Field>
 
-                          {/* TAPE/HEADER WIDTH */}
-                          <Field label="TAPE/HEADER WIDTH" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tapeHeaderWidth`]}>
+                          {/* TAPE/HEADER WIDTH - hidden for Self-Knotted */}
+                          {workOrder.fringeAttachmentMethod !== 'Self-Knotted (through-fabric)' && (
+                          <Field label="TAPE/HEADER WIDTH" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tapeHeaderWidth`]}>
                             <SearchableDropdown
                               value={workOrder.tapeHeaderWidth || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'tapeHeaderWidth', selectedValue)}
@@ -9974,6 +9988,7 @@ const Step2 = ({
                               className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tapeHeaderWidth`] ? 'border-red-600' : ''}
                             />
                           </Field>
+                          )}
 
                           {/* COLOUR */}
                           <Field label="COLOUR" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeColour`]}>
@@ -10005,14 +10020,14 @@ const Step2 = ({
                             </div>
                           </Field>
 
-                          {/* PLACEMENT */}
-                          <Field label="PLACEMENT" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringePlacement`]}>
+                          {/* APPLICATION ON # OF EDGES/PLACEMENT */}
+                          <Field label="APPLICATION ON # OF EDGES / PLACEMENT" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringePlacement`]}>
                             <div className="flex items-center gap-2">
                               <Input
-                                type="text"
+                                type="number"
                                 value={workOrder.fringePlacement || ''}
                                 onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringePlacement', e.target.value)}
-                                placeholder="Enter placement"
+                                placeholder="Enter number of edges"
                                 className="flex-1"
                                 aria-invalid={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringePlacement`])}
                               />
@@ -10036,8 +10051,33 @@ const Step2 = ({
                             </div>
                           </Field>
 
+                          {/* QTY ON LONGER EDGES / QTY ON SHORTER EDGES - only when 4 edges */}
+                          {String(workOrder.fringePlacement) === '4' && (
+                          <>
+                          <Field label="QTY ON LONGER EDGES" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyLongerEdges`]}>
+                            <Input
+                              type="number"
+                              value={workOrder.fringeQtyLongerEdges || ''}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeQtyLongerEdges', e.target.value)}
+                              placeholder="Enter qty"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyLongerEdges`] ? 'border-red-600' : ''}
+                            />
+                          </Field>
+
+                          <Field label="QTY ON SHORTER EDGES" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyShorterEdges`]}>
+                            <Input
+                              type="number"
+                              value={workOrder.fringeQtyShorterEdges || ''}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeQtyShorterEdges', e.target.value)}
+                              placeholder="Enter qty"
+                              className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyShorterEdges`] ? 'border-red-600' : ''}
+                            />
+                          </Field>
+                          </>
+                          )}
+
                           {/* QTY - Type Selection (PCS/LENGTH) */}
-                          <Field label="QTY" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyType`]}>
+                          <Field label="QTY" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyType`]}>
                             <SearchableDropdown
                               value={workOrder.fringeQtyType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeQtyType', selectedValue)}
@@ -10049,7 +10089,7 @@ const Step2 = ({
 
                           {/* Conditional QTY Fields */}
                           {workOrder.fringeQtyType === 'PCS' && (
-                            <Field label="PIECES" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyPcs`]}>
+                            <Field label="PIECES" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyPcs`]}>
                               <Input
                                 type="text"
                                 value={workOrder.fringeQtyPcs || ''}
@@ -10061,7 +10101,7 @@ const Step2 = ({
                           )}
 
                           {workOrder.fringeQtyType === 'LENGTH' && (
-                            <Field label="CNS/PC" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyCnsPerPc`]}>
+                            <Field label="CNS/PC" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyCnsPerPc`]}>
                               <Input
                                 type="text"
                                 value={workOrder.fringeQtyCnsPerPc || ''}
@@ -10077,8 +10117,8 @@ const Step2 = ({
                             <div className="flex items-center" style={{ gap: '0.75rem' }}>
                               <div className="flex-1">
                                 <TestingRequirementsInput
-                                  value={Array.isArray(workOrder.fringeTestingRequirements) 
-                                    ? workOrder.fringeTestingRequirements 
+                                  value={Array.isArray(workOrder.fringeTestingRequirements)
+                                    ? workOrder.fringeTestingRequirements
                                     : (workOrder.fringeTestingRequirements ? (typeof workOrder.fringeTestingRequirements === 'string' ? workOrder.fringeTestingRequirements.split(',').filter(v => v.trim()) : []) : [])}
                                   onChange={(values) => handleWorkOrderChange(actualIndex, woIndex, 'fringeTestingRequirements', values)}
                                   options={['Colour Fastness (light/UV)', 'Wash Resistance', 'Flammability']}
@@ -10106,7 +10146,7 @@ const Step2 = ({
                           </Field>
 
                           {/* SURPLUS % */}
-                          <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeSurplus`]}>
+                          <Field label="SURPLUS %" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeSurplus`]}>
                             <PercentInput
                               value={workOrder.fringeSurplus || ''}
                               onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeSurplus', e.target.value)}
@@ -10115,35 +10155,18 @@ const Step2 = ({
                             />
                           </Field>
 
-                          {/* WASTAGE % - With dropdown options */}
-                          <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeWastage`]}>
-                            <div className="relative">
-                              <SearchableDropdown
-                                value={workOrder.fringeWastage || ''}
-                                onChange={(selectedValue) => {
-                                  // If it's a dropdown option, store as-is. If it's numeric (free typing), store numeric only
-                                  const predefinedOptions = ['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'];
-                                  if (predefinedOptions.includes(selectedValue)) {
-                                    handleWorkOrderChange(actualIndex, woIndex, 'fringeWastage', selectedValue);
-                                  } else {
-                                    // Free typing - store numeric only
-                                    const numericValue = selectedValue.replace(/[^0-9.]/g, '');
-                                    handleWorkOrderChange(actualIndex, woIndex, 'fringeWastage', numericValue);
-                                  }
-                                }}
-                                options={['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim']}
-                                placeholder="Select or type %age"
-                                strictMode={false}
-                                className={`${workOrder.fringeWastage && !['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'].includes(workOrder.fringeWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeWastage`] ? 'border-red-600' : ''}`}
-                              />
-                              {workOrder.fringeWastage && !['Hem', 'Pillow Edge', 'Curtain Edge', 'Trim'].includes(workOrder.fringeWastage) && (
-                                <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
-                              )}
-                            </div>
+                          {/* WASTAGE % */}
+                          <Field label="WASTAGE %" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeWastage`]}>
+                            <PercentInput
+                              value={workOrder.fringeWastage || ''}
+                              onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, 'fringeWastage', e.target.value)}
+                              placeholder="e.g., 3"
+                              error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeWastage`])}
+                            />
                           </Field>
 
                           {/* APPROVAL */}
-                          <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeApproval`]}>
+                          <Field label="APPROVAL" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeApproval`]}>
                             <SearchableDropdown
                               value={workOrder.fringeApproval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeApproval', selectedValue)}
@@ -10199,7 +10222,7 @@ const Step2 = ({
                                 <h4 className="text-sm font-semibold text-foreground/90 mb-6">ADVANCE SPEC</h4>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: '16px 12px' }}>
-                                  <Field label="FINISH" width="sm">
+                                  <Field label="FINISH" width="md">
                                     <SearchableDropdown
                                       value={workOrder.fringeFinish || ''}
                                       onChange={(selectedValue) =>
@@ -10210,18 +10233,7 @@ const Step2 = ({
                                     />
                                   </Field>
 
-                                  <Field label="ATTACHMENT" width="sm">
-                                    <SearchableDropdown
-                                      value={workOrder.fringeAttachment || ''}
-                                      onChange={(selectedValue) =>
-                                        handleWorkOrderChange(actualIndex, woIndex, 'fringeAttachment', selectedValue)
-                                      }
-                                      options={['Sew-On Header', 'Adhesive Back', 'Loop for Hanging']}
-                                      placeholder="Select or type"
-                                    />
-                                  </Field>
-
-                                  <Field label="CONSTRUCTION" width="sm">
+                                  <Field label="CONSTRUCTION" width="md">
                                     <SearchableDropdown
                                       value={workOrder.fringeConstruction || ''}
                                       onChange={(selectedValue) =>

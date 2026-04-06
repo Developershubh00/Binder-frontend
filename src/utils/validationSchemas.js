@@ -123,7 +123,7 @@ export const WORK_ORDER_SCHEMAS = {
   },
   'FRINGE/TASSELS': {
     required: ['fringeType', 'fringeMaterial', 'dropLength', 'tapeHeaderWidth', 'fringeColour', 'fringePlacement', 'fringeQtyType', 'fringeTestingRequirements', 'fringeSurplus', 'fringeWastage', 'fringeApproval', 'fringeRemarks', ...WORK_ORDER_DATE_FIELDS],
-    advanced: ['fringeColourRefImage', 'fringePlacementRefImage', 'fringeFinish', 'fringeAttachment', 'fringeConstruction'],
+    advanced: ['fringeColourRefImage', 'fringePlacementRefImage', 'fringeFinish', 'fringeConstruction'],
     fieldLabels: WORK_ORDER_DATE_LABELS,
     conditional: {
       'fringeQtyPcs': { when: 'fringeQtyType', equals: 'PCS' },

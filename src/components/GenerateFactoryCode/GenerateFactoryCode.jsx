@@ -7667,6 +7667,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 ratio: '',
                 // FRINGE/TASSELS fields
                 fringeType: '',
+                fringeAttachmentMethod: '',
                 fringeMaterial: '',
                 dropLength: '',
                 tapeHeaderWidth: '',
@@ -7676,6 +7677,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                 fringePlacementRefImage: null,
                 fringeTestingRequirements: [],
                 fringeTestingRequirementsUpload: null,
+                fringeQtyLongerEdges: '',
+                fringeQtyShorterEdges: '',
                 fringeQtyType: '',
                 fringeQtyPcs: '',
                 fringeQtyCnsPerPc: '',
@@ -7894,6 +7897,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           ratio: '',
           // FRINGE/TASSELS fields
           fringeType: '',
+          fringeAttachmentMethod: '',
           fringeMaterial: '',
           dropLength: '',
           tapeHeaderWidth: '',
@@ -7903,6 +7907,8 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           fringePlacementRefImage: null,
           fringeTestingRequirements: [],
           fringeTestingRequirementsUpload: null,
+          fringeQtyLongerEdges: '',
+          fringeQtyShorterEdges: '',
           fringeQtyType: '',
           fringeQtyPcs: '',
           fringeQtyCnsPerPc: '',
@@ -9029,6 +9035,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
           cableTieUsage: '',
           // FRINGE/TASSELS
           fringeType: '',
+          fringeAttachmentMethod: '',
           fringeMaterial: '',
           dropLength: '',
           tapeWidth: '',
