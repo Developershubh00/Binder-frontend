@@ -6,9 +6,9 @@ import * as authService from './authService';
 export const api = {
   // Generic login - uses backend API
   login: async (credentials) => {
-    const { email, password } = credentials;
+    const { login: loginValue, email, password, rememberMe } = credentials;
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(loginValue || email, password, rememberMe);
       
       if (response.status === 'success') {
         return {
@@ -34,9 +34,9 @@ export const api = {
 
   // Master Admin login - uses backend API
   loginMasterAdmin: async (credentials) => {
-    const { email, password } = credentials;
+    const { login: loginValue, email, password, rememberMe } = credentials;
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(loginValue || email, password, rememberMe);
       
       if (response.status === 'success') {
         // Check if user has master admin role
@@ -71,9 +71,9 @@ export const api = {
 
   // Manager login - uses backend API
   loginManager: async (credentials) => {
-    const { email, password } = credentials;
+    const { login: loginValue, email, password, rememberMe } = credentials;
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(loginValue || email, password, rememberMe);
       
       if (response.status === 'success') {
         // Check if user has manager role
@@ -108,9 +108,9 @@ export const api = {
 
   // Tenant login - uses backend API
   loginTenant: async (credentials) => {
-    const { email, password } = credentials;
+    const { login: loginValue, email, password, rememberMe } = credentials;
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(loginValue || email, password, rememberMe);
       
       if (response.status === 'success') {
         // Check if user has tenant role

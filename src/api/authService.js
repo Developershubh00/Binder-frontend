@@ -6,49 +6,60 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://binder-backend-0szj.onrender.com/api/';
 
 /**
- * Get access token from localStorage
+ * Returns the active storage backend.
+ * localStorage persists across browser sessions ("Remember me").
+ * sessionStorage is cleared when the browser/tab closes.
  */
+const getStorage = () => {
+  // If remember_me flag is set in localStorage, prefer localStorage.
+  // Otherwise fall back to whichever store currently holds the token.
+  if (localStorage.getItem('remember_me') === '1') return localStorage;
+  if (sessionStorage.getItem('access_token')) return sessionStorage;
+  return localStorage;
+};
+
+/**
+ * Call once at login time to choose the storage backend for this session.
+ */
+const setRememberMe = (remember) => {
+  if (remember) {
+    localStorage.setItem('remember_me', '1');
+  } else {
+    localStorage.removeItem('remember_me');
+  }
+};
+
 const getAccessToken = () => {
-  return localStorage.getItem('access_token');
+  return getStorage().getItem('access_token');
 };
 
-/**
- * Get refresh token from localStorage
- */
 const getRefreshToken = () => {
-  return localStorage.getItem('refresh_token');
+  return getStorage().getItem('refresh_token');
 };
 
-/**
- * Set tokens in localStorage
- */
 const setTokens = (accessToken, refreshToken) => {
-  localStorage.setItem('access_token', accessToken);
-  localStorage.setItem('refresh_token', refreshToken);
+  const store = getStorage();
+  store.setItem('access_token', accessToken);
+  store.setItem('refresh_token', refreshToken);
 };
 
-/**
- * Clear tokens from localStorage
- */
 const clearTokens = () => {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-  localStorage.removeItem('user');
+  // Clear from both stores to be safe
+  for (const store of [localStorage, sessionStorage]) {
+    store.removeItem('access_token');
+    store.removeItem('refresh_token');
+    store.removeItem('user');
+  }
+  localStorage.removeItem('remember_me');
 };
 
-/**
- * Get user from localStorage
- */
 const getUser = () => {
-  const userStr = localStorage.getItem('user');
+  const userStr = getStorage().getItem('user');
   return userStr ? JSON.parse(userStr) : null;
 };
 
-/**
- * Set user in localStorage
- */
 const setUser = (user) => {
-  localStorage.setItem('user', JSON.stringify(user));
+  getStorage().setItem('user', JSON.stringify(user));
 };
 
 /**
@@ -72,7 +83,7 @@ const refreshToken = async () => {
     
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem('access_token', data.access);
+      getStorage().setItem('access_token', data.access);
       return true;
     } else {
       clearTokens();
@@ -186,14 +197,17 @@ export const createTenantOwner = async ({ tenantId, email, password }) => {
 
 /**
  * Login user (direct login)
+ * @param {string} loginValue - Email or username
+ * @param {string} password
  */
-export const login = async (email, password) => {
+export const login = async (loginValue, password, rememberMe = false) => {
+  setRememberMe(rememberMe);
   const url = `${API_BASE_URL}auth/login/`;
   console.log('Login request to:', url);
-  
+
   const response = await apiRequest('auth/login/', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ login: loginValue, password }),
   });
   
   console.log('Login response status:', response.status);
@@ -233,10 +247,10 @@ export const login = async (email, password) => {
 /**
  * Request OTP for login (Step 1)
  */
-export const requestOTP = async (email, password) => {
+export const requestOTP = async (loginValue, password) => {
   const response = await apiRequest('auth/login/request-otp/', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ login: loginValue, password }),
   });
   
   return await response.json();

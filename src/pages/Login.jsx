@@ -264,7 +264,7 @@ const Login = () => {
   const [currentView, setCurrentView] = useState('landing');
 
   const [formData, setFormData] = useState({
-    email: '',
+    login: '',
     password: '',
     rememberMe: false,
   });
@@ -295,10 +295,8 @@ const Login = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+    if (!formData.login.trim()) {
+      newErrors.login = 'Email or username is required';
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -325,7 +323,7 @@ const Login = () => {
     if (!validateForm()) return;
     setLoading(true);
     try {
-      const credentials = { email: formData.email, password: formData.password };
+      const credentials = { login: formData.login, password: formData.password, rememberMe: formData.rememberMe };
       const result = await login(credentials);
       if (result.success) {
         const username = result.user?.username || result.user?.name || result.username || 'User';
@@ -440,25 +438,25 @@ const Login = () => {
         </div>
 
         <div className="login-card-header">
-          <h2 className="login-card-title">Welcome Back</h2>
-          <p className="login-card-subtitle">Enter your credentials to access your account</p>
+          <h2 className="login-card-title">Welcome to Binder OS</h2>
+          <p className="login-card-subtitle">Enter your email or username to access your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
-          {/* Email */}
+          {/* Email or Username */}
           <div className="form-group">
-            <label className="input-label">Email</label>
+            <label className="input-label">Email or Username</label>
             <div className="input-container">
               <input
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="login"
+                value={formData.login}
                 onChange={handleChange}
-                placeholder="Enter your email"
-                className={`input-field ${errors.email ? 'error' : ''}`}
+                placeholder="Enter your email or username"
+                className={`input-field ${errors.login ? 'error' : ''}`}
               />
             </div>
-            {errors.email && <span className="error-text">{errors.email}</span>}
+            {errors.login && <span className="error-text">{errors.login}</span>}
           </div>
 
           {/* Password */}
