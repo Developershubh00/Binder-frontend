@@ -10,6 +10,14 @@ import CompanyProfile from './pages/CompanyProfile';
 import Onboarding from './pages/Onboarding';
 import RegisterCompany from './pages/RegisterCompany';
 import SetPassword from './pages/SetPassword';
+import Chatbot from './components/Chatbot';
+
+// Global chatbot — only shown when user is authenticated
+const GlobalChatbot = () => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading || !isAuthenticated) return null;
+  return <Chatbot />;
+};
 
 // Protected Route Components
 const ProtectedRoute = ({ children }) => {
@@ -102,6 +110,7 @@ function App() {
           {/* Default Route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
+        <GlobalChatbot />
       </AuthProvider>
     </Router>
   );

@@ -1,40 +1,26 @@
-/* Floating Chat Icon */
-.floating-chat-icon {
+/* Floating Polyhedra Chat Button */
+.polyhedra-chat-btn {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 60px;
-  height: 60px;
-  background: var(--primary);
+  bottom: 28px;
+  right: 28px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary-foreground);
-  font-size: 24px;
+  background: transparent;
   cursor: pointer;
-  box-shadow: var(--shadow-lg);
-  transition: all 0.3s;
   z-index: 1000;
-  animation: pulse 2s infinite;
+  box-shadow: 0 0 18px 4px rgba(212, 170, 90, 0.18), 0 4px 24px rgba(0,0,0,0.35);
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
 }
 
-@keyframes pulse {
-  0% {
-    box-shadow: var(--shadow-lg);
-  }
-  50% {
-    box-shadow: var(--shadow-xl);
-    transform: scale(1.05);
-  }
-  100% {
-    box-shadow: var(--shadow-lg);
-  }
-}
-
-.floating-chat-icon:hover {
+.polyhedra-chat-btn:hover {
   transform: scale(1.1);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 0 28px 6px rgba(212, 170, 90, 0.3), 0 6px 32px rgba(0,0,0,0.4);
+}
+
+.polyhedra-chat-btn.open {
+  box-shadow: 0 0 24px 8px rgba(212, 170, 90, 0.35), 0 4px 24px rgba(0,0,0,0.35);
 }
 
 /* Chatbot Modal */
@@ -358,33 +344,37 @@
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .floating-chat-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
+  .polyhedra-chat-btn {
+    width: 52px !important;
+    height: 52px !important;
     bottom: 20px;
     right: 20px;
   }
-  
+
+  .polyhedra-chat-btn canvas {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
   .chatbot-modal {
-    bottom: 80px;
+    bottom: 82px;
     right: 20px;
   }
-  
+
   .chatbot-container {
     width: 320px;
     height: 450px;
   }
-  
+
   .chat-messages {
     padding: 16px;
   }
-  
+
   .send-button {
     width: 40px;
     height: 40px;
   }
-  
+
   .send-button svg,
   .send-button i {
     width: 18px;
@@ -394,26 +384,33 @@
 }
 
 @media (max-width: 480px) {
+  .polyhedra-chat-btn {
+    width: 48px !important;
+    height: 48px !important;
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .polyhedra-chat-btn canvas {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
   .chatbot-container {
     width: 280px;
     height: 400px;
   }
-  
+
   .chatbot-modal {
     right: 10px;
     bottom: 70px;
   }
-  
-  .floating-chat-icon {
-    right: 10px;
-    bottom: 10px;
-  }
-  
+
   .send-button {
     width: 38px;
     height: 38px;
   }
-  
+
   .send-button svg,
   .send-button i {
     width: 16px;

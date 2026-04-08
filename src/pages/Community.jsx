@@ -12,7 +12,6 @@ import {
   FaRobot,
   FaUser
 } from 'react-icons/fa';
-import Chatbot from '../components/Chatbot'; // Import the Chatbot component
 import './Community.css';
 
 const Community = () => {
@@ -257,8 +256,6 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Chatbot Component */}
-      <Chatbot />
     </div>
   );
 };

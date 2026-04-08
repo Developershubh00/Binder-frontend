@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { 
-  FaRobot, 
-  FaPaperPlane, 
+import {
+  FaRobot,
+  FaPaperPlane,
   FaUser,
-  FaTimes,
-  FaComments
+  FaTimes
 } from 'react-icons/fa';
+import PolyhedraButton from './PolyhedraButton';
 import './Chatbot.css';
 
 const Chatbot = () => {
@@ -153,10 +153,12 @@ Always provide clear, concise, and helpful answers about the software's features
 
   return (
     <>
-      {/* Floating Chat Icon */}
-      <div className="floating-chat-icon" onClick={() => setIsChatOpen(!isChatOpen)}>
-        <FaComments />
-      </div>
+      {/* Floating Polyhedra Chat Button */}
+      <PolyhedraButton
+        size={64}
+        isOpen={isChatOpen}
+        onClick={() => setIsChatOpen(!isChatOpen)}
+      />
 
       {/* Chatbot Modal */}
       {isChatOpen && (
