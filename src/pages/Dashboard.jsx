@@ -1168,7 +1168,18 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        
+
+        {!isSidebarCollapsed && (
+          <div className="sidebar-search">
+            <Search size={16} className="sidebar-search-icon" />
+            <input
+              type="text"
+              className="sidebar-search-input"
+              placeholder="Search..."
+            />
+          </div>
+        )}
+
         <nav className="sidebar-nav">
           {getMenuItems().map((item) => (
             <button
