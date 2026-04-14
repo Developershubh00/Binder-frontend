@@ -926,6 +926,11 @@ export const getNextIPOSrNo = async (programName) => {
   return await response.json();
 };
 
+export const getIPOMasterCNS = async (ipoId) => {
+  const response = await apiRequest(`ims/ipos/${ipoId}/master-cns/`);
+  return await response.json();
+};
+
 // ============================================================================
 // INWARD STORE SHEETS
 // ============================================================================

@@ -9,6 +9,7 @@ import GenerateBuyerCode from '../components/GenerateBuyerCode';
 import GenerateVendorCode from '../components/GenerateVendorCode';
 import CompanyEssentials from '../components/CompanyEssentials';
 import InternalPurchaseOrder from '../components/InternalPurchaseOrder/InternalPurchaseOrder';
+import IPOMasterCNS from '../components/IPOManagement/IPOMasterCNS';
 import GeneratePOCode from '../components/GeneratePOCode';
 import BuyerMasterSheet from '../components/BuyerMasterSheet';
 import VendorMasterSheet from '../components/VendorMasterSheet';
@@ -135,6 +136,7 @@ const Dashboard = () => {
   const [hoveredSubmenu, setHoveredSubmenu] = useState(null);
   const [existingIPOs, setExistingIPOs] = useState([]);
   const [selectedIpoForManagement, setSelectedIpoForManagement] = useState(null);
+  const [selectedIpoForCNS, setSelectedIpoForCNS] = useState(null);
   const [existingCompanyEssentials, setExistingCompanyEssentials] = useState([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [calcInput, setCalcInput] = useState('');
@@ -258,7 +260,7 @@ const Dashboard = () => {
       { id: 'home', label: 'Home', icon: Home },
       { id: 'tasks', label: 'Tasks', icon: Stack3Icon },
       { id: 'code-creation', label: 'Code Creation', icon: FingerprintScanIcon },
-      { id: 'ipo-issued', label: 'IPO Management', icon: ReceiptIcon },
+      { id: 'ipo-management', label: 'IPO Management', icon: ReceiptIcon },
       { id: 'purchase', label: 'Purchase', icon: ShoppingBagIcon },
       { id: 'ims', label: 'IMS', icon: StorefrontIcon },
     ];
@@ -288,6 +290,40 @@ const Dashboard = () => {
         return <TasksContent initialView={tasksView} />;
       case 'purchase':
         return <PurchaseContent />;
+      case 'ipo-management':
+        if (selectedIpoForCNS) {
+          return (
+            <div className="dashboard-content" style={{ padding: 24, overflowY: 'auto' }}>
+              <button
+                type="button"
+                onClick={() => setSelectedIpoForCNS(null)}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 8,
+                  padding: '6px 12px',
+                  cursor: 'pointer',
+                  marginBottom: 16,
+                }}
+              >
+                ← Back
+              </button>
+              <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>IPO Master CNS</h1>
+              <p style={{ color: '#6b7280', fontFamily: 'ui-monospace, Menlo, Consolas, monospace', marginBottom: 16 }}>
+                {selectedIpoForCNS.ipoCode}
+              </p>
+              <IPOMasterCNS ipo={selectedIpoForCNS} />
+            </div>
+          );
+        }
+        return (
+          <div className="dashboard-content" style={{ padding: 24 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>IPO Management</h1>
+            <p style={{ color: '#6b7280' }}>
+              Use the sidebar menu to pick an IPO Type, then an IPO Code, then open <strong>IPO</strong> or <strong>IPO Master CNS</strong>.
+            </p>
+          </div>
+        );
       case 'code-creation':
         if (codeCreationView === 'buyer') {
           return (
@@ -505,6 +541,7 @@ const Dashboard = () => {
       || activePage === 'inward-store-sheet-db'
       || activePage === 'outward-store-sheet'
       || activePage === 'outward-store-sheet-db'
+      || activePage === 'ipo-management'
     ) {
       setHoveredMenu(null);
     }
@@ -567,18 +604,6 @@ const Dashboard = () => {
     return getIpoItems(categoryType);
   };
 
-  const handleOpenIpoFromManagement = (ipo) => {
-    if (!ipo) return;
-    setSelectedIpoForManagement({
-      ...ipo,
-      orderType: normalizeOrderType(ipo.orderType || ipo.order_type || ''),
-    });
-    setCodeCreationView('internal-purchase-order');
-    setActivePage('code-creation');
-    setHoveredSubmenu(null);
-    setHoveredMenu(null);
-  };
-
   const renderHoverPanel = () => {
     if (!hoveredMenu) return null;
 
@@ -638,47 +663,111 @@ const Dashboard = () => {
       );
     }
 
-    if (hoveredMenu === 'ipo-issued') {
+
+    if (hoveredMenu === 'ipo-management') {
       const categories = [
+        { label: 'Company', key: 'Company' },
         { label: 'Production', key: 'Production' },
         { label: 'Sampling', key: 'Sampling' },
-        { label: 'Company', key: 'Company' },
       ];
       const activeCategory =
-        hoveredSubmenu?.menu === 'ipo-issued' ? hoveredSubmenu.category : null;
+        hoveredSubmenu?.menu === 'ipo-management' ? hoveredSubmenu.category : null;
+      const activeIpoCode =
+        hoveredSubmenu?.menu === 'ipo-management' ? hoveredSubmenu.ipoCode : null;
       const items = activeCategory ? ipoByType(activeCategory) : [];
+      const activeIpo = activeIpoCode
+        ? items.find((i) => (i.ipoCode || i.code) === activeIpoCode)
+        : null;
+
+      const openIpoLeaf = (ipo) => {
+        if (!ipo) return;
+        setSelectedIpoForCNS(null);
+        setSelectedIpoForManagement({
+          ...ipo,
+          orderType: normalizeOrderType(ipo.orderType || ipo.order_type || ''),
+        });
+        setCodeCreationView('internal-purchase-order');
+        setActivePage('code-creation');
+        setHoveredSubmenu(null);
+        setHoveredMenu(null);
+      };
+
+      const openCnsLeaf = (ipo) => {
+        if (!ipo) return;
+        setSelectedIpoForCNS({
+          ...ipo,
+          orderType: normalizeOrderType(ipo.orderType || ipo.order_type || ''),
+        });
+        setActivePage('ipo-management');
+        setHoveredSubmenu(null);
+        setHoveredMenu(null);
+      };
+
       return (
         <div className="hover-panel-group" ref={hoverPanelRef} onMouseLeave={() => setHoveredSubmenu(null)}>
           <div className="hover-panel">
             <div className="hover-panel-column">
-              <div className="hover-panel-title">IPO Issued</div>
+              <div className="hover-panel-title">IPO Type</div>
               {categories.map((cat) => (
                 <button
                   key={cat.key}
                   type="button"
                   className={`hover-panel-item ${activeCategory === cat.key ? 'active' : ''}`}
-                  onMouseEnter={() => setHoveredSubmenu({ menu: 'ipo-issued', category: cat.key })}
+                  onMouseEnter={() => setHoveredSubmenu({ menu: 'ipo-management', category: cat.key })}
                 >
                   {cat.label}
                 </button>
               ))}
             </div>
           </div>
+
           {activeCategory && (
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
-                <div className="hover-panel-title">{categories.find((c) => c.key === activeCategory)?.label}</div>
-                {items.map((ipo) => (
-                  <button
-                    key={ipo.ipoCode || ipo.code}
-                    type="button"
-                    className="hover-panel-item"
-                    onClick={() => handleOpenIpoFromManagement(ipo)}
-                  >
-                    {ipo.ipoCode || ipo.code}
-                  </button>
-                ))}
-                {items.length === 0 && <div className="hover-panel-subitem muted">No IPOs</div>}
+                <div className="hover-panel-title">
+                  {categories.find((c) => c.key === activeCategory)?.label}
+                </div>
+                {items.length === 0 ? (
+                  <div className="hover-panel-subitem muted">No IPOs</div>
+                ) : (
+                  items.map((ipo) => {
+                    const code = ipo.ipoCode || ipo.code;
+                    return (
+                      <button
+                        key={code}
+                        type="button"
+                        className={`hover-panel-item ${activeIpoCode === code ? 'active' : ''}`}
+                        onMouseEnter={() =>
+                          setHoveredSubmenu({ menu: 'ipo-management', category: activeCategory, ipoCode: code })
+                        }
+                      >
+                        {code}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeIpo && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">{activeIpo.ipoCode || activeIpo.code}</div>
+                <button
+                  type="button"
+                  className="hover-panel-item"
+                  onClick={() => openIpoLeaf(activeIpo)}
+                >
+                  IPO
+                </button>
+                <button
+                  type="button"
+                  className="hover-panel-item"
+                  onClick={() => openCnsLeaf(activeIpo)}
+                >
+                  IPO Master CNS
+                </button>
               </div>
             </div>
           )}
@@ -1199,6 +1288,9 @@ const Dashboard = () => {
                 if (item.id === 'code-creation') {
                   setSelectedIpoForManagement(null);
                   setCodeCreationView(null);
+                }
+                if (item.id === 'ipo-management') {
+                  setSelectedIpoForCNS(null);
                 }
                 setActivePage(item.id);
                 setHoveredMenu(item.id);
