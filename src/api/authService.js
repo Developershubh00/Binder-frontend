@@ -165,6 +165,19 @@ export const register = async (userData) => {
   return await response.json();
 };
 
+/**
+ * Check if a username is already taken.
+ * Returns true if taken, false if available.
+ */
+export const checkUsernameAvailability = async (username) => {
+  const response = await apiRequest(`auth/check-username/?username=${encodeURIComponent(username)}`);
+  const data = await response.json();
+  // Support { exists: bool } or { available: bool } response shapes
+  if (typeof data?.exists === 'boolean') return data.exists;
+  if (typeof data?.available === 'boolean') return !data.available;
+  return false;
+};
+
 export const registerCompany = async (companyData) => {
   const formData = new FormData();
   Object.entries(companyData || {}).forEach(([key, value]) => {
@@ -177,7 +190,11 @@ export const registerCompany = async (companyData) => {
     body: formData,
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data?.message || data?.detail || 'Company registration failed');
+  if (!response.ok) {
+    const err = new Error(data?.message || data?.detail || 'Company registration failed');
+    err.fieldErrors = data; // attach raw response for field-level error parsing
+    throw err;
+  }
   return data;
 };
 
@@ -191,7 +208,11 @@ export const createTenantOwner = async ({ tenantId, email, password }) => {
     }),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data?.message || 'Failed to create tenant owner');
+  if (!response.ok) {
+    const err = new Error(data?.message || 'Failed to create tenant owner');
+    err.fieldErrors = data;
+    throw err;
+  }
   return data;
 };
 

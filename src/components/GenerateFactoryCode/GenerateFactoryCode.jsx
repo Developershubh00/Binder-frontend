@@ -6023,7 +6023,12 @@ const normalizeFactoryCodePayloadStiffenerPlys = (payload) => {
   };
 };
 
-const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCreation, onNavigateToIPO }) => {
+const GenerateFactoryCode = ({
+  onBack,
+  initialFormData = {},
+  onNavigateToCodeCreation,
+  onNavigateToIPO,
+}) => {
   const { isSidebarCollapsed } = useSidebar();
   const scrollContainerRef = useRef(null);
   const [overlayLeft, setOverlayLeft] = useState(
@@ -10737,15 +10742,6 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     
     if (currentStep < totalSteps) {
       if (flowPhase === 'step0' && currentStep === 0) {
-        if (restrictToStep0) {
-          setShowStep0CompletionScreen(true);
-          setTimeout(() => {
-            if (scrollContainerRef.current) {
-              scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-          }, 100);
-          return;
-        }
         setFlowPhase('ipcSelector');
       } else {
         setCurrentStep(currentStep + 1);
@@ -11720,6 +11716,11 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
                         console.log(`All ${savedCount} IPC(s) saved to database successfully.`);
                       }
 
+                      // Persist the full wizard state for this IPO so the
+                      // derived consumption sheet can be viewed under
+                      // IPO Management → IPO Derived CNS.
+                      await saveToLocalStorage(latestFormDataRef.current);
+
                       setShowFactoryCodePopup(true);
                     }}
                   >
@@ -11842,49 +11843,41 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         </>
       )}
 
-      {/* Generate Factory Code Popup - Full screen modal maximized */}
+      {/* Factory Code Generation success prompt — redirects user to IPO Derived CNS. */}
       {showFactoryCodePopup && (
         <div
-          className="fixed z-50 right-0 bg-white flex flex-col"
+          className="fixed z-50 right-0 bg-background/80 flex items-center justify-center"
           style={{ left: overlayLeft, top: '72px', bottom: 0 }}
-          onClick={() => setShowFactoryCodePopup(false)}
           role="presentation"
         >
-          <div
-            className="flex flex-col bg-white overflow-hidden flex-1"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-6 pt-4 border-b border-border flex-shrink-0">
-              <h2 className="text-xl font-semibold text-foreground truncate text-left pl-20">Factory Code Generation</h2>
-              <button
-                type="button"
-                onClick={() => setShowFactoryCodePopup(false)}
-                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity p-2 pr-8 flex-shrink-0"
-                aria-label="Close"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0 min-w-0">
-              <ConsumptionSheet ref={consumptionSheetRef} formData={formData} />
-            </div>
-
-            <div className="flex justify-end gap-3 px-6 py-5 border-t border-border bg-white flex-shrink-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  const ok = consumptionSheetRef.current?.shareToPurchase?.();
-                  if (ok) setShowShareSuccessPopup(true);
-                }}
-              >
-                Share to Purchase Department
-              </Button>
-              <Button type="button" onClick={() => setShowFactoryCodePopup(false)} variant="default">
-                Done
-              </Button>
-            </div>
+          <div className="w-full max-w-2xl mx-4">
+            <FormCard className="rounded-2xl border-border bg-card" style={{ padding: '32px 28px' }}>
+              <div className="flex flex-col items-center text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-4xl font-bold mb-5">
+                  ✓
+                </div>
+                <h2 className="text-2xl font-bold text-foreground mb-3">Factory Codes Generated</h2>
+                <p className="text-foreground/80" style={{ maxWidth: 560, fontSize: '15px', lineHeight: 1.5 }}>
+                  The derived consumption sheet for IPO{' '}
+                  <strong style={{ fontFamily: 'ui-monospace, Menlo, Consolas, monospace' }}>{formData.ipoCode}</strong>{' '}
+                  is available under{' '}
+                  <strong>IPO Management &gt; IPO Type &gt; IPO Code &gt; IPO Derived CNS</strong>.
+                </p>
+                <div className="flex justify-center gap-3" style={{ marginTop: '32px' }}>
+                  <Button
+                    type="button"
+                    variant="default"
+                    onClick={() => {
+                      setShowFactoryCodePopup(false);
+                      if (onNavigateToCodeCreation) onNavigateToCodeCreation();
+                      else onBack?.();
+                    }}
+                  >
+                    Done
+                  </Button>
+                </div>
+              </div>
+            </FormCard>
           </div>
         </div>
       )}

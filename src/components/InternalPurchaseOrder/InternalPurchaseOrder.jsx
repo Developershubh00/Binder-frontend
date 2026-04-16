@@ -9,26 +9,44 @@ import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 import { getIPOs, createIPO, updateIPO, getBuyerCodes } from '../../services/integration';
 import { normalizeOrderType, toOrderTypeApiValue } from '../../utils/orderType';
 
-const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO, initialOpenIpo = null }) => {
-  const [showInitialScreen, setShowInitialScreen] = useState(true);
+const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO, initialOpenIpo = null, specMode = 'create' }) => {
+  const isSpecMode = specMode === 'spec';
+  const [showInitialScreen, setShowInitialScreen] = useState(!isSpecMode);
   const [showIPOPopup, setShowIPOPopup] = useState(false);
   const [generatedIPOCode, setGeneratedIPOCode] = useState('');
-  
+
   // Handle navigation to IPO - reset to initial screen
   // When called from GenerateFactoryCode opened via InternalPurchaseOrder,
   // we should always reset to the IPO initial screen
   const handleNavigateToIPO = () => {
     console.log('Resetting to IPO initial screen');
+    if (isSpecMode) {
+      if (onNavigateToIPO) onNavigateToIPO();
+      return;
+    }
     setShowInitialScreen(true);
   };
-  const [initialData, setInitialData] = useState({
-    orderType: '',      // 'Production' | 'Sampling' | 'Company'
-    buyerCode: '',
-    type: '',          // 'STOCK' | 'SAM' (for Company only)
-    programName: '',
-    ipoCode: '',      // Generated IPO code
-    poSrNo: null,     // Sequential number
-    ipoId: null       // UUID from database
+  const [initialData, setInitialData] = useState(() => {
+    if (isSpecMode && initialOpenIpo?.ipoCode) {
+      return {
+        orderType: normalizeOrderType(initialOpenIpo.orderType || ''),
+        buyerCode: initialOpenIpo.buyerCode || '',
+        type: initialOpenIpo.type || '',
+        programName: initialOpenIpo.programName || '',
+        ipoCode: initialOpenIpo.ipoCode || '',
+        poSrNo: initialOpenIpo.poSrNo ?? null,
+        ipoId: initialOpenIpo.ipoId || initialOpenIpo.id || null,
+      };
+    }
+    return {
+      orderType: '',      // 'Production' | 'Sampling' | 'Company'
+      buyerCode: '',
+      type: '',          // 'STOCK' | 'SAM' (for Company only)
+      programName: '',
+      ipoCode: '',      // Generated IPO code
+      poSrNo: null,     // Sequential number
+      ipoId: null       // UUID from database
+    };
   });
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -299,17 +317,11 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     handleOpenExistingIPO(initialOpenIpo);
   }, [initialOpenIpo]);
 
-  // Handle Next from IPO popup
-  const handleNextFromPopup = () => {
-    setShowIPOPopup(false);
-    setShowInitialScreen(false);
-  };
-
-  // If initial screen is completed, show GenerateFactoryCode
-  if (!showInitialScreen) {
+  // Spec mode: render the full GenerateFactoryCode wizard (Step 0 onwards) for the selected IPO.
+  if (isSpecMode) {
     return (
-      <GenerateFactoryCode 
-        key={`${initialData.ipoCode || ''}-${initialData.programName || ''}-${initialData.buyerCode || ''}-${initialData.type || ''}`}
+      <GenerateFactoryCode
+        key={`spec-${initialData.ipoCode || ''}-${initialData.programName || ''}-${initialData.buyerCode || ''}-${initialData.type || ''}`}
         onBack={onBack}
         initialFormData={initialData}
         onNavigateToCodeCreation={onNavigateToCodeCreation}
@@ -359,11 +371,13 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
                 </FormCard>
               </div>
 
-              <div className="flex justify-center gap-3" style={{ marginTop: '40px' }}>
-                <Button onClick={handleNextFromPopup} type="button" variant="default">
-                  Next
-                </Button>
-              </div>
+              <p
+                className="text-foreground/80"
+                style={{ marginTop: '28px', maxWidth: 560, fontSize: '15px', lineHeight: 1.5 }}
+              >
+                Further details of the IPO will be filled through the{' '}
+                <strong>IPO Management &gt; IPO Type &gt; IPO Code &gt; IPO Spec</strong>.
+              </p>
             </div>
           </FormCard>
         </div>

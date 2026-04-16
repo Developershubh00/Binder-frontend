@@ -10,6 +10,7 @@ import GenerateVendorCode from '../components/GenerateVendorCode';
 import CompanyEssentials from '../components/CompanyEssentials';
 import InternalPurchaseOrder from '../components/InternalPurchaseOrder/InternalPurchaseOrder';
 import IPOMasterCNS from '../components/IPOManagement/IPOMasterCNS';
+import IPODerivedCNS from '../components/IPOManagement/IPODerivedCNS';
 import GeneratePOCode from '../components/GeneratePOCode';
 import BuyerMasterSheet from '../components/BuyerMasterSheet';
 import VendorMasterSheet from '../components/VendorMasterSheet';
@@ -135,8 +136,9 @@ const Dashboard = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [hoveredSubmenu, setHoveredSubmenu] = useState(null);
   const [existingIPOs, setExistingIPOs] = useState([]);
-  const [selectedIpoForManagement, setSelectedIpoForManagement] = useState(null);
   const [selectedIpoForCNS, setSelectedIpoForCNS] = useState(null);
+  const [selectedIpoForSpec, setSelectedIpoForSpec] = useState(null);
+  const [selectedIpoForDerivedCNS, setSelectedIpoForDerivedCNS] = useState(null);
   const [existingCompanyEssentials, setExistingCompanyEssentials] = useState([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [calcInput, setCalcInput] = useState('');
@@ -291,6 +293,42 @@ const Dashboard = () => {
       case 'purchase':
         return <PurchaseContent />;
       case 'ipo-management':
+        if (selectedIpoForSpec) {
+          return (
+            <InternalPurchaseOrder
+              specMode="spec"
+              initialOpenIpo={selectedIpoForSpec}
+              onBack={() => { setSelectedIpoForSpec(null); setActivePage('ipo-management'); }}
+              onNavigateToCodeCreation={() => { setSelectedIpoForSpec(null); setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              onNavigateToIPO={() => { setSelectedIpoForSpec(null); setActivePage('ipo-management'); }}
+            />
+          );
+        }
+        if (selectedIpoForDerivedCNS) {
+          return (
+            <div className="dashboard-content" style={{ padding: 24, overflowY: 'auto' }}>
+              <button
+                type="button"
+                onClick={() => setSelectedIpoForDerivedCNS(null)}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 8,
+                  padding: '6px 12px',
+                  cursor: 'pointer',
+                  marginBottom: 16,
+                }}
+              >
+                ← Back
+              </button>
+              <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>IPO Derived CNS</h1>
+              <p style={{ color: '#6b7280', fontFamily: 'ui-monospace, Menlo, Consolas, monospace', marginBottom: 16 }}>
+                {selectedIpoForDerivedCNS.ipoCode}
+              </p>
+              <IPODerivedCNS ipo={selectedIpoForDerivedCNS} />
+            </div>
+          );
+        }
         if (selectedIpoForCNS) {
           return (
             <div className="dashboard-content" style={{ padding: 24, overflowY: 'auto' }}>
@@ -320,7 +358,7 @@ const Dashboard = () => {
           <div className="dashboard-content" style={{ padding: 24 }}>
             <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>IPO Management</h1>
             <p style={{ color: '#6b7280' }}>
-              Use the sidebar menu to pick an IPO Type, then an IPO Code, then open <strong>IPO</strong> or <strong>IPO Master CNS</strong>.
+              Use the sidebar menu to pick an IPO Type, then an IPO Code, then open <strong>IPO Spec</strong>, <strong>IPO Master CNS</strong>, or <strong>IPO Derived CNS</strong>.
             </p>
           </div>
         );
@@ -403,10 +441,10 @@ const Dashboard = () => {
         if (codeCreationView === 'internal-purchase-order') {
           return (
             <InternalPurchaseOrder
-              onBack={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
-              onNavigateToCodeCreation={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              specMode="create"
+              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              onNavigateToCodeCreation={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
               onNavigateToIPO={() => setActivePage('code-creation')}
-              initialOpenIpo={selectedIpoForManagement}
             />
           );
         }
@@ -628,7 +666,7 @@ const Dashboard = () => {
               <button className="hover-panel-item" onMouseEnter={() => setHoveredSubmenu(null)} onClick={() => { setActivePage('code-creation'); setCodeCreationView('company-essentials'); setHoveredMenu(null); }}>
                 Company Essentials
               </button>
-              <button className="hover-panel-item" onMouseEnter={() => setHoveredSubmenu(null)} onClick={() => { setSelectedIpoForManagement(null); setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); }}>
+              <button className="hover-panel-item" onMouseEnter={() => setHoveredSubmenu(null)} onClick={() => { setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); }}>
                 Internal Purchase Order
               </button>
             </div>
@@ -682,19 +720,34 @@ const Dashboard = () => {
       const openIpoLeaf = (ipo) => {
         if (!ipo) return;
         setSelectedIpoForCNS(null);
-        setSelectedIpoForManagement({
+        setSelectedIpoForDerivedCNS(null);
+        setSelectedIpoForSpec({
           ...ipo,
           orderType: normalizeOrderType(ipo.orderType || ipo.order_type || ''),
         });
-        setCodeCreationView('internal-purchase-order');
-        setActivePage('code-creation');
+        setActivePage('ipo-management');
         setHoveredSubmenu(null);
         setHoveredMenu(null);
       };
 
       const openCnsLeaf = (ipo) => {
         if (!ipo) return;
+        setSelectedIpoForSpec(null);
+        setSelectedIpoForDerivedCNS(null);
         setSelectedIpoForCNS({
+          ...ipo,
+          orderType: normalizeOrderType(ipo.orderType || ipo.order_type || ''),
+        });
+        setActivePage('ipo-management');
+        setHoveredSubmenu(null);
+        setHoveredMenu(null);
+      };
+
+      const openDerivedCnsLeaf = (ipo) => {
+        if (!ipo) return;
+        setSelectedIpoForSpec(null);
+        setSelectedIpoForCNS(null);
+        setSelectedIpoForDerivedCNS({
           ...ipo,
           orderType: normalizeOrderType(ipo.orderType || ipo.order_type || ''),
         });
@@ -759,7 +812,7 @@ const Dashboard = () => {
                   className="hover-panel-item"
                   onClick={() => openIpoLeaf(activeIpo)}
                 >
-                  IPO
+                  IPO Spec
                 </button>
                 <button
                   type="button"
@@ -767,6 +820,13 @@ const Dashboard = () => {
                   onClick={() => openCnsLeaf(activeIpo)}
                 >
                   IPO Master CNS
+                </button>
+                <button
+                  type="button"
+                  className="hover-panel-item"
+                  onClick={() => openDerivedCnsLeaf(activeIpo)}
+                >
+                  IPO Derived CNS
                 </button>
               </div>
             </div>
@@ -1286,11 +1346,12 @@ const Dashboard = () => {
                   return;
                 }
                 if (item.id === 'code-creation') {
-                  setSelectedIpoForManagement(null);
                   setCodeCreationView(null);
                 }
                 if (item.id === 'ipo-management') {
                   setSelectedIpoForCNS(null);
+                  setSelectedIpoForSpec(null);
+                  setSelectedIpoForDerivedCNS(null);
                 }
                 setActivePage(item.id);
                 setHoveredMenu(item.id);
