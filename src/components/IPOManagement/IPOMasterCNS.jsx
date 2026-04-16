@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-layout';
 import { getIPOMasterCNS } from '../../services/integration';
@@ -27,6 +27,10 @@ const formatNumber = (value, { decimals = 3, suffix = '' } = {}) => {
 const IPOMasterCNS = ({ ipo }) => {
   const [activeTab, setActiveTab] = useState('raw_material');
   const [rawSubtab, setRawSubtab] = useState('fabric');
+  // Clubs: array of { id, rowIds: [string], label: 'Club N' }
+  const [clubs, setClubs] = useState([]);
+  // Which clubs are currently checked (by club.id)
+  const [selectedClubs, setSelectedClubs] = useState({});
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -58,17 +62,29 @@ const IPOMasterCNS = ({ ipo }) => {
     return all.filter((r) => sub.matches(String(r.material_type || '')));
   }, [data, activeTab, rawSubtab]);
 
+  const clubbedIdSet = useMemo(() => {
+    const s = new Set();
+    clubs.forEach((c) => c.rowIds.forEach((id) => s.add(id)));
+    return s;
+  }, [clubs]);
+
+  // Rows not in any club — these keep the default IPC grouping.
+  const unclubbedRows = useMemo(
+    () => rows.filter((r) => !clubbedIdSet.has(r.id)),
+    [rows, clubbedIdSet]
+  );
+
   // Compute rowSpan groupings: consecutive rows sharing the same IPC are clubbed
   // under one IPC cell. Rows are already sorted by IPC then component on the backend.
   const groupedRows = useMemo(() => {
     const result = [];
     let currentIpc = null;
-    rows.forEach((row, idx) => {
+    unclubbedRows.forEach((row, idx) => {
       const isFirst = row.ipc !== currentIpc;
       if (isFirst) {
         currentIpc = row.ipc;
         let span = 1;
-        for (let j = idx + 1; j < rows.length && rows[j].ipc === currentIpc; j += 1) {
+        for (let j = idx + 1; j < unclubbedRows.length && unclubbedRows[j].ipc === currentIpc; j += 1) {
           span += 1;
         }
         result.push({ ...row, _ipcRowSpan: span, _firstOfIpc: true });
@@ -81,7 +97,19 @@ const IPOMasterCNS = ({ ipo }) => {
       result[i]._lastOfIpc = !next || next._firstOfIpc;
     }
     return result;
-  }, [rows]);
+  }, [unclubbedRows]);
+
+  // Hydrate clubs for the active view: resolve ids back to row objects
+  // (skipping rows that are filtered out by the current tab/subtab).
+  const activeClubs = useMemo(() => {
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    return clubs
+      .map((c) => ({
+        ...c,
+        resolvedRows: c.rowIds.map((id) => byId.get(id)).filter(Boolean),
+      }))
+      .filter((c) => c.resolvedRows.length > 0);
+  }, [clubs, rows]);
   const isComplete = !!data?.is_complete;
   const totalRows = useMemo(
     () => (data ? ['raw_material', 'artwork_labeling', 'packaging'].reduce((n, k) => n + (data[k]?.length || 0), 0) : 0),
@@ -109,6 +137,74 @@ const IPOMasterCNS = ({ ipo }) => {
     const row = rows.find((r) => r.id === id);
     if (row && isRowDisabled(row) && !selected[id]) return;
     setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const selectedCount = useMemo(
+    () => rows.reduce((n, r) => n + (selected[r.id] ? 1 : 0), 0),
+    [rows, selected]
+  );
+  const showClub = selectedCount >= 2;
+
+  const handleClub = () => {
+    const pickedIds = rows.filter((r) => selected[r.id]).map((r) => r.id);
+    if (pickedIds.length < 2) return;
+    setClubs((prev) => [
+      ...prev,
+      {
+        id: `club-${Date.now()}`,
+        rowIds: pickedIds,
+        label: `Club ${prev.length + 1}`,
+      },
+    ]);
+    // Clear selections on clubbed rows
+    setSelected((prev) => {
+      const next = { ...prev };
+      pickedIds.forEach((id) => { delete next[id]; });
+      return next;
+    });
+  };
+
+  const toggleClub = (clubId) => {
+    setSelectedClubs((prev) => ({ ...prev, [clubId]: !prev[clubId] }));
+  };
+
+  const selectedClubCount = useMemo(
+    () => Object.values(selectedClubs).filter(Boolean).length,
+    [selectedClubs]
+  );
+  const showUnclub = selectedClubCount >= 1;
+
+  const handleUnclub = () => {
+    const toRemove = new Set(
+      Object.entries(selectedClubs).filter(([, v]) => v).map(([k]) => k)
+    );
+    if (toRemove.size === 0) return;
+    setClubs((prev) =>
+      prev
+        .filter((c) => !toRemove.has(c.id))
+        .map((c, i) => ({ ...c, label: `Club ${i + 1}` }))
+    );
+    setSelectedClubs((prev) => {
+      const next = { ...prev };
+      toRemove.forEach((id) => { delete next[id]; });
+      return next;
+    });
+  };
+
+  const handleSaveRow = (ctx) => { console.log('SAVE', ctx); };
+  const handleSendToPurchase = (ctx) => { console.log('SEND TO PURCHASE', ctx); };
+
+  const actionBtnStyle = {
+    background: '#16a34a',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: 4,
+    padding: '4px 10px',
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: 0.5,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
   };
 
 
@@ -224,7 +320,71 @@ const IPOMasterCNS = ({ ipo }) => {
               Some IPCs for <strong>{data?.ipo_code}</strong> are still in draft. The table below shows data entered so far; values will update as the remaining IPCs are completed.
             </FormCard>
           )}
-          <FormCard className="rounded-2xl border-border bg-card" style={{ padding: 16, overflowX: 'auto' }}>
+          <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            onClick={handleClub}
+            aria-hidden={!showClub}
+            tabIndex={showClub ? 0 : -1}
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 24,
+              background: '#f97316',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '10px 10px 0 0',
+              padding: '8px 20px',
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: 1,
+              boxShadow: showClub ? '0 -4px 10px rgba(249,115,22,0.25)' : 'none',
+              cursor: 'pointer',
+              transform: showClub ? 'translateY(-100%)' : 'translateY(0)',
+              transition: 'transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease 180ms',
+              zIndex: 0,
+              pointerEvents: showClub ? 'auto' : 'none',
+            }}
+          >
+            CLUB ({selectedCount})
+          </button>
+          <button
+            type="button"
+            onClick={handleUnclub}
+            aria-hidden={!showUnclub}
+            tabIndex={showUnclub ? 0 : -1}
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 24,
+              background: '#475569',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '10px 10px 0 0',
+              padding: '8px 20px',
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: 1,
+              boxShadow: showUnclub ? '0 -4px 10px rgba(71,85,105,0.3)' : 'none',
+              cursor: 'pointer',
+              transform: showUnclub ? 'translateY(-100%)' : 'translateY(0)',
+              transition: 'transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease 180ms',
+              zIndex: 0,
+              pointerEvents: showUnclub ? 'auto' : 'none',
+            }}
+          >
+            UNCLUB ({selectedClubCount})
+          </button>
+          <FormCard
+            className="rounded-2xl border-border bg-card"
+            style={{
+              padding: 16,
+              overflowX: 'auto',
+              position: 'relative',
+              zIndex: 1,
+              background: '#ffffff',
+            }}
+          >
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid #e5e7eb' }}>
@@ -236,12 +396,162 @@ const IPOMasterCNS = ({ ipo }) => {
                 <th style={{ padding: '8px', textAlign: 'right' }}>Gross Wastage</th>
                 <th style={{ padding: '8px', textAlign: 'right' }}>Gross CNS</th>
                 <th style={{ padding: '8px' }}>Unit</th>
+                <th style={{ padding: '8px', textAlign: 'center' }}>Club / Single</th>
+                <th style={{ padding: '8px 4px', textAlign: 'center' }}>Save</th>
+                <th style={{ padding: '8px 4px', textAlign: 'center' }}>Send to Purchase</th>
               </tr>
             </thead>
             <tbody>
-              {groupedRows.length === 0 ? (
+              {activeClubs.map((club) => {
+                const uniqueIpcs = Array.from(new Set(club.resolvedRows.map((r) => r.ipc)));
+                return (
+                  <React.Fragment key={club.id}>
+                    {club.resolvedRows.map((row, idx) => {
+                      const isFirst = idx === 0;
+                      const isLast = idx === club.resolvedRows.length - 1;
+                      const cellBase = {
+                        padding: '8px',
+                        borderBottom: isLast ? '2px solid #f97316' : '1px solid #fde2c3',
+                        background: '#fff7ed',
+                      };
+                      return (
+                        <tr key={row.id}>
+                          {isFirst && (
+                            <td
+                              rowSpan={club.resolvedRows.length}
+                              style={{
+                                padding: '8px',
+                                fontWeight: 600,
+                                verticalAlign: 'middle',
+                                textAlign: 'center',
+                                background: '#ffedd5',
+                                borderRight: '1px solid #fdba74',
+                                borderBottom: '2px solid #f97316',
+                                borderTop: '2px solid #f97316',
+                              }}
+                            >
+                              {uniqueIpcs.map((ipc) => (
+                                <div key={ipc} style={{ lineHeight: 1.4 }}>{ipc}</div>
+                              ))}
+                              <div
+                                style={{
+                                  marginTop: 6,
+                                  paddingTop: 6,
+                                  borderTop: '1px dashed #f97316',
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  color: '#9a3412',
+                                  letterSpacing: 0.5,
+                                }}
+                              >
+                                ({club.label})
+                              </div>
+                            </td>
+                          )}
+                          {isFirst && (
+                            <td
+                              rowSpan={club.resolvedRows.length}
+                              style={{
+                                padding: '8px',
+                                textAlign: 'center',
+                                verticalAlign: 'middle',
+                                background: '#ffedd5',
+                                borderBottom: '2px solid #f97316',
+                                borderTop: '2px solid #f97316',
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={!!selectedClubs[club.id]}
+                                onChange={() => toggleClub(club.id)}
+                                aria-label={`Select ${club.label}`}
+                              />
+                            </td>
+                          )}
+                          <td style={cellBase}>{row.material_description || '-'}</td>
+                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.net_cns_pc)}</td>
+                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.overage_qty_pcs, { decimals: 2 })}</td>
+                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_wastage, { decimals: 2, suffix: '%' })}</td>
+                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_cns)}</td>
+                          <td style={cellBase}>{row.unit || '-'}</td>
+                          {isFirst && (
+                            <>
+                              <td
+                                rowSpan={club.resolvedRows.length}
+                                style={{
+                                  padding: '8px',
+                                  textAlign: 'center',
+                                  verticalAlign: 'middle',
+                                  background: '#ffedd5',
+                                  borderTop: '2px solid #f97316',
+                                  borderBottom: '2px solid #f97316',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    display: 'inline-block',
+                                    padding: '2px 10px',
+                                    borderRadius: 999,
+                                    background: '#f97316',
+                                    color: '#ffffff',
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    letterSpacing: 0.5,
+                                  }}
+                                >
+                                  CLUB
+                                </span>
+                              </td>
+                              <td
+                                rowSpan={club.resolvedRows.length}
+                                style={{
+                                  padding: '6px 4px',
+                                  textAlign: 'center',
+                                  verticalAlign: 'middle',
+                                  background: '#fff7ed',
+                                  borderTop: '2px solid #f97316',
+                                  borderBottom: '2px solid #f97316',
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  style={actionBtnStyle}
+                                  onClick={() => handleSaveRow({ type: 'club', clubId: club.id })}
+                                >
+                                  SAVE
+                                </button>
+                              </td>
+                              <td
+                                rowSpan={club.resolvedRows.length}
+                                style={{
+                                  padding: '6px 4px',
+                                  textAlign: 'center',
+                                  verticalAlign: 'middle',
+                                  background: '#fff7ed',
+                                  borderTop: '2px solid #f97316',
+                                  borderBottom: '2px solid #f97316',
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  style={actionBtnStyle}
+                                  onClick={() => handleSendToPurchase({ type: 'club', clubId: club.id })}
+                                >
+                                  SEND TO PURCHASE
+                                </button>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+
+              {groupedRows.length === 0 && activeClubs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: 16, textAlign: 'center', color: '#6b7280' }}>
+                  <td colSpan={11} style={{ padding: 16, textAlign: 'center', color: '#6b7280' }}>
                     No rows in this category.
                   </td>
                 </tr>
@@ -287,12 +597,47 @@ const IPOMasterCNS = ({ ipo }) => {
                     <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_wastage, { decimals: 2, suffix: '%' })}</td>
                     <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_cns)}</td>
                     <td style={cellBase}>{row.unit || '-'}</td>
+                    <td style={{ ...cellBase, textAlign: 'center' }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 10px',
+                          borderRadius: 999,
+                          background: '#e5e7eb',
+                          color: '#374151',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        SINGLE
+                      </span>
+                    </td>
+                    <td style={{ ...cellBase, padding: '6px 4px', textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        style={actionBtnStyle}
+                        onClick={() => handleSaveRow({ type: 'row', rowId: row.id })}
+                      >
+                        SAVE
+                      </button>
+                    </td>
+                    <td style={{ ...cellBase, padding: '6px 4px', textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        style={actionBtnStyle}
+                        onClick={() => handleSendToPurchase({ type: 'row', rowId: row.id })}
+                      >
+                        SEND TO PURCHASE
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </FormCard>
+          </div>
         </>
       )}
     </div>
