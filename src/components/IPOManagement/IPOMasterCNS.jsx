@@ -24,6 +24,187 @@ const formatNumber = (value, { decimals = 3, suffix = '' } = {}) => {
   return `${n.toFixed(decimals)}${suffix}`;
 };
 
+const YARN_COLUMNS = [
+  { key: 'material_description', header: 'Material Description', align: 'left',
+    render: (r) => r.material_description || '-' },
+  { key: 'net_cns_pc', header: 'Net CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_cns_pc) },
+  { key: 'overage_qty_pcs', header: 'Overage QTY PCS', align: 'right',
+    render: (r) => formatNumber(r.overage_qty_pcs, { decimals: 2 }) },
+  { key: 'gross_wastage', header: 'Gross Wastage', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_cns', header: 'Gross CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_cns) },
+  { key: 'unit', header: 'Unit', align: 'left',
+    render: (r) => r.unit || '-' },
+];
+
+const FABRIC_COLUMNS = [
+  { key: 'material_description', header: 'Material Description', align: 'left',
+    render: (r) => r.material_description || '-' },
+  { key: 'overage_qty', header: 'Overage QTY', align: 'right',
+    render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
+  { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_length_cns_pc) },
+  { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_width_cns_pc) },
+  { key: 'gross_wastage_length', header: 'Gross Wastage Length', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_length_cns_pc', header: 'Gross Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.gross_length_cns_pc) },
+  { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.gross_width_cns_pc) },
+  { key: 'gross_width_cns', header: 'Gross Width CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_width_cns) },
+  { key: 'purchase_width', header: 'Purchase Width', align: 'right',
+    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+  { key: 'unit', header: 'Unit', align: 'left',
+    render: (r) => r.unit || '-' },
+  { key: 'gross_length_qty', header: 'Gross Length QTY', align: 'right',
+    render: (r) => formatNumber(r.gross_length_qty, { decimals: 2 }) },
+  { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
+    render: (r) => formatNumber(r.purchase_length_qty, { decimals: 2 }) },
+  { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
+    render: (r) => formatNumber(r.gross_width_multiple, { decimals: 2 }) },
+  { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
+    render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
+  { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
+    render: (r) => formatNumber(r.balance_gross_width_wastage_pct, { decimals: 2, suffix: '%' }) },
+];
+
+const TRIM_COLUMNS = [
+  { key: 'material_description', header: 'Material Description', align: 'left',
+    render: (r) => r.material_description || '-' },
+  { key: 'overage_qty', header: 'Overage QTY', align: 'right',
+    render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
+  { key: 'gsm', header: 'GSM', align: 'right',
+    render: (r) => formatNumber(r.gsm, { decimals: 2 }) },
+  { key: 'cns_pc', header: 'CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.cns_pc) },
+  { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_length_cns_pc) },
+  { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_width_cns_pc) },
+  { key: 'gross_wastage_length', header: 'Gross Wastage Length', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_length_pc_cns', header: 'Gross Length/PC CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_length_pc_cns) },
+  { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.gross_width_cns_pc) },
+  { key: 'purchase_width', header: 'Purchase Width', align: 'right',
+    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+  { key: 'unit', header: 'Unit', align: 'left',
+    render: (r) => r.unit || '-' },
+  { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_length_cns) },
+  { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
+    render: (r) => formatNumber(r.purchase_length_qty, { decimals: 2 }) },
+  { key: 'gross_qty_pcs', header: 'Gross QTY PCS', align: 'right',
+    render: (r) => formatNumber(r.gross_qty_pcs, { decimals: 2 }) },
+  { key: 'purchase_qty_pcs', header: 'Purchase QTY PCS', align: 'right',
+    render: (r) => formatNumber(r.purchase_qty_pcs, { decimals: 2 }) },
+  { key: 'gross_weight_qty', header: 'Gross Weight QTY', align: 'right',
+    render: (r) => formatNumber(r.gross_weight_qty, { decimals: 2 }) },
+  { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
+    render: (r) => formatNumber(r.purchase_weight_qty, { decimals: 2 }) },
+];
+
+const FIBER_COLUMNS = [
+  { key: 'material_description', header: 'Material Description', align: 'left',
+    render: (r) => r.material_description || '-' },
+  { key: 'overage_qty', header: 'Overage QTY', align: 'right',
+    render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
+  { key: 'denier', header: 'Denier', align: 'right',
+    render: (r) => formatNumber(r.denier, { decimals: 2 }) },
+  { key: 'gsm', header: 'GSM', align: 'right',
+    render: (r) => formatNumber(r.gsm, { decimals: 2 }) },
+  { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_length_cns_pc) },
+  { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_width_cns_pc) },
+  { key: 'net_weight_cns_pc_grams', header: 'Net Weight CNS/PC (Grams)', align: 'right',
+    render: (r) => formatNumber(r.net_weight_cns_pc_grams, { decimals: 2 }) },
+  { key: 'gross_wastage_length', header: 'Gross Wastage Length', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_length_pc_cns', header: 'Gross Length/PC CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_length_pc_cns) },
+  { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.gross_width_cns_pc) },
+  { key: 'gross_weight_cns_pc_grams', header: 'Gross Weight CNS/PC (Grams)', align: 'right',
+    render: (r) => formatNumber(r.gross_weight_cns_pc_grams, { decimals: 2 }) },
+  { key: 'purchase_width', header: 'Purchase Width', align: 'right',
+    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+  { key: 'unit', header: 'Unit', align: 'left',
+    render: (r) => r.unit || '-' },
+  { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_length_cns) },
+  { key: 'gross_weight_cns', header: 'Gross Weight CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_weight_cns, { decimals: 2 }) },
+  { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
+    render: (r) => formatNumber(r.purchase_weight_qty, { decimals: 2 }) },
+  { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
+    render: (r) => formatNumber(r.gross_width_multiple, { decimals: 2 }) },
+  { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
+    render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
+  { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
+    render: (r) => formatNumber(r.balance_gross_width_wastage_pct, { decimals: 2, suffix: '%' }) },
+];
+
+const FOAM_COLUMNS = [
+  { key: 'material_description', header: 'Material Description', align: 'left',
+    render: (r) => r.material_description || '-' },
+  { key: 'overage_qty', header: 'Overage QTY', align: 'right',
+    render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
+  { key: 'gsm', header: 'GSM', align: 'right',
+    render: (r) => formatNumber(r.gsm, { decimals: 2 }) },
+  { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_length_cns_pc) },
+  { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_width_cns_pc) },
+  { key: 'net_weight_cns_pc_grams', header: 'Net Weight CNS/PC (Grams)', align: 'right',
+    render: (r) => formatNumber(r.net_weight_cns_pc_grams, { decimals: 2 }) },
+  { key: 'gross_wastage_length', header: 'Gross Wastage Length', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_length_pc_cns', header: 'Gross Length/PC CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_length_pc_cns) },
+  { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.gross_width_cns_pc) },
+  { key: 'gross_weight_cns_pc_grams', header: 'Gross Weight CNS/PC (Grams)', align: 'right',
+    render: (r) => formatNumber(r.gross_weight_cns_pc_grams, { decimals: 2 }) },
+  { key: 'purchase_width', header: 'Purchase Width', align: 'right',
+    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+  { key: 'unit', header: 'Unit', align: 'left',
+    render: (r) => r.unit || '-' },
+  { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_length_cns) },
+  { key: 'gross_weight_cns', header: 'Gross Weight CNS', align: 'right',
+    render: (r) => formatNumber(r.gross_weight_cns, { decimals: 2 }) },
+  { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
+    render: (r) => formatNumber(r.purchase_weight_qty, { decimals: 2 }) },
+  { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
+    render: (r) => formatNumber(r.gross_width_multiple, { decimals: 2 }) },
+  { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
+    render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
+  { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
+    render: (r) => formatNumber(r.balance_gross_width_wastage_pct, { decimals: 2, suffix: '%' }) },
+];
+
+const SUBTAB_CONFIG = {
+  yarn:   { columns: YARN_COLUMNS,   showSrNumber: false, ipcAfterSelect: false },
+  fabric: { columns: FABRIC_COLUMNS, showSrNumber: false, ipcAfterSelect: false },
+  trim:   { columns: TRIM_COLUMNS,   showSrNumber: true,  ipcAfterSelect: true  },
+  fiber:  { columns: FIBER_COLUMNS,  showSrNumber: true,  ipcAfterSelect: true  },
+  foam:   { columns: FOAM_COLUMNS,   showSrNumber: true,  ipcAfterSelect: true  },
+};
+
 const IPOMasterCNS = ({ ipo }) => {
   const [activeTab, setActiveTab] = useState('raw_material');
   const [rawSubtab, setRawSubtab] = useState('fabric');
@@ -61,6 +242,11 @@ const IPOMasterCNS = ({ ipo }) => {
     if (!sub) return all;
     return all.filter((r) => sub.matches(String(r.material_type || '')));
   }, [data, activeTab, rawSubtab]);
+
+  const subtabConfig = SUBTAB_CONFIG[rawSubtab] || SUBTAB_CONFIG.yarn;
+  const columns = subtabConfig.columns;
+  const { showSrNumber, ipcAfterSelect } = subtabConfig;
+  const totalCols = columns.length + 5 + (showSrNumber ? 1 : 0);
 
   const clubbedIdSet = useMemo(() => {
     const s = new Set();
@@ -110,6 +296,15 @@ const IPOMasterCNS = ({ ipo }) => {
       }))
       .filter((c) => c.resolvedRows.length > 0);
   }, [clubs, rows]);
+
+  const serialMap = useMemo(() => {
+    const m = new Map();
+    let n = 1;
+    activeClubs.forEach((c) => c.resolvedRows.forEach((r) => { m.set(r.id, n); n += 1; }));
+    groupedRows.forEach((r) => { m.set(r.id, n); n += 1; });
+    return m;
+  }, [activeClubs, groupedRows]);
+
   const isComplete = !!data?.is_complete;
   const totalRows = useMemo(
     () => (data ? ['raw_material', 'artwork_labeling', 'packaging'].reduce((n, k) => n + (data[k]?.length || 0), 0) : 0),
@@ -288,6 +483,10 @@ const IPOMasterCNS = ({ ipo }) => {
         <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: 32, textAlign: 'center' }}>
           <div style={{ fontSize: 18, fontWeight: 600, color: '#6b7280' }}>In Progress</div>
         </FormCard>
+      ) : activeTab === 'raw_material' && !SUBTAB_CONFIG[rawSubtab] ? (
+        <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: 32, textAlign: 'center' }}>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#6b7280' }}>In Progress</div>
+        </FormCard>
       ) : totalRows === 0 ? (
         <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: 24 }}>
           <div>
@@ -388,14 +587,20 @@ const IPOMasterCNS = ({ ipo }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '8px' }}>IPC / Component</th>
+                {showSrNumber && (
+                  <th style={{ padding: '8px', textAlign: 'center' }}>SR#</th>
+                )}
+                {!ipcAfterSelect && <th style={{ padding: '8px' }}>IPC#</th>}
                 <th style={{ padding: '8px', textAlign: 'center' }}>Select</th>
-                <th style={{ padding: '8px' }}>Material Description</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Net CNS/PC</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Overage QTY PCS</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Gross Wastage</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Gross CNS</th>
-                <th style={{ padding: '8px' }}>Unit</th>
+                {ipcAfterSelect && <th style={{ padding: '8px' }}>IPC#</th>}
+                {columns.map((c) => (
+                  <th
+                    key={c.key}
+                    style={{ padding: '8px', textAlign: c.align === 'left' ? 'left' : c.align, whiteSpace: 'nowrap' }}
+                  >
+                    {c.header}
+                  </th>
+                ))}
                 <th style={{ padding: '8px', textAlign: 'center' }}>Club / Single</th>
                 <th style={{ padding: '8px 4px', textAlign: 'center' }}>Save</th>
                 <th style={{ padding: '8px 4px', textAlign: 'center' }}>Send to Purchase</th>
@@ -414,66 +619,76 @@ const IPOMasterCNS = ({ ipo }) => {
                         borderBottom: isLast ? '2px solid #f97316' : '1px solid #fde2c3',
                         background: '#fff7ed',
                       };
+                      const ipcCell = isFirst && (
+                        <td
+                          rowSpan={club.resolvedRows.length}
+                          style={{
+                            padding: '8px',
+                            fontWeight: 600,
+                            verticalAlign: 'middle',
+                            textAlign: 'center',
+                            background: '#ffedd5',
+                            borderRight: '1px solid #fdba74',
+                            borderBottom: '2px solid #f97316',
+                            borderTop: '2px solid #f97316',
+                          }}
+                        >
+                          {uniqueIpcs.map((ipc) => (
+                            <div key={ipc} style={{ lineHeight: 1.4 }}>{ipc}</div>
+                          ))}
+                          <div
+                            style={{
+                              marginTop: 6,
+                              paddingTop: 6,
+                              borderTop: '1px dashed #f97316',
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: '#9a3412',
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            ({club.label})
+                          </div>
+                        </td>
+                      );
+                      const selectCell = isFirst && (
+                        <td
+                          rowSpan={club.resolvedRows.length}
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            verticalAlign: 'middle',
+                            background: '#ffedd5',
+                            borderBottom: '2px solid #f97316',
+                            borderTop: '2px solid #f97316',
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={!!selectedClubs[club.id]}
+                            onChange={() => toggleClub(club.id)}
+                            aria-label={`Select ${club.label}`}
+                          />
+                        </td>
+                      );
                       return (
                         <tr key={row.id}>
-                          {isFirst && (
-                            <td
-                              rowSpan={club.resolvedRows.length}
-                              style={{
-                                padding: '8px',
-                                fontWeight: 600,
-                                verticalAlign: 'middle',
-                                textAlign: 'center',
-                                background: '#ffedd5',
-                                borderRight: '1px solid #fdba74',
-                                borderBottom: '2px solid #f97316',
-                                borderTop: '2px solid #f97316',
-                              }}
-                            >
-                              {uniqueIpcs.map((ipc) => (
-                                <div key={ipc} style={{ lineHeight: 1.4 }}>{ipc}</div>
-                              ))}
-                              <div
-                                style={{
-                                  marginTop: 6,
-                                  paddingTop: 6,
-                                  borderTop: '1px dashed #f97316',
-                                  fontSize: 11,
-                                  fontWeight: 700,
-                                  color: '#9a3412',
-                                  letterSpacing: 0.5,
-                                }}
-                              >
-                                ({club.label})
-                              </div>
+                          {showSrNumber && (
+                            <td style={{ ...cellBase, textAlign: 'center', fontWeight: 600 }}>
+                              {serialMap.get(row.id) ?? ''}
                             </td>
                           )}
-                          {isFirst && (
+                          {!ipcAfterSelect && ipcCell}
+                          {selectCell}
+                          {ipcAfterSelect && ipcCell}
+                          {columns.map((c) => (
                             <td
-                              rowSpan={club.resolvedRows.length}
-                              style={{
-                                padding: '8px',
-                                textAlign: 'center',
-                                verticalAlign: 'middle',
-                                background: '#ffedd5',
-                                borderBottom: '2px solid #f97316',
-                                borderTop: '2px solid #f97316',
-                              }}
+                              key={c.key}
+                              style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
                             >
-                              <input
-                                type="checkbox"
-                                checked={!!selectedClubs[club.id]}
-                                onChange={() => toggleClub(club.id)}
-                                aria-label={`Select ${club.label}`}
-                              />
+                              {c.render(row)}
                             </td>
-                          )}
-                          <td style={cellBase}>{row.material_description || '-'}</td>
-                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.net_cns_pc)}</td>
-                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.overage_qty_pcs, { decimals: 2 })}</td>
-                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_wastage, { decimals: 2, suffix: '%' })}</td>
-                          <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_cns)}</td>
-                          <td style={cellBase}>{row.unit || '-'}</td>
+                          ))}
                           {isFirst && (
                             <>
                               <td
@@ -551,7 +766,7 @@ const IPOMasterCNS = ({ ipo }) => {
 
               {groupedRows.length === 0 && activeClubs.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ padding: 16, textAlign: 'center', color: '#6b7280' }}>
+                  <td colSpan={totalCols} style={{ padding: 16, textAlign: 'center', color: '#6b7280' }}>
                     No rows in this category.
                   </td>
                 </tr>
@@ -564,39 +779,51 @@ const IPOMasterCNS = ({ ipo }) => {
                   color: disabled ? '#9ca3af' : undefined,
                   background: disabled ? '#f9fafb' : undefined,
                 };
+                const ipcCell = row._firstOfIpc && (
+                  <td
+                    rowSpan={row._ipcRowSpan}
+                    style={{
+                      padding: '8px',
+                      fontWeight: 600,
+                      verticalAlign: 'middle',
+                      textAlign: 'center',
+                      background: '#f9fafb',
+                      borderRight: '1px solid #e5e7eb',
+                      borderBottom: '2px solid #9ca3af',
+                    }}
+                  >
+                    {row.ipc}
+                  </td>
+                );
+                const selectCell = (
+                  <td style={{ ...cellBase, textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={!!selected[row.id]}
+                      disabled={disabled}
+                      onChange={() => toggleRow(row.id)}
+                      style={disabled ? { cursor: 'not-allowed', opacity: 0.5 } : undefined}
+                    />
+                  </td>
+                );
                 return (
                   <tr key={row.id}>
-                    {row._firstOfIpc && (
-                      <td
-                        rowSpan={row._ipcRowSpan}
-                        style={{
-                          padding: '8px',
-                          fontWeight: 600,
-                          verticalAlign: 'middle',
-                          textAlign: 'center',
-                          background: '#f9fafb',
-                          borderRight: '1px solid #e5e7eb',
-                          borderBottom: '2px solid #9ca3af',
-                        }}
-                      >
-                        {row.ipc}
+                    {showSrNumber && (
+                      <td style={{ ...cellBase, textAlign: 'center', fontWeight: 600 }}>
+                        {serialMap.get(row.id) ?? ''}
                       </td>
                     )}
-                    <td style={{ ...cellBase, textAlign: 'center' }}>
-                      <input
-                        type="checkbox"
-                        checked={!!selected[row.id]}
-                        disabled={disabled}
-                        onChange={() => toggleRow(row.id)}
-                        style={disabled ? { cursor: 'not-allowed', opacity: 0.5 } : undefined}
-                      />
-                    </td>
-                    <td style={cellBase}>{row.material_description || '-'}</td>
-                    <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.net_cns_pc)}</td>
-                    <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.overage_qty_pcs, { decimals: 2 })}</td>
-                    <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_wastage, { decimals: 2, suffix: '%' })}</td>
-                    <td style={{ ...cellBase, textAlign: 'right' }}>{formatNumber(row.gross_cns)}</td>
-                    <td style={cellBase}>{row.unit || '-'}</td>
+                    {!ipcAfterSelect && ipcCell}
+                    {selectCell}
+                    {ipcAfterSelect && ipcCell}
+                    {columns.map((c) => (
+                      <td
+                        key={c.key}
+                        style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
+                      >
+                        {c.render(row)}
+                      </td>
+                    ))}
                     <td style={{ ...cellBase, textAlign: 'center' }}>
                       <span
                         style={{
