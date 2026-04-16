@@ -10737,6 +10737,15 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
     
     if (currentStep < totalSteps) {
       if (flowPhase === 'step0' && currentStep === 0) {
+        if (restrictToStep0) {
+          setShowStep0CompletionScreen(true);
+          setTimeout(() => {
+            if (scrollContainerRef.current) {
+              scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }, 100);
+          return;
+        }
         setFlowPhase('ipcSelector');
       } else {
         setCurrentStep(currentStep + 1);
