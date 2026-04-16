@@ -6528,12 +6528,17 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
 
       const isDraftMatchingCurrentIPO = (data) => {
         if (!hasInitialFromIPO) return true;
-        const ipoMatch = !initialFormData?.ipoCode || (data.ipoCode && norm(data.ipoCode) === norm(initialFormData.ipoCode));
+        // If both have an ipoCode, that unique identifier is sufficient — no need to
+        // also compare programName/buyerCode which can differ in casing/formatting.
+        if (initialFormData?.ipoCode && data.ipoCode) {
+          return norm(data.ipoCode) === norm(initialFormData.ipoCode);
+        }
+        // Fallback when ipoCode is not available on either side.
         const programMatch = norm(data.programName) === norm(initialFormData.programName);
         const contextMatch = initialFormData.orderType === 'Company'
           ? norm(data.type) === norm(initialFormData.type)
           : norm(data.buyerCode) === norm(initialFormData.buyerCode);
-        return ipoMatch && programMatch && contextMatch;
+        return programMatch && contextMatch;
       };
 
       try {
