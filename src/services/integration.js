@@ -13,6 +13,17 @@
  * Frontend Deployment: https://binder-frontend-self.vercel.app/
  */
 
+// Share a single token store with authService so that "Remember me"
+// (sessionStorage vs localStorage) is honored consistently across the app.
+import {
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+  clearTokens,
+  getUser,
+  setUser,
+} from '../api/authService';
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
@@ -22,52 +33,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://binder-backend-0sz
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
-
-/**
- * Get access token from localStorage
- */
-const getAccessToken = () => {
-  return localStorage.getItem('access_token');
-};
-
-/**
- * Get refresh token from localStorage
- */
-const getRefreshToken = () => {
-  return localStorage.getItem('refresh_token');
-};
-
-/**
- * Set tokens in localStorage
- */
-const setTokens = (accessToken, refreshToken) => {
-  localStorage.setItem('access_token', accessToken);
-  localStorage.setItem('refresh_token', refreshToken);
-};
-
-/**
- * Clear tokens from localStorage
- */
-const clearTokens = () => {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-  localStorage.removeItem('user');
-};
-
-/**
- * Get user from localStorage
- */
-const getUser = () => {
-  const userStr = localStorage.getItem('user');
-  return userStr ? JSON.parse(userStr) : null;
-};
-
-/**
- * Set user in localStorage
- */
-const setUser = (user) => {
-  localStorage.setItem('user', JSON.stringify(user));
-};
 
 /**
  * Make authenticated API request
@@ -137,7 +102,8 @@ const refreshToken = async () => {
     
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem('access_token', data.access);
+      // Write back to the same store (sessionStorage/localStorage) the refresh came from.
+      setTokens(data.access, refresh);
       return true;
     } else {
       clearTokens();

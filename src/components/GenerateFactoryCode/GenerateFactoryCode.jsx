@@ -6450,6 +6450,7 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
   };
 
   const saveToLocalStorage = async (data) => {
+    let normalizedPayload = null;
     try {
       const cloned = JSON.parse(JSON.stringify(data, (key, value) => {
         if (value instanceof File) return null;
@@ -6469,16 +6470,26 @@ const GenerateFactoryCode = ({ onBack, initialFormData = {}, onNavigateToCodeCre
         }
       }
 
-      const normalizedPayload = normalizeFactoryCodePayloadStiffenerPlys(cloned);
+      normalizedPayload = normalizeFactoryCodePayloadStiffenerPlys(cloned);
       const payload = JSON.stringify(normalizedPayload);
-      localStorage.setItem(STORAGE_KEY, payload);
-      if (data?.ipoCode) {
-        localStorage.setItem(getStorageKey(data.ipoCode), payload);
+
+      // localStorage is best-effort cache. A quota error here must not block the backend save.
+      try {
+        localStorage.setItem(STORAGE_KEY, payload);
+        if (data?.ipoCode) {
+          localStorage.setItem(getStorageKey(data.ipoCode), payload);
+        }
+      } catch (lsErr) {
+        console.warn('Failed to save to localStorage:', lsErr);
       }
+
       window.dispatchEvent(new Event('factoryCodeFormDataUpdated'));
-      saveFactoryCodeDraft(normalizedPayload).catch((e) => console.warn('Draft save failed', e));
     } catch (e) {
-      console.warn('Failed to save to localStorage:', e);
+      console.warn('Failed to prepare draft payload:', e);
+    }
+
+    if (normalizedPayload) {
+      saveFactoryCodeDraft(normalizedPayload).catch((e) => console.warn('Draft save failed', e));
     }
   };
 

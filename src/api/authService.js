@@ -505,5 +505,5 @@ export const resendVerification = async (email) => {
 };
 
 // Export utility functions for use in other parts of the app
-export { getAccessToken, getRefreshToken, getUser, setUser, clearTokens };
+export { getAccessToken, getRefreshToken, setTokens, getUser, setUser, clearTokens };
 
