@@ -897,6 +897,14 @@ export const getIPOMasterCNS = async (ipoId) => {
   return await response.json();
 };
 
+export const saveIPOMasterCNSRows = async (ipoId, rows) => {
+  const response = await apiRequest(`ims/ipos/${ipoId}/master-cns/save-rows/`, {
+    method: 'POST',
+    body: JSON.stringify({ rows }),
+  });
+  return await response.json();
+};
+
 // ============================================================================
 // INWARD STORE SHEETS
 // ============================================================================

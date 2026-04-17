@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-layout';
-import { getIPOMasterCNS } from '../../services/integration';
+import { getIPOMasterCNS, saveIPOMasterCNSRows } from '../../services/integration';
 
 const TABS = [
   { key: 'raw_material', label: 'Raw Material' },
@@ -24,6 +24,41 @@ const formatNumber = (value, { decimals = 3, suffix = '' } = {}) => {
   return `${n.toFixed(decimals)}${suffix}`;
 };
 
+const toNum = (v) => {
+  if (v === null || v === undefined || v === '') return NaN;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : NaN;
+};
+
+// Derived fabric values (pure helpers; same row shape as backend)
+const fabricGrossLengthPc = (row) => {
+  const n = toNum(row.net_length_cns_pc);
+  const w = toNum(row.gross_wastage_length);
+  if (!Number.isFinite(n)) return NaN;
+  return n * (1 + (Number.isFinite(w) ? w : 0) / 100);
+};
+const fabricGrossWidthPc = (row) => {
+  const n = toNum(row.net_width_cns_pc);
+  const w = toNum(row.gross_wastage_width);
+  if (!Number.isFinite(n)) return NaN;
+  return n * (1 + (Number.isFinite(w) ? w : 0) / 100);
+};
+const fabricGrossWidthCns = (row, ctx) => {
+  if (!ctx?.isClub) return fabricGrossWidthPc(row);
+  return ctx.clubRows.reduce((acc, r) => {
+    const v = fabricGrossWidthPc(r);
+    return acc + (Number.isFinite(v) ? v : 0);
+  }, 0);
+};
+const fabricPurchaseWidthTotal = (row, ctx) => {
+  const readOne = (id) => toNum(ctx?.manualInputs?.[id]?.purchase_width);
+  if (!ctx?.isClub) return readOne(row.id);
+  return ctx.clubRows.reduce((acc, r) => {
+    const v = readOne(r.id);
+    return acc + (Number.isFinite(v) ? v : 0);
+  }, 0);
+};
+
 const YARN_COLUMNS = [
   { key: 'material_description', header: 'Material Description', align: 'left',
     render: (r) => r.material_description || '-' },
@@ -39,11 +74,36 @@ const YARN_COLUMNS = [
     render: (r) => r.unit || '-' },
 ];
 
+const numberInputStyle = (invalid) => ({
+  width: 90,
+  padding: '4px 6px',
+  fontSize: 13,
+  border: `1px solid ${invalid ? '#dc2626' : '#d1d5db'}`,
+  borderRadius: 4,
+  background: invalid ? '#fef2f2' : '#ffffff',
+  textAlign: 'right',
+  outline: 'none',
+});
+
+const ManualNumberCell = ({ rowId, field, ctx, invalid }) => {
+  const value = ctx?.manualInputs?.[rowId]?.[field] ?? '';
+  return (
+    <input
+      type="number"
+      step="any"
+      value={value}
+      onChange={(e) => ctx?.setManualInput?.(rowId, field, e.target.value)}
+      style={numberInputStyle(invalid)}
+      title={invalid ? 'Purchase Width must be greater than Gross Width CNS' : undefined}
+    />
+  );
+};
+
 const FABRIC_COLUMNS = [
   { key: 'material_description', header: 'Material Description', align: 'left',
     render: (r) => r.material_description || '-' },
   { key: 'overage_qty', header: 'Overage QTY', align: 'right',
-    render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
+    render: (r) => formatNumber(r.overage_qty ?? r.overage_qty_pcs, { decimals: 2 }) },
   { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
     render: (r) => formatNumber(r.net_length_cns_pc) },
   { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
@@ -53,25 +113,63 @@ const FABRIC_COLUMNS = [
   { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
     render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
   { key: 'gross_length_cns_pc', header: 'Gross Length CNS/PC', align: 'right',
-    render: (r) => formatNumber(r.gross_length_cns_pc) },
+    render: (r) => formatNumber(fabricGrossLengthPc(r)) },
   { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
-    render: (r) => formatNumber(r.gross_width_cns_pc) },
+    render: (r) => formatNumber(fabricGrossWidthPc(r)) },
   { key: 'gross_width_cns', header: 'Gross Width CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_width_cns) },
+    aggregatedInClub: true,
+    render: (r, ctx) => formatNumber(fabricGrossWidthCns(r, ctx)) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
-    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const scopePurchase = fabricPurchaseWidthTotal(r, ctx);
+      const scopeGross = fabricGrossWidthCns(r, ctx);
+      const invalid = Number.isFinite(scopePurchase) && Number.isFinite(scopeGross)
+        && scopePurchase > 0 && scopePurchase <= scopeGross;
+      if (ctx?.isClub) {
+        return (
+          <span
+            style={{
+              fontWeight: 600,
+              color: invalid ? '#dc2626' : undefined,
+            }}
+            title={invalid ? 'Purchase Width sum must be greater than Gross Width CNS' : undefined}
+          >
+            {formatNumber(scopePurchase, { decimals: 2 })}
+          </span>
+        );
+      }
+      return <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} invalid={invalid} />;
+    } },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_qty', header: 'Gross Length QTY', align: 'right',
-    render: (r) => formatNumber(r.gross_length_qty, { decimals: 2 }) },
+    render: (r) => {
+      const glPc = fabricGrossLengthPc(r);
+      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
+      if (!Number.isFinite(glPc) || !Number.isFinite(overage)) return '-';
+      return formatNumber(glPc * overage, { decimals: 2 });
+    } },
   { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
-    render: (r) => formatNumber(r.purchase_length_qty, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_length_qty" ctx={ctx} /> },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
-    render: (r) => formatNumber(r.gross_width_multiple, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
-    render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const pw = fabricPurchaseWidthTotal(r, ctx);
+      const gw = fabricGrossWidthCns(r, ctx);
+      if (!Number.isFinite(pw) || !Number.isFinite(gw)) return '-';
+      return formatNumber(pw - gw, { decimals: 2 });
+    } },
   { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
-    render: (r) => formatNumber(r.balance_gross_width_wastage_pct, { decimals: 2, suffix: '%' }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const pw = fabricPurchaseWidthTotal(r, ctx);
+      const gw = fabricGrossWidthCns(r, ctx);
+      if (!Number.isFinite(pw) || !Number.isFinite(gw) || pw === 0) return '-';
+      return formatNumber(((pw - gw) / pw) * 100, { decimals: 2, suffix: '%' });
+    } },
 ];
 
 const TRIM_COLUMNS = [
@@ -216,6 +314,13 @@ const IPOMasterCNS = ({ ipo }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState({});
+  const [manualInputs, setManualInputs] = useState({});
+  const setManualInput = (rowId, field, value) => {
+    setManualInputs((prev) => ({
+      ...prev,
+      [rowId]: { ...(prev[rowId] || {}), [field]: value },
+    }));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -224,7 +329,24 @@ const IPOMasterCNS = ({ ipo }) => {
       setError('');
       try {
         const response = await getIPOMasterCNS(ipo.ipoId || ipo.id);
-        if (!cancelled) setData(response);
+        if (!cancelled) {
+          setData(response);
+          const seed = {};
+          (response?.raw_material || []).forEach((r) => {
+            const entry = {};
+            if (r.purchase_width !== null && r.purchase_width !== undefined) {
+              entry.purchase_width = String(r.purchase_width);
+            }
+            if (r.purchase_length_qty !== null && r.purchase_length_qty !== undefined) {
+              entry.purchase_length_qty = String(r.purchase_length_qty);
+            }
+            if (r.gross_width_multiple !== null && r.gross_width_multiple !== undefined) {
+              entry.gross_width_multiple = String(r.gross_width_multiple);
+            }
+            if (Object.keys(entry).length) seed[r.id] = entry;
+          });
+          setManualInputs(seed);
+        }
       } catch (e) {
         if (!cancelled) setError(e?.message || 'Failed to load IPO Master CNS.');
       } finally {
@@ -386,7 +508,46 @@ const IPOMasterCNS = ({ ipo }) => {
     });
   };
 
-  const handleSaveRow = (ctx) => { console.log('SAVE', ctx); };
+  const [savingKey, setSavingKey] = useState(null);
+  const [saveError, setSaveError] = useState('');
+
+  const buildSavePayload = (rowIds) => rowIds.map((id) => {
+    const entry = manualInputs[id] || {};
+    const payload = { id };
+    ['purchase_width', 'purchase_length_qty', 'gross_width_multiple'].forEach((field) => {
+      if (Object.prototype.hasOwnProperty.call(entry, field)) {
+        const v = entry[field];
+        payload[field] = v === '' ? null : v;
+      }
+    });
+    return payload;
+  });
+
+  const handleSaveRow = async (saveCtx) => {
+    const ipoId = ipo?.ipoId || ipo?.id;
+    if (!ipoId) return;
+    let rowIds = [];
+    let key = '';
+    if (saveCtx?.type === 'row') {
+      rowIds = [saveCtx.rowId];
+      key = `row:${saveCtx.rowId}`;
+    } else if (saveCtx?.type === 'club') {
+      const club = clubs.find((c) => c.id === saveCtx.clubId);
+      rowIds = club?.rowIds || [];
+      key = `club:${saveCtx.clubId}`;
+    }
+    if (!rowIds.length) return;
+    setSavingKey(key);
+    setSaveError('');
+    try {
+      await saveIPOMasterCNSRows(ipoId, buildSavePayload(rowIds));
+    } catch (e) {
+      setSaveError(e?.message || 'Failed to save.');
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
   const handleSendToPurchase = (ctx) => { console.log('SEND TO PURCHASE', ctx); };
 
   const actionBtnStyle = {
@@ -517,6 +678,21 @@ const IPOMasterCNS = ({ ipo }) => {
               }}
             >
               Some IPCs for <strong>{data?.ipo_code}</strong> are still in draft. The table below shows data entered so far; values will update as the remaining IPCs are completed.
+            </FormCard>
+          )}
+          {saveError && (
+            <FormCard
+              className="rounded-2xl"
+              style={{
+                padding: 12,
+                marginBottom: 12,
+                background: '#fee2e2',
+                border: '1px solid #fca5a5',
+                color: '#991b1b',
+                fontSize: 13,
+              }}
+            >
+              {saveError}
             </FormCard>
           )}
           <div style={{ position: 'relative' }}>
@@ -681,14 +857,43 @@ const IPOMasterCNS = ({ ipo }) => {
                           {!ipcAfterSelect && ipcCell}
                           {selectCell}
                           {ipcAfterSelect && ipcCell}
-                          {columns.map((c) => (
-                            <td
-                              key={c.key}
-                              style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
-                            >
-                              {c.render(row)}
-                            </td>
-                          ))}
+                          {(() => {
+                            const ctx = {
+                              isClub: true,
+                              clubRows: club.resolvedRows,
+                              manualInputs,
+                              setManualInput,
+                            };
+                            return columns.map((c) => {
+                              if (c.aggregatedInClub) {
+                                if (!isFirst) return null;
+                                return (
+                                  <td
+                                    key={c.key}
+                                    rowSpan={club.resolvedRows.length}
+                                    style={{
+                                      ...cellBase,
+                                      textAlign: c.align === 'left' ? undefined : c.align,
+                                      verticalAlign: 'middle',
+                                      background: '#ffedd5',
+                                      borderTop: '2px solid #f97316',
+                                      borderBottom: '2px solid #f97316',
+                                    }}
+                                  >
+                                    {c.render(row, ctx)}
+                                  </td>
+                                );
+                              }
+                              return (
+                                <td
+                                  key={c.key}
+                                  style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
+                                >
+                                  {c.render(row, ctx)}
+                                </td>
+                              );
+                            });
+                          })()}
                           {isFirst && (
                             <>
                               <td
@@ -730,10 +935,11 @@ const IPOMasterCNS = ({ ipo }) => {
                               >
                                 <button
                                   type="button"
-                                  style={actionBtnStyle}
+                                  style={{ ...actionBtnStyle, opacity: savingKey === `club:${club.id}` ? 0.6 : 1 }}
+                                  disabled={savingKey === `club:${club.id}`}
                                   onClick={() => handleSaveRow({ type: 'club', clubId: club.id })}
                                 >
-                                  SAVE
+                                  {savingKey === `club:${club.id}` ? 'SAVING…' : 'SAVE'}
                                 </button>
                               </td>
                               <td
@@ -816,14 +1022,22 @@ const IPOMasterCNS = ({ ipo }) => {
                     {!ipcAfterSelect && ipcCell}
                     {selectCell}
                     {ipcAfterSelect && ipcCell}
-                    {columns.map((c) => (
-                      <td
-                        key={c.key}
-                        style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
-                      >
-                        {c.render(row)}
-                      </td>
-                    ))}
+                    {(() => {
+                      const ctx = {
+                        isClub: false,
+                        clubRows: [row],
+                        manualInputs,
+                        setManualInput,
+                      };
+                      return columns.map((c) => (
+                        <td
+                          key={c.key}
+                          style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
+                        >
+                          {c.render(row, ctx)}
+                        </td>
+                      ));
+                    })()}
                     <td style={{ ...cellBase, textAlign: 'center' }}>
                       <span
                         style={{
@@ -843,10 +1057,11 @@ const IPOMasterCNS = ({ ipo }) => {
                     <td style={{ ...cellBase, padding: '6px 4px', textAlign: 'center' }}>
                       <button
                         type="button"
-                        style={actionBtnStyle}
+                        style={{ ...actionBtnStyle, opacity: savingKey === `row:${row.id}` ? 0.6 : 1 }}
+                        disabled={savingKey === `row:${row.id}`}
                         onClick={() => handleSaveRow({ type: 'row', rowId: row.id })}
                       >
-                        SAVE
+                        {savingKey === `row:${row.id}` ? 'SAVING…' : 'SAVE'}
                       </button>
                     </td>
                     <td style={{ ...cellBase, padding: '6px 4px', textAlign: 'center' }}>
