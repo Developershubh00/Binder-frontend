@@ -257,8 +257,23 @@ const PACKAGING_SIZE_FIELD_MAP = {
  * - Row 6: Work Orders
  * - Row 7: Artwork (after work orders, per component)
  */
-const ConsumptionSheet = forwardRef(({ formData = {} }, ref) => {
+const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEditSection }, ref) => {
   const PURCHASE_SHARE_KEY = 'purchaseSharedData';
+
+  const editSectionProps = (sectionKey, product) => {
+    if (!isEditMode) return {};
+    const skuId = product?.type === 'subproduct'
+      ? `subproduct_${product.skuIndex}_${product.spIndex}`
+      : `product_${product?.skuIndex ?? 0}`;
+    return {
+      role: 'button',
+      tabIndex: 0,
+      style: { cursor: 'pointer' },
+      className: 'cns-editable-section',
+      onClick: (e) => { e.stopPropagation(); onEditSection?.(sectionKey, skuId); },
+      onKeyDown: (e) => { if (e.key === 'Enter') { e.stopPropagation(); onEditSection?.(sectionKey, skuId); } },
+    };
+  };
   // Single layout on screen: only mobile OR desktop (avoids duplicate render)
   const [isMobileCns, setIsMobileCns] = useState(false);
   useEffect(() => {
@@ -1712,33 +1727,31 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`, { size: 'sm' 
     return (
       <div className="w-full min-w-0">
         <div className="border border-border rounded-xl bg-card shadow-sm min-w-0" style={{ padding: '20px' }}>
-          {/* ROW 1: IPC */}
-          <div className="border-b border-border bg-gradient-to-r from-muted/40 to-muted/20" style={{ padding: '16px 20px' }}>
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">IPC Code</span>
-            <span className="text-lg font-bold text-foreground">{product.ipcCode}</span>
-          </div>
-
-          {/* ROW 2: Product (or Subproduct name) + Set Of */}
-          <div className="border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4" style={{ padding: '16px 20px' }}>
-            <div>
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-                {product.isSubproduct ? 'Subproduct' : 'Product'}
-              </span>
-              <span className="text-base font-semibold text-foreground">{product.productName || '-'}</span>
+          {/* ROW 1-3: IPC / Product / Component — Product Spec */}
+          <div {...editSectionProps('product-spec', product)}>
+            <div className="border-b border-border bg-gradient-to-r from-muted/40 to-muted/20" style={{ padding: '16px 20px' }}>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">IPC Code</span>
+              <span className="text-lg font-bold text-foreground">{product.ipcCode}</span>
             </div>
-            {product.setOf && (
-              <span className="text-sm font-medium text-muted-foreground shrink-0">Set of {product.setOf}</span>
-            )}
-          </div>
-
-          {/* ROW 3: Component */}
-          <div className="border-b border-border bg-gradient-to-r from-primary/5 to-transparent" style={{ padding: '16px 20px' }}>
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Component</span>
-            <span className="text-base font-bold text-primary">{componentName || '-'}</span>
+            <div className="border-b border-border bg-gradient-to-r from-muted/30 to-muted/10 flex items-center justify-between gap-4" style={{ padding: '16px 20px' }}>
+              <div>
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+                  {product.isSubproduct ? 'Subproduct' : 'Product'}
+                </span>
+                <span className="text-base font-semibold text-foreground">{product.productName || '-'}</span>
+              </div>
+              {product.setOf && (
+                <span className="text-sm font-medium text-muted-foreground shrink-0">Set of {product.setOf}</span>
+              )}
+            </div>
+            <div className="border-b border-border bg-gradient-to-r from-primary/5 to-transparent" style={{ padding: '16px 20px' }}>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Component</span>
+              <span className="text-base font-bold text-primary">{componentName || '-'}</span>
+            </div>
           </div>
 
           {/* ROW 4: One row per raw material — grouped layout */}
-          <div className="border-b border-border min-w-0">
+          <div className="border-b border-border min-w-0" {...editSectionProps('raw-material', product)}>
             {isMobileCns ? (
               <div className="bg-muted/5" style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {rawMats.length > 0 ? (
@@ -1817,7 +1830,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
           </div>
           {/* CONSUMPTION MATERIALS SECTION */}
           {consumptionMats.length > 0 && (
-            <div className="border-b border-border bg-muted/5" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }}>
+            <div className="border-b border-border bg-muted/5" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }} {...editSectionProps('raw-material', product)}>
               <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Consumption Materials</span>
               {isMobileCns ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -1865,7 +1878,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
             </div>
           )}
           {/* ROW 5: SPEC */}
-          <div className="border-b border-border bg-muted/5" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }}>
+          <div className="border-b border-border bg-muted/5" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }} {...editSectionProps('cut-sew', product)}>
             <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Specification</span>
             <div className="grid grid-cols-2" style={isMobileCns ? { gap: '16px' } : { gap: '20px' }}>
               <div className="bg-white rounded-lg border border-border shadow-sm" style={{ padding: isMobileCns ? '16px 18px' : '18px 20px' }}>
@@ -1899,7 +1912,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
 
           {/* ARTWORK SECTION */}
           {artworkMats.length > 0 && (
-            <div className="border-b border-border bg-muted/5 min-w-0" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }}>
+            <div className="border-b border-border bg-muted/5 min-w-0" style={isMobileCns ? { padding: '18px 16px' } : { padding: '20px' }} {...editSectionProps('artwork', product)}>
               <span className="text-xs font-bold text-foreground uppercase tracking-wider block mb-4">Artwork</span>
               {isMobileCns ? (
               /* Mobile: grouped cards */
@@ -2080,7 +2093,7 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
     const innerMats = packagingMats.filter(isPolybagInner);
 
     return (
-      <div className="w-full min-w-0">
+      <div className="w-full min-w-0" {...editSectionProps('packaging', product)}>
         <div className="border border-border rounded-xl bg-card shadow-sm min-w-0" style={{ padding: isMobile ? '18px 16px' : '20px' }}>
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xs font-bold text-foreground uppercase tracking-wider">{blockLabel}</span>
@@ -2204,6 +2217,20 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
 
   return (
     <div className="w-full h-full flex flex-col">
+      {isEditMode && (
+        <style>{`
+          .cns-editable-section {
+            position: relative;
+            transition: box-shadow 0.15s, outline 0.15s;
+            border-radius: 4px;
+          }
+          .cns-editable-section:hover {
+            box-shadow: inset 0 0 0 2px rgba(59,130,246,0.45);
+            outline: 2px solid rgba(59,130,246,0.25);
+            outline-offset: -2px;
+          }
+        `}</style>
+      )}
       <div
         className="w-full min-w-0 overflow-y-auto overflow-x-auto flex-1"
         style={{

@@ -9,7 +9,7 @@ import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 import { getIPOs, createIPO, updateIPO, getBuyerCodes } from '../../services/integration';
 import { normalizeOrderType, toOrderTypeApiValue } from '../../utils/orderType';
 
-const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO, initialOpenIpo = null, specMode = 'create' }) => {
+const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO, initialOpenIpo = null, specMode = 'create', initialFlowPhase, initialCurrentStep, initialSkuId, highlightOnMount = false }) => {
   const isSpecMode = specMode === 'spec';
   const [showInitialScreen, setShowInitialScreen] = useState(!isSpecMode);
   const [showIPOPopup, setShowIPOPopup] = useState(false);
@@ -321,11 +321,15 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   if (isSpecMode) {
     return (
       <GenerateFactoryCode
-        key={`spec-${initialData.ipoCode || ''}-${initialData.programName || ''}-${initialData.buyerCode || ''}-${initialData.type || ''}`}
+        key={`spec-${initialFlowPhase || ''}-${initialCurrentStep || ''}-${initialSkuId || ''}-${initialData.ipoCode || ''}-${initialData.programName || ''}-${initialData.buyerCode || ''}-${initialData.type || ''}`}
         onBack={onBack}
         initialFormData={initialData}
         onNavigateToCodeCreation={onNavigateToCodeCreation}
         onNavigateToIPO={handleNavigateToIPO}
+        initialFlowPhase={initialFlowPhase || 'step0'}
+        initialCurrentStep={initialCurrentStep || 0}
+        initialSkuId={initialSkuId}
+        highlightOnMount={highlightOnMount}
       />
     );
   }

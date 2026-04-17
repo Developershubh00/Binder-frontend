@@ -6028,6 +6028,10 @@ const GenerateFactoryCode = ({
   initialFormData = {},
   onNavigateToCodeCreation,
   onNavigateToIPO,
+  initialFlowPhase = 'step0',
+  initialCurrentStep = 0,
+  initialSkuId,
+  highlightOnMount = false,
 }) => {
   const { isSidebarCollapsed } = useSidebar();
   const scrollContainerRef = useRef(null);
@@ -6049,9 +6053,10 @@ const GenerateFactoryCode = ({
     return () => window.removeEventListener('resize', update);
   }, [isSidebarCollapsed]);
   const consumptionSheetRef = useRef(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedSku, setSelectedSku] = useState('product_0'); // Format: 'product_0' or 'subproduct_0_1'
-  const [flowPhase, setFlowPhase] = useState('step0'); // 'step0' | 'ipcSelector' | 'ipcFlow' | 'packaging'
+  const [currentStep, setCurrentStep] = useState(initialSkuId ? 0 : initialCurrentStep);
+  const [selectedSku, setSelectedSku] = useState(initialSkuId || 'product_0'); // Format: 'product_0' or 'subproduct_0_1'
+  const [flowPhase, setFlowPhase] = useState(initialSkuId ? 'step0' : initialFlowPhase); // 'step0' | 'ipcSelector' | 'ipcFlow' | 'packaging'
+  const [showHighlight, setShowHighlight] = useState(highlightOnMount);
   const [showIPCPopup, setShowIPCPopup] = useState(false);
   const [generatedIPCCodes, setGeneratedIPCCodes] = useState([]);
   const [step2ComponentErrorsDialog, setStep2ComponentErrorsDialog] = useState({
@@ -6614,6 +6619,26 @@ const GenerateFactoryCode = ({
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // When arriving from Derived CNS edit with a specific SKU selected,
+  // wait for the draft to load (formData.skus populated), then transition
+  // to the target flowPhase/step. selectedSku is already set via useState.
+  const skuAutoNavDone = useRef(false);
+  useEffect(() => {
+    if (!initialSkuId || skuAutoNavDone.current) return;
+    const skus = formData.skus || [];
+    // Wait until the draft has loaded (more than the single default empty SKU)
+    const parts = initialSkuId.split('_');
+    const targetIdx = parseInt(parts[1]) || 0;
+    if (skus.length <= targetIdx) return;
+    // Verify the target SKU has real data (ipcCode or product name)
+    const targetSku = skus[targetIdx];
+    if (!targetSku?.ipcCode && !targetSku?.product && !targetSku?.sku) return;
+    skuAutoNavDone.current = true;
+    setFlowPhase(initialFlowPhase);
+    setCurrentStep(initialCurrentStep);
+    setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+  }, [formData.skus, initialSkuId, initialFlowPhase, initialCurrentStep]);
 
   const totalSteps = 4;
 
@@ -11162,6 +11187,12 @@ const GenerateFactoryCode = ({
     }
   };
 
+  useEffect(() => {
+    if (!showHighlight) return;
+    const timer = setTimeout(() => setShowHighlight(false), 1800);
+    return () => clearTimeout(timer);
+  }, [showHighlight]);
+
   return (
     <>
     <style>{`
@@ -11173,10 +11204,17 @@ const GenerateFactoryCode = ({
       input[type="number"] {
         -moz-appearance: textfield;
       }
+      @keyframes fcw-highlight-flash {
+        0% { box-shadow: inset 0 0 0 3px rgba(59,130,246,0.5); }
+        100% { box-shadow: inset 0 0 0 0px rgba(59,130,246,0); }
+      }
+      .fcw-highlight-flash {
+        animation: fcw-highlight-flash 1.8s ease-out;
+      }
     `}</style>
     <div
       ref={scrollContainerRef}
-      className="w-full h-full overflow-y-auto rounded-xl border border-border bg-background shadow-sm"
+      className={`w-full h-full overflow-y-auto rounded-xl border border-border bg-background shadow-sm${showHighlight ? ' fcw-highlight-flash' : ''}`}
       style={{ padding: '40px' }}
     >
       {!showConsumptionSheet && (

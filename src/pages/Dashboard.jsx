@@ -139,6 +139,7 @@ const Dashboard = () => {
   const [selectedIpoForCNS, setSelectedIpoForCNS] = useState(null);
   const [selectedIpoForSpec, setSelectedIpoForSpec] = useState(null);
   const [selectedIpoForDerivedCNS, setSelectedIpoForDerivedCNS] = useState(null);
+  const [specStepHint, setSpecStepHint] = useState(null); // { flowPhase, currentStep }
   const [existingCompanyEssentials, setExistingCompanyEssentials] = useState([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [calcInput, setCalcInput] = useState('');
@@ -298,9 +299,13 @@ const Dashboard = () => {
             <InternalPurchaseOrder
               specMode="spec"
               initialOpenIpo={selectedIpoForSpec}
-              onBack={() => { setSelectedIpoForSpec(null); setActivePage('ipo-management'); }}
-              onNavigateToCodeCreation={() => { setSelectedIpoForSpec(null); setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
-              onNavigateToIPO={() => { setSelectedIpoForSpec(null); setActivePage('ipo-management'); }}
+              initialFlowPhase={specStepHint?.flowPhase}
+              initialCurrentStep={specStepHint?.currentStep}
+              initialSkuId={specStepHint?.skuId}
+              highlightOnMount={!!specStepHint}
+              onBack={() => { setSelectedIpoForSpec(null); setSpecStepHint(null); setActivePage('ipo-management'); }}
+              onNavigateToCodeCreation={() => { setSelectedIpoForSpec(null); setSpecStepHint(null); setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+              onNavigateToIPO={() => { setSelectedIpoForSpec(null); setSpecStepHint(null); setActivePage('ipo-management'); }}
             />
           );
         }
@@ -325,7 +330,25 @@ const Dashboard = () => {
               <p style={{ color: '#6b7280', fontFamily: 'ui-monospace, Menlo, Consolas, monospace', marginBottom: 16 }}>
                 {selectedIpoForDerivedCNS.ipoCode}
               </p>
-              <IPODerivedCNS ipo={selectedIpoForDerivedCNS} />
+              <IPODerivedCNS
+                ipo={selectedIpoForDerivedCNS}
+                onNavigateToSpec={(sectionKey, skuId) => {
+                  const SECTION_MAP = {
+                    'product-spec': { flowPhase: 'step0', currentStep: 0 },
+                    'cut-sew': { flowPhase: 'ipcFlow', currentStep: 0 },
+                    'raw-material': { flowPhase: 'ipcFlow', currentStep: 1 },
+                    'consumption': { flowPhase: 'ipcFlow', currentStep: 1 },
+                    'artwork': { flowPhase: 'ipcFlow', currentStep: 2 },
+                    'packaging': { flowPhase: 'packaging', currentStep: 0 },
+                  };
+                  const hint = SECTION_MAP[sectionKey] || { flowPhase: 'step0', currentStep: 0 };
+                  setSpecStepHint({ ...hint, skuId });
+                  setSelectedIpoForDerivedCNS(null);
+                  setSelectedIpoForSpec({
+                    ...selectedIpoForDerivedCNS,
+                  });
+                }}
+              />
             </div>
           );
         }
@@ -679,7 +702,7 @@ const Dashboard = () => {
                   Generate Buyer Code
                 </button>
                 <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('buyer-existing'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
-                  Existing Buyer Codes
+                  Master Buyer Sheet
                 </button>
               </div>
             </div>
@@ -692,7 +715,7 @@ const Dashboard = () => {
                   Generate Vendor Code
                 </button>
                 <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('vendor-existing'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
-                  Existing Vendor Codes
+                  Master Vendor Sheet
                 </button>
               </div>
             </div>

@@ -49,11 +49,12 @@ const loadLocalSnapshot = (ipoCode) => {
   }
 };
 
-const IPODerivedCNS = ({ ipo }) => {
+const IPODerivedCNS = ({ ipo, onNavigateToSpec }) => {
   const ipoCode = ipo?.ipoCode || ipo?.code || '';
   const [formData, setFormData] = useState(() => loadLocalSnapshot(ipoCode));
   const [loading, setLoading] = useState(!formData);
   const [error, setError] = useState('');
+  const [editMode, setEditMode] = useState(false);
   const [showShareSuccess, setShowShareSuccess] = useState(false);
   const consumptionSheetRef = useRef(null);
 
@@ -132,9 +133,20 @@ const IPODerivedCNS = ({ ipo }) => {
     );
   }
 
+  const handleEditSection = (sectionKey, skuId) => {
+    if (onNavigateToSpec) onNavigateToSpec(sectionKey, skuId);
+  };
+
   return (
     <div className="mb-8 mx-auto min-w-0 w-full max-w-[2400px] px-4 overflow-x-auto">
       <div className="flex justify-end gap-3 mb-4 px-2 sm:px-0">
+        <Button
+          type="button"
+          variant={editMode ? 'default' : 'outline'}
+          onClick={() => setEditMode((v) => !v)}
+        >
+          {editMode ? 'Done Editing' : 'Edit'}
+        </Button>
         <Button
           type="button"
           variant="outline"
@@ -146,7 +158,17 @@ const IPODerivedCNS = ({ ipo }) => {
           Share to Purchase Department
         </Button>
       </div>
-      <ConsumptionSheet ref={consumptionSheetRef} formData={mergedFormData} />
+      {editMode && (
+        <p className="text-sm text-muted-foreground mb-4 px-2 sm:px-0">
+          Click on any section to navigate to the page where you can edit those values.
+        </p>
+      )}
+      <ConsumptionSheet
+        ref={consumptionSheetRef}
+        formData={mergedFormData}
+        isEditMode={editMode}
+        onEditSection={handleEditSection}
+      />
 
       <Dialog open={showShareSuccess} onOpenChange={setShowShareSuccess}>
         <DialogContent className="max-w-md" showCloseButton={true}>
