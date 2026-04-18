@@ -380,7 +380,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
                 style={{ marginTop: '28px', maxWidth: 560, fontSize: '15px', lineHeight: 1.5 }}
               >
                 Further details of the IPO will be filled through the{' '}
-                <strong>IPO Management &gt; IPO Type &gt; IPO Code &gt; IPO Spec</strong>.
+                <strong>IPO Management &gt; IPO Type &gt; IPO Code &gt; IPC Spec</strong>.
               </p>
             </div>
           </FormCard>

@@ -11899,7 +11899,7 @@ const GenerateFactoryCode = ({
                   The derived consumption sheet for IPO{' '}
                   <strong style={{ fontFamily: 'ui-monospace, Menlo, Consolas, monospace' }}>{formData.ipoCode}</strong>{' '}
                   is available under{' '}
-                  <strong>IPO Management &gt; IPO Type &gt; IPO Code &gt; IPO Derived CNS</strong>.
+                  <strong>IPO Management &gt; IPO Type &gt; IPO Code &gt; IPC Derived CNS</strong>.
                 </p>
                 <div className="flex justify-center gap-3" style={{ marginTop: '32px' }}>
                   <Button

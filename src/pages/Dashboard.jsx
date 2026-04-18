@@ -326,7 +326,7 @@ const Dashboard = () => {
               >
                 ← Back
               </button>
-              <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>IPO Derived CNS</h1>
+              <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>IPC Derived CNS</h1>
               <p style={{ color: '#6b7280', fontFamily: 'ui-monospace, Menlo, Consolas, monospace', marginBottom: 16 }}>
                 {selectedIpoForDerivedCNS.ipoCode}
               </p>
@@ -381,7 +381,7 @@ const Dashboard = () => {
           <div className="dashboard-content" style={{ padding: 24 }}>
             <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>IPO Management</h1>
             <p style={{ color: '#6b7280' }}>
-              Use the sidebar menu to pick an IPO Type, then an IPO Code, then open <strong>IPO Spec</strong>, <strong>IPO Master CNS</strong>, or <strong>IPO Derived CNS</strong>.
+              Use the sidebar menu to pick an IPO Type, then an IPO Code, then open <strong>IPC Spec</strong>, <strong>IPC Derived CNS</strong>, or <strong>IPO Master CNS</strong>.
             </p>
           </div>
         );
@@ -835,7 +835,14 @@ const Dashboard = () => {
                   className="hover-panel-item"
                   onClick={() => openIpoLeaf(activeIpo)}
                 >
-                  IPO Spec
+                  IPC Spec
+                </button>
+                <button
+                  type="button"
+                  className="hover-panel-item"
+                  onClick={() => openDerivedCnsLeaf(activeIpo)}
+                >
+                  IPC Derived CNS
                 </button>
                 <button
                   type="button"
@@ -843,13 +850,6 @@ const Dashboard = () => {
                   onClick={() => openCnsLeaf(activeIpo)}
                 >
                   IPO Master CNS
-                </button>
-                <button
-                  type="button"
-                  className="hover-panel-item"
-                  onClick={() => openDerivedCnsLeaf(activeIpo)}
-                >
-                  IPO Derived CNS
                 </button>
               </div>
             </div>

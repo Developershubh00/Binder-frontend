@@ -126,7 +126,7 @@ const IPODerivedCNS = ({ ipo, onNavigateToSpec }) => {
       <div style={{ padding: 24 }}>
         <p style={{ color: '#6b7280', maxWidth: 640 }}>
           No derived consumption sheet is available for <strong>{ipoCode}</strong> yet.
-          Complete the IPO Spec and click <strong>Generate Factory Code</strong> to
+          Complete the IPC Spec and click <strong>Generate Factory Code</strong> to
           generate the sheet.
         </p>
       </div>
