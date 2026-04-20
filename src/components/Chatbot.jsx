@@ -17,7 +17,7 @@ const Chatbot = () => {
       timestamp: new Date() 
     }
   ]);
-  const [currentMessage, setCurrentMessage] = useState('');
+  const [currentMessage, setCurrentMessage] = useState('');  //update 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const chatMessagesRef = useRef(null);
