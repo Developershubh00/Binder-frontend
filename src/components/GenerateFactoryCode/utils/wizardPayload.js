@@ -290,6 +290,12 @@ export function buildWizardPayload({
       notes: ipoCode ?? '',
       ipo: ipoId || null,
       ipc_code: ipcCode || '',
+      set_of: toStr(skuItem?.setOf ?? ''),
+      po_qty: toStr(skuItem?.poQty ?? ''),
+      overage_percentage: toStr(skuItem?.overagePercentage ?? ''),
+      // YYYY-MM-DD from <input type="date"> goes straight into DRF DateField.
+      // Empty string would fail DateField validation, so send null instead.
+      delivery_due_date: skuItem?.deliveryDueDate || null,
     },
     products,
     rawMaterials,

@@ -186,12 +186,21 @@ export function hydrateSkusFromFactoryCodes(factoryCodes) {
     const sku = {
       sku: mainFc?.sku ?? '',
       product: mainFc?.product_name ?? '',
+      setOf: mainFc?.set_of ?? '',
+      poQty: mainFc?.po_qty ?? '',
+      overagePercentage: mainFc?.overage_percentage ?? '',
+      deliveryDueDate: mainFc?.delivery_due_date ?? '',
       ipcCode: main ? main.ipc_code : '',
       stepData: main ? stepDataFromFactoryCode(main) : {},
       subproducts: subs
         .sort((a, b) => a.spNumber - b.spNumber)
         .map(({ fc }) => ({
           subproduct: fc.product_name ?? '',
+          buyerSku: fc.sku ?? '',
+          setOf: fc.set_of ?? '',
+          poQty: fc.po_qty ?? '',
+          overagePercentage: fc.overage_percentage ?? '',
+          deliveryDueDate: fc.delivery_due_date ?? '',
           ipcCode: fc.ipc_code ?? '',
           stepData: stepDataFromFactoryCode(fc),
         })),
@@ -225,16 +234,34 @@ export function mergeDraftOverCommitted(draftSkus, committedSkus) {
     };
   };
 
+  // SKU-level Step 0 fields: prefer the draft value, fall back to committed
+  // when the draft is empty/null. Without this, an empty draft slot would
+  // mask the committed value and the user sees blanks online.
+  const STEP0_FIELDS = ['setOf', 'poQty', 'overagePercentage', 'deliveryDueDate'];
+  const fillStep0FromCommitted = (draftSku, commSku) => {
+    const out = { ...draftSku };
+    for (const k of STEP0_FIELDS) {
+      const cur = out[k];
+      if (cur == null || cur === '') {
+        const fallback = commSku?.[k];
+        if (fallback != null && fallback !== '') out[k] = fallback;
+      }
+    }
+    return out;
+  };
+
   return draftSkus.map((draftSku, idx) => {
     const commSku = committedSkus[idx];
     if (!commSku) return draftSku;
+    const merged = fillStep0FromCommitted(draftSku, commSku);
     return {
-      ...draftSku,
+      ...merged,
       stepData: mergeStepData(draftSku.stepData, commSku.stepData),
       subproducts: (draftSku.subproducts || []).map((sp, spIdx) => {
         const commSp = (commSku.subproducts || [])[spIdx];
         if (!commSp) return sp;
-        return { ...sp, stepData: mergeStepData(sp.stepData, commSp.stepData) };
+        const mergedSp = fillStep0FromCommitted(sp, commSp);
+        return { ...mergedSp, stepData: mergeStepData(sp.stepData, commSp.stepData) };
       }),
     };
   });

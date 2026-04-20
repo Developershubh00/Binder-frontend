@@ -11963,7 +11963,20 @@ const GenerateFactoryCode = ({
                             if (!sp) continue;
                             try {
                               const spStepData = sp.stepData;
-                              const rawPayload = buildWizardPayload(skuItem, sp.subproduct, sp.ipcCode, spStepData);
+                              // Build an effective record so the subproduct row
+                              // is persisted with its own buyer SKU and Step 0
+                              // numbers, not the parent SKU's. Falls back to
+                              // the parent only when the subproduct field is
+                              // empty.
+                              const effectiveSp = {
+                                ...skuItem,
+                                sku: sp.buyerSku || skuItem.sku,
+                                setOf: sp.setOf || skuItem.setOf,
+                                poQty: sp.poQty || skuItem.poQty,
+                                overagePercentage: sp.overagePercentage || skuItem.overagePercentage,
+                                deliveryDueDate: sp.deliveryDueDate || skuItem.deliveryDueDate,
+                              };
+                              const rawPayload = buildWizardPayload(effectiveSp, sp.subproduct, sp.ipcCode, spStepData);
                               const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
                               cleanArtworkFilesForWizard(wizardPayload.artworkMaterials);
                               cleanPackagingFilesForWizard(wizardPayload.packaging);
