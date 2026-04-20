@@ -447,6 +447,7 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-layout';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
 import { getBuyerCodes, createBuyerCode, updateBuyerCode } from '../services/integration';
 
 const INITIAL_FORM_DATA = {
@@ -547,7 +548,11 @@ const GenerateBuyerCode = ({ onBack, initialData = null, onSaved }) => {
     }
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      scrollToFirstError(newErrors);
+      return false;
+    }
+    return true;
   };
 
   const checkIfCombinationExists = (existingCodes) => {

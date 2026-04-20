@@ -1228,17 +1228,32 @@ export const deleteFactoryCode = async (id) => {
   return await response.json();
 };
 
-// Factory code draft (save/load per step - PostgreSQL, sync across devices)
-export const getFactoryCodeDraft = async () => {
-  const response = await apiRequest('ims/factory-codes/draft/');
+// Factory code draft (save/load per step - PostgreSQL, sync across devices).
+// Drafts are scoped to (user, IPO). Pass `ipoId` when editing an existing IPO
+// so that switching between IPOs doesn't clobber each other's in-progress
+// work. Omit `ipoId` for the "new IPO" scratchpad (pre-IPO-creation wizard).
+export const getFactoryCodeDraft = async (ipoId = null) => {
+  const query = ipoId ? `?ipo_id=${encodeURIComponent(ipoId)}` : '';
+  const response = await apiRequest(`ims/factory-codes/draft/${query}`);
   return await response.json();
 };
 
-export const saveFactoryCodeDraft = async (payload) => {
-  const response = await apiRequest('ims/factory-codes/draft/', {
+export const saveFactoryCodeDraft = async (payload, ipoId = null) => {
+  const query = ipoId ? `?ipo_id=${encodeURIComponent(ipoId)}` : '';
+  const response = await apiRequest(`ims/factory-codes/draft/${query}`, {
     method: 'PUT',
     body: JSON.stringify({ payload }),
   });
+  return await response.json();
+};
+
+// Fetch all committed factory codes for a single IPO (nested/complete shape).
+// Used by the IPC Spec restore path when the draft is missing or stale.
+export const getFactoryCodesByIpo = async (ipoId) => {
+  if (!ipoId) return { results: [] };
+  const response = await apiRequest(
+    `ims/factory-codes/?ipo=${encodeURIComponent(ipoId)}`
+  );
   return await response.json();
 };
 

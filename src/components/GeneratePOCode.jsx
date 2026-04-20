@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getBuyerCodes, getVendorCodes, createPurchaseOrder } from '../services/integration';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
 
 const GeneratePOCode = ({ onBack }) => {
   const [formData, setFormData] = useState({
@@ -132,7 +133,11 @@ const GeneratePOCode = ({ onBack }) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      scrollToFirstError(newErrors);
+      return false;
+    }
+    return true;
   };
 
   const generatePOCode = () => {

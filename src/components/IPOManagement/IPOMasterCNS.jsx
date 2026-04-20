@@ -31,22 +31,22 @@ const toNum = (v) => {
 };
 
 // Derived fabric values (pure helpers; same row shape as backend)
-const fabricGrossLengthPc = (row) => {
+const grossLengthPc = (row) => {
   const n = toNum(row.net_length_cns_pc);
   const w = toNum(row.gross_wastage_length);
   if (!Number.isFinite(n)) return NaN;
   return n * (1 + (Number.isFinite(w) ? w : 0) / 100);
 };
-const fabricGrossWidthPc = (row) => {
+const grossWidthPc = (row) => {
   const n = toNum(row.net_width_cns_pc);
   const w = toNum(row.gross_wastage_width);
   if (!Number.isFinite(n)) return NaN;
   return n * (1 + (Number.isFinite(w) ? w : 0) / 100);
 };
 const fabricGrossWidthCns = (row, ctx) => {
-  if (!ctx?.isClub) return fabricGrossWidthPc(row);
+  if (!ctx?.isClub) return grossWidthPc(row);
   return ctx.clubRows.reduce((acc, r) => {
-    const v = fabricGrossWidthPc(r);
+    const v = grossWidthPc(r);
     return acc + (Number.isFinite(v) ? v : 0);
   }, 0);
 };
@@ -113,9 +113,9 @@ const FABRIC_COLUMNS = [
   { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
     render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
   { key: 'gross_length_cns_pc', header: 'Gross Length CNS/PC', align: 'right',
-    render: (r) => formatNumber(fabricGrossLengthPc(r)) },
+    render: (r) => formatNumber(grossLengthPc(r)) },
   { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
-    render: (r) => formatNumber(fabricGrossWidthPc(r)) },
+    render: (r) => formatNumber(grossWidthPc(r)) },
   { key: 'gross_width_cns', header: 'Gross Width CNS', align: 'right',
     aggregatedInClub: true,
     render: (r, ctx) => formatNumber(fabricGrossWidthCns(r, ctx)) },
@@ -145,7 +145,7 @@ const FABRIC_COLUMNS = [
     render: (r) => r.unit || '-' },
   { key: 'gross_length_qty', header: 'Gross Length QTY', align: 'right',
     render: (r) => {
-      const glPc = fabricGrossLengthPc(r);
+      const glPc = grossLengthPc(r);
       const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
       if (!Number.isFinite(glPc) || !Number.isFinite(overage)) return '-';
       return formatNumber(glPc * overage, { decimals: 2 });
@@ -189,26 +189,26 @@ const TRIM_COLUMNS = [
     render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
   { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
     render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
-  { key: 'gross_length_pc_cns', header: 'Gross Length/PC CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_length_pc_cns) },
+  { key: 'gross_length_pc_cns', header: 'Gross Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(grossLengthPc(r)) },
   { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
-    render: (r) => formatNumber(r.gross_width_cns_pc) },
+    render: (r) => formatNumber(grossWidthPc(r)) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
-    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} /> },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
     render: (r) => formatNumber(r.gross_length_cns) },
   { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
-    render: (r) => formatNumber(r.purchase_length_qty, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_length_qty" ctx={ctx} /> },
   { key: 'gross_qty_pcs', header: 'Gross QTY PCS', align: 'right',
     render: (r) => formatNumber(r.gross_qty_pcs, { decimals: 2 }) },
   { key: 'purchase_qty_pcs', header: 'Purchase QTY PCS', align: 'right',
-    render: (r) => formatNumber(r.purchase_qty_pcs, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_qty_pcs" ctx={ctx} /> },
   { key: 'gross_weight_qty', header: 'Gross Weight QTY', align: 'right',
     render: (r) => formatNumber(r.gross_weight_qty, { decimals: 2 }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
-    render: (r) => formatNumber(r.purchase_weight_qty, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
 ];
 
 const FIBER_COLUMNS = [
@@ -230,14 +230,14 @@ const FIBER_COLUMNS = [
     render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
   { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
     render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
-  { key: 'gross_length_pc_cns', header: 'Gross Length/PC CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_length_pc_cns) },
+  { key: 'gross_length_pc_cns', header: 'Gross Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(grossLengthPc(r)) },
   { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
-    render: (r) => formatNumber(r.gross_width_cns_pc) },
+    render: (r) => formatNumber(grossWidthPc(r)) },
   { key: 'gross_weight_cns_pc_grams', header: 'Gross Weight CNS/PC (Grams)', align: 'right',
     render: (r) => formatNumber(r.gross_weight_cns_pc_grams, { decimals: 2 }) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
-    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} /> },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
@@ -245,9 +245,9 @@ const FIBER_COLUMNS = [
   { key: 'gross_weight_cns', header: 'Gross Weight CNS', align: 'right',
     render: (r) => formatNumber(r.gross_weight_cns, { decimals: 2 }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
-    render: (r) => formatNumber(r.purchase_weight_qty, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
-    render: (r) => formatNumber(r.gross_width_multiple, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
     render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
   { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
@@ -271,14 +271,14 @@ const FOAM_COLUMNS = [
     render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
   { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
     render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
-  { key: 'gross_length_pc_cns', header: 'Gross Length/PC CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_length_pc_cns) },
+  { key: 'gross_length_pc_cns', header: 'Gross Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(grossLengthPc(r)) },
   { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
-    render: (r) => formatNumber(r.gross_width_cns_pc) },
+    render: (r) => formatNumber(grossWidthPc(r)) },
   { key: 'gross_weight_cns_pc_grams', header: 'Gross Weight CNS/PC (Grams)', align: 'right',
     render: (r) => formatNumber(r.gross_weight_cns_pc_grams, { decimals: 2 }) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
-    render: (r) => formatNumber(r.purchase_width, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} /> },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
@@ -286,9 +286,9 @@ const FOAM_COLUMNS = [
   { key: 'gross_weight_cns', header: 'Gross Weight CNS', align: 'right',
     render: (r) => formatNumber(r.gross_weight_cns, { decimals: 2 }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
-    render: (r) => formatNumber(r.purchase_weight_qty, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
-    render: (r) => formatNumber(r.gross_width_multiple, { decimals: 2 }) },
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
     render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
   { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
@@ -332,17 +332,20 @@ const IPOMasterCNS = ({ ipo }) => {
         if (!cancelled) {
           setData(response);
           const seed = {};
+          const seedFields = [
+            'purchase_width',
+            'purchase_length_qty',
+            'gross_width_multiple',
+            'purchase_qty_pcs',
+            'purchase_weight_qty',
+          ];
           (response?.raw_material || []).forEach((r) => {
             const entry = {};
-            if (r.purchase_width !== null && r.purchase_width !== undefined) {
-              entry.purchase_width = String(r.purchase_width);
-            }
-            if (r.purchase_length_qty !== null && r.purchase_length_qty !== undefined) {
-              entry.purchase_length_qty = String(r.purchase_length_qty);
-            }
-            if (r.gross_width_multiple !== null && r.gross_width_multiple !== undefined) {
-              entry.gross_width_multiple = String(r.gross_width_multiple);
-            }
+            seedFields.forEach((f) => {
+              if (r[f] !== null && r[f] !== undefined) {
+                entry[f] = String(r[f]);
+              }
+            });
             if (Object.keys(entry).length) seed[r.id] = entry;
           });
           setManualInputs(seed);
@@ -514,7 +517,14 @@ const IPOMasterCNS = ({ ipo }) => {
   const buildSavePayload = (rowIds) => rowIds.map((id) => {
     const entry = manualInputs[id] || {};
     const payload = { id };
-    ['purchase_width', 'purchase_length_qty', 'gross_width_multiple'].forEach((field) => {
+    const writable = [
+      'purchase_width',
+      'purchase_length_qty',
+      'gross_width_multiple',
+      'purchase_qty_pcs',
+      'purchase_weight_qty',
+    ];
+    writable.forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(entry, field)) {
         const v = entry[field];
         payload[field] = v === '' ? null : v;

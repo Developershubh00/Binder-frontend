@@ -5,6 +5,7 @@ import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FormCard } from '@/components/ui/form-layout';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
 import { getVendorCodes, createVendorCode, updateVendorCode } from '../services/integration';
 
 // Premium Multi-Select Component
@@ -631,7 +632,11 @@ const GenerateVendorCode = ({ onBack, initialData = null, onSaved }) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      scrollToFirstError(newErrors);
+      return false;
+    }
+    return true;
   };
 
   const generateVendorCode = () => {

@@ -254,6 +254,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
 import './Login.css';
 
 const Login = () => {
@@ -304,7 +305,11 @@ const Login = () => {
       newErrors.password = 'Password must be at least 6 characters';
     }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      scrollToFirstError(newErrors);
+      return false;
+    }
+    return true;
   };
 
   const displayPopup = (message, type = 'error') => {

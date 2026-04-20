@@ -5879,8 +5879,15 @@ import { FormCard } from '@/components/ui/form-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft } from '../../services/integration';
-import { replaceFilesWithBlobUrls } from '../../services/blobUpload';
+import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo } from '../../services/integration';
+import { replaceFilesWithBlobUrls, uploadToBlob } from '../../services/blobUpload';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
+import { hydrateSkusFromFactoryCodes, mergeDraftOverCommitted } from './utils/hydrateFromCommitted';
+import {
+  buildWizardPayload as buildWizardPayloadUtil,
+  cleanArtworkFilesForWizard,
+  cleanPackagingFilesForWizard,
+} from './utils/wizardPayload';
 
 // ─── IMAGE COMPRESSION UTILITY ───────────────────────────────────────────────
 // Compresses image to maxKB. Quality never drops below (1 - maxQualityDrop).
@@ -5989,6 +5996,43 @@ const packagingToBackendShape = (packaging) => {
   };
 };
 
+/**
+ * Merge blob URLs from the uploaded payload back into the in-memory
+ * artwork-materials array by index. Any key whose in-memory value is a
+ * `File` (or is missing) is replaced with the string URL returned by
+ * `replaceFilesWithBlobUrls`. Non-file fields and already-string URLs are
+ * left alone.
+ *
+ * This keeps the on-screen "UPLOADED" badge and the per-IPO draft consistent
+ * with what the backend actually stores after a successful wizard commit.
+ */
+const mergeArtworkWithUrls = (memMaterials, uploadedMaterials) => {
+  if (!Array.isArray(memMaterials)) return memMaterials;
+  if (!Array.isArray(uploadedMaterials) || uploadedMaterials.length === 0) {
+    return memMaterials;
+  }
+  return memMaterials.map((mem, idx) => {
+    const uploaded = uploadedMaterials[idx];
+    if (!mem || typeof mem !== 'object') return mem;
+    if (!uploaded || typeof uploaded !== 'object') return mem;
+    const merged = { ...mem };
+    for (const [key, uploadedValue] of Object.entries(uploaded)) {
+      const current = merged[key];
+      // Only overwrite when the uploaded value is a string (URL) and the
+      // current value is either missing or a File. Never clobber a
+      // user-edited string with a stale upload.
+      const isUploadedUrl = typeof uploadedValue === 'string' && uploadedValue;
+      if (!isUploadedUrl) continue;
+      const currentIsFile = typeof File !== 'undefined' && current instanceof File;
+      const currentIsMissing = current == null || current === '';
+      if (currentIsFile || currentIsMissing) {
+        merged[key] = uploadedValue;
+      }
+    }
+    return merged;
+  });
+};
+
 const normalizeFactoryCodePayloadStiffenerPlys = (payload) => {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
 
@@ -6080,7 +6124,8 @@ const GenerateFactoryCode = ({
   const [shippingGroups, setShippingGroups] = useState({}); // { "0-product": 1, "0-sp-0": 2, ... } -> itemId -> groupNum
   const [validationErrorsPopup, setValidationErrorsPopup] = useState({
     open: false,
-    messages: []
+    messages: [],
+    errors: null
   });
   const [formData, setFormData] = useState({
     // Internal Purchase Order fields (if provided)
@@ -6459,6 +6504,19 @@ const GenerateFactoryCode = ({
     }
   };
 
+  // Walk a material-like object; for every `File` value, stash a base64
+  // sibling under `<key>Base64`. Used for artwork spec uploads and
+  // packaging printingRef so the draft survives a reload without losing
+  // attached-but-not-yet-committed images.
+  const stashFilesAsBase64 = async (srcObj, destObj) => {
+    if (!srcObj || typeof srcObj !== 'object' || !destObj) return;
+    for (const [k, v] of Object.entries(srcObj)) {
+      if (v instanceof File) {
+        destObj[`${k}Base64`] = await fileToBase64(v);
+      }
+    }
+  };
+
   const saveToLocalStorage = async (data) => {
     let normalizedPayload = null;
     try {
@@ -6476,6 +6534,35 @@ const GenerateFactoryCode = ({
           const sub = sku.subproducts[j];
           if (sub?.image instanceof File) {
             cloned.skus[i].subproducts[j].imageBase64 = await fileToBase64(sub.image);
+          }
+        }
+
+        // Artwork materials often hold File objects in category-specific
+        // keys (labelsBrandArtworkSpecFile, stickersArtworkSpecFile, …).
+        // Preserve them so the draft reloads with the user's work intact.
+        const srcArtwork = sku?.stepData?.artworkMaterials || [];
+        const dstArtwork = cloned.skus[i].stepData?.artworkMaterials || [];
+        for (let k = 0; k < srcArtwork.length; k++) {
+          await stashFilesAsBase64(srcArtwork[k], dstArtwork[k]);
+        }
+
+        const srcPkgMats = sku?.stepData?.packaging?.materials || [];
+        const dstPkgMats = cloned.skus[i].stepData?.packaging?.materials || [];
+        for (let k = 0; k < srcPkgMats.length; k++) {
+          await stashFilesAsBase64(srcPkgMats[k], dstPkgMats[k]);
+        }
+
+        // Same treatment inside each subproduct.
+        for (let j = 0; j < (sku?.subproducts || []).length; j++) {
+          const spSrcArtwork = sku.subproducts[j]?.stepData?.artworkMaterials || [];
+          const spDstArtwork = cloned.skus[i].subproducts[j]?.stepData?.artworkMaterials || [];
+          for (let k = 0; k < spSrcArtwork.length; k++) {
+            await stashFilesAsBase64(spSrcArtwork[k], spDstArtwork[k]);
+          }
+          const spSrcPkg = sku.subproducts[j]?.stepData?.packaging?.materials || [];
+          const spDstPkg = cloned.skus[i].subproducts[j]?.stepData?.packaging?.materials || [];
+          for (let k = 0; k < spSrcPkg.length; k++) {
+            await stashFilesAsBase64(spSrcPkg[k], spDstPkg[k]);
           }
         }
       }
@@ -6499,7 +6586,10 @@ const GenerateFactoryCode = ({
     }
 
     if (normalizedPayload) {
-      saveFactoryCodeDraft(normalizedPayload).catch((e) => console.warn('Draft save failed', e));
+      // Scope the draft to the current IPO so switching between IPOs
+      // doesn't clobber each other's work.
+      const draftIpoId = initialFormData?.ipoId || normalizedPayload?.ipoId || null;
+      saveFactoryCodeDraft(normalizedPayload, draftIpoId).catch((e) => console.warn('Draft save failed', e));
     }
   };
 
@@ -6562,38 +6652,97 @@ const GenerateFactoryCode = ({
         return programMatch && contextMatch;
       };
 
-      try {
-        const res = await getFactoryCodeDraft();
-        const draft = res?.payload;
-        if (cancelled) return;
-        if (draft && (draft.skus?.length || Object.keys(draft).some((k) => k !== 'skus' && draft[k] != null))) {
-          // Only apply the API draft if it belongs to the current IPO
-          if (!isDraftMatchingCurrentIPO(draft)) {
-            // Draft is from a different IPO — do not apply it
-            console.log('API draft belongs to a different IPO, skipping.');
-          } else {
-            const data = normalizeFactoryCodePayloadStiffenerPlys({ ...draft });
-            (data.skus || []).forEach((sku) => {
-              if (sku.imageBase64) {
-                sku.image = base64ToFile(sku.imageBase64);
-                sku.imagePreview = sku.imageBase64.data;
-              }
-              (sku.subproducts || []).forEach((sub) => {
-                if (sub?.imageBase64) {
-                  sub.image = base64ToFile(sub.imageBase64);
-                  sub.imagePreview = sub.imageBase64.data;
-                }
-              });
-            });
-            setFormData((prev) => ({ ...prev, ...data }));
-            return;
-          }
+      // Walk an object and for every `<key>Base64` entry, decode the blob
+      // back to a File at the `<key>` slot if that slot is currently
+      // empty. Preserves user-attached artwork spec and packaging files
+      // across a draft reload.
+      const rehydrateFilesFromBase64 = (obj) => {
+        if (!obj || typeof obj !== 'object') return;
+        for (const [k, v] of Object.entries(obj)) {
+          if (!k.endsWith('Base64') || !v || typeof v !== 'object') continue;
+          const baseKey = k.slice(0, -'Base64'.length);
+          if (!baseKey) continue;
+          const current = obj[baseKey];
+          // Leave URL strings or existing Files alone.
+          if (typeof current === 'string' && current) continue;
+          if (typeof File !== 'undefined' && current instanceof File) continue;
+          const file = base64ToFile(v);
+          if (file) obj[baseKey] = file;
         }
-      } catch (e) {
-        if (!cancelled) console.warn('Failed to load draft', e);
-      }
+      };
+
+      // Rehydrates File objects from the base64 payload for SKU/SP images
+      // and for any artwork-spec / packaging files stashed in the draft.
+      const rehydrateImages = (data) => {
+        (data.skus || []).forEach((sku) => {
+          if (sku.imageBase64) {
+            sku.image = base64ToFile(sku.imageBase64);
+            sku.imagePreview = sku.imageBase64.data;
+          }
+          (sku?.stepData?.artworkMaterials || []).forEach(rehydrateFilesFromBase64);
+          (sku?.stepData?.packaging?.materials || []).forEach(rehydrateFilesFromBase64);
+          (sku.subproducts || []).forEach((sub) => {
+            if (sub?.imageBase64) {
+              sub.image = base64ToFile(sub.imageBase64);
+              sub.imagePreview = sub.imageBase64.data;
+            }
+            (sub?.stepData?.artworkMaterials || []).forEach(rehydrateFilesFromBase64);
+            (sub?.stepData?.packaging?.materials || []).forEach(rehydrateFilesFromBase64);
+          });
+        });
+        return data;
+      };
+
+      // Fetch the committed factory codes for this IPO in parallel with the
+      // draft. The draft (if present) is the richer source of truth; the
+      // committed rows fill gaps — e.g. artwork-spec blob URLs that the draft
+      // dropped when serializing File objects.
+      const ipoId = initialFormData?.ipoId || null;
+      const [draftRes, committedRes] = await Promise.all([
+        getFactoryCodeDraft(ipoId).catch((e) => {
+          console.warn('Failed to load draft', e);
+          return null;
+        }),
+        ipoId
+          ? getFactoryCodesByIpo(ipoId).catch((e) => {
+              console.warn('Failed to load committed factory codes', e);
+              return null;
+            })
+          : Promise.resolve(null),
+      ]);
+
       if (cancelled) return;
-      // Fallback: localStorage
+
+      const committedRows =
+        (committedRes && (committedRes.results || committedRes.data || committedRes)) || [];
+      const committedSkus = Array.isArray(committedRows)
+        ? hydrateSkusFromFactoryCodes(committedRows)
+        : [];
+
+      const draft = draftRes?.payload;
+      const draftUsable = draft && (
+        draft.skus?.length ||
+        Object.keys(draft).some((k) => k !== 'skus' && draft[k] != null)
+      );
+
+      if (draftUsable && isDraftMatchingCurrentIPO(draft)) {
+        const data = normalizeFactoryCodePayloadStiffenerPlys({ ...draft });
+        rehydrateImages(data);
+        if (committedSkus.length) {
+          data.skus = mergeDraftOverCommitted(data.skus || [], committedSkus);
+        }
+        setFormData((prev) => ({ ...prev, ...data }));
+        return;
+      }
+
+      // No usable draft — fall back to committed rows (cross-device /
+      // cross-user scenario) before trying the stale localStorage cache.
+      if (committedSkus.length) {
+        setFormData((prev) => ({ ...prev, skus: committedSkus }));
+        return;
+      }
+
+      // Final fallback: localStorage cache (legacy / offline).
       let savedData = loadFromLocalStorage(initialFormData?.ipoCode);
       if (!savedData && initialFormData?.ipoCode) {
         savedData = loadFromLocalStorage(null);
@@ -6782,6 +6931,32 @@ const GenerateFactoryCode = ({
           return newErrors;
         });
       }
+
+      // Background-upload to blob storage and replace the File with the
+      // returned URL so the per-IPO draft doesn't carry base64 bytes for
+      // every SKU image. The draft size stays in the KB range instead of
+      // ballooning to MB.
+      uploadToBlob(compressed, 'factory-code/sku-images')
+        .then((url) => {
+          if (!url) return;
+          setFormData((prev) => {
+            const next = [...(prev.skus || [])];
+            const slot = next[skuIndex];
+            if (!slot) return prev;
+            // Only swap if the slot still holds the same File (user may
+            // have re-attached a different image while we were uploading).
+            if (
+              !(slot.image instanceof File) ||
+              slot.image.name !== compressed.name ||
+              slot.image.size !== compressed.size
+            ) {
+              return prev;
+            }
+            next[skuIndex] = { ...slot, image: url, imagePreview: url };
+            return { ...prev, skus: next };
+          });
+        })
+        .catch((err) => console.warn('SKU image background upload failed; will retry on commit:', err));
     }
   };
 
@@ -7233,7 +7408,8 @@ const GenerateFactoryCode = ({
     if (messages.length > 0) {
       setValidationErrorsPopup({
         open: true,
-        messages
+        messages,
+        errors
       });
     }
   };
@@ -9427,6 +9603,51 @@ const GenerateFactoryCode = ({
     return { isValid, errors: newErrors };
   };
 
+  // Upload a freshly-attached File to blob storage in the background, then
+  // swap the File reference inside formData with the returned URL string.
+  // This keeps the per-IPO draft tiny (URL strings instead of base64-encoded
+  // blobs) and means we never re-upload the same file on subsequent commits.
+  // The optimistic state — File still in formData — keeps the "UPLOADED"
+  // badge truthy from the user's POV. If upload fails, we leave the File
+  // in place so the wizard commit's bulk upload still has a chance.
+  //
+  // section: 'artwork' | 'packaging'
+  const uploadAttachedFileInBackground = ({
+    file,
+    section,
+    materialIndex,
+    field,
+    pathPrefix = 'factory-code',
+  }) => {
+    if (!(file instanceof File)) return;
+    uploadToBlob(file, pathPrefix)
+      .then((url) => {
+        if (!url) return;
+        updateSelectedSkuStepData((stepData) => {
+          const list = section === 'packaging'
+            ? stepData?.packaging?.materials
+            : stepData?.artworkMaterials;
+          if (!Array.isArray(list) || !list[materialIndex]) return stepData;
+          const current = list[materialIndex][field];
+          // Only replace if the slot still holds the same File we uploaded
+          // (the user may have swapped the file mid-upload).
+          if (!(current instanceof File) || current.name !== file.name || current.size !== file.size) {
+            return stepData;
+          }
+          const nextList = [...list];
+          nextList[materialIndex] = { ...nextList[materialIndex], [field]: url };
+          if (section === 'packaging') {
+            return {
+              ...stepData,
+              packaging: { ...stepData.packaging, materials: nextList },
+            };
+          }
+          return { ...stepData, artworkMaterials: nextList };
+        });
+      })
+      .catch((err) => console.warn('Background blob upload failed; will retry on commit:', err));
+  };
+
   const handleArtworkMaterialChange = (materialIndex, field, value) => {
     setStep3Saved(false);
     setStep3SaveStatus('idle');
@@ -9488,6 +9709,20 @@ const GenerateFactoryCode = ({
       });
     }
       // Unit field removed from artwork header; no unit-based error clearing needed.
+
+    // If the user just attached a file, upload it to blob storage in the
+    // background and replace the File reference with the returned URL.
+    // Without this, the per-IPO draft would balloon (every artwork image
+    // base64-encoded inside the JSON), making PUT/GET draft slow.
+    if (value instanceof File) {
+      uploadAttachedFileInBackground({
+        file: value,
+        section: 'artwork',
+        materialIndex,
+        field,
+        pathPrefix: 'factory-code/artwork',
+      });
+    }
   };
 
   const addArtworkMaterial = (componentName = '') => {
@@ -9778,6 +10013,17 @@ const GenerateFactoryCode = ({
           delete newErrors[errorKey];
         }
         return newErrors;
+      });
+    }
+
+    // Background-upload any attached File so the draft stays small.
+    if (value instanceof File) {
+      uploadAttachedFileInBackground({
+        file: value,
+        section: 'packaging',
+        materialIndex,
+        field,
+        pathPrefix: 'factory-code/packaging',
       });
     }
   };
@@ -11657,39 +11903,29 @@ const GenerateFactoryCode = ({
                       }
 
                       // ─── SAVE ALL IPCs (all SKUs + subproducts) TO DATABASE ───
-                      const buildWizardPayload = (skuItem, productName, ipcCode, stepData) => ({
-                        step0: {
-                          sku: skuItem?.sku ?? '',
-                          product_name: productName ?? '',
-                          buyer_code: formData.buyerCode || null,
-                          notes: formData.ipoCode ?? '',
-                          ipo: formData.ipoId || null,
-                          ipc_code: ipcCode || '',
-                        },
-                        products: (stepData?.products || []).map((p) => ({
-                          name: p.name ?? '',
-                          placement: p.placement ?? '',
-                          components: (p.components || []).map((c) => ({
-                            name: c.productComforter ?? c.name ?? '',
-                            placement: c.placement ?? '',
-                            remarks: c.remarks ?? '',
-                            surplus: c.surplus ?? '',
-                            sizeWidth: c.cuttingSize?.width ?? c.sewSize?.width ?? c.size?.width ?? '',
-                            sizeLength: c.cuttingSize?.length ?? c.sewSize?.length ?? c.size?.length ?? '',
-                            sizeHeight: c.size?.height ?? '',
-                            sizeUnit: c.size?.unit ?? c.cuttingSize?.unit ?? c.sewSize?.unit ?? '',
-                            unit: c.unit ?? '',
-                            quantity: c.quantity ?? '',
-                          })),
-                        })),
-                        rawMaterials: stepData?.rawMaterials ?? [],
-                        consumptionMaterials: stepData?.consumptionMaterials ?? [],
-                        artworkMaterials: stepData?.artworkMaterials ?? [],
-                        packaging: packagingToBackendShape(normalizePackagingBlockStiffenerPlys(stepData?.packaging ?? null)),
-                      });
+                      // The shared util sanitizes empty scaffold rows,
+                      // coerces types, and renames keys so the backend
+                      // serializers accept the payload without 400s.
+                      const buildWizardPayload = (skuItem, productName, ipcCode, stepData) =>
+                        buildWizardPayloadUtil({
+                          skuItem,
+                          productName,
+                          ipcCode,
+                          stepData,
+                          buyerCode: formData.buyerCode,
+                          ipoId: formData.ipoId,
+                          ipoCode: formData.ipoCode,
+                          packagingToBackendShape,
+                          normalizePackagingBlockStiffenerPlys,
+                        });
 
                       const errors = [];
                       let savedCount = 0;
+                      // Track per-SKU/SP URL-replacements so we can update
+                      // formData once at the end, keeping the UI and draft
+                      // in sync with what the backend now stores (blob URLs
+                      // instead of local File objects).
+                      const urlUpdates = [];
 
                       for (let skuIndex = 0; skuIndex < formData.skus.length; skuIndex++) {
                         const skuItem = formData.skus[skuIndex];
@@ -11700,16 +11936,18 @@ const GenerateFactoryCode = ({
                           const stepData = skuItem.stepData;
                           const rawPayload = buildWizardPayload(skuItem, skuItem.product, skuItem.ipcCode, stepData);
                           const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
-                          (wizardPayload.artworkMaterials || []).forEach((m) => {
-                            if (typeof m.referenceImage === 'string' && m.referenceImage) {
-                              m.referenceImageUrl = m.referenceImage;
-                              delete m.referenceImage;
-                            }
-                          });
+                          cleanArtworkFilesForWizard(wizardPayload.artworkMaterials);
+                          cleanPackagingFilesForWizard(wizardPayload.packaging);
                           const result = await saveFactoryCodeWizard(wizardPayload);
                           if (result?.id || result?.code) {
                             console.log(`Factory code saved for SKU ${skuIndex + 1}:`, result);
                             savedCount++;
+                            urlUpdates.push({
+                              skuIndex,
+                              spIndex: null,
+                              artworkMaterials: wizardPayload.artworkMaterials,
+                              packaging: wizardPayload.packaging,
+                            });
                           } else if (result?.detail || result?.error) {
                             errors.push(`SKU "${skuItem.sku || skuIndex + 1}": ${result.detail || result.error || 'Unknown error'}`);
                           }
@@ -11727,16 +11965,18 @@ const GenerateFactoryCode = ({
                               const spStepData = sp.stepData;
                               const rawPayload = buildWizardPayload(skuItem, sp.subproduct, sp.ipcCode, spStepData);
                               const wizardPayload = await replaceFilesWithBlobUrls(rawPayload, 'factory-code');
-                              (wizardPayload.artworkMaterials || []).forEach((m) => {
-                                if (typeof m.referenceImage === 'string' && m.referenceImage) {
-                                  m.referenceImageUrl = m.referenceImage;
-                                  delete m.referenceImage;
-                                }
-                              });
+                              cleanArtworkFilesForWizard(wizardPayload.artworkMaterials);
+                              cleanPackagingFilesForWizard(wizardPayload.packaging);
                               const result = await saveFactoryCodeWizard(wizardPayload);
                               if (result?.id || result?.code) {
                                 console.log(`Factory code saved for SKU ${skuIndex + 1} SP ${spIndex + 1}:`, result);
                                 savedCount++;
+                                urlUpdates.push({
+                                  skuIndex,
+                                  spIndex,
+                                  artworkMaterials: wizardPayload.artworkMaterials,
+                                  packaging: wizardPayload.packaging,
+                                });
                               } else if (result?.detail || result?.error) {
                                 errors.push(`SKU "${skuItem.sku || skuIndex + 1}" SP "${sp.subproduct || spIndex + 1}": ${result.detail || result.error || 'Unknown error'}`);
                               }
@@ -11746,6 +11986,57 @@ const GenerateFactoryCode = ({
                             }
                           }
                         }
+                      }
+
+                      // After all uploads succeed, replace File references in
+                      // formData with the blob URLs returned by the backend.
+                      // Without this, the next draft save strips the Files
+                      // (File → null in JSON.stringify), and coming back via
+                      // IPC Spec shows empty artwork-spec uploads.
+                      if (urlUpdates.length) {
+                        setFormData((prev) => {
+                          const nextSkus = (prev.skus || []).map((sku, sIdx) => {
+                            const mainUpdate = urlUpdates.find(
+                              (u) => u.skuIndex === sIdx && u.spIndex === null
+                            );
+                            let nextSku = sku;
+                            if (mainUpdate) {
+                              nextSku = {
+                                ...sku,
+                                stepData: {
+                                  ...(sku.stepData || {}),
+                                  artworkMaterials: mergeArtworkWithUrls(
+                                    sku.stepData?.artworkMaterials || [],
+                                    mainUpdate.artworkMaterials || []
+                                  ),
+                                },
+                              };
+                            }
+                            if (nextSku.subproducts?.length) {
+                              nextSku = {
+                                ...nextSku,
+                                subproducts: nextSku.subproducts.map((sp, spIdx) => {
+                                  const spUpdate = urlUpdates.find(
+                                    (u) => u.skuIndex === sIdx && u.spIndex === spIdx
+                                  );
+                                  if (!spUpdate) return sp;
+                                  return {
+                                    ...sp,
+                                    stepData: {
+                                      ...(sp.stepData || {}),
+                                      artworkMaterials: mergeArtworkWithUrls(
+                                        sp.stepData?.artworkMaterials || [],
+                                        spUpdate.artworkMaterials || []
+                                      ),
+                                    },
+                                  };
+                                }),
+                              };
+                            }
+                            return nextSku;
+                          });
+                          return { ...prev, skus: nextSkus };
+                        });
                       }
 
                       if (errors.length > 0) {
@@ -11951,7 +12242,13 @@ const GenerateFactoryCode = ({
       {/* Validation Errors Dialog */}
       <ValidationErrorsDialog
         open={validationErrorsPopup.open}
-        onOpenChange={(open) => setValidationErrorsPopup(prev => ({ ...prev, open }))}
+        onOpenChange={(open) => {
+          setValidationErrorsPopup(prev => ({ ...prev, open }));
+          if (!open && validationErrorsPopup.errors) {
+            // Radix unlocks body scroll on close; wait one frame, then scroll.
+            setTimeout(() => scrollToFirstError(validationErrorsPopup.errors), 50);
+          }
+        }}
         messages={validationErrorsPopup.messages}
       />
     </div>

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 import { getIPOs, createIPO, updateIPO, getBuyerCodes } from '../../services/integration';
 import { normalizeOrderType, toOrderTypeApiValue } from '../../utils/orderType';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
 
 const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO, initialOpenIpo = null, specMode = 'create', initialFlowPhase, initialCurrentStep, initialSkuId, highlightOnMount = false }) => {
   const isSpecMode = specMode === 'spec';
@@ -223,7 +224,11 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
     }
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      scrollToFirstError(newErrors);
+      return false;
+    }
+    return true;
   };
 
   const FACTORY_CODE_STORAGE_KEY = 'factoryCodeFormData';

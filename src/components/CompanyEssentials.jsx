@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { FormCard, FormRow, FullscreenContent } from '@/components/ui/form-layout';
 import { cn } from '@/lib/utils';
 import { getCompanyEssentials, createCompanyEssential, markPublicEssentialTaken } from '../services/integration';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
 
 const CompanyEssentials = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -437,6 +438,9 @@ const CompanyEssentials = ({ onBack }) => {
       }
     });
     setErrors(newErrors);
+    if (!valid) {
+      scrollToFirstError(newErrors);
+    }
     return valid;
   };
 
