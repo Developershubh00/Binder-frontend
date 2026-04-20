@@ -250,19 +250,16 @@
 // };
 
 // export default Login;
-
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { scrollToFirstError } from '@/utils/scrollToFirstError';
+import PolyhedraBackground from '../components/PolyhedraBackground';
 import './Login.css';
+import { scrollToFirstError } from '@/utils/scrollToFirstError';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-
-  // View state: 'landing' | 'login'
-  const [currentView, setCurrentView] = useState('landing');
 
   const [formData, setFormData] = useState({
     login: '',
@@ -276,6 +273,9 @@ const Login = () => {
   const [popupMessage, setPopupMessage] = useState('');
   const [popupType, setPopupType] = useState('error');
   const [showPassword, setShowPassword] = useState(false);
+
+  // NEW — controls the slide-up login card
+  const [showLoginCard, setShowLoginCard] = useState(false);
 
   // Forgot password states
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -386,159 +386,190 @@ const Login = () => {
     setForgotStep('input');
   };
 
-  // ─── LANDING PAGE ────────────────────────────────────────────────────────────
-  if (currentView === 'landing') {
-    return (
-      <div className="landing-container">
-        <div className="landing-inner">
-          <div className="landing-logo-block">
-            <div className="landing-logo-icon">
-              <span className="landing-logo-dots">○○○</span>
-            </div>
-            <h1 className="landing-logo-name">BINDER OS</h1>
-            <p className="landing-tagline-top">YOUR COMPANY'S NERVOUS SYSTEM</p>
-          </div>
-
-          <div className="landing-body">
-            <p className="landing-tagline-main">
-              YOU TRACK EVERYTHING MOVING THROUGH YOUR COMPANY
-            </p>
-            <p className="landing-tagline-sub">
-              SO. NOTHING GETS LOST BETWEEN UNIT, VENDORS, PROCESSES
-            </p>
-          </div>
-
-          <div className="landing-action">
-            <button
-              className="landing-login-btn"
-              onClick={() => setCurrentView('login')}
-            >
-              LOGIN
-            </button>
-            <button
-              className="landing-register-btn"
-              onClick={() => navigate('/register-company')}
-            >
-              REGISTER
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── LOGIN PAGE ──────────────────────────────────────────────────────────────
   return (
-    <div className="login-page">
-      {/* Back to landing */}
-      <button className="back-to-landing" onClick={() => setCurrentView('landing')}>
-        ← Back
-      </button>
+    <div className="login-split-container">
+      {/* Polyhedra animation fills the viewport behind everything */}
+      <PolyhedraBackground />
 
-      <div className="login-card">
-        {/* Logo */}
-        <div className="login-card-logo">
-          <span className="logo-dots">○○○</span>
-          <span className="logo-name">Binder</span>
-        </div>
+      <div className="split-content-row">
+        {/* ═══ LEFT — Orange marketing panel ═══════════════════════ */}
+        <div className="split-left">
+          <div className="split-left-inner">
+            {/* TOP content block */}
+            <div className="split-left-top">
+              <div className="split-logo-row">
+                <div className="split-logo-img-wrap">
+                  <img
+                    src="/binder-os-logo.png"
+                    alt="BinderOS logo"
+                    className="split-logo-img"
+                  />
+                </div>
+                <h1 className="split-brand-name">BinderOS</h1>
+              </div>
 
-        <div className="login-card-header">
-          <h2 className="login-card-title">Welcome to Binder OS</h2>
-          <p className="login-card-subtitle">Enter your email or username to access your account</p>
-        </div>
+              <p className="split-tagline-top">YOUR COMPANY'S NERVOUS SYSTEM</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {/* Email or Username */}
-          <div className="form-group">
-            <label className="input-label">Email or Username</label>
-            <div className="input-container">
-              <input
-                type="text"
-                name="login"
-                value={formData.login}
-                onChange={handleChange}
-                placeholder="Enter your email or username"
-                className={`input-field ${errors.login ? 'error' : ''}`}
-              />
+              <div className="split-description">
+                <p className="split-description-lead">
+                  One system of record for complete traceability of operations — from raw material to finished goods.
+                </p>
+                <p className="split-description-body">
+                  Binder OS replaces the chaos of spreadsheets, WhatsApp groups, and disconnected registers with a single manufacturing operating system built for India's textile ecosystem. We start where every company starts — with inventory.
+                </p>
+              </div>
+
+              <div className="split-tagline-block">
+                <p className="split-tagline-main">
+                  YOU TRACK EVERYTHING MOVING THROUGH YOUR COMPANY
+                </p>
+                <p className="split-tagline-sub">
+                  SO. NOTHING GETS LOST BETWEEN UNIT, VENDORS, PROCESSES
+                </p>
+              </div>
             </div>
-            {errors.login && <span className="error-text">{errors.login}</span>}
-          </div>
 
-          {/* Password */}
-          <div className="form-group">
-            <label className="input-label">Password</label>
-            <div className="input-container">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className={`input-field ${errors.password ? 'error' : ''}`}
-              />
+            {/* BOTTOM CTA — sign up */}
+            <div className="split-cta-row left-cta">
+              <span className="split-cta-label">New to BinderOS?</span>
               <button
-                type="button"
-                className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
+                className="split-register-btn"
+                onClick={() => navigate('/register-company')}
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                SIGN-UP REQUEST
+                <span className="split-register-arrow">→</span>
               </button>
             </div>
-            {errors.password && <span className="error-text">{errors.password}</span>}
+          </div>
+        </div>
+
+        {/* ═══ RIGHT — polyhedra bg + LOGIN NOW button + slide-up card ══ */}
+        <div className="split-right">
+          <div className="split-right-inner">
+            {/* TOP spacer — lets polyhedra breathe; pushes CTA to bottom */}
+            <div className="split-right-top" aria-hidden="true" />
+
+            {/* BOTTOM CTA — login (hidden when card is open) */}
+            <div className={`split-cta-row right-cta ${showLoginCard ? 'hidden' : ''}`}>
+              <span className="split-cta-label">Already have an account?</span>
+              <button
+                className="split-register-btn login-now-btn"
+                onClick={() => setShowLoginCard(true)}
+              >
+                LOGIN NOW
+                <span className="split-register-arrow">→</span>
+              </button>
+            </div>
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="form-options">
-            <label className="remember-checkbox">
-              <input
-                type="checkbox"
-                name="rememberMe"
-                checked={formData.rememberMe}
-                onChange={handleChange}
-              />
-              <span className="checkmark"></span>
-              Remember me
-            </label>
-            <button
-              type="button"
-              className="forgot-link"
-              onClick={openForgotModal}
-            >
-              Forgot Password
-            </button>
-          </div>
+          {/* ═══ LOGIN CARD OVERLAY — slides up from below on click ═══ */}
+          <div className={`login-card-wrapper ${showLoginCard ? 'visible' : ''}`}>
+            <div className="login-card">
+              {/* Back button to hide card */}
+              <button
+                type="button"
+                className="card-close-btn"
+                onClick={() => setShowLoginCard(false)}
+                aria-label="Back"
+              >
+                ←
+              </button>
 
-          {/* Sign In Button */}
-          <button type="submit" className="signin-button" disabled={loading}>
-            {loading ? (
-              <span className="btn-loading">
-                <span className="spinner"></span>
-                Signing In...
-              </span>
-            ) : (
-              'LOGIN'
-            )}
-          </button>
-        </form>
+              <div className="login-card-header">
+                <h2 className="login-card-title">Welcome to Binder OS</h2>
+                <p className="login-card-subtitle">
+                  Enter your email or username to access your account
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="login-form">
+                {/* Email or Username */}
+                <div className="form-group">
+                  <label className="input-label">Email or Username</label>
+                  <div className="input-container">
+                    <input
+                      type="text"
+                      name="login"
+                      value={formData.login}
+                      onChange={handleChange}
+                      placeholder="Enter your email or username"
+                      className={`input-field ${errors.login ? 'error' : ''}`}
+                    />
+                  </div>
+                  {errors.login && <span className="error-text">{errors.login}</span>}
+                </div>
+
+                {/* Password */}
+                <div className="form-group">
+                  <label className="input-label">Password</label>
+                  <div className="input-container">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Enter your password"
+                      className={`input-field ${errors.password ? 'error' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      className="toggle-password"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
+                    </button>
+                  </div>
+                  {errors.password && <span className="error-text">{errors.password}</span>}
+                </div>
+
+                {/* Remember Me & Forgot Password */}
+                <div className="form-options">
+                  <label className="remember-checkbox">
+                    <input
+                      type="checkbox"
+                      name="rememberMe"
+                      checked={formData.rememberMe}
+                      onChange={handleChange}
+                    />
+                    <span className="checkmark"></span>
+                    Remember me
+                  </label>
+                  <button
+                    type="button"
+                    className="forgot-link"
+                    onClick={openForgotModal}
+                  >
+                    Forgot Password
+                  </button>
+                </div>
+
+                {/* Sign In Button */}
+                <button type="submit" className="signin-button" disabled={loading}>
+                  {loading ? (
+                    <span className="btn-loading">
+                      <span className="spinner"></span>
+                      Signing In...
+                    </span>
+                  ) : (
+                    'LOGIN'
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* ── FORGOT PASSWORD MODAL ─────────────────────────────────────────── */}
+      {/* ── FORGOT PASSWORD MODAL ─────────────────────────────────── */}
       {showForgotModal && (
         <div className="popup-backdrop" onClick={closeForgotModal}>
           <div
             className="popup-modal forgot-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
             <button className="modal-close-btn" onClick={closeForgotModal}>
               ✕
             </button>
-
-            {/* Logo inside modal */}
-            <div className="modal-logo">
-              <span className="logo-dots">○○○</span>
-              <span className="logo-name">Binder</span>
-            </div>
 
             {forgotStep === 'input' && (
               <>
@@ -602,7 +633,7 @@ const Login = () => {
         </div>
       )}
 
-      {/* ── SUCCESS / ERROR POPUP ─────────────────────────────────────────── */}
+      {/* ── SUCCESS / ERROR POPUP ─────────────────────────────────── */}
       {showPopup && (
         <div className="popup-backdrop" onClick={closePopup}>
           <div
