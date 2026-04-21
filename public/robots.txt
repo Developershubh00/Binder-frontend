@@ -1,0 +1,34 @@
+# robots.txt for https://binder-os.com/
+# Allow all well-behaved crawlers to index public content.
+# Disallow authenticated / app-only routes.
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin/
+Disallow: /manager/
+Disallow: /tenant/
+Disallow: /profile
+Disallow: /company-profile
+Disallow: /onboarding
+Disallow: /set-password
+Disallow: /essentials/view/
+Disallow: /api/
+Disallow: /*?*token=
+Disallow: /*?*auth=
+
+# Block aggressive SEO scrapers (optional, adjust as needed)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://binder-os.com/sitemap.xml
