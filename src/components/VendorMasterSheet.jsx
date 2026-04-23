@@ -3,6 +3,7 @@ import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getVendorCodes, getVendorCode, getVendorMasterSheet, deleteVendorCode } from '../services/integration';
+import { useLoading } from '../context/LoadingContext';
 
 const hasValue = (value) => {
   if (Array.isArray(value)) return value.some((item) => hasValue(item));
@@ -71,9 +72,11 @@ const VendorMasterSheet = ({ onBack, onEditVendor }) => {
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     const fetchVendors = async () => {
+      showLoading();
       try {
         setLoading(true);
         setError(null);
@@ -162,6 +165,7 @@ const VendorMasterSheet = ({ onBack, onEditVendor }) => {
         setVendors(storedVendors.map(v => normalizeVendor(v)));
       } finally {
         setLoading(false);
+        hideLoading();
       }
     };
 

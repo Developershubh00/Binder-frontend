@@ -1,6 +1,8 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LoadingProvider } from './context/LoadingContext';
+import GlobalLoadingOverlay from './components/GlobalLoadingOverlay';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Community from './pages/Community';
@@ -50,6 +52,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <LoadingProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register-company" element={<RegisterCompany />} />
@@ -111,6 +114,8 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
         <GlobalChatbot />
+        <GlobalLoadingOverlay />
+        </LoadingProvider>
       </AuthProvider>
     </Router>
   );

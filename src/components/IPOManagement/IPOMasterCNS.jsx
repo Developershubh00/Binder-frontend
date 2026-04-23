@@ -1,7 +1,214 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-layout';
-import { getIPOMasterCNS, saveIPOMasterCNSRows } from '../../services/integration';
+import { getIPOMasterCNS, saveIPOMasterCNSRows, getFactoryCodeDraft } from '../../services/integration';
+import { useLoading } from '../../context/LoadingContext';
+
+// Same storage shape the IPO Derived CNS Sheet reads from, so we can resolve
+// Net CNS/PC and Unit for the yarn subtab directly from the Derived Sheet source.
+const DERIVED_STORAGE_KEY = 'factoryCodeFormData';
+const derivedStorageKey = (ipoCode) => (ipoCode ? `${DERIVED_STORAGE_KEY}:${ipoCode}` : DERIVED_STORAGE_KEY);
+
+const loadDerivedLocalSnapshot = (ipoCode) => {
+  try {
+    const raw = localStorage.getItem(derivedStorageKey(ipoCode));
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+const normKey = (s) => String(s || '').trim().toLowerCase();
+
+// Build a lookup keyed by (ipcCode, materialDescription) → { netCns, unit }
+// by walking skus[*].stepData.rawMaterials and skus[*].subproducts[*].stepData.rawMaterials.
+const buildYarnLookup = (formData) => {
+  const lookup = new Map();
+  if (!formData || typeof formData !== 'object') return lookup;
+  const addRm = (rm, ipcCode) => {
+    if (!rm || typeof rm !== 'object') return;
+    const ipcNorm = normKey(ipcCode);
+    const descCandidates = [
+      rm.materialDescription, rm.material_description,
+      rm.materialName, rm.material_name,
+      rm.fabricName, rm.yarnType, rm.fiberType,
+      rm.fabricComposition, rm.yarnComposition,
+    ];
+    const net = rm.netConsumption ?? rm.net_consumption ?? rm.consumption;
+    const unit = rm.unit || rm.consumptionUnit || '';
+    const entry = { netCns: net, unit };
+    descCandidates.forEach((d) => {
+      const k = normKey(d);
+      if (!k) return;
+      if (!lookup.has(`${ipcNorm}::${k}`)) {
+        lookup.set(`${ipcNorm}::${k}`, entry);
+      }
+      // Also register under description alone so any-IPC fallback still works.
+      if (!lookup.has(`::${k}`)) {
+        lookup.set(`::${k}`, entry);
+      }
+    });
+  };
+  const walk = (stepdata, ipcCode) => {
+    (stepdata?.rawMaterials || []).forEach((rm) => addRm(rm, ipcCode));
+  };
+  (formData.skus || []).forEach((sku) => {
+    const skuIpc = sku?.ipcCode || sku?.ipc_code || sku?.sku || '';
+    walk(sku?.stepData, skuIpc);
+    (sku?.subproducts || []).forEach((sub) => {
+      const subIpc = sub?.ipcCode || sub?.ipc_code || sub?.subproduct || skuIpc;
+      walk(sub?.stepData, subIpc);
+    });
+  });
+  return lookup;
+};
+
+const lookupDerived = (lookup, ipc, description) => {
+  const descNorm = normKey(description);
+  if (!descNorm) return null;
+  const ipcNorm = normKey(ipc);
+  return (
+    lookup.get(`${ipcNorm}::${descNorm}`) ||
+    lookup.get(`::${descNorm}`) ||
+    null
+  );
+};
+
+// Walk object/array picking up every value whose key contains "wastage"
+// or "surplus" — matches ConsumptionSheet.extractAllWastages on the frontend.
+const extractAllWastages = (obj, acc = []) => {
+  if (!obj || typeof obj !== 'object') return acc;
+  if (Array.isArray(obj)) {
+    obj.forEach((item) => extractAllWastages(item, acc));
+    return acc;
+  }
+  for (const k in obj) {
+    const v = obj[k];
+    const kl = String(k).toLowerCase();
+    const isW = kl.includes('wastage') || kl.includes('surplus');
+    if (isW && v !== undefined && v !== null && v !== '' && v !== false) {
+      if (typeof v === 'object' && !Array.isArray(v)) {
+        extractAllWastages(v, acc);
+      } else if (Array.isArray(v)) {
+        v.forEach((item) => {
+          if (item !== null && item !== undefined && item !== '' && item !== false) acc.push(item);
+        });
+      } else {
+        acc.push(v);
+      }
+    } else if (typeof v === 'object' && v !== null) {
+      extractAllWastages(v, acc);
+    }
+  }
+  return acc;
+};
+
+const compoundFactor = (wastages) =>
+  (wastages || []).reduce((f, w) => {
+    const num = parseFloat(String(w).replace('%', '').trim()) || 0;
+    return f * (1 + num / 100);
+  }, 1);
+
+const derivedGrossWastagePct = (rm) => {
+  const wastages = extractAllWastages(rm);
+  if (!wastages.length) return 0;
+  return (compoundFactor(wastages) - 1) * 100;
+};
+
+const computeSkuOverage = (poQty, overagePct) => {
+  const qty = parseFloat(poQty) || 0;
+  const pct = parseFloat(String(overagePct || '').replace('%', '').trim()) || 0;
+  if (!qty) return null;
+  return qty * (1 + pct / 100);
+};
+
+const isYarnType = (mt) => /yarn|thread/i.test(String(mt || ''));
+
+// Stitching Thread stores Net CNS/Unit in a different shape than generic yarn.
+// Mirror ConsumptionSheet.getStitchingThreadNetCnsAndUnit so those values
+// still populate the Yarn subtab correctly.
+const getStitchingThreadNetCnsAndUnit = (rm) => {
+  const isStitchingThread =
+    String(rm?.materialType || '').trim() === 'Yarn' &&
+    String(rm?.subMaterial || '').trim() === 'Stitching Thread';
+  if (!isStitchingThread) return null;
+  const strip = (v) => parseFloat(String(v).replace(/[^0-9.-]/g, ''));
+  if (rm.stitchingThreadQty != null && rm.stitchingThreadQty !== '') {
+    const n = strip(rm.stitchingThreadQty);
+    return {
+      netCns: Number.isFinite(n) ? n : 0,
+      unit: (rm.stitchingThreadUnit || '').toString().trim() || '-',
+    };
+  }
+  if (rm.stitchingThreadQtyYardage != null && String(rm.stitchingThreadQtyYardage).trim() !== '') {
+    const n = strip(rm.stitchingThreadQtyYardage);
+    return { netCns: Number.isFinite(n) ? n : 0, unit: 'Yardage' };
+  }
+  if (rm.stitchingThreadQtyKgs != null && String(rm.stitchingThreadQtyKgs).trim() !== '') {
+    const n = strip(rm.stitchingThreadQtyKgs);
+    return { netCns: Number.isFinite(n) ? n : 0, unit: 'Kgs' };
+  }
+  return { netCns: 0, unit: '-' };
+};
+
+// Build yarn rows DIRECTLY from Derived CNS Sheet formData, bypassing the
+// backend's material_type classification entirely. Each yarn rawMaterial in
+// the wizard drafts becomes one row with values pulled straight from the
+// Derived Sheet — Net CNS/PC, Unit, Gross Wastage %, Overage QTY PCS — keyed
+// by (IPC, Material Description).
+const buildYarnRowsFromDerived = (formData) => {
+  if (!formData || typeof formData !== 'object') return [];
+  const rows = [];
+  const processStep = (stepdata, ipcCode, overage) => {
+    (stepdata?.rawMaterials || []).forEach((rm, idx) => {
+      if (!rm || typeof rm !== 'object') return;
+      if (!isYarnType(rm.materialType || rm.material_type)) return;
+      const description =
+        rm.materialDescription ||
+        rm.material_description ||
+        rm.materialName ||
+        rm.material_name ||
+        rm.yarnType ||
+        '';
+      // Stitching Thread stores Net CNS and Unit on dedicated fields; fall
+      // back to the generic netConsumption/unit for other yarn types.
+      const stitchingThread = getStitchingThreadNetCnsAndUnit(rm);
+      const netCns = stitchingThread
+        ? stitchingThread.netCns
+        : (rm.netConsumption ?? rm.net_consumption ?? rm.consumption ?? null);
+      const unit = stitchingThread
+        ? stitchingThread.unit
+        : (rm.unit || rm.consumptionUnit || '');
+      const grossWastage = derivedGrossWastagePct(rm);
+      rows.push({
+        id: `derived-yarn-${ipcCode}-${idx}-${normKey(description)}`,
+        ipc: ipcCode,
+        component: rm.componentName || rm.component_name || '',
+        material_type: rm.materialType || 'Yarn',
+        material_description: description,
+        net_cns_pc: netCns,
+        overage_qty_pcs: overage,
+        overage_qty: overage,
+        gross_wastage: grossWastage,
+        unit,
+      });
+    });
+  };
+  (formData.skus || []).forEach((sku) => {
+    if (!sku || typeof sku !== 'object') return;
+    const skuIpc = sku.ipcCode || sku.ipc_code || sku.sku || '';
+    const skuOverage = computeSkuOverage(sku.poQty, sku.overagePercentage);
+    processStep(sku.stepData, skuIpc, skuOverage);
+    (sku.subproducts || []).forEach((sub) => {
+      if (!sub || typeof sub !== 'object') return;
+      const subIpc = sub.ipcCode || sub.ipc_code || sub.subproduct || skuIpc;
+      const subOverage = computeSkuOverage(sub.poQty, sub.overagePercentage) ?? skuOverage;
+      processStep(sub.stepData, subIpc, subOverage);
+    });
+  });
+  return rows;
+};
 
 const TABS = [
   { key: 'raw_material', label: 'Raw Material' },
@@ -59,19 +266,41 @@ const fabricPurchaseWidthTotal = (row, ctx) => {
   }, 0);
 };
 
+// Pull Net CNS/PC and Unit for a yarn row from the Derived Sheet lookup
+// (keyed by IPC + material description). Falls back to the row's own values.
+const yarnNetCns = (row, ctx) => {
+  const hit = ctx?.yarnLookup ? lookupDerived(ctx.yarnLookup, row.ipc, row.material_description) : null;
+  if (hit && hit.netCns !== undefined && hit.netCns !== null && hit.netCns !== '') {
+    return hit.netCns;
+  }
+  return row.net_cns_pc;
+};
+const yarnUnit = (row, ctx) => {
+  const hit = ctx?.yarnLookup ? lookupDerived(ctx.yarnLookup, row.ipc, row.material_description) : null;
+  if (hit && hit.unit) return hit.unit;
+  return row.unit || '';
+};
+
+const yarnGrossCns = (row, ctx) => {
+  const net = toNum(yarnNetCns(row, ctx));
+  if (!Number.isFinite(net)) return NaN;
+  const w = toNum(row.gross_wastage);
+  return net * (1 + (Number.isFinite(w) ? w : 0) / 100);
+};
+
 const YARN_COLUMNS = [
   { key: 'material_description', header: 'Material Description', align: 'left',
     render: (r) => r.material_description || '-' },
   { key: 'net_cns_pc', header: 'Net CNS/PC', align: 'right',
-    render: (r) => formatNumber(r.net_cns_pc) },
+    render: (r, ctx) => formatNumber(yarnNetCns(r, ctx)) },
   { key: 'overage_qty_pcs', header: 'Overage QTY PCS', align: 'right',
     render: (r) => formatNumber(r.overage_qty_pcs, { decimals: 2 }) },
   { key: 'gross_wastage', header: 'Gross Wastage', align: 'right',
     render: (r) => formatNumber(r.gross_wastage, { decimals: 2, suffix: '%' }) },
   { key: 'gross_cns', header: 'Gross CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_cns) },
+    render: (r, ctx) => formatNumber(yarnGrossCns(r, ctx)) },
   { key: 'unit', header: 'Unit', align: 'left',
-    render: (r) => r.unit || '-' },
+    render: (r, ctx) => yarnUnit(r, ctx) || '-' },
 ];
 
 const numberInputStyle = (invalid) => ({
@@ -315,6 +544,8 @@ const IPOMasterCNS = ({ ipo }) => {
   const [error, setError] = useState('');
   const [selected, setSelected] = useState({});
   const [manualInputs, setManualInputs] = useState({});
+  const [derivedFormData, setDerivedFormData] = useState(null);
+  const { showLoading, hideLoading } = useLoading();
   const setManualInput = (rowId, field, value) => {
     setManualInputs((prev) => ({
       ...prev,
@@ -326,6 +557,7 @@ const IPOMasterCNS = ({ ipo }) => {
     let cancelled = false;
     const run = async () => {
       setLoading(true);
+      showLoading();
       setError('');
       try {
         const response = await getIPOMasterCNS(ipo.ipoId || ipo.id);
@@ -354,19 +586,98 @@ const IPOMasterCNS = ({ ipo }) => {
         if (!cancelled) setError(e?.message || 'Failed to load IPO Master CNS.');
       } finally {
         if (!cancelled) setLoading(false);
+        hideLoading();
       }
     };
     if (ipo?.ipoId || ipo?.id) run();
     return () => { cancelled = true; };
   }, [ipo?.ipoId, ipo?.id]);
 
+  // Load the same Derived CNS Sheet snapshot that IPODerivedCNS uses.
+  // Prefer the localStorage copy (what the user actually sees on that page);
+  // fall back to the server draft if localStorage is empty.
+  useEffect(() => {
+    let cancelled = false;
+    const ipoCode = ipo?.ipoCode || ipo?.code || '';
+    const ipoId = ipo?.ipoId || ipo?.id || null;
+    const local = loadDerivedLocalSnapshot(ipoCode);
+    if (local) {
+      setDerivedFormData(local);
+      return () => { cancelled = true; };
+    }
+    if (!ipoId && !ipoCode) return () => {};
+    (async () => {
+      try {
+        const res = await getFactoryCodeDraft(ipoId);
+        if (cancelled) return;
+        const payload = res?.payload;
+        if (payload && typeof payload === 'object') {
+          setDerivedFormData(payload);
+        }
+      } catch {
+        // Non-fatal: yarn subtab will just fall back to backend values.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [ipo?.ipoCode, ipo?.code, ipo?.ipoId, ipo?.id]);
+
+  const yarnLookup = useMemo(() => buildYarnLookup(derivedFormData), [derivedFormData]);
+  const yarnRowsFromDerived = useMemo(
+    () => buildYarnRowsFromDerived(derivedFormData),
+    [derivedFormData]
+  );
+
+  // Debug snapshot shown only on Yarn subtab when no rows resolve. Lets us
+  // see whether derivedFormData loaded at all, how many SKUs / rawMaterials
+  // it has, and what materialType values are present so the user can spot
+  // a wizard-form field mismatch without reading code.
+  const yarnDebug = useMemo(() => {
+    const ipoCodeForKey = ipo?.ipoCode || ipo?.code || '';
+    const allLocalKeys = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('factoryCodeFormData')) allLocalKeys.push(k);
+      }
+    } catch {}
+    const skus = Array.isArray(derivedFormData?.skus) ? derivedFormData.skus : [];
+    const allRms = [];
+    skus.forEach((sku) => {
+      const skuIpc = sku?.ipcCode || sku?.ipc_code || sku?.sku || '';
+      (sku?.stepData?.rawMaterials || []).forEach((rm) => {
+        allRms.push({ ipc: skuIpc, materialType: rm?.materialType, desc: rm?.materialDescription || rm?.materialName });
+      });
+      (sku?.subproducts || []).forEach((sub) => {
+        const subIpc = sub?.ipcCode || sub?.ipc_code || sub?.subproduct || skuIpc;
+        (sub?.stepData?.rawMaterials || []).forEach((rm) => {
+          allRms.push({ ipc: subIpc, materialType: rm?.materialType, desc: rm?.materialDescription || rm?.materialName });
+        });
+      });
+    });
+    return {
+      ipoProp: { ipoCode: ipo?.ipoCode, code: ipo?.code, ipoId: ipo?.ipoId, id: ipo?.id },
+      lookupKeyTried: ipoCodeForKey ? `factoryCodeFormData:${ipoCodeForKey}` : '(none — no ipoCode/code on ipo prop)',
+      matchingLocalStorageKeys: allLocalKeys,
+      derivedFormDataLoaded: !!derivedFormData,
+      skuCount: skus.length,
+      rawMaterialsCount: allRms.length,
+      uniqueMaterialTypes: Array.from(new Set(allRms.map((r) => r.materialType || '(empty)'))),
+      sampleRawMaterials: allRms.slice(0, 5),
+      yarnRowsBuilt: yarnRowsFromDerived.length,
+    };
+  }, [ipo?.ipoCode, ipo?.code, ipo?.ipoId, ipo?.id, derivedFormData, yarnRowsFromDerived]);
+
   const rows = useMemo(() => {
-    const all = data ? data[activeTab] || [] : [];
-    if (activeTab !== 'raw_material') return all;
+    if (activeTab !== 'raw_material') return data ? data[activeTab] || [] : [];
+    // Yarn is sourced directly from the Derived CNS Sheet, matched by IPC +
+    // material description. Bypasses backend material_type classification so
+    // the subtab always reflects what's on the Derived Sheet.
+    if (rawSubtab === 'yarn') return yarnRowsFromDerived;
+    const all = data ? data.raw_material || [] : [];
     const sub = RAW_SUBTABS.find((s) => s.key === rawSubtab);
     if (!sub) return all;
     return all.filter((r) => sub.matches(String(r.material_type || '')));
-  }, [data, activeTab, rawSubtab]);
+  }, [data, activeTab, rawSubtab, yarnRowsFromDerived]);
 
   const subtabConfig = SUBTAB_CONFIG[rawSubtab] || SUBTAB_CONFIG.yarn;
   const columns = subtabConfig.columns;
@@ -431,10 +742,15 @@ const IPOMasterCNS = ({ ipo }) => {
   }, [activeClubs, groupedRows]);
 
   const isComplete = !!data?.is_complete;
-  const totalRows = useMemo(
-    () => (data ? ['raw_material', 'artwork_labeling', 'packaging'].reduce((n, k) => n + (data[k]?.length || 0), 0) : 0),
-    [data]
-  );
+  const totalRows = useMemo(() => {
+    const backend = data
+      ? ['raw_material', 'artwork_labeling', 'packaging'].reduce((n, k) => n + (data[k]?.length || 0), 0)
+      : 0;
+    // Yarn rows are sourced from the Derived CNS Sheet, not the backend.
+    // Count them here so the "No IPC data has been saved" short-circuit
+    // doesn't hide the table when only the Derived Sheet has yarn data.
+    return backend + yarnRowsFromDerived.length;
+  }, [data, yarnRowsFromDerived]);
 
   const normalizeDesc = (d) => String(d || '').trim().toLowerCase();
 
@@ -873,6 +1189,7 @@ const IPOMasterCNS = ({ ipo }) => {
                               clubRows: club.resolvedRows,
                               manualInputs,
                               setManualInput,
+                              yarnLookup,
                             };
                             return columns.map((c) => {
                               if (c.aggregatedInClub) {
@@ -984,6 +1301,11 @@ const IPOMasterCNS = ({ ipo }) => {
                 <tr>
                   <td colSpan={totalCols} style={{ padding: 16, textAlign: 'center', color: '#6b7280' }}>
                     No rows in this category.
+                    {rawSubtab === 'yarn' && (
+                      <pre style={{ textAlign: 'left', marginTop: 12, fontSize: 11, background: '#f9fafb', padding: 8, borderRadius: 4, color: '#374151', whiteSpace: 'pre-wrap' }}>
+                        {JSON.stringify(yarnDebug, null, 2)}
+                      </pre>
+                    )}
                   </td>
                 </tr>
               ) : groupedRows.map((row) => {
@@ -1038,6 +1360,7 @@ const IPOMasterCNS = ({ ipo }) => {
                         clubRows: [row],
                         manualInputs,
                         setManualInput,
+                        yarnLookup,
                       };
                       return columns.map((c) => (
                         <td

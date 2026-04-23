@@ -20,12 +20,23 @@ import InwardStoreSheet from '../components/InwardStoreSheet.jsx';
 import InwardStoreSheetDatabase from '../components/InwardStoreSheetDatabase.jsx';
 import OutwardStoreSheet from '../components/OutwardStoreSheet.jsx';
 import OutwardStoreSheetDatabase from '../components/OutwardStoreSheetDatabase.jsx';
-import { getIPOs } from '../services/integration';
+import { getIPOs, deleteIPO } from '../services/integration';
+import { useLoading } from '../context/LoadingContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import {
   Menu,
   Home,
   Calculator,
-  Search
+  Search,
+  Trash2
 } from 'lucide-react';
 import './Dashboard.css';
 import { normalizeOrderType } from '../utils/orderType';
@@ -141,6 +152,9 @@ const Dashboard = () => {
   const [selectedIpoForDerivedCNS, setSelectedIpoForDerivedCNS] = useState(null);
   const [specStepHint, setSpecStepHint] = useState(null); // { flowPhase, currentStep }
   const [existingCompanyEssentials, setExistingCompanyEssentials] = useState([]);
+  const [ipoToDelete, setIpoToDelete] = useState(null);
+  const [isDeletingIpo, setIsDeletingIpo] = useState(false);
+  const [ipoDeleteError, setIpoDeleteError] = useState('');
   const [showCalculator, setShowCalculator] = useState(false);
   const [calcInput, setCalcInput] = useState('');
   const [calcResult, setCalcResult] = useState('0');
@@ -148,6 +162,8 @@ const Dashboard = () => {
   const [editingVendor, setEditingVendor] = useState(null);
   const profileMenuRef = useRef(null);
   const calculatorRef = useRef(null);
+  const sidebarLoadedOnceRef = useRef(false);
+  const { showLoading, hideLoading } = useLoading();
   const sidebarRef = useRef(null);
   const hoverPanelRef = useRef(null);
 
@@ -543,32 +559,85 @@ const Dashboard = () => {
     }
   };
 
-  const loadSidebarData = async () => {
-    try {
-      const response = await getIPOs();
-      const ipos = response?.results || response?.data || response || [];
-      const normalized = Array.isArray(ipos)
-        ? ipos.map((ipo) => ({
-          ipoId: ipo.id || ipo.ipoId || null,
-          ipoCode: ipo.ipo_code || ipo.ipoCode || '',
-          orderType: normalizeOrderType(ipo.order_type || ipo.orderType || ''),
-          buyerCode: ipo.buyer_code_text || ipo.buyerCode || '',
-          type: ipo.company_type || ipo.type || '',
-          programName: ipo.program_name || ipo.programName || '',
-          poSrNo: ipo.po_sr_no || ipo.poSrNo || 1,
-          createdAt: ipo.created_at || ipo.createdAt || '',
-        }))
-        : [];
-      setExistingIPOs(normalized);
-      localStorage.setItem('internalPurchaseOrders', JSON.stringify(normalized));
-    } catch (e) {
-      setExistingIPOs([]);
+  const requestDeleteIpo = (ipo) => {
+    if (!ipo) return;
+    setIpoDeleteError('');
+    setIpoToDelete(ipo);
+  };
+
+  const cancelDeleteIpo = () => {
+    if (isDeletingIpo) return;
+    setIpoToDelete(null);
+    setIpoDeleteError('');
+  };
+
+  const confirmDeleteIpo = async () => {
+    if (!ipoToDelete) return;
+    const targetId = ipoToDelete.ipoId || ipoToDelete.id;
+    if (!targetId) {
+      setIpoDeleteError('Cannot delete this IPO: missing identifier.');
+      return;
     }
+    setIsDeletingIpo(true);
+    setIpoDeleteError('');
     try {
-      const storedEssentials = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
-      setExistingCompanyEssentials(storedEssentials);
-    } catch (e) {
-      setExistingCompanyEssentials([]);
+      await deleteIPO(targetId);
+      const deletedCode = ipoToDelete.ipoCode || ipoToDelete.code || '';
+      setIpoToDelete(null);
+      setHoveredSubmenu(null);
+      setHoveredMenu(null);
+      if (selectedIpoForCNS && (selectedIpoForCNS.ipoId === targetId || selectedIpoForCNS.ipoCode === deletedCode)) {
+        setSelectedIpoForCNS(null);
+      }
+      if (selectedIpoForSpec && (selectedIpoForSpec.ipoId === targetId || selectedIpoForSpec.ipoCode === deletedCode)) {
+        setSelectedIpoForSpec(null);
+      }
+      if (selectedIpoForDerivedCNS && (selectedIpoForDerivedCNS.ipoId === targetId || selectedIpoForDerivedCNS.ipoCode === deletedCode)) {
+        setSelectedIpoForDerivedCNS(null);
+      }
+      await loadSidebarData();
+      window.dispatchEvent(new Event('internalPurchaseOrdersUpdated'));
+    } catch (error) {
+      console.error('Failed to delete IPO:', error);
+      setIpoDeleteError(error?.message || error?.detail || 'Failed to delete IPO. Please try again.');
+    } finally {
+      setIsDeletingIpo(false);
+    }
+  };
+
+  const loadSidebarData = async () => {
+    const showOverlay = !sidebarLoadedOnceRef.current;
+    if (showOverlay) showLoading();
+    try {
+      try {
+        const response = await getIPOs();
+        const ipos = response?.results || response?.data || response || [];
+        const normalized = Array.isArray(ipos)
+          ? ipos.map((ipo) => ({
+            ipoId: ipo.id || ipo.ipoId || null,
+            ipoCode: ipo.ipo_code || ipo.ipoCode || '',
+            orderType: normalizeOrderType(ipo.order_type || ipo.orderType || ''),
+            buyerCode: ipo.buyer_code_text || ipo.buyerCode || '',
+            type: ipo.company_type || ipo.type || '',
+            programName: ipo.program_name || ipo.programName || '',
+            poSrNo: ipo.po_sr_no || ipo.poSrNo || 1,
+            createdAt: ipo.created_at || ipo.createdAt || '',
+          }))
+          : [];
+        setExistingIPOs(normalized);
+        localStorage.setItem('internalPurchaseOrders', JSON.stringify(normalized));
+      } catch (e) {
+        setExistingIPOs([]);
+      }
+      try {
+        const storedEssentials = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
+        setExistingCompanyEssentials(storedEssentials);
+      } catch (e) {
+        setExistingCompanyEssentials([]);
+      }
+    } finally {
+      sidebarLoadedOnceRef.current = true;
+      if (showOverlay) hideLoading();
     }
   };
 
@@ -850,6 +919,14 @@ const Dashboard = () => {
                   onClick={() => openCnsLeaf(activeIpo)}
                 >
                   IPO Master CNS
+                </button>
+                <button
+                  type="button"
+                  className="hover-panel-item hover-panel-item--danger"
+                  onClick={() => requestDeleteIpo(activeIpo)}
+                >
+                  <Trash2 size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                  Delete IPO
                 </button>
               </div>
             </div>
@@ -1388,7 +1465,38 @@ const Dashboard = () => {
           ))}
         </nav>
         
-        <div className="sidebar-footer" />
+        <div className="sidebar-footer" ref={profileMenuRef}>
+          <button
+            type="button"
+            className="sidebar-profile"
+            onClick={() => setShowProfileMenu((prev) => !prev)}
+            aria-label="Open profile menu"
+          >
+            <span className="user-avatar">
+              {displayName?.charAt(0)?.toUpperCase() || 'U'}
+            </span>
+            <span className="profile-username">{displayName}</span>
+          </button>
+          {showProfileMenu && (
+            <div className="profile-menu profile-menu--sidebar">
+              <div className="profile-menu-header">
+                {showEmailLine && <div className="profile-menu-email">{user.email}</div>}
+              </div>
+              <div className="profile-menu-divider" />
+              <Link to="/company-profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
+                Profile
+              </Link>
+              <div className="profile-menu-divider" />
+              <Link to="/profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
+                Master Panel
+              </Link>
+              <div className="profile-menu-divider" />
+              <button type="button" className="profile-menu-logout" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </aside>
 
       <main className="main-content">
@@ -1396,7 +1504,7 @@ const Dashboard = () => {
           <div className="top-bar-left">
             <h2 className="page-title">{companyDisplayName} Dashboard</h2>
           </div>
-          <div className="top-bar-right" ref={profileMenuRef}>
+          <div className="top-bar-right">
             <button
               type="button"
               className="calculator-trigger"
@@ -1408,36 +1516,6 @@ const Dashboard = () => {
             >
               <Calculator size={18} />
             </button>
-            <span className="profile-username">{displayName}</span>
-            <button
-              type="button"
-              className="profile-trigger"
-              onClick={() => setShowProfileMenu((prev) => !prev)}
-              aria-label="Open profile menu"
-            >
-              <span className="user-avatar">
-                {displayName?.charAt(0)?.toUpperCase() || 'U'}
-              </span>
-            </button>
-            {showProfileMenu && (
-              <div className="profile-menu">
-                <div className="profile-menu-header">
-                  {showEmailLine && <div className="profile-menu-email">{user.email}</div>}
-                </div>
-                <div className="profile-menu-divider" />
-                <Link to="/company-profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
-                  Profile
-                </Link>
-                <div className="profile-menu-divider" />
-                <Link to="/profile" className="profile-menu-item" style={{ display: 'block', padding: '8px 12px', textDecoration: 'none', color: 'inherit' }} onClick={() => setShowProfileMenu(false)}>
-                  Master Panel
-                </Link>
-                <div className="profile-menu-divider" />
-                <button type="button" className="profile-menu-logout" onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
-            )}
           </div>
         </header>
         {showCalculator && (
@@ -1542,6 +1620,50 @@ const Dashboard = () => {
         </div>
       </main>
       </div>
+      <Dialog
+        open={!!ipoToDelete}
+        onOpenChange={(open) => {
+          if (!open) cancelDeleteIpo();
+        }}
+      >
+        <DialogContent
+          className="sm:max-w-md"
+          style={{ padding: '28px 32px', gap: '20px' }}
+          showCloseButton={!isDeletingIpo}
+        >
+          <DialogHeader className="gap-3" style={{ paddingRight: '24px' }}>
+            <DialogTitle>Delete IPO?</DialogTitle>
+            <DialogDescription className="leading-relaxed">
+              This will permanently delete{' '}
+              <span className="font-semibold text-foreground">
+                {ipoToDelete?.ipoCode || ipoToDelete?.code || 'this IPO'}
+              </span>
+              . This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {ipoDeleteError && (
+            <div className="text-sm text-destructive">{ipoDeleteError}</div>
+          )}
+          <DialogFooter className="gap-3 sm:gap-3" style={{ paddingTop: '8px' }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={cancelDeleteIpo}
+              disabled={isDeletingIpo}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDeleteIpo}
+              disabled={isDeletingIpo}
+            >
+              {isDeletingIpo ? 'Deleting…' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarContext.Provider>
   );
 };

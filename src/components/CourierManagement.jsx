@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ChevronDown } from 'lucide-react';
 import { FullscreenContent, FormCard, FormRow } from '@/components/ui/form-layout';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -11,6 +13,7 @@ import {
 import { getCurrentUser } from '../api/authService';
 import { uploadToBlob } from '../services/blobUpload';
 import { normalizeOrderType } from '../utils/orderType';
+import { useLoading } from '../context/LoadingContext';
 import './CourierManagement.css';
 
 const COURIER_STORAGE_KEY = 'imsCourierRecords';
@@ -41,12 +44,43 @@ const SAMPLE_AS_OPTIONS = {
   ],
 };
 
+const DIMENSION_UNIT_OPTIONS = ['CM', 'Inch'];
+const DIMENSIONAL_WEIGHT_DIVISOR = 5000;
+
+const computeDimensionalWeight = (length, width, height) => {
+  const l = parseFloat(length);
+  const w = parseFloat(width);
+  const h = parseFloat(height);
+  if (!Number.isFinite(l) || !Number.isFinite(w) || !Number.isFinite(h)) return '';
+  if (l <= 0 || w <= 0 || h <= 0) return '';
+  return ((l * w * h) / DIMENSIONAL_WEIGHT_DIVISOR).toFixed(2);
+};
+
+const buildBoxRows = (count, previousRows = []) => {
+  const total = Math.max(0, parseInt(count, 10) || 0);
+  if (total === 0) return [];
+  const rows = [];
+  for (let i = 0; i < total; i += 1) {
+    const prior = previousRows[i] || {};
+    rows.push({
+      srNo: i + 1,
+      length: prior.length ?? '',
+      width: prior.width ?? '',
+      height: prior.height ?? '',
+      weight: prior.weight ?? '',
+    });
+  }
+  return rows;
+};
+
 const INITIAL_SLIP_STATE = {
   ipoType: '',
   ipoCode: '',
   sampleAs: '',
   sampleAsOtherText: '',
+  dimensionUnit: 'CM',
   boxesPackets: '',
+  boxRows: [],
   droppedBy: '',
   handedBy: '',
 };
@@ -93,7 +127,25 @@ const normalizeStoredCourierRecord = (item = {}) => {
     companyType: item.companyType || item.company_type || item.type || '',
     sampleAs: item.sampleAs || item.sample_as || '',
     sampleAsOtherText: item.sampleAsOtherText || item.sample_as_other_text || '',
+    dimensionUnit: item.dimensionUnit || item.dimension_unit || 'CM',
     boxesPackets: toStringValue(item.boxesPackets ?? item.boxes_packets),
+    boxRows: (() => {
+      const raw = item.boxRows ?? item.box_rows ?? [];
+      const arr = Array.isArray(raw) ? raw : [];
+      // Backwards-compat: legacy slips stored a single L/W/H at the top level
+      // and only `weight` per row. Seed each row's L/W/H from those legacy
+      // fields if present, so old records still display dimensions.
+      const legacyL = toStringValue(item.dimensionLength ?? item.dimension_length);
+      const legacyW = toStringValue(item.dimensionWidth ?? item.dimension_width);
+      const legacyH = toStringValue(item.dimensionHeight ?? item.dimension_height);
+      return arr.map((row, idx) => ({
+        srNo: row?.srNo ?? row?.sr_no ?? idx + 1,
+        length: toStringValue(row?.length ?? row?.length_value ?? legacyL),
+        width: toStringValue(row?.width ?? row?.width_value ?? legacyW),
+        height: toStringValue(row?.height ?? row?.height_value ?? legacyH),
+        weight: toStringValue(row?.weight),
+      }));
+    })(),
     attachImageRefUrl: item.attachImageRefUrl || item.attach_image_ref_url || '',
     attachImageRefName: item.attachImageRefName || item.attach_image_ref_name || '',
     droppedBy: item.droppedBy || item.dropped_by || '',
@@ -237,7 +289,9 @@ const mapFetchedCourierRecord = (item = {}, fallbackRecord = {}) => {
     companyType: item.company_type || item.companyType || item.type || fallback.companyType,
     sampleAs: item.sample_as || item.sampleAs || fallback.sampleAs,
     sampleAsOtherText: item.sample_as_other_text || item.sampleAsOtherText || fallback.sampleAsOtherText,
+    dimensionUnit: item.dimension_unit || item.dimensionUnit || fallback.dimensionUnit || 'CM',
     boxesPackets: item.boxes_packets ?? item.boxesPackets ?? fallback.boxesPackets,
+    boxRows: item.box_rows ?? item.boxRows ?? fallback.boxRows,
     attachImageRefUrl: item.attach_image_ref_url || item.attachImageRefUrl || fallback.attachImageRefUrl,
     attachImageRefName: item.attach_image_ref_name || item.attachImageRefName || fallback.attachImageRefName,
     droppedBy: item.dropped_by || item.droppedBy || fallback.droppedBy,
@@ -326,7 +380,17 @@ const toCourierApiPayload = (record) => ({
   company_type: record.companyType || '',
   sample_as: record.sampleAs,
   sample_as_other_text: record.sampleAsOtherText || '',
+  dimension_unit: record.dimensionUnit || 'CM',
   boxes_packets: record.boxesPackets || '',
+  box_rows: Array.isArray(record.boxRows)
+    ? record.boxRows.map((row, idx) => ({
+        sr_no: row?.srNo ?? idx + 1,
+        length: row?.length || '',
+        width: row?.width || '',
+        height: row?.height || '',
+        weight: row?.weight || '',
+      }))
+    : [],
   attach_image_ref_url: record.attachImageRefUrl || '',
   attach_image_ref_name: record.attachImageRefName || '',
   dropped_by: record.droppedBy || '',
@@ -339,6 +403,102 @@ const toCourierApiPayload = (record) => ({
   handover_to: record.handoverTo || '',
   contact: record.contact || '',
 });
+
+// Click-only popup select. Same UX as a native <select> but the popup is
+// portal-rendered so its width is sized to the content, not the trigger —
+// fixes Firefox cutting off long IPO codes.
+const PopupSelect = ({
+  value,
+  onChange,
+  options = [], // [{ value, label }]
+  placeholder = 'Select…',
+  disabled = false,
+  className = '',
+}) => {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0, minWidth: 0 });
+  const triggerRef = useRef(null);
+
+  const updatePosition = () => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setPos({ top: rect.bottom + 4, left: rect.left, minWidth: rect.width });
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+    const handleClickOutside = (event) => {
+      if (triggerRef.current && triggerRef.current.contains(event.target)) return;
+      const popup = document.querySelector('[data-popup-select]');
+      if (popup && popup.contains(event.target)) return;
+      setOpen(false);
+    };
+    const handleKey = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
+  const selected = options.find((opt) => opt.value === value);
+
+  return (
+    <>
+      <button
+        type="button"
+        ref={triggerRef}
+        disabled={disabled}
+        className={`courier-select courier-popup-trigger ${className}`}
+        onClick={() => {
+          if (disabled) return;
+          setOpen((prev) => !prev);
+        }}
+      >
+        <span className="courier-popup-trigger-label">
+          {selected ? selected.label : <span className="courier-popup-placeholder">{placeholder}</span>}
+        </span>
+        <ChevronDown size={16} className="courier-popup-chevron" />
+      </button>
+      {open &&
+        createPortal(
+          <div
+            data-popup-select
+            className="courier-popup-menu"
+            style={{ top: pos.top, left: pos.left, minWidth: pos.minWidth }}
+          >
+            {options.length === 0 ? (
+              <div className="courier-popup-empty">No options</div>
+            ) : (
+              options.map((opt) => (
+                <button
+                  type="button"
+                  key={opt.value}
+                  className={`courier-popup-option ${opt.value === value ? 'is-selected' : ''}`}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))
+            )}
+          </div>,
+          document.body
+        )}
+    </>
+  );
+};
 
 const CourierManagement = ({ mode = 'slip' }) => {
   const isSlipMode = mode === 'slip';
@@ -356,6 +516,7 @@ const CourierManagement = ({ mode = 'slip' }) => {
   const [persistenceMode, setPersistenceMode] = useState('checking');
   const [slipMessage, setSlipMessage] = useState({ type: '', text: '' });
   const [companyInfo, setCompanyInfo] = useState(null);
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     recordsRef.current = records;
@@ -376,6 +537,7 @@ const CourierManagement = ({ mode = 'slip' }) => {
     let cancelled = false;
 
     const syncIpos = async () => {
+      showLoading();
       try {
         const response = await getIPOs();
         const rawItems = response?.results || response?.data || response || [];
@@ -393,6 +555,8 @@ const CourierManagement = ({ mode = 'slip' }) => {
         }
       } catch (error) {
         console.warn('Courier screen failed to refresh IPOs from API, using local cache:', error);
+      } finally {
+        hideLoading();
       }
 
       if (!cancelled) {
@@ -453,24 +617,29 @@ const CourierManagement = ({ mode = 'slip' }) => {
         setRecords(cachedRecords);
       }
 
-      const response = await listCourierRecords();
-      if (cancelled) return;
+      showLoading();
+      try {
+        const response = await listCourierRecords();
+        if (cancelled) return;
 
-      if (response.available) {
-        const apiRecords = extractCourierCollection(response.data)
-          .map((item) => mapFetchedCourierRecord(item))
-          .filter((record) => record.ipoCode || record.backendId);
-        const mergedRecords = mergeCourierRecords(apiRecords, cachedRecords);
-        recordsRef.current = mergedRecords;
-        setRecords(mergedRecords);
-        persistCourierRecords(mergedRecords);
-        setPersistenceMode('api');
-        return;
+        if (response.available) {
+          const apiRecords = extractCourierCollection(response.data)
+            .map((item) => mapFetchedCourierRecord(item))
+            .filter((record) => record.ipoCode || record.backendId);
+          const mergedRecords = mergeCourierRecords(apiRecords, cachedRecords);
+          recordsRef.current = mergedRecords;
+          setRecords(mergedRecords);
+          persistCourierRecords(mergedRecords);
+          setPersistenceMode('api');
+          return;
+        }
+
+        recordsRef.current = cachedRecords;
+        setRecords(cachedRecords);
+        setPersistenceMode('local');
+      } finally {
+        hideLoading();
       }
-
-      recordsRef.current = cachedRecords;
-      setRecords(cachedRecords);
-      setPersistenceMode('local');
     };
 
     loadCourierRecords();
@@ -546,7 +715,23 @@ const CourierManagement = ({ mode = 'slip' }) => {
 
   const handleSlipFieldChange = (field, value) => {
     setSlipMessage({ type: '', text: '' });
-    setSlipForm((current) => ({ ...current, [field]: value }));
+    setSlipForm((current) => {
+      const next = { ...current, [field]: value };
+      if (field === 'boxesPackets') {
+        next.boxRows = buildBoxRows(value, current.boxRows);
+      }
+      return next;
+    });
+  };
+
+  const handleBoxRowFieldChange = (index, field, value) => {
+    setSlipMessage({ type: '', text: '' });
+    setSlipForm((current) => {
+      const nextRows = current.boxRows.map((row, idx) =>
+        idx === index ? { ...row, [field]: value } : row
+      );
+      return { ...current, boxRows: nextRows };
+    });
   };
 
   const handleIpoTypeChange = (value) => {
@@ -620,7 +805,15 @@ const CourierManagement = ({ mode = 'slip' }) => {
         companyType: selectedIpo?.type || '',
         sampleAs: slipForm.sampleAs,
         sampleAsOtherText: requiresOtherText ? slipForm.sampleAsOtherText.trim() : '',
+        dimensionUnit: slipForm.dimensionUnit || 'CM',
         boxesPackets: slipForm.boxesPackets,
+        boxRows: slipForm.boxRows.map((row, idx) => ({
+          srNo: row.srNo ?? idx + 1,
+          length: row.length || '',
+          width: row.width || '',
+          height: row.height || '',
+          weight: row.weight || '',
+        })),
         attachImageRefUrl: uploadedImageUrl,
         attachImageRefName: selectedImageFile?.name || '',
         droppedBy: slipForm.droppedBy.trim(),
@@ -735,6 +928,35 @@ td{border:1px solid #000;padding:8px 10px;font-size:14px}
 <tr><td colspan="2" class="lbl">IPO NO.:</td><td colspan="4">${escapeHtml(record.ipoCode)}</td></tr>
 <tr><td colspan="2" class="lbl">COURIERTYPE:</td><td colspan="4">${sampleLabel}</td></tr>
 <tr><td colspan="2" class="lbl">BOXES/PACKETS:</td><td colspan="4">${escapeHtml(record.boxesPackets)}</td></tr>
+${
+  Array.isArray(record.boxRows) && record.boxRows.length > 0
+    ? `<tr><td colspan="6" style="padding:0">
+        <table style="width:100%;border:0;border-collapse:collapse">
+          <tr style="background:#f3f4f6">
+            <td style="border:1px solid #000;width:50px;font-weight:700">Sr No.</td>
+            <td style="border:1px solid #000;font-weight:700">L (${escapeHtml(record.dimensionUnit || 'CM')})</td>
+            <td style="border:1px solid #000;font-weight:700">W (${escapeHtml(record.dimensionUnit || 'CM')})</td>
+            <td style="border:1px solid #000;font-weight:700">H (${escapeHtml(record.dimensionUnit || 'CM')})</td>
+            <td style="border:1px solid #000;font-weight:700">Weight (kg)</td>
+            <td style="border:1px solid #000;font-weight:700">Dim. Wt. ((L×W×H)/5000)</td>
+          </tr>
+          ${record.boxRows
+            .map((row, idx) => {
+              const dimW = computeDimensionalWeight(row.length, row.width, row.height);
+              return `<tr>
+                <td style="border:1px solid #000">${escapeHtml(row.srNo ?? idx + 1)}</td>
+                <td style="border:1px solid #000">${escapeHtml(row.length || '-')}</td>
+                <td style="border:1px solid #000">${escapeHtml(row.width || '-')}</td>
+                <td style="border:1px solid #000">${escapeHtml(row.height || '-')}</td>
+                <td style="border:1px solid #000">${escapeHtml(row.weight || '-')}</td>
+                <td style="border:1px solid #000">${escapeHtml(dimW || '-')}</td>
+              </tr>`;
+            })
+            .join('')}
+        </table>
+      </td></tr>`
+    : ''
+}
 <tr>
   <td class="lbl">DROPPED BY:</td>
   <td class="sig-val">${escapeHtml(record.droppedBy)}</td>
@@ -790,157 +1012,276 @@ td{border:1px solid #000;padding:8px 10px;font-size:14px}
               </div>
             </div>
 
-            <FormRow className="courier-form-grid">
-              <Field label="Show IPO Type" required width="md">
-                <select
-                  className="courier-select"
-                  value={slipForm.ipoType}
-                  onChange={(event) => handleIpoTypeChange(event.target.value)}
+            <section className="courier-section">
+              <div className="courier-section-title">1 · IPO Selection</div>
+              <FormRow className="courier-form-grid">
+                <Field label="Show IPO Type" required>
+                  <select
+                    className="courier-select"
+                    value={slipForm.ipoType}
+                    onChange={(event) => handleIpoTypeChange(event.target.value)}
+                  >
+                    <option value="">Select IPO Type</option>
+                    {IPO_TYPE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                <Field
+                  label="IPO"
+                  required
+                  helper={
+                    slipForm.ipoType && filteredIpos.length === 0
+                      ? 'No IPOs are available for this IPO Type yet.'
+                      : 'Saved IPOs from IPO Management are listed here.'
+                  }
                 >
-                  <option value="">Select IPO Type</option>
-                  {IPO_TYPE_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field
-                label="IPO"
-                required
-                width="lg"
-                helper={
-                  slipForm.ipoType && filteredIpos.length === 0
-                    ? 'No IPOs are available for this IPO Type yet.'
-                    : 'Saved IPOs from IPO Management are listed here.'
-                }
-              >
-                <select
-                  className="courier-select"
-                  value={slipForm.ipoCode}
-                  disabled={!slipForm.ipoType || filteredIpos.length === 0}
-                  onChange={(event) => handleSlipFieldChange('ipoCode', event.target.value)}
-                >
-                  <option value="">
-                    {!slipForm.ipoType
-                      ? 'Select IPO Type first'
-                      : filteredIpos.length === 0
-                        ? 'No IPOs available'
-                        : 'Select IPO'}
-                  </option>
-                  {filteredIpos.map((ipo) => (
-                    <option key={ipo.ipoCode} value={ipo.ipoCode}>
-                      {ipo.ipoCode}
-                      {ipo.programName ? ` - ${ipo.programName}` : ''}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              {selectedIpo && (
-                <div className="courier-meta-strip courier-field-span">
-                  <span className="courier-meta-chip">IPO: {selectedIpo.ipoCode}</span>
-                  {selectedIpo.programName && (
-                    <span className="courier-meta-chip">Program: {selectedIpo.programName}</span>
-                  )}
-                  {selectedIpo.buyerCode && (
-                    <span className="courier-meta-chip">Buyer Code: {selectedIpo.buyerCode}</span>
-                  )}
-                  {selectedIpo.type && (
-                    <span className="courier-meta-chip">Company Type: {selectedIpo.type}</span>
-                  )}
-                </div>
-              )}
-
-              <Field label="Sample As" required width="md">
-                <select
-                  className="courier-select"
-                  value={slipForm.sampleAs}
-                  disabled={!slipForm.ipoType}
-                  onChange={(event) => handleSlipFieldChange('sampleAs', event.target.value)}
-                >
-                  <option value="">
-                    {!slipForm.ipoType ? 'Select IPO Type first' : 'Select Sample As'}
-                  </option>
-                  {sampleOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              {slipForm.sampleAs === 'OTHER_TEXT' && (
-                <Field label="Other Sample As" required width="md">
-                  <Input
-                    value={slipForm.sampleAsOtherText}
-                    onChange={(event) => handleSlipFieldChange('sampleAsOtherText', event.target.value)}
-                    placeholder="Enter custom sample type"
+                  <PopupSelect
+                    value={slipForm.ipoCode}
+                    onChange={(code) => handleSlipFieldChange('ipoCode', code)}
+                    disabled={!slipForm.ipoType || filteredIpos.length === 0}
+                    placeholder={
+                      !slipForm.ipoType
+                        ? 'Select IPO Type first'
+                        : filteredIpos.length === 0
+                          ? 'No IPOs available'
+                          : 'Select IPO'
+                    }
+                    options={filteredIpos.map((ipo) => ({
+                      value: ipo.ipoCode,
+                      label: ipo.programName ? `${ipo.ipoCode} - ${ipo.programName}` : ipo.ipoCode,
+                    }))}
                   />
                 </Field>
-              )}
 
-              <Field label="Boxes/Packets" width="md">
-                <Input
-                  inputMode="numeric"
-                  value={slipForm.boxesPackets}
-                  onChange={(event) =>
-                    handleSlipFieldChange('boxesPackets', event.target.value.replace(/\D/g, ''))
-                  }
-                  placeholder="Enter quantity"
-                />
-              </Field>
+                {selectedIpo && (
+                  <div className="courier-meta-strip courier-field-span">
+                    <span className="courier-meta-chip">IPO: {selectedIpo.ipoCode}</span>
+                    {selectedIpo.programName && (
+                      <span className="courier-meta-chip">Program: {selectedIpo.programName}</span>
+                    )}
+                    {selectedIpo.buyerCode && (
+                      <span className="courier-meta-chip">Buyer Code: {selectedIpo.buyerCode}</span>
+                    )}
+                    {selectedIpo.type && (
+                      <span className="courier-meta-chip">Company Type: {selectedIpo.type}</span>
+                    )}
+                  </div>
+                )}
+              </FormRow>
+            </section>
 
-              <Field label="Dropped By" width="md">
-                <Input
-                  value={slipForm.droppedBy}
-                  onChange={(event) => handleSlipFieldChange('droppedBy', event.target.value)}
-                  placeholder="Enter dropped by"
-                />
-              </Field>
+            <section className="courier-section">
+              <div className="courier-section-title">2 · Courier Type</div>
+              <FormRow className="courier-form-grid">
+                <Field label="Sample As" required>
+                  <select
+                    className="courier-select"
+                    value={slipForm.sampleAs}
+                    disabled={!slipForm.ipoType}
+                    onChange={(event) => handleSlipFieldChange('sampleAs', event.target.value)}
+                  >
+                    <option value="">
+                      {!slipForm.ipoType ? 'Select IPO Type first' : 'Select Sample As'}
+                    </option>
+                    {sampleOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
 
-              <Field label="Handed By" width="md">
-                <Input
-                  value={slipForm.handedBy}
-                  onChange={(event) => handleSlipFieldChange('handedBy', event.target.value)}
-                  placeholder="Enter handed by"
-                />
-              </Field>
+                {slipForm.sampleAs === 'OTHER_TEXT' && (
+                  <Field label="Other Sample As" required>
+                    <Input
+                      value={slipForm.sampleAsOtherText}
+                      onChange={(event) => handleSlipFieldChange('sampleAsOtherText', event.target.value)}
+                      placeholder="Enter custom sample type"
+                    />
+                  </Field>
+                )}
+              </FormRow>
+            </section>
 
-              <Field label="Attach Image Ref" width="lg">
-                <div className="courier-upload">
-                  <input
-                    key={imageInputKey}
-                    id="courier-image-upload"
-                    type="file"
-                    accept="image/*"
-                    className="courier-hidden-input"
-                    onChange={handleImageChange}
+            <section className="courier-section">
+              <div className="courier-section-title">3 · Package Details</div>
+              <FormRow className="courier-form-grid">
+                <Field label="Boxes/Packets">
+                  <Input
+                    inputMode="numeric"
+                    value={slipForm.boxesPackets}
+                    onChange={(event) =>
+                      handleSlipFieldChange('boxesPackets', event.target.value.replace(/\D/g, ''))
+                    }
+                    placeholder="Enter quantity"
                   />
-                  <label htmlFor="courier-image-upload" className="courier-upload-trigger">
-                    Upload Image Ref
-                  </label>
-                  {(selectedImageFile || imagePreviewUrl) && (
-                    <div className="courier-upload-preview">
-                      {imagePreviewUrl ? (
-                        <img src={imagePreviewUrl} alt="Courier reference preview" />
-                      ) : (
-                        <span className="courier-upload-fallback">No preview</span>
-                      )}
+                </Field>
+
+                <Field label="Dimension Unit">
+                  <select
+                    className="courier-select"
+                    value={slipForm.dimensionUnit}
+                    onChange={(event) => handleSlipFieldChange('dimensionUnit', event.target.value)}
+                  >
+                    {DIMENSION_UNIT_OPTIONS.map((unit) => (
+                      <option key={unit} value={unit}>
+                        {unit}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                {slipForm.boxRows.length > 0 && (
+                  <div className="courier-field-span" style={{ marginTop: 6 }}>
+                    <div className="courier-box-table-caption">
+                      Per-box details ({slipForm.boxRows.length}) — dimensions in {slipForm.dimensionUnit}
                     </div>
-                  )}
-                  {selectedImageFile && (
-                    <div className="courier-upload-meta">
-                      <span className="courier-upload-name">{selectedImageFile.name}</span>
-                      <button type="button" className="courier-clear-button" onClick={resetImageSelection}>
-                        Clear
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </Field>
-            </FormRow>
+                    <table className="courier-box-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: 64 }}>Sr No.</th>
+                          <th style={{ width: 110 }}>L ({slipForm.dimensionUnit})</th>
+                          <th style={{ width: 110 }}>W ({slipForm.dimensionUnit})</th>
+                          <th style={{ width: 110 }}>H ({slipForm.dimensionUnit})</th>
+                          <th style={{ width: 130 }}>Weight (kg)</th>
+                          <th>Dim. Weight ((L × W × H) / 5000)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {slipForm.boxRows.map((row, index) => {
+                          const dimWeight = computeDimensionalWeight(row.length, row.width, row.height);
+                          return (
+                            <tr key={`box-row-${index}`}>
+                              <td>{row.srNo}</td>
+                              <td className="compact">
+                                <Input
+                                  inputMode="decimal"
+                                  value={row.length}
+                                  onChange={(event) =>
+                                    handleBoxRowFieldChange(
+                                      index,
+                                      'length',
+                                      event.target.value.replace(/[^\d.]/g, '')
+                                    )
+                                  }
+                                  placeholder="L"
+                                />
+                              </td>
+                              <td className="compact">
+                                <Input
+                                  inputMode="decimal"
+                                  value={row.width}
+                                  onChange={(event) =>
+                                    handleBoxRowFieldChange(
+                                      index,
+                                      'width',
+                                      event.target.value.replace(/[^\d.]/g, '')
+                                    )
+                                  }
+                                  placeholder="W"
+                                />
+                              </td>
+                              <td className="compact">
+                                <Input
+                                  inputMode="decimal"
+                                  value={row.height}
+                                  onChange={(event) =>
+                                    handleBoxRowFieldChange(
+                                      index,
+                                      'height',
+                                      event.target.value.replace(/[^\d.]/g, '')
+                                    )
+                                  }
+                                  placeholder="H"
+                                />
+                              </td>
+                              <td className="compact">
+                                <Input
+                                  inputMode="decimal"
+                                  value={row.weight}
+                                  onChange={(event) =>
+                                    handleBoxRowFieldChange(
+                                      index,
+                                      'weight',
+                                      event.target.value.replace(/[^\d.]/g, '')
+                                    )
+                                  }
+                                  placeholder="0.00"
+                                />
+                              </td>
+                              <td className="computed">{dimWeight || '-'}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </FormRow>
+            </section>
+
+            <section className="courier-section">
+              <div className="courier-section-title">4 · Handover</div>
+              <FormRow className="courier-form-grid">
+                <Field label="Dropped By">
+                  <Input
+                    value={slipForm.droppedBy}
+                    onChange={(event) => handleSlipFieldChange('droppedBy', event.target.value)}
+                    placeholder="Enter dropped by"
+                  />
+                </Field>
+
+                <Field label="Handed By">
+                  <Input
+                    value={slipForm.handedBy}
+                    onChange={(event) => handleSlipFieldChange('handedBy', event.target.value)}
+                    placeholder="Enter handed by"
+                  />
+                </Field>
+              </FormRow>
+            </section>
+
+            <section className="courier-section">
+              <div className="courier-section-title">5 · Reference</div>
+              <FormRow className="courier-form-grid">
+                <Field label="Attach Image Ref" className="courier-field-span">
+                  <div className="courier-upload">
+                    <input
+                      key={imageInputKey}
+                      id="courier-image-upload"
+                      type="file"
+                      accept="image/*"
+                      className="courier-hidden-input"
+                      onChange={handleImageChange}
+                    />
+                    <label htmlFor="courier-image-upload" className="courier-upload-trigger">
+                      Upload Image Ref
+                    </label>
+                    {(selectedImageFile || imagePreviewUrl) && (
+                      <div className="courier-upload-preview">
+                        {imagePreviewUrl ? (
+                          <img src={imagePreviewUrl} alt="Courier reference preview" />
+                        ) : (
+                          <span className="courier-upload-fallback">No preview</span>
+                        )}
+                      </div>
+                    )}
+                    {selectedImageFile && (
+                      <div className="courier-upload-meta">
+                        <span className="courier-upload-name">{selectedImageFile.name}</span>
+                        <button type="button" className="courier-clear-button" onClick={resetImageSelection}>
+                          Clear
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </Field>
+              </FormRow>
+            </section>
 
             {slipMessage.text && (
               <div className={`courier-message ${slipMessage.type === 'error' ? 'error' : 'success'}`}>
@@ -1094,6 +1435,41 @@ td{border:1px solid #000;padding:8px 10px;font-size:14px}
                 <Field label="Boxes / Packets" width="md">
                   <Input value={record.boxesPackets || '-'} readOnly />
                 </Field>
+
+                {Array.isArray(record.boxRows) && record.boxRows.length > 0 && (
+                  <div style={{ width: '100%' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                      Per-box details — dimensions in {record.dimensionUnit || 'CM'}
+                    </div>
+                    <table className="courier-box-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: 64 }}>Sr No.</th>
+                          <th>L ({record.dimensionUnit || 'CM'})</th>
+                          <th>W ({record.dimensionUnit || 'CM'})</th>
+                          <th>H ({record.dimensionUnit || 'CM'})</th>
+                          <th>Weight (kg)</th>
+                          <th>Dim. Weight ((L × W × H) / 5000)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {record.boxRows.map((row, idx) => {
+                          const dimW = computeDimensionalWeight(row.length, row.width, row.height);
+                          return (
+                            <tr key={`master-box-${record.id}-${idx}`}>
+                              <td>{row.srNo ?? idx + 1}</td>
+                              <td>{row.length || '-'}</td>
+                              <td>{row.width || '-'}</td>
+                              <td>{row.height || '-'}</td>
+                              <td>{row.weight || '-'}</td>
+                              <td className="computed">{dimW || '-'}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
 
                 <Field label="Dispatch Date" width="md">
                   <Input

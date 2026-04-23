@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getInwardStoreSheets } from '../services/integration';
+import { useLoading } from '../context/LoadingContext';
 import './InwardStoreSheet.css';
 
 const InwardStoreSheetDatabase = ({ onBack, onOpenForm }) => {
@@ -7,9 +8,11 @@ const InwardStoreSheetDatabase = ({ onBack, onOpenForm }) => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState(null);
+  const { showLoading, hideLoading } = useLoading();
 
   const loadSheets = async () => {
     setLoading(true);
+    showLoading();
     try {
       const params = {};
       if (search.trim()) params.search = search.trim();
@@ -20,6 +23,7 @@ const InwardStoreSheetDatabase = ({ onBack, onOpenForm }) => {
       setSheets([]);
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 

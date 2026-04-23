@@ -1,8 +1,5 @@
 import { useRef, useEffect } from 'react';
 
-const ORANGE = '232, 118, 43';
-const DURATION = 15000;
-
 function icoRaw() {
   const t = (1 + Math.sqrt(5)) / 2;
   const v = [
@@ -73,13 +70,19 @@ function rot([x, y, z], rx, ry, rz) {
 }
 
 const SHAPES = [
-  { type: 'ico', r: 0.440, revs: [1, 2, 1] },
-  { type: 'oct', r: 0.312, revs: [2, 1, 2] },
-  { type: 'cub', r: 0.220, revs: [1, 3, 1] },
-  { type: 'dia', r: 0.165, revs: [2, 1, 2] },
+  { type: 'ico', r: 0.200, revs: [1, 2, 1] },
+  { type: 'oct', r: 0.142, revs: [2, 1, 2] },
+  { type: 'cub', r: 0.100, revs: [1, 3, 1] },
+  { type: 'dia', r: 0.075, revs: [2, 1, 2] },
 ];
 
-const PolyhedraButton = ({ size = 64, onClick, isOpen }) => {
+const PolyhedraAnimation = ({
+  size = 380,
+  color = '232, 118, 43',
+  duration = 15000,
+  className = '',
+  style = {},
+}) => {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
 
@@ -103,7 +106,7 @@ const PolyhedraButton = ({ size = 64, onClick, isOpen }) => {
 
     function draw(now) {
       const elapsed = now - startTime;
-      const rotT = reduceMotion ? 0 : (elapsed % DURATION) / DURATION;
+      const rotT = reduceMotion ? 0 : (elapsed % duration) / duration;
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -113,8 +116,8 @@ const PolyhedraButton = ({ size = 64, onClick, isOpen }) => {
 
       const pulseR = Math.sin(now * 0.001) * (size * 0.017) + size * 0.067;
       const grd = ctx.createRadialGradient(px, py, 0, px, py, pulseR * 4);
-      grd.addColorStop(0, `rgba(${ORANGE},0.12)`);
-      grd.addColorStop(1, `rgba(${ORANGE},0)`);
+      grd.addColorStop(0, `rgba(${color},0.12)`);
+      grd.addColorStop(1, `rgba(${color},0)`);
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, size, size);
 
@@ -148,7 +151,7 @@ const PolyhedraButton = ({ size = 64, onClick, isOpen }) => {
       });
 
       faces.sort((a, b) => a.z - b.z);
-      ctx.fillStyle = `rgba(${ORANGE},0.04)`;
+      ctx.fillStyle = `rgba(${color},0.04)`;
       faces.forEach(f => {
         ctx.beginPath();
         ctx.moveTo(f.p[0].x, f.p[0].y);
@@ -164,20 +167,20 @@ const PolyhedraButton = ({ size = 64, onClick, isOpen }) => {
         ctx.moveTo(e.a.x, e.a.y);
         ctx.lineTo(e.b.x, e.b.y);
         ctx.lineWidth = strokeOuter;
-        ctx.strokeStyle = `rgba(${ORANGE},0.1)`;
+        ctx.strokeStyle = `rgba(${color},0.1)`;
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(e.a.x, e.a.y);
         ctx.lineTo(e.b.x, e.b.y);
         ctx.lineWidth = strokeInner;
-        ctx.strokeStyle = `rgba(${ORANGE},0.78)`;
+        ctx.strokeStyle = `rgba(${color},0.78)`;
         ctx.stroke();
       });
 
       verts.forEach(v => {
         const rg = ctx.createRadialGradient(v.x, v.y, 0, v.x, v.y, vertR);
-        rg.addColorStop(0, `rgba(${ORANGE},0.3)`);
-        rg.addColorStop(1, `rgba(${ORANGE},0)`);
+        rg.addColorStop(0, `rgba(${color},0.3)`);
+        rg.addColorStop(1, `rgba(${color},0)`);
         ctx.fillStyle = rg;
         ctx.beginPath();
         ctx.arc(v.x, v.y, vertR, 0, Math.PI * 2);
@@ -189,22 +192,15 @@ const PolyhedraButton = ({ size = 64, onClick, isOpen }) => {
 
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [size]);
+  }, [size, color, duration]);
 
   return (
-    <button
-      className={`polyhedra-chat-btn${isOpen ? ' open' : ''}`}
-      onClick={onClick}
-      aria-label={isOpen ? 'Close chat' : 'Open chat'}
-      type="button"
-      style={{ width: size, height: size }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{ width: size, height: size, display: 'block' }}
-      />
-    </button>
+    <canvas
+      ref={canvasRef}
+      className={className}
+      style={{ width: size, height: size, display: 'block', ...style }}
+    />
   );
 };
 
-export default PolyhedraButton;
+export default PolyhedraAnimation;

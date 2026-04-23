@@ -5883,6 +5883,7 @@ import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFa
 import { replaceFilesWithBlobUrls, uploadToBlob } from '../../services/blobUpload';
 import { scrollToFirstError } from '@/utils/scrollToFirstError';
 import { hydrateSkusFromFactoryCodes, mergeDraftOverCommitted } from './utils/hydrateFromCommitted';
+import { useLoading } from '../../context/LoadingContext';
 import {
   buildWizardPayload as buildWizardPayloadUtil,
   cleanArtworkFilesForWizard,
@@ -6078,6 +6079,7 @@ const GenerateFactoryCode = ({
   highlightOnMount = false,
 }) => {
   const { isSidebarCollapsed } = useSidebar();
+  const { showLoading, hideLoading } = useLoading();
   const scrollContainerRef = useRef(null);
   const [overlayLeft, setOverlayLeft] = useState(
     typeof window !== 'undefined' && window.innerWidth >= 768
@@ -6633,6 +6635,15 @@ const GenerateFactoryCode = ({
 
   useEffect(() => {
     let cancelled = false;
+    showLoading();
+    const _perfStart = performance.now();
+    const _perfMarks = {};
+    let _perfPrev = _perfStart;
+    const _mark = (name) => {
+      const now = performance.now();
+      _perfMarks[name] = +(now - _perfPrev).toFixed(1);
+      _perfPrev = now;
+    };
     (async () => {
       const norm = (v) => String(v ?? '').trim().toLowerCase();
       const hasInitialFromIPO = initialFormData?.ipoCode || (initialFormData?.programName && (initialFormData?.buyerCode || initialFormData?.type));
@@ -6697,6 +6708,7 @@ const GenerateFactoryCode = ({
       // draft. The draft (if present) is the richer source of truth; the
       // committed rows fill gaps — e.g. artwork-spec blob URLs that the draft
       // dropped when serializing File objects.
+      _mark('setup');
       const ipoId = initialFormData?.ipoId || null;
       const [draftRes, committedRes] = await Promise.all([
         getFactoryCodeDraft(ipoId).catch((e) => {
@@ -6710,6 +6722,7 @@ const GenerateFactoryCode = ({
             })
           : Promise.resolve(null),
       ]);
+      _mark('api_parallel');
 
       if (cancelled) return;
 
@@ -6718,6 +6731,7 @@ const GenerateFactoryCode = ({
       const committedSkus = Array.isArray(committedRows)
         ? hydrateSkusFromFactoryCodes(committedRows)
         : [];
+      _mark('hydrate_committed');
 
       const draft = draftRes?.payload;
       const draftUsable = draft && (
@@ -6727,11 +6741,23 @@ const GenerateFactoryCode = ({
 
       if (draftUsable && isDraftMatchingCurrentIPO(draft)) {
         const data = normalizeFactoryCodePayloadStiffenerPlys({ ...draft });
+        _mark('normalize_draft');
         rehydrateImages(data);
+        _mark('rehydrate_images');
         if (committedSkus.length) {
           data.skus = mergeDraftOverCommitted(data.skus || [], committedSkus);
+          _mark('merge_committed');
         }
         setFormData((prev) => ({ ...prev, ...data }));
+        _mark('setFormData');
+        console.log('[IPC Spec perf]', {
+          ipoId,
+          path: 'draft',
+          totalMs: +(performance.now() - _perfStart).toFixed(1),
+          marks: _perfMarks,
+          draftKb: draft ? +(JSON.stringify(draft).length / 1024).toFixed(1) : 0,
+          committedRows: committedRows.length,
+        });
         return;
       }
 
@@ -6739,14 +6765,23 @@ const GenerateFactoryCode = ({
       // cross-user scenario) before trying the stale localStorage cache.
       if (committedSkus.length) {
         setFormData((prev) => ({ ...prev, skus: committedSkus }));
+        _mark('setFormData');
+        console.log('[IPC Spec perf]', {
+          ipoId,
+          path: 'committed',
+          totalMs: +(performance.now() - _perfStart).toFixed(1),
+          marks: _perfMarks,
+          committedRows: committedRows.length,
+        });
         return;
       }
 
       // Final fallback: localStorage cache (legacy / offline).
-      let savedData = loadFromLocalStorage(initialFormData?.ipoCode);
-      if (!savedData && initialFormData?.ipoCode) {
-        savedData = loadFromLocalStorage(null);
-      }
+      // When an IPO is in context, load ONLY the IPO-specific key. We never
+      // fall back to the generic `factoryCodeFormData` key because it holds
+      // the last-saved draft from any IPO and would leak SKUs/subproducts
+      // from a previously-edited IPO into a newly-opened one.
+      const savedData = loadFromLocalStorage(initialFormData?.ipoCode);
       if (!savedData) return;
 
       if (!hasInitialFromIPO) {
@@ -6754,18 +6789,16 @@ const GenerateFactoryCode = ({
         return;
       }
 
+      // The IPO-specific key already scopes the cache to this IPO; the
+      // equality check is a safety net against caches written by older
+      // versions of the app.
       const ipoMatch = !initialFormData?.ipoCode || (savedData.ipoCode && norm(savedData.ipoCode) === norm(initialFormData.ipoCode));
-      const programMatch = norm(savedData.programName) === norm(initialFormData.programName);
-      const contextMatch = initialFormData.orderType === 'Company'
-        ? norm(savedData.type) === norm(initialFormData.type)
-        : norm(savedData.buyerCode) === norm(initialFormData.buyerCode);
-
-      if (ipoMatch && programMatch && contextMatch) {
-        setFormData((prev) => ({ ...prev, ...savedData }));
-      } else if (ipoMatch) {
+      if (ipoMatch) {
         setFormData((prev) => ({ ...prev, ...savedData }));
       }
-    })();
+    })().finally(() => {
+      hideLoading();
+    });
     return () => { cancelled = true; };
   }, []);
 
@@ -11902,6 +11935,8 @@ const GenerateFactoryCode = ({
                         return;
                       }
 
+                      showLoading();
+                      try {
                       // ─── SAVE ALL IPCs (all SKUs + subproducts) TO DATABASE ───
                       // The shared util sanitizes empty scaffold rows,
                       // coerces types, and renames keys so the backend
@@ -12064,6 +12099,9 @@ const GenerateFactoryCode = ({
                       await saveToLocalStorage(latestFormDataRef.current);
 
                       setShowFactoryCodePopup(true);
+                      } finally {
+                        hideLoading();
+                      }
                     }}
                   >
                     Generate Factory Code

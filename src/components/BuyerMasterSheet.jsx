@@ -3,6 +3,7 @@ import { FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getBuyerCodes, getBuyerMasterSheet, deleteBuyerCode } from '../services/integration';
+import { useLoading } from '../context/LoadingContext';
 
 const hasValue = (value) => {
   if (Array.isArray(value)) return value.length > 0;
@@ -25,6 +26,7 @@ const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
   const [selectedBuyer, setSelectedBuyer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { showLoading, hideLoading } = useLoading();
 
   const normalizeBuyer = (b) => ({
     id: b.id || b.code || '',
@@ -38,6 +40,7 @@ const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
 
   useEffect(() => {
     const fetchBuyers = async () => {
+      showLoading();
       try {
         setLoading(true);
         setError(null);
@@ -95,6 +98,7 @@ const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
         setBuyers(storedBuyers.map(b => normalizeBuyer(b)));
       } finally {
         setLoading(false);
+        hideLoading();
       }
     };
 

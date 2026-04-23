@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ConsumptionSheet from '../GenerateFactoryCode/components/ConsumptionSheet';
 import { getFactoryCodeDraft } from '../../services/integration';
+import { useLoading } from '../../context/LoadingContext';
 
 const STORAGE_KEY = 'factoryCodeFormData';
 const storageKey = (ipoCode) => (ipoCode ? `${STORAGE_KEY}:${ipoCode}` : STORAGE_KEY);
@@ -57,6 +58,7 @@ const IPODerivedCNS = ({ ipo, onNavigateToSpec }) => {
   const [editMode, setEditMode] = useState(false);
   const [showShareSuccess, setShowShareSuccess] = useState(false);
   const consumptionSheetRef = useRef(null);
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     let cancelled = false;
@@ -75,6 +77,7 @@ const IPODerivedCNS = ({ ipo, onNavigateToSpec }) => {
     }
 
     setLoading(true);
+    showLoading();
     (async () => {
       try {
         const res = await getFactoryCodeDraft();
@@ -89,6 +92,7 @@ const IPODerivedCNS = ({ ipo, onNavigateToSpec }) => {
         if (!cancelled) setError(e?.message || 'Failed to load derived consumption sheet.');
       } finally {
         if (!cancelled) setLoading(false);
+        hideLoading();
       }
     })();
 

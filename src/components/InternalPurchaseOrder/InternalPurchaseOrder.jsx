@@ -9,6 +9,7 @@ import { FormCard, FullscreenContent } from '@/components/ui/form-layout';
 import { getIPOs, createIPO, updateIPO, getBuyerCodes } from '../../services/integration';
 import { normalizeOrderType, toOrderTypeApiValue } from '../../utils/orderType';
 import { scrollToFirstError } from '@/utils/scrollToFirstError';
+import { useLoading } from '../../context/LoadingContext';
 
 const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToIPO, initialOpenIpo = null, specMode = 'create', initialFlowPhase, initialCurrentStep, initialSkuId, highlightOnMount = false }) => {
   const isSpecMode = specMode === 'spec';
@@ -51,6 +52,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   });
   const [buyerCodeOptions, setBuyerCodeOptions] = useState([]);
   const [errors, setErrors] = useState({});
+  const { showLoading, hideLoading } = useLoading();
 
   const mapIpoResponseItem = (item) => ({
     ipoId: item.id || item.ipoId || null,
@@ -74,10 +76,13 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
 
   useEffect(() => {
     const loadIPOs = async () => {
+      showLoading();
       try {
         await syncIposFromApi();
       } catch (error) {
         console.warn('Failed to load IPOs from API:', error);
+      } finally {
+        hideLoading();
       }
     };
     loadIPOs();
