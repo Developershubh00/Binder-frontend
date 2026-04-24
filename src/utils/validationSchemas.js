@@ -122,12 +122,17 @@ export const WORK_ORDER_SCHEMAS = {
     fieldLabels: WORK_ORDER_DATE_LABELS
   },
   'FRINGE/TASSELS': {
-    required: ['fringeType', 'fringeMaterial', 'dropLength', 'tapeHeaderWidth', 'fringeColour', 'fringePlacement', 'fringeQtyType', 'fringeTestingRequirements', 'fringeSurplus', 'fringeWastage', 'fringeApproval', 'fringeRemarks', ...WORK_ORDER_DATE_FIELDS],
+    // fringeMaterial and tapeHeaderWidth are only applicable when the attachment
+    // method isn't "Self-Knotted (through-fabric)" — the form hides those two
+    // fields in that mode, so validation must skip them too. See conditional below.
+    required: ['fringeType', 'fringeAttachmentMethod', 'dropLength', 'fringeColour', 'fringePlacement', 'fringeQtyType', 'fringeTestingRequirements', 'fringeSurplus', 'fringeWastage', 'fringeApproval', 'fringeRemarks', ...WORK_ORDER_DATE_FIELDS],
     advanced: ['fringeColourRefImage', 'fringePlacementRefImage', 'fringeFinish', 'fringeConstruction'],
     fieldLabels: WORK_ORDER_DATE_LABELS,
     conditional: {
       'fringeQtyPcs': { when: 'fringeQtyType', equals: 'PCS' },
-      'fringeQtyCnsPerPc': { when: 'fringeQtyType', equals: 'LENGTH' }
+      'fringeQtyCnsPerPc': { when: 'fringeQtyType', equals: 'LENGTH' },
+      'fringeMaterial': { when: 'fringeAttachmentMethod', notEquals: 'Self-Knotted (through-fabric)' },
+      'tapeHeaderWidth': { when: 'fringeAttachmentMethod', notEquals: 'Self-Knotted (through-fabric)' }
     }
   },
   'DYEING': {
@@ -704,9 +709,12 @@ export const isEmpty = (value) => {
  */
 export const shouldValidateConditional = (condition, material) => {
   if (!condition) return false;
-  
+
   if (condition.equals !== undefined) {
     return material[condition.when] === condition.equals;
+  }
+  if (condition.notEquals !== undefined) {
+    return material[condition.when] !== condition.notEquals;
   }
   if (condition.notEmpty !== undefined) {
     return !isEmpty(material[condition.when]);

@@ -7180,6 +7180,86 @@ const GenerateFactoryCode = ({
     addSku();
   };
 
+  // Duplicate an existing SKU (with all its subproducts and stepData) into a
+  // brand-new IPC slot. The clone is fully independent — later edits to either
+  // side don't bleed across — and backend-assigned `id`s are stripped so the
+  // duplicate is persisted as a new factory-code row instead of updating the
+  // source.
+  const duplicateSku = (sourceSkuIndex) => {
+    const cloneValue = (val) => {
+      if (val == null) return val;
+      if (typeof File !== 'undefined' && val instanceof File) return val;
+      if (Array.isArray(val)) return val.map(cloneValue);
+      if (typeof val === 'object') {
+        const out = {};
+        for (const k of Object.keys(val)) {
+          if (k === 'id') continue;
+          out[k] = cloneValue(val[k]);
+        }
+        return out;
+      }
+      return val;
+    };
+
+    setFormData(prev => {
+      const source = prev.skus?.[sourceSkuIndex];
+      if (!source) return prev;
+
+      const cloned = cloneValue(source);
+      // Compute the next IPC number using the soon-to-be-updated length.
+      const newSkus = [...prev.skus, cloned];
+      const newIpcNumber = newSkus.length;
+
+      // Preserve the buyer/PO prefix from the source's ipc code and replace
+      // the trailing IPC-N (and any /SP-N) with the new position.
+      const srcCode = source.ipcCode || '';
+      const prefixMatch = srcCode.match(/^(.*\/IPC-)\d+(?:\/SP-\d+)?$/);
+      const prefix = prefixMatch
+        ? prefixMatch[1]
+        : (srcCode ? `${srcCode.replace(/\/IPC-\d+.*$/, '')}/IPC-` : 'IPC-');
+      cloned.ipcCode = `${prefix}${newIpcNumber}`;
+      (cloned.subproducts || []).forEach((sp, idx) => {
+        sp.ipcCode = `${cloned.ipcCode}/SP-${idx + 1}`;
+      });
+
+      return { ...prev, skus: newSkus };
+    });
+
+    // Persist the draft so the duplicate survives a reload before the user
+    // commits via Generate Factory Code.
+    setTimeout(() => saveCurrentFormState(), 0);
+  };
+
+  // Remove an IPC (SKU) from the IPC Selector. Used as an undo for accidental
+  // duplicates. Keeps at least one IPC in the wizard, since downstream steps
+  // assume skus[0] exists. Remaining IPC codes are left as-is — renumbering
+  // would invalidate codes already committed to the backend for this IPO.
+  const removeSkuAtIndex = (skuIndex) => {
+    setFormData(prev => {
+      if (!prev.skus || prev.skus.length <= 1) return prev;
+      return { ...prev, skus: prev.skus.filter((_, i) => i !== skuIndex) };
+    });
+
+    // If the removed IPC was the one selected, or selection pointed past the
+    // removed index, adjust so selectedSku stays valid.
+    setSelectedSku(prevSel => {
+      if (typeof prevSel !== 'string') return 'product_0';
+      const parts = prevSel.split('_');
+      const selIdx = parseInt(parts[1]);
+      if (Number.isNaN(selIdx)) return 'product_0';
+      if (parts[0] === 'product') {
+        if (selIdx === skuIndex) return 'product_0';
+        if (selIdx > skuIndex) return `product_${selIdx - 1}`;
+      } else if (parts[0] === 'subproduct') {
+        if (selIdx === skuIndex) return 'product_0';
+        if (selIdx > skuIndex) return `subproduct_${selIdx - 1}_${parts[2]}`;
+      }
+      return prevSel;
+    });
+
+    setTimeout(() => saveCurrentFormState(), 0);
+  };
+
   // Subproduct handlers
   const addSubproduct = (skuIndex) => {
     setStep0Saved(false); // Adding subproduct invalidates saved state
@@ -7324,11 +7404,23 @@ const GenerateFactoryCode = ({
     },
   });
 
+  // Back-fills any missing sections on a stepData object (products / artworkMaterials /
+  // packaging / etc.) using the initial scaffold. Covers hydrated rows that arrive
+  // without a Cut & Sew block and freshly-added IPCs whose stepData was created
+  // before the Cut & Sew shape was finalized.
+  const ensureStepDataShape = (stepData) => {
+    const initial = getInitialStepData();
+    if (!stepData) return initial;
+    const hasProducts = Array.isArray(stepData.products) && stepData.products.length > 0;
+    if (hasProducts) return stepData;
+    return { ...initial, ...stepData, products: initial.products };
+  };
+
   // Helper functions to get/set selected SKU's step data
   const getSelectedSkuStepData = () => {
     const parsed = parseSelectedSku();
     const sku = formData.skus[parsed.skuIndex];
-    
+
     if (!sku) {
       return null;
     }
@@ -7336,27 +7428,9 @@ const GenerateFactoryCode = ({
     // For subproducts, get their stepData, otherwise get SKU's stepData
     if (parsed.type === 'subproduct' && sku.subproducts && sku.subproducts[parsed.subproductIndex]) {
       const subproduct = sku.subproducts[parsed.subproductIndex];
-      if (!subproduct.stepData) {
-        // Initialize stepData if it doesn't exist
-      const updatedSkus = [...formData.skus];
-        updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex].stepData = getInitialStepData();
-        setFormData(prev => ({ ...prev, skus: updatedSkus }));
-        return getInitialStepData();
-      }
-      return subproduct.stepData;
-    } else {
-      // For products, use SKU's stepData
-      if (!sku.stepData) {
-        const updatedSkus = [...formData.skus];
-        updatedSkus[parsed.skuIndex] = {
-          ...updatedSkus[parsed.skuIndex],
-        stepData: getInitialStepData()
-      };
-      setFormData(prev => ({ ...prev, skus: updatedSkus }));
-      return getInitialStepData();
+      return ensureStepDataShape(subproduct.stepData);
     }
-      return sku.stepData;
-    }
+    return ensureStepDataShape(sku.stepData);
   };
 
   const updateSelectedSkuStepData = (updater) => {
@@ -7364,33 +7438,22 @@ const GenerateFactoryCode = ({
       const parsed = parseSelectedSku();
       const updatedSkus = [...prev.skus];
       if (!updatedSkus[parsed.skuIndex]) return prev;
-      
+
       if (parsed.type === 'subproduct' && updatedSkus[parsed.skuIndex].subproducts) {
         const subproduct = updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex];
         if (!subproduct) return prev;
-      
-        // Ensure stepData exists for subproduct
-        if (!subproduct.stepData) {
-          subproduct.stepData = getInitialStepData();
-        }
-        
-        // Update subproduct's stepData
+
         updatedSkus[parsed.skuIndex].subproducts[parsed.subproductIndex] = {
           ...subproduct,
-          stepData: updater(subproduct.stepData || getInitialStepData())
+          stepData: updater(ensureStepDataShape(subproduct.stepData))
         };
       } else {
-        // For products, update SKU's stepData
-        if (!updatedSkus[parsed.skuIndex].stepData) {
-          updatedSkus[parsed.skuIndex].stepData = getInitialStepData();
-        }
-        
         updatedSkus[parsed.skuIndex] = {
           ...updatedSkus[parsed.skuIndex],
-          stepData: updater(updatedSkus[parsed.skuIndex].stepData || getInitialStepData())
-      };
+          stepData: updater(ensureStepDataShape(updatedSkus[parsed.skuIndex].stepData))
+        };
       }
-      
+
       return { ...prev, skus: updatedSkus };
     });
   };
@@ -11219,33 +11282,77 @@ const GenerateFactoryCode = ({
             const sublabel = item.type === 'product'
               ? `${item.sku.sku || ''} - ${item.sku.product || ''}`
               : `${item.sku.sku || ''} - ${item.subproduct.subproduct || ''}`;
+            const openIpc = () => {
+              setShowPackagingBlockPrompt(false);
+              setSelectedSku(item.id);
+              setFlowPhase('ipcFlow');
+              setCurrentStep(0);
+              setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+            };
             return (
-              <button
+              <div
                 key={item.id}
-                type="button"
-                onClick={() => {
-                  setShowPackagingBlockPrompt(false);
-                  setSelectedSku(item.id);
-                  setFlowPhase('ipcFlow');
-                  setCurrentStep(0);
-                  setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+                role="button"
+                tabIndex={0}
+                onClick={openIpc}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openIpc();
+                  }
                 }}
                 className={cn(
-                  'w-full flex items-center justify-between gap-4 rounded-xl border text-left transition-colors',
+                  'w-full flex items-center justify-between gap-4 rounded-xl border text-left transition-colors cursor-pointer',
                   'border-border hover:bg-muted/50 hover:border-primary/50'
                 )}
                 style={{ padding: '20px 24px' }}
               >
-                <div>
+                <div className="min-w-0">
                   <div className="font-semibold text-foreground">{label}</div>
                   <div className="text-sm text-muted-foreground truncate">{sublabel}</div>
                 </div>
-                <div className="flex gap-3 text-xs shrink-0">
-                  <span className={comp.cut ? 'text-green-600 font-medium' : 'text-muted-foreground'}>Cut {comp.cut ? '✓' : '○'}</span>
-                  <span className={comp.raw ? 'text-green-600 font-medium' : 'text-muted-foreground'}>BOM & WIP {comp.raw ? '✓' : '○'}</span>
-                  <span className={comp.artwork ? 'text-green-600 font-medium' : 'text-muted-foreground'}>Artwork {comp.artwork ? '✓' : '○'}</span>
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="flex gap-3 text-xs">
+                    <span className={comp.cut ? 'text-green-600 font-medium' : 'text-muted-foreground'}>Cut {comp.cut ? '✓' : '○'}</span>
+                    <span className={comp.raw ? 'text-green-600 font-medium' : 'text-muted-foreground'}>BOM & WIP {comp.raw ? '✓' : '○'}</span>
+                    <span className={comp.artwork ? 'text-green-600 font-medium' : 'text-muted-foreground'}>Artwork {comp.artwork ? '✓' : '○'}</span>
+                  </div>
+                  {item.type === 'product' && (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          duplicateSku(item.skuIndex);
+                        }}
+                        title="Create a copy of this IPC with all its data"
+                      >
+                        Duplicate IPC
+                      </Button>
+                      {formData.skus.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:text-destructive border-destructive/40 hover:border-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const confirmMsg = `Remove ${item.sku.ipcCode || `IPC-${item.skuIndex + 1}`}? This will delete all its data and cannot be undone.`;
+                            if (window.confirm(confirmMsg)) {
+                              removeSkuAtIndex(item.skuIndex);
+                            }
+                          }}
+                          title="Remove this IPC"
+                        >
+                          Remove IPC
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
