@@ -366,7 +366,8 @@ const buildFoamRowsFromDerived = (formData) => {
       const cutting = (comp && comp.cuttingSize) || {};
       const netLength = pickFloat({ v: cutting.length }, ['v']);
       const netWidth = pickFloat({ v: cutting.width }, ['v']);
-      const gsm = pickFirst(rm, ['gsm', 'foamGsm', 'GSM']);
+      // GSM comes from the Cut & Sew Spec component (same source as fiber & trim).
+      const gsm = comp ? pickFirst(comp, ['gsm', 'GSM', 'componentGsm']) : null;
       const foamNetWeightGrams = netWeightGramsFromBom(rm);
       rows.push({
         id: `derived-foam-${ipcCode}-${idx}-${normKey(description)}`,
@@ -415,7 +416,14 @@ const buildTrimRowsFromDerived = (formData) => {
         m.material_name ||
         m.trimAccessory ||
         '';
-      const componentName = m.componentName || m.component_name || '';
+      // Step 2 raw materials store the component on `componentName`; Step 3
+      // consumption materials store it on `components` (string or array).
+      const rawComponent =
+        m.componentName ||
+        m.component_name ||
+        (Array.isArray(m.components) ? m.components[0] : m.components) ||
+        '';
+      const componentName = String(rawComponent || '').trim();
       const comp = findComponentInStep(stepdata, componentName);
       const cutting = (comp && comp.cuttingSize) || {};
       const netLength = pickFloat({ v: cutting.length }, ['v']);
@@ -452,6 +460,160 @@ const buildTrimRowsFromDerived = (formData) => {
         gross_wastage_width: getDyeingShrinkageWidth(m),
         gsm,
         unit,
+      });
+    });
+  });
+  return rows;
+};
+
+// Artwork & Labeling rows from the Derived CNS Sheet.
+// One row per non-empty artworkMaterial in each SKU/subproduct.
+//   artwork_label        → "<artworkCategory>-IPC-<n>"
+//   overage_qty          → SKU poQty × (1 + overagePercentage/100)
+//   cns_pc               → component.cuttingSize.consumption (Cut & Sew Spec)
+//   net_length_cns_pc    → component.cuttingSize.length
+//   net_width_cns_pc     → component.cuttingSize.width
+//   gross_wastage_pc     → compound of all wastage/surplus values on the artwork row
+//   gross_wastage_length → compound wastage from the matching component's RM
+//   gross_wastage_width  → DYEING shrinkageWidthPercent on that RM (0 if none)
+//   unit                 → artwork material's `unit` field
+// Map each artwork category to the field-name prefix the Artwork & Labelling
+// form uses for its category-specific QTY and QTY UNIT inputs (e.g. for
+// "LABELS (BRAND/MAIN)" the unit lives on `labelsBrandQtyUnit`).
+const ARTWORK_CATEGORY_FIELD_PREFIX = {
+  'LABELS (BRAND/MAIN)': 'labelsBrand',
+  'CARE & COMPOSITION': 'careComposition',
+  'RFID / SECURITY TAGS': 'rfid',
+  'LAW LABEL / CONTENTS TAG': 'lawLabel',
+  'HANG TAG SEALS / STRINGS': 'hangTagSeals',
+  'HEAT TRANSFER LABELS': 'heatTransfer',
+  'UPC LABEL / BARCODE STICKER': 'upcBarcode',
+  'PRICE TICKET / BARCODE TAG': 'priceTicket',
+  'ANTI-COUNTERFEIT & HOLOGRAMS': 'antiCounterfeit',
+  'QC / INSPECTION LABELS': 'qcInspection',
+  'BELLY BAND / WRAPPER': 'bellyBand',
+  'SIZE LABELS (INDIVIDUAL)': 'sizeLabels',
+  'TAGS & SPECIAL LABELS': 'tagsSpecialLabels',
+  'FLAMMABILITY / SAFETY LABELS': 'flammabilitySafety',
+  'INSERT CARDS': 'insertCards',
+  'HEADER CARD': 'headerCard',
+  'RIBBONS': 'ribbons',
+};
+
+const getArtworkUnit = (am, category) => {
+  const prefix = ARTWORK_CATEGORY_FIELD_PREFIX[category];
+  if (prefix) {
+    const v = am?.[`${prefix}QtyUnit`];
+    if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+  }
+  return am?.unit || '';
+};
+
+// CNS/PC for an artwork row — same value the Derived Consumption Sheet shows.
+// Mirrors ConsumptionSheet.getArtworkEffectiveNetCns: pulls the category's
+// own Qty field and, for HEADER CARD only, divides by casepack qty.
+const getArtworkCnsPc = (am, category) => {
+  const prefix = ARTWORK_CATEGORY_FIELD_PREFIX[category];
+  let raw = null;
+  if (prefix) {
+    raw = am?.[`${prefix}Qty`];
+  }
+  if (raw === undefined || raw === null || raw === '') {
+    raw = am?.lengthQuantity;
+  }
+  const qty = pickFloat({ v: raw }, ['v']);
+  if (qty === null) return null;
+  if (category === 'HEADER CARD') {
+    const casepack = pickFloat({ v: am?.headerCardCasepackQty }, ['v']);
+    if (casepack && casepack > 0) return qty / casepack;
+  }
+  return qty;
+};
+
+// True when the artwork material carries something beyond the category
+// dropdown — picking a category alone shouldn't create a row in the table
+// (matches the validation skip rule in GenerateFactoryCode).
+const artworkRowHasSubstance = (am) => {
+  const f = (k) => String(am?.[k] || '').trim();
+  if (f('componentName') || f('component_name')) return true;
+  const comps = am?.components;
+  if (Array.isArray(comps) ? comps.some((c) => String(c || '').trim()) : f('components')) return true;
+  return Boolean(f('materialDescription') || f('placement') || f('unit') || f('workOrder'));
+};
+
+const buildArtworkRowsFromDerived = (formData) => {
+  if (!formData || typeof formData !== 'object') return [];
+  const rows = [];
+  const seen = new Set();
+  forEachStepData(formData, (stepdata, ipcCode, overage) => {
+    (stepdata?.artworkMaterials || []).forEach((am, idx) => {
+      if (!am || typeof am !== 'object') return;
+      const category = (am.artworkCategory || am.artwork_category || '').toString().trim();
+      if (!category) return;
+      // Scaffold rows (category set, nothing else) shouldn't appear as a row.
+      if (!artworkRowHasSubstance(am)) return;
+      // Pull "IPC-n" out of the full IPC code (e.g. CHD/103A/PO-1/IPC-1 → IPC-1).
+      const ipcMatch = String(ipcCode).match(/IPC-(\d+)/i);
+      const ipcLabel = ipcMatch ? `IPC-${ipcMatch[1]}` : (ipcCode || 'IPC-?');
+      const artworkLabel = `${category}-${ipcLabel}`;
+
+      const rawComponent =
+        am.componentName ||
+        am.component_name ||
+        (Array.isArray(am.components) ? am.components[0] : am.components) ||
+        '';
+      const componentName = String(rawComponent || '').trim();
+      const comp = findComponentInStep(stepdata, componentName);
+      const cutting = (comp && comp.cuttingSize) || {};
+      // CNS/PC matches the Derived CNS Sheet — pull from the category's own
+      // Qty field on the artwork material (with HEADER CARD casepack division).
+      const cnsPc = getArtworkCnsPc(am, category);
+      const netLength = pickFloat({ v: cutting.length }, ['v']);
+      const netWidth = pickFloat({ v: cutting.width }, ['v']);
+
+      // "Respective component" gross wastage: compound from the first RM whose
+      // componentName matches this artwork's component. DYEING shrinkage too.
+      const matchingRm = (stepdata?.rawMaterials || []).find((rm) => {
+        const rmComp = String(rm?.componentName || rm?.component_name || '').trim();
+        return rmComp.toLowerCase() === componentName.toLowerCase();
+      });
+      const grossWastageLength = matchingRm ? derivedGrossWastagePct(matchingRm) : 0;
+      const grossWastageWidth = matchingRm ? getDyeingShrinkageWidth(matchingRm) : 0;
+
+      // Per-PC wastage from the artwork form (compound of all wastage/surplus
+      // fields on the artwork material — covers generic + category-specific keys).
+      const grossWastagePc = derivedGrossWastagePct(am);
+
+      // Dedupe: same IPC + same artwork label + same component + same material
+      // description should only render one row. Guards against the wizard
+      // saving both a scaffold and a real entry under the same category.
+      const dedupeKey = [
+        normKey(ipcCode),
+        normKey(artworkLabel),
+        normKey(componentName),
+        normKey(am.materialDescription),
+      ].join('::');
+      if (seen.has(dedupeKey)) return;
+      seen.add(dedupeKey);
+
+      rows.push({
+        id: `derived-artwork-${ipcCode}-${idx}-${normKey(category)}`,
+        ipc: ipcCode,
+        component: componentName,
+        material_type: category,
+        material_description: am.materialDescription || '',
+        artwork_label: artworkLabel,
+        overage_qty: overage,
+        overage_qty_pcs: overage,
+        cns_pc: cnsPc,
+        net_length_cns_pc: netLength,
+        net_width_cns_pc: netWidth,
+        gross_wastage_pc: grossWastagePc,
+        gross_wastage_length: grossWastageLength,
+        gross_wastage_width: grossWastageWidth,
+        // Unit comes from the category-specific QtyUnit field on the artwork
+        // form (e.g., labelsBrandQtyUnit for "LABELS (BRAND/MAIN)").
+        unit: getArtworkUnit(am, category),
       });
     });
   });
@@ -866,7 +1028,12 @@ const FOAM_COLUMNS = [
   { key: 'overage_qty', header: 'Overage QTY', align: 'right',
     render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
   { key: 'gsm', header: 'GSM', align: 'right',
-    render: (r) => formatNumber(r.gsm, { decimals: 2 }) },
+    render: (r) => {
+      const v = r.gsm;
+      if (v === null || v === undefined || v === '') return '-';
+      const n = Number(v);
+      return Number.isFinite(n) ? n.toFixed(2) : String(v);
+    } },
   { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
     render: (r) => formatNumber(r.net_length_cns_pc) },
   { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
@@ -915,6 +1082,65 @@ const FOAM_COLUMNS = [
     } },
 ];
 
+const ARTWORK_COLUMNS = [
+  { key: 'artwork_label', header: 'Artwork/Label', align: 'left',
+    render: (r) => r.artwork_label || r.material_type || '-' },
+  { key: 'overage_qty', header: 'Overage Quantity', align: 'right',
+    render: (r) => formatNumber(r.overage_qty ?? r.overage_qty_pcs, { decimals: 2 }) },
+  { key: 'cns_pc', header: 'CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.cns_pc) },
+  { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_length_cns_pc) },
+  { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(r.net_width_cns_pc) },
+  { key: 'gross_wastage_pc', header: 'Gross Wastage/PC', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_pc, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_wastage_length', header: 'Gross Wastage Length', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_wastage_width', header: 'Gross Wastage Width', align: 'right',
+    render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
+  { key: 'gross_length_cns_pc', header: 'Gross Length CNS/PC', align: 'right',
+    render: (r) => formatNumber(grossLengthPc(r)) },
+  { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
+    render: (r) => formatNumber(grossWidthPc(r)) },
+  { key: 'purchase_width', header: 'Purchase Width', align: 'right',
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const scopePurchase = fabricPurchaseWidthTotal(r, ctx);
+      const scopeGross = fabricGrossWidthCns(r, ctx);
+      const invalid = Number.isFinite(scopePurchase) && Number.isFinite(scopeGross)
+        && scopePurchase > 0 && scopePurchase <= scopeGross;
+      if (ctx?.isClub) {
+        return (
+          <span
+            style={{ fontWeight: 600, color: invalid ? '#dc2626' : undefined }}
+            title={invalid ? 'Purchase Width sum must be greater than Gross Width CNS' : undefined}
+          >
+            {formatNumber(scopePurchase, { decimals: 2 })}
+          </span>
+        );
+      }
+      return <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} invalid={invalid} />;
+    } },
+  { key: 'unit', header: 'Unit', align: 'left',
+    render: (r) => r.unit || '-' },
+  { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
+    aggregatedInClub: true,
+    render: (r, ctx) => formatNumber(grossLengthCnsAggregated(r, ctx), { decimals: 2 }) },
+  { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_length_qty" ctx={ctx} /> },
+  { key: 'gross_qty_pcs', header: 'Gross QTY PCS', align: 'right',
+    render: (r) => {
+      // Gross QTY PCS = Overage Quantity × (1 + Gross Wastage/PC % / 100)
+      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
+      if (!Number.isFinite(overage)) return '-';
+      const w = toNum(r.gross_wastage_pc);
+      return formatNumber(overage * (1 + (Number.isFinite(w) ? w : 0) / 100), { decimals: 2 });
+    } },
+  { key: 'purchase_qty_pcs', header: 'Purchase QTY PCS', align: 'right',
+    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_qty_pcs" ctx={ctx} /> },
+];
+
 const SUBTAB_CONFIG = {
   yarn:   { columns: YARN_COLUMNS,   showSrNumber: false, ipcAfterSelect: false },
   fabric: { columns: FABRIC_COLUMNS, showSrNumber: false, ipcAfterSelect: false },
@@ -922,6 +1148,9 @@ const SUBTAB_CONFIG = {
   fiber:  { columns: FIBER_COLUMNS,  showSrNumber: true,  ipcAfterSelect: true  },
   foam:   { columns: FOAM_COLUMNS,   showSrNumber: true,  ipcAfterSelect: true  },
 };
+
+// Layout for the Artwork & Labeling tab (no subtabs).
+const ARTWORK_TAB_CONFIG = { columns: ARTWORK_COLUMNS, showSrNumber: true, ipcAfterSelect: true };
 
 const IPOMasterCNS = ({ ipo }) => {
   const [activeTab, setActiveTab] = useState('raw_material');
@@ -1033,6 +1262,10 @@ const IPOMasterCNS = ({ ipo }) => {
     () => buildTrimRowsFromDerived(derivedFormData),
     [derivedFormData]
   );
+  const artworkRowsFromDerived = useMemo(
+    () => buildArtworkRowsFromDerived(derivedFormData),
+    [derivedFormData]
+  );
 
   // Debug snapshot shown only on Yarn subtab when no rows resolve. Lets us
   // see whether derivedFormData loaded at all, how many SKUs / rawMaterials
@@ -1075,6 +1308,8 @@ const IPOMasterCNS = ({ ipo }) => {
   }, [ipo?.ipoCode, ipo?.code, ipo?.ipoId, ipo?.id, derivedFormData, yarnRowsFromDerived]);
 
   const rows = useMemo(() => {
+    // Artwork & Labeling — sourced from the Derived Sheet's artworkMaterials.
+    if (activeTab === 'artwork_labeling') return artworkRowsFromDerived;
     if (activeTab !== 'raw_material') return data ? data[activeTab] || [] : [];
     // Yarn and Fabric are sourced directly from the Derived CNS Sheet, matched
     // by IPC + component + material description. Bypasses backend material_type
@@ -1088,11 +1323,13 @@ const IPOMasterCNS = ({ ipo }) => {
     const sub = RAW_SUBTABS.find((s) => s.key === rawSubtab);
     if (!sub) return all;
     return all.filter((r) => sub.matches(String(r.material_type || '')));
-  }, [data, activeTab, rawSubtab, yarnRowsFromDerived, fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived]);
+  }, [data, activeTab, rawSubtab, yarnRowsFromDerived, fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived, artworkRowsFromDerived]);
 
-  const subtabConfig = SUBTAB_CONFIG[rawSubtab] || SUBTAB_CONFIG.yarn;
-  const columns = subtabConfig.columns;
-  const { showSrNumber, ipcAfterSelect } = subtabConfig;
+  const activeConfig = activeTab === 'artwork_labeling'
+    ? ARTWORK_TAB_CONFIG
+    : (SUBTAB_CONFIG[rawSubtab] || SUBTAB_CONFIG.yarn);
+  const columns = activeConfig.columns;
+  const { showSrNumber, ipcAfterSelect } = activeConfig;
   const totalCols = columns.length + 5 + (showSrNumber ? 1 : 0);
 
   const clubbedIdSet = useMemo(() => {
@@ -1165,8 +1402,9 @@ const IPOMasterCNS = ({ ipo }) => {
       + fabricRowsFromDerived.length
       + fiberRowsFromDerived.length
       + foamRowsFromDerived.length
-      + trimRowsFromDerived.length;
-  }, [data, yarnRowsFromDerived, fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived]);
+      + trimRowsFromDerived.length
+      + artworkRowsFromDerived.length;
+  }, [data, yarnRowsFromDerived, fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived, artworkRowsFromDerived]);
 
   const normalizeDesc = (d) => String(d || '').trim().toLowerCase();
 
@@ -1382,7 +1620,7 @@ const IPOMasterCNS = ({ ipo }) => {
         </div>
       )}
 
-      {activeTab === 'artwork_labeling' || activeTab === 'packaging' ? (
+      {activeTab === 'packaging' ? (
         <FormCard className="rounded-2xl border-border bg-muted" style={{ padding: 32, textAlign: 'center' }}>
           <div style={{ fontSize: 18, fontWeight: 600, color: '#6b7280' }}>In Progress</div>
         </FormCard>
