@@ -7881,6 +7881,14 @@ const GenerateFactoryCode = ({
           yarnDoublingOptions: '',
           yarnPlyOptions: ''
         };
+      } else if (field === 'trimAccessory') {
+        // Buttons are always counted in pieces; auto-set the unit so the user
+        // doesn't have to. Other trim types leave the existing unit untouched.
+        const next = { ...material, trimAccessory: value };
+        if (String(value).toUpperCase().trim() === 'BUTTONS') {
+          next.unit = 'PCS';
+        }
+        updatedRawMaterials[materialIndex] = next;
       } else {
         updatedRawMaterials[materialIndex] = {
           ...material,
@@ -9054,6 +9062,12 @@ const GenerateFactoryCode = ({
           // Clear common fields
           testingRequirement: '', testingRequirementFile: null, lengthQuantity: '', buyersInitialIpp: '', unitAdditional: '',
         };
+        // Auto-set unit to PCS when the trim type is BUTTONS — buttons are
+        // always counted in pieces, so prefilling avoids the user picking it
+        // each time. Switching to a different trim leaves the unit untouched.
+        if (String(value).toUpperCase().trim() === 'BUTTONS') {
+          clearedMaterial.unit = 'PCS';
+        }
         updatedMaterials[materialIndex] = clearedMaterial;
       } else {
         // Handle nested fields like size.width, size.length, etc.
@@ -9622,8 +9636,15 @@ const GenerateFactoryCode = ({
   };
 
   // Single source of truth: artwork material "has data" (aligns completion with validation)
+  //
+  // `artworkCategory` alone does NOT count as "has data" — picking a category
+  // from the dropdown without filling anything else (which can happen via an
+  // accidental click or a default) shouldn't force the whole schema to validate
+  // and block the user from advancing when they don't need artwork at all. The
+  // moment the user fills component / description / placement / etc., the row
+  // is treated as in-progress and the category-specific schema kicks in.
   const artworkMaterialHasData = (m) =>
-    !!(m?.components?.trim() || m?.artworkCategory?.trim() || m?.materialDescription?.trim() ||
+    !!(m?.components?.trim() || m?.materialDescription?.trim() ||
        m?.unit?.trim() || m?.placement?.trim() || m?.workOrder?.trim());
 
   // Validate only artwork materials for a given component (for per-component Save)

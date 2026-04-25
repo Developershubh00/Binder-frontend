@@ -35,7 +35,7 @@ import {
 } from '../../data/textileFabricHelpers';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import SearchableDropdown from '../SearchableDropdown';
-import { UNIT_OPTIONS } from '../../constants/unitOptions';
+import { UNIT_OPTIONS, UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import TrimAccessoryFields from '../TrimAccessoryFields';
 import { 
   FIBER_CATEGORIES, 
@@ -670,7 +670,14 @@ const Step2 = ({
                     onChange={(selectedValue) => {
                       handleRawMaterialChange(actualIndex, 'unit', selectedValue);
                     }}
-                    options={UNIT_OPTIONS}
+                    // Trim & Accessory rows can be counted in pieces (e.g. BUTTONS),
+                    // so include PCS in their unit list. Other material types
+                    // (Fabric / Fiber / Foam / Yarn) keep CM and KGS only.
+                    options={
+                      material.materialType === 'Trim & Accessory'
+                        ? UNIT_OPTIONS_WITH_PCS
+                        : UNIT_OPTIONS
+                    }
                     placeholder="Select unit"
                     placeholderDim
                     className={errors[`rawMaterial_${actualIndex}_unit`] ? 'border-destructive' : ''}

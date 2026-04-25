@@ -124,6 +124,69 @@ const computeSkuOverage = (poQty, overagePct) => {
 };
 
 const isYarnType = (mt) => /yarn|thread/i.test(String(mt || ''));
+const isFabricType = (mt) => /fabric/i.test(String(mt || ''));
+const isFiberType = (mt) => /fiber|fibre/i.test(String(mt || ''));
+const isFoamType = (mt) => /foam/i.test(String(mt || ''));
+const isTrimType = (mt) => /trim|accessory|accessor/i.test(String(mt || ''));
+
+// Pick the first non-blank value out of several candidate field names.
+const pickFirst = (rm, keys) => {
+  for (const k of keys) {
+    const v = rm?.[k];
+    if (v !== undefined && v !== null && v !== '' && v !== false) return v;
+  }
+  return null;
+};
+const pickFloat = (rm, keys) => {
+  const raw = pickFirst(rm, keys);
+  if (raw === null) return null;
+  const n = parseFloat(String(raw).replace(/[^0-9.\-]/g, ''));
+  return Number.isFinite(n) ? n : null;
+};
+
+// Net Weight CNS/PC in grams: BOM & WIP netConsumption × 1000 when unit is KGS,
+// otherwise 0. Used by fiber & foam subtabs.
+const netWeightGramsFromBom = (rm) => {
+  const unit = String(rm?.unit || rm?.consumptionUnit || '').toUpperCase().trim();
+  if (unit !== 'KGS' && unit !== 'KG') return 0;
+  const net = pickFloat(rm, ['netConsumption', 'net_consumption', 'consumption']);
+  return net !== null ? net * 1000 : 0;
+};
+
+// Locate the component definition in Step-1 products/components by name.
+// Cutting size (length/width) lives on that component.
+const findComponentInStep = (stepdata, componentName) => {
+  if (!componentName) return null;
+  const target = normKey(componentName);
+  for (const prod of stepdata?.products || []) {
+    if (!prod) continue;
+    for (const comp of prod.components || []) {
+      if (!comp) continue;
+      const name = comp.productComforter || comp.name || '';
+      if (normKey(name) === target) return comp;
+    }
+  }
+  return null;
+};
+
+// Pull shrinkageWidthPercent from the fabric material's DYEING work order.
+// Returns 0 when no DYEING work order exists.
+const getDyeingShrinkageWidth = (rm) => {
+  for (const wo of rm?.workOrders || []) {
+    if (!wo) continue;
+    const woType = String(wo.workOrder || wo.work_order || '').toUpperCase();
+    if (woType !== 'DYEING') continue;
+    const psd = wo.processSpecificData || wo.process_specific_data || {};
+    const raw =
+      (psd && psd.shrinkageWidthPercent) ??
+      wo.shrinkageWidthPercent ??
+      null;
+    if (raw === null || raw === undefined || raw === '') return 0;
+    const n = parseFloat(String(raw).replace('%', '').trim());
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
+};
 
 // Stitching Thread stores Net CNS/Unit in a different shape than generic yarn.
 // Mirror ConsumptionSheet.getStitchingThreadNetCnsAndUnit so those values
@@ -210,6 +273,257 @@ const buildYarnRowsFromDerived = (formData) => {
   return rows;
 };
 
+// Reusable iterator: walks every (stepdata, ipcCode, overage) tuple across
+// SKUs and subproducts. Lets each subtab builder share the same SKU/subproduct
+// traversal logic.
+const forEachStepData = (formData, fn) => {
+  (formData?.skus || []).forEach((sku) => {
+    if (!sku || typeof sku !== 'object') return;
+    const skuIpc = sku.ipcCode || sku.ipc_code || sku.sku || '';
+    const skuOverage = computeSkuOverage(sku.poQty, sku.overagePercentage);
+    fn(sku.stepData, skuIpc, skuOverage);
+    (sku.subproducts || []).forEach((sub) => {
+      if (!sub || typeof sub !== 'object') return;
+      const subIpc = sub.ipcCode || sub.ipc_code || sub.subproduct || skuIpc;
+      const subOverage = computeSkuOverage(sub.poQty, sub.overagePercentage) ?? skuOverage;
+      fn(sub.stepData, subIpc, subOverage);
+    });
+  });
+};
+
+// Fiber rows from the Derived CNS Sheet.
+// Per spec: from the IPC Spec File BOM & WIP section, find raw materials where
+// Fiber is selected, and pull GSM + Denier for the matching Material Description.
+const buildFiberRowsFromDerived = (formData) => {
+  if (!formData || typeof formData !== 'object') return [];
+  const rows = [];
+  forEachStepData(formData, (stepdata, ipcCode, overage) => {
+    (stepdata?.rawMaterials || []).forEach((rm, idx) => {
+      if (!rm || typeof rm !== 'object') return;
+      if (!isFiberType(rm.materialType || rm.material_type)) return;
+      const description =
+        rm.materialDescription ||
+        rm.material_description ||
+        rm.materialName ||
+        rm.material_name ||
+        rm.fiberType ||
+        '';
+      const componentName = rm.componentName || rm.component_name || '';
+      const comp = findComponentInStep(stepdata, componentName);
+      const cutting = (comp && comp.cuttingSize) || {};
+      const netLength = pickFloat({ v: cutting.length }, ['v']);
+      const netWidth = pickFloat({ v: cutting.width }, ['v']);
+      // GSM is stored on the Cut & Sew Spec component itself, not on the
+      // fiber raw-material entry.
+      const gsm = comp ? pickFirst(comp, ['gsm', 'GSM', 'componentGsm']) : null;
+      // Denier on the wizard form is a dropdown string like "0.7D - 1.5D
+      // (fine for down-like)" — keep it as a string; don't parse to number.
+      const denier = pickFirst(rm, ['denier', 'fiberDenier', 'fibreDenier', 'Denier']);
+      const fiberNetWeightGrams = netWeightGramsFromBom(rm);
+      rows.push({
+        id: `derived-fiber-${ipcCode}-${idx}-${normKey(description)}`,
+        ipc: ipcCode,
+        component: componentName,
+        material_type: rm.materialType || 'Fiber',
+        material_description: description,
+        overage_qty_pcs: overage,
+        overage_qty: overage,
+        net_length_cns_pc: netLength,
+        net_width_cns_pc: netWidth,
+        net_weight_cns_pc_grams: fiberNetWeightGrams,
+        // No Gross Wastage Weight is captured on the form — Gross Weight equals
+        // Net Weight by spec.
+        gross_weight_cns_pc_grams: fiberNetWeightGrams,
+        gross_wastage_length: derivedGrossWastagePct(rm),
+        gross_wastage_width: getDyeingShrinkageWidth(rm),
+        gsm,
+        denier,
+        unit: rm.unit || rm.consumptionUnit || '',
+      });
+    });
+  });
+  return rows;
+};
+
+// Foam rows from the Derived CNS Sheet.
+// Net Length/Width sourced from the matched component's cuttingSize (Cut & Sew Spec).
+const buildFoamRowsFromDerived = (formData) => {
+  if (!formData || typeof formData !== 'object') return [];
+  const rows = [];
+  forEachStepData(formData, (stepdata, ipcCode, overage) => {
+    (stepdata?.rawMaterials || []).forEach((rm, idx) => {
+      if (!rm || typeof rm !== 'object') return;
+      if (!isFoamType(rm.materialType || rm.material_type)) return;
+      const description =
+        rm.materialDescription ||
+        rm.material_description ||
+        rm.materialName ||
+        rm.material_name ||
+        rm.foamType ||
+        '';
+      const componentName = rm.componentName || rm.component_name || '';
+      const comp = findComponentInStep(stepdata, componentName);
+      const cutting = (comp && comp.cuttingSize) || {};
+      const netLength = pickFloat({ v: cutting.length }, ['v']);
+      const netWidth = pickFloat({ v: cutting.width }, ['v']);
+      const gsm = pickFirst(rm, ['gsm', 'foamGsm', 'GSM']);
+      const foamNetWeightGrams = netWeightGramsFromBom(rm);
+      rows.push({
+        id: `derived-foam-${ipcCode}-${idx}-${normKey(description)}`,
+        ipc: ipcCode,
+        component: componentName,
+        material_type: rm.materialType || 'Foam',
+        material_description: description,
+        overage_qty_pcs: overage,
+        overage_qty: overage,
+        net_length_cns_pc: netLength,
+        net_width_cns_pc: netWidth,
+        net_weight_cns_pc_grams: foamNetWeightGrams,
+        // No Gross Wastage Weight is captured on the form — Gross Weight equals
+        // Net Weight by spec.
+        gross_weight_cns_pc_grams: foamNetWeightGrams,
+        gross_wastage_length: derivedGrossWastagePct(rm),
+        gross_wastage_width: getDyeingShrinkageWidth(rm),
+        gsm,
+        unit: rm.unit || rm.consumptionUnit || '',
+      });
+    });
+  });
+  return rows;
+};
+
+// Trim & Accessory rows from the Derived CNS Sheet.
+// Net Length/Width sourced from the matched component's cuttingSize (Cut & Sew Spec).
+const buildTrimRowsFromDerived = (formData) => {
+  if (!formData || typeof formData !== 'object') return [];
+  const rows = [];
+  forEachStepData(formData, (stepdata, ipcCode, overage) => {
+    // Trims live in stepData.rawMaterials when materialType is "Trim ..." and
+    // also in stepData.consumptionMaterials (Step-3). Walk both.
+    const sources = [
+      ...(stepdata?.rawMaterials || []).map((m) => ({ m, src: 'rm' })),
+      ...(stepdata?.consumptionMaterials || []).map((m) => ({ m, src: 'cm' })),
+    ];
+    sources.forEach(({ m, src }, idx) => {
+      if (!m || typeof m !== 'object') return;
+      const mt = m.materialType || m.material_type || m.trimAccessory || m.trim_accessory;
+      if (!isTrimType(mt)) return;
+      const description =
+        m.materialDescription ||
+        m.material_description ||
+        m.materialName ||
+        m.material_name ||
+        m.trimAccessory ||
+        '';
+      const componentName = m.componentName || m.component_name || '';
+      const comp = findComponentInStep(stepdata, componentName);
+      const cutting = (comp && comp.cuttingSize) || {};
+      const netLength = pickFloat({ v: cutting.length }, ['v']);
+      const netWidth = pickFloat({ v: cutting.width }, ['v']);
+      // GSM is stored on the Cut & Sew Spec component itself.
+      // CNS/PC comes from the row's own Net CNS/PC field on the BOM & WIP form.
+      const gsm = comp ? pickFirst(comp, ['gsm', 'GSM', 'componentGsm']) : null;
+      const cnsPcRaw = pickFloat(m, ['netConsumption', 'net_consumption', 'consumption']);
+      // Trim weight in grams: Net CNS/PC × 1000 when unit is KGS; otherwise 0.
+      // No Gross Wastage Weight on the form, so Gross Weight CNS/PC = Net.
+      const trimNetWeightGrams = netWeightGramsFromBom(m);
+      const unit = m.unit || m.consumptionUnit || '';
+      const isPcs = String(unit).toUpperCase().trim() === 'PCS';
+      // PCS-based trims (buttons, eyelets, …) don't carry meaningful length /
+      // width measurements — zero those out. Conversely, length-based trims
+      // (zippers in CM, etc.) don't use the per-piece consumption value.
+      const cnsPc = isPcs ? cnsPcRaw : 0;
+      const netLengthOut = isPcs ? 0 : netLength;
+      const netWidthOut = isPcs ? 0 : netWidth;
+      rows.push({
+        id: `derived-trim-${ipcCode}-${src}-${idx}-${normKey(description)}`,
+        ipc: ipcCode,
+        component: componentName,
+        material_type: m.trimAccessory || mt || 'Trim / Accessory',
+        material_description: description,
+        overage_qty_pcs: overage,
+        overage_qty: overage,
+        cns_pc: cnsPc,
+        net_length_cns_pc: netLengthOut,
+        net_width_cns_pc: netWidthOut,
+        net_weight_cns_pc_grams: trimNetWeightGrams,
+        gross_weight_cns_pc_grams: trimNetWeightGrams,
+        gross_wastage_length: derivedGrossWastagePct(m),
+        gross_wastage_width: getDyeingShrinkageWidth(m),
+        gsm,
+        unit,
+      });
+    });
+  });
+  return rows;
+};
+
+// Fabric rows from the Derived CNS Sheet.
+// Attribute sources (per spec):
+//   overage_qty_pcs   → SKU poQty × (1 + overagePercentage/100)
+//   net_length_cns_pc → component cuttingSize.length (Cut & Sew Spec)
+//   net_width_cns_pc  → component cuttingSize.width  (Cut & Sew Spec)
+//   gross_wastage_length → compound of all wastage/surplus values on the RM
+//   gross_wastage_width  → DYEING work order shrinkageWidthPercent (0 if none)
+// Gross Length/Width CNS/PC, Gross Width CNS, Gross Length Qty, Balance Gross
+// Width Wastage %, etc. are already derived inside FABRIC_COLUMNS renderers
+// from these primitives plus the user's manual Purchase Width input.
+const buildFabricRowsFromDerived = (formData) => {
+  if (!formData || typeof formData !== 'object') return [];
+  const rows = [];
+  const processStep = (stepdata, ipcCode, overage) => {
+    (stepdata?.rawMaterials || []).forEach((rm, idx) => {
+      if (!rm || typeof rm !== 'object') return;
+      if (!isFabricType(rm.materialType || rm.material_type)) return;
+      const description =
+        rm.materialDescription ||
+        rm.material_description ||
+        rm.materialName ||
+        rm.material_name ||
+        rm.fabricName ||
+        '';
+      const componentName = rm.componentName || rm.component_name || '';
+      const comp = findComponentInStep(stepdata, componentName);
+      const cutting = (comp && comp.cuttingSize) || {};
+      const netLengthRaw = cutting.length;
+      const netWidthRaw = cutting.width;
+      const netLength = netLengthRaw !== undefined && netLengthRaw !== null && netLengthRaw !== ''
+        ? parseFloat(netLengthRaw)
+        : null;
+      const netWidth = netWidthRaw !== undefined && netWidthRaw !== null && netWidthRaw !== ''
+        ? parseFloat(netWidthRaw)
+        : null;
+      rows.push({
+        id: `derived-fabric-${ipcCode}-${idx}-${normKey(description)}`,
+        ipc: ipcCode,
+        component: componentName,
+        material_type: rm.materialType || 'Fabric',
+        material_description: description,
+        overage_qty_pcs: overage,
+        overage_qty: overage,
+        net_length_cns_pc: Number.isFinite(netLength) ? netLength : null,
+        net_width_cns_pc: Number.isFinite(netWidth) ? netWidth : null,
+        gross_wastage_length: derivedGrossWastagePct(rm),
+        gross_wastage_width: getDyeingShrinkageWidth(rm),
+        unit: rm.unit || rm.consumptionUnit || '',
+      });
+    });
+  };
+  (formData.skus || []).forEach((sku) => {
+    if (!sku || typeof sku !== 'object') return;
+    const skuIpc = sku.ipcCode || sku.ipc_code || sku.sku || '';
+    const skuOverage = computeSkuOverage(sku.poQty, sku.overagePercentage);
+    processStep(sku.stepData, skuIpc, skuOverage);
+    (sku.subproducts || []).forEach((sub) => {
+      if (!sub || typeof sub !== 'object') return;
+      const subIpc = sub.ipcCode || sub.ipc_code || sub.subproduct || skuIpc;
+      const subOverage = computeSkuOverage(sub.poQty, sub.overagePercentage) ?? skuOverage;
+      processStep(sub.stepData, subIpc, subOverage);
+    });
+  });
+  return rows;
+};
+
 const TABS = [
   { key: 'raw_material', label: 'Raw Material' },
   { key: 'artwork_labeling', label: 'Artwork & Labeling' },
@@ -254,6 +568,23 @@ const fabricGrossWidthCns = (row, ctx) => {
   if (!ctx?.isClub) return grossWidthPc(row);
   return ctx.clubRows.reduce((acc, r) => {
     const v = grossWidthPc(r);
+    return acc + (Number.isFinite(v) ? v : 0);
+  }, 0);
+};
+// Same shape as fabricGrossWidthCns: single → per-piece value; club → sum of
+// per-piece values across all clubbed rows.
+const grossLengthCnsAggregated = (row, ctx) => {
+  if (!ctx?.isClub) return grossLengthPc(row);
+  return ctx.clubRows.reduce((acc, r) => {
+    const v = grossLengthPc(r);
+    return acc + (Number.isFinite(v) ? v : 0);
+  }, 0);
+};
+const grossWeightCnsAggregated = (row, ctx) => {
+  const ofRow = (r) => toNum(r.gross_weight_cns_pc_grams);
+  if (!ctx?.isClub) return ofRow(row);
+  return ctx.clubRows.reduce((acc, r) => {
+    const v = ofRow(r);
     return acc + (Number.isFinite(v) ? v : 0);
   }, 0);
 };
@@ -407,7 +738,12 @@ const TRIM_COLUMNS = [
   { key: 'overage_qty', header: 'Overage QTY', align: 'right',
     render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
   { key: 'gsm', header: 'GSM', align: 'right',
-    render: (r) => formatNumber(r.gsm, { decimals: 2 }) },
+    render: (r) => {
+      const v = r.gsm;
+      if (v === null || v === undefined || v === '') return '-';
+      const n = Number(v);
+      return Number.isFinite(n) ? n.toFixed(2) : String(v);
+    } },
   { key: 'cns_pc', header: 'CNS/PC', align: 'right',
     render: (r) => formatNumber(r.cns_pc) },
   { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
@@ -427,15 +763,32 @@ const TRIM_COLUMNS = [
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_length_cns) },
+    aggregatedInClub: true,
+    render: (r, ctx) => formatNumber(grossLengthCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_length_qty" ctx={ctx} /> },
   { key: 'gross_qty_pcs', header: 'Gross QTY PCS', align: 'right',
-    render: (r) => formatNumber(r.gross_qty_pcs, { decimals: 2 }) },
+    render: (r) => {
+      // Gross QTY PCS = Gross CNS/PC × Overage Quantity
+      // where Gross CNS/PC = Net CNS/PC × (1 + Gross Wastage% / 100)
+      const cns = toNum(r.cns_pc);
+      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
+      if (!Number.isFinite(cns) || !Number.isFinite(overage)) return '-';
+      const w = toNum(r.gross_wastage_length ?? r.gross_wastage);
+      const grossPerPc = cns * (1 + (Number.isFinite(w) ? w : 0) / 100);
+      return formatNumber(grossPerPc * overage, { decimals: 2 });
+    } },
   { key: 'purchase_qty_pcs', header: 'Purchase QTY PCS', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_qty_pcs" ctx={ctx} /> },
   { key: 'gross_weight_qty', header: 'Gross Weight QTY', align: 'right',
-    render: (r) => formatNumber(r.gross_weight_qty, { decimals: 2 }) },
+    render: (r) => {
+      // Gross Weight QTY = Gross Weight CNS/PC × Overage Quantity
+      // (per-piece weight is in grams; 0 when Unit is not KGS)
+      const gwPc = toNum(r.gross_weight_cns_pc_grams);
+      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
+      if (!Number.isFinite(gwPc) || !Number.isFinite(overage)) return '-';
+      return formatNumber(gwPc * overage, { decimals: 2 });
+    } },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
 ];
@@ -445,10 +798,20 @@ const FIBER_COLUMNS = [
     render: (r) => r.material_description || '-' },
   { key: 'overage_qty', header: 'Overage QTY', align: 'right',
     render: (r) => formatNumber(r.overage_qty, { decimals: 2 }) },
-  { key: 'denier', header: 'Denier', align: 'right',
-    render: (r) => formatNumber(r.denier, { decimals: 2 }) },
+  { key: 'denier', header: 'Denier', align: 'left',
+    render: (r) => {
+      const v = r.denier;
+      if (v === null || v === undefined || v === '') return '-';
+      const n = Number(v);
+      return Number.isFinite(n) && String(v).trim() === String(n) ? n.toFixed(2) : String(v);
+    } },
   { key: 'gsm', header: 'GSM', align: 'right',
-    render: (r) => formatNumber(r.gsm, { decimals: 2 }) },
+    render: (r) => {
+      const v = r.gsm;
+      if (v === null || v === undefined || v === '') return '-';
+      const n = Number(v);
+      return Number.isFinite(n) ? n.toFixed(2) : String(v);
+    } },
   { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
     render: (r) => formatNumber(r.net_length_cns_pc) },
   { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
@@ -470,17 +833,31 @@ const FIBER_COLUMNS = [
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_length_cns) },
+    aggregatedInClub: true,
+    render: (r, ctx) => formatNumber(grossLengthCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'gross_weight_cns', header: 'Gross Weight CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_weight_cns, { decimals: 2 }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => formatNumber(grossWeightCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
-    render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const pw = fabricPurchaseWidthTotal(r, ctx);
+      const gw = fabricGrossWidthCns(r, ctx);
+      if (!Number.isFinite(pw) || !Number.isFinite(gw)) return '-';
+      return formatNumber(pw - gw, { decimals: 2 });
+    } },
   { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
-    render: (r) => formatNumber(r.balance_gross_width_wastage_pct, { decimals: 2, suffix: '%' }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const pw = fabricPurchaseWidthTotal(r, ctx);
+      const gw = fabricGrossWidthCns(r, ctx);
+      if (!Number.isFinite(pw) || !Number.isFinite(gw) || pw === 0) return '-';
+      return formatNumber(((pw - gw) / pw) * 100, { decimals: 2, suffix: '%' });
+    } },
 ];
 
 const FOAM_COLUMNS = [
@@ -511,17 +888,31 @@ const FOAM_COLUMNS = [
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_length_cns) },
+    aggregatedInClub: true,
+    render: (r, ctx) => formatNumber(grossLengthCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'gross_weight_cns', header: 'Gross Weight CNS', align: 'right',
-    render: (r) => formatNumber(r.gross_weight_cns, { decimals: 2 }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => formatNumber(grossWeightCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
-    render: (r) => formatNumber(r.balance_gross_width_wastage, { decimals: 2 }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const pw = fabricPurchaseWidthTotal(r, ctx);
+      const gw = fabricGrossWidthCns(r, ctx);
+      if (!Number.isFinite(pw) || !Number.isFinite(gw)) return '-';
+      return formatNumber(pw - gw, { decimals: 2 });
+    } },
   { key: 'balance_gross_width_wastage_pct', header: 'Balance Gross Width Wastage %', align: 'right',
-    render: (r) => formatNumber(r.balance_gross_width_wastage_pct, { decimals: 2, suffix: '%' }) },
+    aggregatedInClub: true,
+    render: (r, ctx) => {
+      const pw = fabricPurchaseWidthTotal(r, ctx);
+      const gw = fabricGrossWidthCns(r, ctx);
+      if (!Number.isFinite(pw) || !Number.isFinite(gw) || pw === 0) return '-';
+      return formatNumber(((pw - gw) / pw) * 100, { decimals: 2, suffix: '%' });
+    } },
 ];
 
 const SUBTAB_CONFIG = {
@@ -626,6 +1017,22 @@ const IPOMasterCNS = ({ ipo }) => {
     () => buildYarnRowsFromDerived(derivedFormData),
     [derivedFormData]
   );
+  const fabricRowsFromDerived = useMemo(
+    () => buildFabricRowsFromDerived(derivedFormData),
+    [derivedFormData]
+  );
+  const fiberRowsFromDerived = useMemo(
+    () => buildFiberRowsFromDerived(derivedFormData),
+    [derivedFormData]
+  );
+  const foamRowsFromDerived = useMemo(
+    () => buildFoamRowsFromDerived(derivedFormData),
+    [derivedFormData]
+  );
+  const trimRowsFromDerived = useMemo(
+    () => buildTrimRowsFromDerived(derivedFormData),
+    [derivedFormData]
+  );
 
   // Debug snapshot shown only on Yarn subtab when no rows resolve. Lets us
   // see whether derivedFormData loaded at all, how many SKUs / rawMaterials
@@ -669,15 +1076,19 @@ const IPOMasterCNS = ({ ipo }) => {
 
   const rows = useMemo(() => {
     if (activeTab !== 'raw_material') return data ? data[activeTab] || [] : [];
-    // Yarn is sourced directly from the Derived CNS Sheet, matched by IPC +
-    // material description. Bypasses backend material_type classification so
-    // the subtab always reflects what's on the Derived Sheet.
+    // Yarn and Fabric are sourced directly from the Derived CNS Sheet, matched
+    // by IPC + component + material description. Bypasses backend material_type
+    // classification so these subtabs always reflect what's on the Derived Sheet.
     if (rawSubtab === 'yarn') return yarnRowsFromDerived;
+    if (rawSubtab === 'fabric') return fabricRowsFromDerived;
+    if (rawSubtab === 'fiber') return fiberRowsFromDerived;
+    if (rawSubtab === 'foam') return foamRowsFromDerived;
+    if (rawSubtab === 'trim') return trimRowsFromDerived;
     const all = data ? data.raw_material || [] : [];
     const sub = RAW_SUBTABS.find((s) => s.key === rawSubtab);
     if (!sub) return all;
     return all.filter((r) => sub.matches(String(r.material_type || '')));
-  }, [data, activeTab, rawSubtab, yarnRowsFromDerived]);
+  }, [data, activeTab, rawSubtab, yarnRowsFromDerived, fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived]);
 
   const subtabConfig = SUBTAB_CONFIG[rawSubtab] || SUBTAB_CONFIG.yarn;
   const columns = subtabConfig.columns;
@@ -746,11 +1157,16 @@ const IPOMasterCNS = ({ ipo }) => {
     const backend = data
       ? ['raw_material', 'artwork_labeling', 'packaging'].reduce((n, k) => n + (data[k]?.length || 0), 0)
       : 0;
-    // Yarn rows are sourced from the Derived CNS Sheet, not the backend.
-    // Count them here so the "No IPC data has been saved" short-circuit
-    // doesn't hide the table when only the Derived Sheet has yarn data.
-    return backend + yarnRowsFromDerived.length;
-  }, [data, yarnRowsFromDerived]);
+    // Yarn and Fabric rows are sourced from the Derived CNS Sheet, not the
+    // backend. Count them here so the "No IPC data has been saved" short-circuit
+    // doesn't hide the table when only the Derived Sheet has data.
+    return backend
+      + yarnRowsFromDerived.length
+      + fabricRowsFromDerived.length
+      + fiberRowsFromDerived.length
+      + foamRowsFromDerived.length
+      + trimRowsFromDerived.length;
+  }, [data, yarnRowsFromDerived, fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived]);
 
   const normalizeDesc = (d) => String(d || '').trim().toLowerCase();
 
