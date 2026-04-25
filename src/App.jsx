@@ -13,6 +13,7 @@ import Onboarding from './pages/Onboarding';
 import RegisterCompany from './pages/RegisterCompany';
 import SetPassword from './pages/SetPassword';
 import Chatbot from './components/Chatbot';
+import Status from './pages/Status';
 
 // Global chatbot — only shown when user is authenticated
 const GlobalChatbot = () => {
@@ -59,6 +60,7 @@ function App() {
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/essentials/view/:token" element={<EssentialsViewPage />} />
+          <Route path="/status" element={<Status />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/company-profile" element={<ProtectedRoute><CompanyProfile /></ProtectedRoute>} />
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
