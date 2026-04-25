@@ -106,7 +106,7 @@ export default function Onboarding() {
     <div className="onboarding-page">
       <div className="onboarding-header">
         <h1 className="onboarding-title">Company setup</h1>
-        <p className="onboarding-subtitle">Step {step} of 3 · Binder ERP onboarding</p>
+        <p className="onboarding-subtitle">Step {step} of 3 · Binder-OS onboarding</p>
       </div>
       {error && <div className="onboarding-error">{error}</div>}
 

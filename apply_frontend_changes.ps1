@@ -1,5 +1,5 @@
 # ============================================================================
-# BINDER ERP - Frontend Integration Patch Script (Windows PowerShell)
+# Binder-OS - Frontend Integration Patch Script (Windows PowerShell)
 # ============================================================================
 # 
 # Usage:
@@ -10,7 +10,7 @@
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "`n=== Binder ERP Frontend Patch Script ===" -ForegroundColor Green
+Write-Host "`n=== Binder-OS Frontend Patch Script ===" -ForegroundColor Green
 
 # Verify we're in the right directory
 if (-not (Test-Path "package.json") -or -not (Test-Path "src\components")) {

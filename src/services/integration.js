@@ -1,5 +1,5 @@
 /**
- * Binder ERP - Frontend API Integration File
+ * Binder-OS - Frontend API Integration File
  * React + Vite Frontend Integration
  * 
  * This file contains all API integration functions for the frontend.
