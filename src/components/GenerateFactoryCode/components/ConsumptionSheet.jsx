@@ -1345,8 +1345,8 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
       const { align: alignOption = 'center', size = 'md' } = options;
       const align = size === 'sm' && alignOption === 'center' ? 'left' : alignOption;
       const sizeMap = {
-        sm: { button: 14, icon: 10 },
-        md: { button: 18, icon: 12 }
+        sm: { button: 12, icon: 8 },
+        md: { button: 14, icon: 9 }
       };
       const { button, icon } = sizeMap[size] || sizeMap.md;
       const tooltipStyle = {
@@ -1376,10 +1376,10 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
       }
 
       return (
-      <span className="relative inline-flex items-center group">
+      <span className="relative inline-flex items-center group shrink-0" style={{ marginInline: '2px' }}>
         <button
           type="button"
-          className="inline-flex items-center justify-center border border-black/70 text-muted-foreground bg-transparent hover:bg-black/5 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
+          className="inline-flex items-center justify-center border border-black/60 text-muted-foreground bg-transparent hover:bg-black/5 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
           style={{
             width: `${button}px`,
             height: `${button}px`,
