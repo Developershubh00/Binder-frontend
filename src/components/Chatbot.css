@@ -81,7 +81,9 @@ body.ai-panel-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 22px;
+  padding: 14px 22px;
+  min-height: 82px;
+  box-sizing: border-box;
   background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, #000 0%));
   color: var(--primary-foreground);
   flex-shrink: 0;
@@ -109,13 +111,27 @@ body.ai-panel-open {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  backdrop-filter: blur(6px);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Polyhedron logo used for the AI bot — fills the circular avatar.
+   The source PNG has ~20% transparent padding around the shape, so we
+   scale it up to match the visual coverage of the animated PolyhedraButton
+   (~88% of the canvas). The avatar's overflow: hidden crops the rest. */
+.bot-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.45);
+  transform-origin: center center;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .ai-side-panel-titles {
@@ -228,8 +244,10 @@ body.ai-panel-open {
 }
 
 .bot-message .message-avatar {
-  background: var(--primary);
+  background: #fff;
   color: var(--primary-foreground);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 .user-message .message-avatar {
@@ -473,7 +491,7 @@ body.ai-panel-open {
   }
 
   .ai-side-panel-header {
-    padding: 14px 18px;
+    padding: 12px 18px;
   }
 
   .send-button {

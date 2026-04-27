@@ -1500,24 +1500,6 @@ const Dashboard = () => {
       </aside>
 
       <main className="main-content">
-        <header className="top-bar">
-          <div className="top-bar-left">
-            <h2 className="page-title">{companyDisplayName} Dashboard</h2>
-          </div>
-          <div className="top-bar-right">
-            <button
-              type="button"
-              className="calculator-trigger"
-              onClick={() => {
-                setShowProfileMenu(false);
-                setShowCalculator(true);
-              }}
-              aria-label="Open calculator"
-            >
-              <Calculator size={18} />
-            </button>
-          </div>
-        </header>
         {showCalculator && (
           <div
             className="calculator-overlay"

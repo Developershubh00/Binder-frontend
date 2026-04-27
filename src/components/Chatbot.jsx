@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-  FaRobot,
   FaPaperPlane,
   FaUser,
   FaTimes
@@ -182,7 +181,7 @@ Always provide clear, concise, and helpful answers about the software's features
         <div className="ai-side-panel-header">
           <div className="ai-side-panel-header-left">
             <span className="ai-side-panel-avatar">
-              <FaRobot />
+              <img src="/android-chrome-192x192.png" alt="" className="bot-logo-img" />
             </span>
             <div className="ai-side-panel-titles">
               <span className="ai-side-panel-title">Binder AI Assistant</span>
@@ -203,7 +202,9 @@ Always provide clear, concise, and helpful answers about the software's features
           {chatMessages.map(message => (
             <div key={message.id} className={`message ${message.isBot ? 'bot-message' : 'user-message'}`}>
               <div className="message-avatar">
-                {message.isBot ? <FaRobot /> : <FaUser />}
+                {message.isBot
+                  ? <img src="/android-chrome-192x192.png" alt="" className="bot-logo-img" />
+                  : <FaUser />}
               </div>
               <div className="message-content">
                 <div
@@ -221,7 +222,7 @@ Always provide clear, concise, and helpful answers about the software's features
           {isTyping && (
             <div className="message bot-message">
               <div className="message-avatar">
-                <FaRobot />
+                <img src="/android-chrome-192x192.png" alt="" className="bot-logo-img" />
               </div>
               <div className="message-content">
                 <div className="message-text typing-indicator">
