@@ -250,16 +250,18 @@
 // };
 
 // export default Login;
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PolyhedraBackground from '../components/PolyhedraBackground';
+import PolyhedraLogo from '../components/PolyhedraLogo';
 import './Login.css';
 import { scrollToFirstError } from '@/utils/scrollToFirstError';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const formRef = useRef(null);
 
   const [formData, setFormData] = useState({
     login: '',
@@ -386,6 +388,18 @@ const Login = () => {
     setForgotStep('input');
   };
 
+  // First click opens the slide-up card; subsequent clicks submit the form.
+  // Button stays type="button" so it never triggers a native submit on the
+  // first click (which would otherwise validate an empty form).
+  const handleLoginNowClick = () => {
+    if (loading) return;
+    if (!showLoginCard) {
+      setShowLoginCard(true);
+      return;
+    }
+    formRef.current?.requestSubmit();
+  };
+
   return (
     <div className="login-split-container">
       {/* Polyhedra animation fills the viewport behind everything */}
@@ -399,11 +413,7 @@ const Login = () => {
             <div className="split-left-top">
               <div className="split-logo-row">
                 <div className="split-logo-img-wrap">
-                  <img
-                    src="/binder-os-logo.png"
-                    alt="BinderOS logo"
-                    className="split-logo-img"
-                  />
+                  <PolyhedraLogo />
                 </div>
                 <h1 className="split-brand-name">Binder OS</h1>
               </div>
@@ -440,6 +450,29 @@ const Login = () => {
                 SIGN-UP REQUEST
                 <span className="split-register-arrow">→</span>
               </button>
+
+              {/* Mobile-only LOGIN CTA (hidden on desktop/tablet) */}
+              <span className="split-cta-label mobile-login-label">
+                Already have an account?
+              </span>
+              <button
+                className="split-register-btn login-now-btn mobile-login-btn"
+                type="button"
+                onClick={handleLoginNowClick}
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="btn-loading">
+                    <span className="spinner"></span>
+                    SIGNING IN...
+                  </span>
+                ) : (
+                  <>
+                    LOGIN NOW
+                    <span className="split-register-arrow">→</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -450,114 +483,112 @@ const Login = () => {
             {/* TOP spacer — lets polyhedra breathe; pushes CTA to bottom */}
             <div className="split-right-top" aria-hidden="true" />
 
-            {/* BOTTOM CTA — login (hidden when card is open) */}
-            <div className={`split-cta-row right-cta ${showLoginCard ? 'hidden' : ''}`}>
+            {/* BOTTOM CTA — login (stays visible; submits the form once card is open) */}
+            <div className="split-cta-row right-cta">
               <span className="split-cta-label">Already have an account?</span>
               <button
                 className="split-register-btn login-now-btn"
-                onClick={() => setShowLoginCard(true)}
+                type="button"
+                onClick={handleLoginNowClick}
+                disabled={loading}
               >
-                LOGIN NOW
-                <span className="split-register-arrow">→</span>
+                {loading ? (
+                  <span className="btn-loading">
+                    <span className="spinner"></span>
+                    SIGNING IN...
+                  </span>
+                ) : (
+                  <>
+                    LOGIN NOW
+                    <span className="split-register-arrow">→</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
 
-          {/* ═══ LOGIN CARD OVERLAY — slides up from below on click ═══ */}
-          <div className={`login-card-wrapper ${showLoginCard ? 'visible' : ''}`}>
-            <div className="login-card">
-              {/* Back button to hide card */}
+        </div>
+      </div>
+
+      {/* ═══ LOGIN CARD OVERLAY — outside split-right so mobile (which hides
+            the right panel) still has it accessible. The actual submit
+            happens via the LOGIN NOW button below, which sets form="loginForm" ═══ */}
+      <div className={`login-card-wrapper ${showLoginCard ? 'visible' : ''}`}>
+        <div className="login-card">
+          <button
+            type="button"
+            className="card-close-btn"
+            onClick={() => setShowLoginCard(false)}
+            aria-label="Back"
+          >
+            ←
+          </button>
+
+          <div className="login-card-header">
+            <h2 className="login-card-title">Welcome to Binder OS</h2>
+            <p className="login-card-subtitle">
+              Enter your email or username to access your account
+            </p>
+          </div>
+
+          <form ref={formRef} id="loginForm" onSubmit={handleSubmit} className="login-form">
+            <div className="form-group">
+              <label className="input-label">Email or Username</label>
+              <div className="input-container">
+                <input
+                  type="text"
+                  name="login"
+                  value={formData.login}
+                  onChange={handleChange}
+                  placeholder="Enter your email or username"
+                  className={`input-field ${errors.login ? 'error' : ''}`}
+                />
+              </div>
+              {errors.login && <span className="error-text">{errors.login}</span>}
+            </div>
+
+            <div className="form-group">
+              <label className="input-label">Password</label>
+              <div className="input-container">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className={`input-field ${errors.password ? 'error' : ''}`}
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+              {errors.password && <span className="error-text">{errors.password}</span>}
+            </div>
+
+            <div className="form-options">
+              <label className="remember-checkbox">
+                <input
+                  type="checkbox"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                />
+                <span className="checkmark"></span>
+                Remember me
+              </label>
               <button
                 type="button"
-                className="card-close-btn"
-                onClick={() => setShowLoginCard(false)}
-                aria-label="Back"
+                className="forgot-link"
+                onClick={openForgotModal}
               >
-                ←
+                Forgot Password
               </button>
-
-              <div className="login-card-header">
-                <h2 className="login-card-title">Welcome to Binder OS</h2>
-                <p className="login-card-subtitle">
-                  Enter your email or username to access your account
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="login-form">
-                {/* Email or Username */}
-                <div className="form-group">
-                  <label className="input-label">Email or Username</label>
-                  <div className="input-container">
-                    <input
-                      type="text"
-                      name="login"
-                      value={formData.login}
-                      onChange={handleChange}
-                      placeholder="Enter your email or username"
-                      className={`input-field ${errors.login ? 'error' : ''}`}
-                    />
-                  </div>
-                  {errors.login && <span className="error-text">{errors.login}</span>}
-                </div>
-
-                {/* Password */}
-                <div className="form-group">
-                  <label className="input-label">Password</label>
-                  <div className="input-container">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Enter your password"
-                      className={`input-field ${errors.password ? 'error' : ''}`}
-                    />
-                    <button
-                      type="button"
-                      className="toggle-password"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? '👁️' : '👁️‍🗨️'}
-                    </button>
-                  </div>
-                  {errors.password && <span className="error-text">{errors.password}</span>}
-                </div>
-
-                {/* Remember Me & Forgot Password */}
-                <div className="form-options">
-                  <label className="remember-checkbox">
-                    <input
-                      type="checkbox"
-                      name="rememberMe"
-                      checked={formData.rememberMe}
-                      onChange={handleChange}
-                    />
-                    <span className="checkmark"></span>
-                    Remember me
-                  </label>
-                  <button
-                    type="button"
-                    className="forgot-link"
-                    onClick={openForgotModal}
-                  >
-                    Forgot Password
-                  </button>
-                </div>
-
-                {/* Sign In Button */}
-                <button type="submit" className="signin-button" disabled={loading}>
-                  {loading ? (
-                    <span className="btn-loading">
-                      <span className="spinner"></span>
-                      Signing In...
-                    </span>
-                  ) : (
-                    'LOGIN'
-                  )}
-                </button>
-              </form>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 
