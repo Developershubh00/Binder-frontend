@@ -106,10 +106,11 @@ const PolyhedraLogo = () => {
       const px = width / 2;
       const py = height / 2;
 
-      // Frozen rotation — fixed angle that shows nice 3D depth
-      const rx = 0.5;
-      const ry = 0.7;
-      const rz = 0.15;
+      // Frozen at identity rotation — matches the right-side polyhedra cluster
+      // before its rotation animation kicks in (same silhouette and layering).
+      const rx = 0;
+      const ry = 0;
+      const rz = 0;
 
       const strokeOuter = Math.max(0.8, 1.6 * Math.sqrt(s0));
       const strokeInner = Math.max(0.5, 1.0 * Math.sqrt(s0));
