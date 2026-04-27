@@ -830,15 +830,6 @@ const GenerateBuyerCode = ({ onBack, initialData = null, onSaved }) => {
                     >
                       {generatedCode}
                     </span>
-                    <Button
-                      variant="default"
-                      size="icon"
-                      onClick={copyToClipboard}
-                      title="Copy to clipboard"
-                      type="button"
-                    >
-                      📋
-                    </Button>
                   </div>
                 </FormCard>
               </div>
@@ -846,9 +837,6 @@ const GenerateBuyerCode = ({ onBack, initialData = null, onSaved }) => {
               <div className="flex justify-center gap-3" style={{ marginTop: '40px' }}>
                 <Button variant="default" onClick={resetForm} type="button">
                   Generate Another Code
-                </Button>
-                <Button variant="outline" onClick={onBack} type="button">
-                  Back to Code Creation
                 </Button>
               </div>
             </div>

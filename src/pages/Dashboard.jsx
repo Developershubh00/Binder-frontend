@@ -14,6 +14,8 @@ import IPODerivedCNS from '../components/IPOManagement/IPODerivedCNS';
 import GeneratePOCode from '../components/GeneratePOCode';
 import BuyerMasterSheet from '../components/BuyerMasterSheet';
 import VendorMasterSheet from '../components/VendorMasterSheet';
+import CompanyEssentialsMasterSheet from '../components/CompanyEssentialsMasterSheet';
+import IPOMasterSheet from '../components/IPOMasterSheet';
 import UQRFormsPreview from '../components/UQR_forms/UQRFormsPreview.jsx';
 import CourierManagement from '../components/CourierManagement.jsx';
 import InwardStoreSheet from '../components/InwardStoreSheet.jsx';
@@ -112,8 +114,11 @@ const ReceiptIcon = ({ size = 18 }) => (
     aria-hidden="true"
   >
     <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" />
-    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
-    <path d="M12 17.5v-11" />
+    {/* Rupee symbol: two horizontal bars, P-loop descender, and diagonal slash */}
+    <path d="M8 7h8" />
+    <path d="M8 10h8" />
+    <path d="M8 13h2c4.5 0 4.5-6 0-6" />
+    <path d="M8 13l6 5" />
   </svg>
 );
 
@@ -477,6 +482,13 @@ const Dashboard = () => {
         if (codeCreationView === 'company-essentials') {
           return <CompanyEssentials onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
         }
+        if (codeCreationView === 'company-essentials-master') {
+          return (
+            <CompanyEssentialsMasterSheet
+              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+            />
+          );
+        }
         if (codeCreationView === 'internal-purchase-order') {
           return (
             <InternalPurchaseOrder
@@ -484,6 +496,13 @@ const Dashboard = () => {
               onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
               onNavigateToCodeCreation={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
               onNavigateToIPO={() => setActivePage('code-creation')}
+            />
+          );
+        }
+        if (codeCreationView === 'internal-purchase-order-master') {
+          return (
+            <IPOMasterSheet
+              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
             />
           );
         }
@@ -755,10 +774,16 @@ const Dashboard = () => {
               >
                 Vendor
               </button>
-              <button className="hover-panel-item" onMouseEnter={() => setHoveredSubmenu(null)} onClick={() => { setActivePage('code-creation'); setCodeCreationView('company-essentials'); setHoveredMenu(null); }}>
+              <button
+                className={`hover-panel-item ${activeCategory === 'company-essentials' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'code-creation', category: 'company-essentials' })}
+              >
                 Company Essentials
               </button>
-              <button className="hover-panel-item" onMouseEnter={() => setHoveredSubmenu(null)} onClick={() => { setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); }}>
+              <button
+                className={`hover-panel-item ${activeCategory === 'internal-purchase-order' ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'code-creation', category: 'internal-purchase-order' })}
+              >
                 Internal Purchase Order
               </button>
             </div>
@@ -785,6 +810,32 @@ const Dashboard = () => {
                 </button>
                 <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('vendor-existing'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
                   Master Vendor Sheet
+                </button>
+              </div>
+            </div>
+          )}
+          {activeCategory === 'company-essentials' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Company Essentials</div>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('company-essentials'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Generate Company Essentials Code
+                </button>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('company-essentials-master'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Master Company Essentials Sheet
+                </button>
+              </div>
+            </div>
+          )}
+          {activeCategory === 'internal-purchase-order' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Internal Purchase Order</div>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('internal-purchase-order'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Generate IPO Code
+                </button>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('internal-purchase-order-master'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Master IPO Sheet
                 </button>
               </div>
             </div>

@@ -290,21 +290,11 @@ const GeneratePOCode = ({ onBack }) => {
             <h3 style={styles.codeLabel}>Your PO Code:</h3>
             <div style={styles.codeDisplay}>
               <span style={styles.codeText}>{generatedCode}</span>
-              <button 
-                onClick={copyToClipboard}
-                style={styles.copyButton}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                title="Copy to clipboard"
-                type="button"
-              >
-                📋
-              </button>
             </div>
           </div>
 
           <div style={styles.actionButtons}>
-            <button 
+            <button
               onClick={resetForm}
               style={styles.generateAnotherBtn}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
@@ -312,15 +302,6 @@ const GeneratePOCode = ({ onBack }) => {
               type="button"
             >
               Generate Another PO
-            </button>
-            <button 
-              onClick={onBack}
-              style={styles.backBtn}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#e5e7eb'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
-              type="button"
-            >
-              Back to Code Creation
             </button>
           </div>
         </div>

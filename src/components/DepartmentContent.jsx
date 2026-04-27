@@ -6,7 +6,9 @@ import GenerateFactoryCode from './GenerateFactoryCode';
 import VendorMasterSheet from './VendorMasterSheet';
 import BuyerMasterSheet from './BuyerMasterSheet';
 import CompanyEssentials from './CompanyEssentials';
+import CompanyEssentialsMasterSheet from './CompanyEssentialsMasterSheet';
 import InternalPurchaseOrder from './InternalPurchaseOrder/InternalPurchaseOrder';
+import IPOMasterSheet from './IPOMasterSheet';
 
 const DepartmentContent = ({ resetKey }) => {
   const [hoveredDeptItem, setHoveredDeptItem] = useState(null);
@@ -19,26 +21,14 @@ const DepartmentContent = ({ resetKey }) => {
   const [showVendorMasterSheet, setShowVendorMasterSheet] = useState(false);
   const [showBuyerMasterSheet, setShowBuyerMasterSheet] = useState(false);
   const [showCompanyEssentials, setShowCompanyEssentials] = useState(false);
+  const [showCompanyEssentialsMasterSheet, setShowCompanyEssentialsMasterSheet] = useState(false);
   const [showInternalPurchaseOrder, setShowInternalPurchaseOrder] = useState(false);
+  const [showIPOMasterSheet, setShowIPOMasterSheet] = useState(false);
   const [editingBuyer, setEditingBuyer] = useState(null);
   const [editingVendor, setEditingVendor] = useState(null);
   
   const subMenuRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
-
-  // Automatically open Company Essentials form when menu item is selected (skip intermediate screen)
-  useEffect(() => {
-    if (selectedSubMenuItem === 'company essentials' && !showCompanyEssentials) {
-      setShowCompanyEssentials(true);
-    }
-  }, [selectedSubMenuItem, showCompanyEssentials]);
-
-  // Automatically open Internal Purchase Order form when menu item is selected (skip intermediate screen)
-  useEffect(() => {
-    if (selectedSubMenuItem === 'Internal Purchase Order' && !showInternalPurchaseOrder) {
-      setShowInternalPurchaseOrder(true);
-    }
-  }, [selectedSubMenuItem, showInternalPurchaseOrder]);
 
   // Reset department view when resetKey changes (e.g., sidebar Departments clicked)
   useEffect(() => {
@@ -430,7 +420,9 @@ const DepartmentContent = ({ resetKey }) => {
     setShowVendorMasterSheet(false);
     setShowBuyerMasterSheet(false);
     setShowCompanyEssentials(false);
+    setShowCompanyEssentialsMasterSheet(false);
     setShowInternalPurchaseOrder(false);
+    setShowIPOMasterSheet(false);
     setEditingBuyer(null);
     setEditingVendor(null);
   };
@@ -598,16 +590,25 @@ const DepartmentContent = ({ resetKey }) => {
           ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Company Essentials</h1>
-        <p className="fullscreen-description">Generate codes for company essential items</p>
+        <p className="fullscreen-description">Generate company essentials codes and manage the master sheet</p>
       </div>
       <div className="fullscreen-buttons">
-        <button 
+        <button
           className="fullscreen-action-button primary"
           onClick={() => setShowCompanyEssentials(true)}
         >
           <div className="button-content">
-            <span className="button-title">CODE CREATION</span>
+            <span className="button-title">GENERATE COMPANY ESSENTIALS CODE</span>
             <span className="button-subtitle">Create codes for stationary, pantry, machinery and more</span>
+          </div>
+        </button>
+        <button
+          className="fullscreen-action-button secondary"
+          onClick={() => setShowCompanyEssentialsMasterSheet(true)}
+        >
+          <div className="button-content">
+            <span className="button-title">MASTER COMPANY ESSENTIALS SHEET</span>
+            <span className="button-subtitle">View and manage company essentials master data</span>
           </div>
         </button>
       </div>
@@ -621,16 +622,25 @@ const DepartmentContent = ({ resetKey }) => {
           ← Back to Code Creation
         </button>
         <h1 className="fullscreen-title">Internal Purchase Order</h1>
-        <p className="fullscreen-description">Create internal purchase orders for production, sampling, or company use</p>
+        <p className="fullscreen-description">Generate internal purchase order codes and manage the master sheet</p>
       </div>
       <div className="fullscreen-buttons">
-        <button 
+        <button
           className="fullscreen-action-button primary"
           onClick={() => setShowInternalPurchaseOrder(true)}
         >
           <div className="button-content">
-            <span className="button-title">CREATE INTERNAL PO</span>
-            <span className="button-subtitle">Generate internal purchase order with factory code steps</span>
+            <span className="button-title">GENERATE IPO CODE</span>
+            <span className="button-subtitle">Create internal purchase order with factory code steps</span>
+          </div>
+        </button>
+        <button
+          className="fullscreen-action-button secondary"
+          onClick={() => setShowIPOMasterSheet(true)}
+        >
+          <div className="button-content">
+            <span className="button-title">MASTER IPO SHEET</span>
+            <span className="button-subtitle">View and manage internal purchase order master data</span>
           </div>
         </button>
       </div>
@@ -731,10 +741,9 @@ const DepartmentContent = ({ resetKey }) => {
     // Handle Internal Purchase Order
     if (showInternalPurchaseOrder) {
       return (
-        <InternalPurchaseOrder 
+        <InternalPurchaseOrder
           onBack={() => {
             setShowInternalPurchaseOrder(false);
-            setSelectedSubMenuItem(null);
           }}
           onNavigateToCodeCreation={() => {
             setShowInternalPurchaseOrder(false);
@@ -847,15 +856,30 @@ const DepartmentContent = ({ resetKey }) => {
 
     if (showCompanyEssentials) {
       return (
-        <CompanyEssentials 
+        <CompanyEssentials
           onBack={() => {
             setShowCompanyEssentials(false);
-            setSelectedSubMenuItem(null);
-          }} 
+          }}
         />
       );
     }
-    
+
+    if (showCompanyEssentialsMasterSheet) {
+      return (
+        <CompanyEssentialsMasterSheet
+          onBack={() => setShowCompanyEssentialsMasterSheet(false)}
+        />
+      );
+    }
+
+    if (showIPOMasterSheet) {
+      return (
+        <IPOMasterSheet
+          onBack={() => setShowIPOMasterSheet(false)}
+        />
+      );
+    }
+
     // Handle specific content for CHD CODE CREATION
     if (selectedSubMenuItem === 'buyer') {
       return renderBuyerContent();
@@ -863,10 +887,12 @@ const DepartmentContent = ({ resetKey }) => {
     if (selectedSubMenuItem === 'vendor') {
       return renderVendorContent();
     }
-    // Company Essentials is now handled by useEffect and showCompanyEssentials flag
-    // No need to show intermediate screen
-    // Internal Purchase Order is now handled by useEffect and showInternalPurchaseOrder flag
-    // No need to show intermediate screen
+    if (selectedSubMenuItem === 'company essentials') {
+      return renderCompanyEssentialsContent();
+    }
+    if (selectedSubMenuItem === 'Internal Purchase Order') {
+      return renderInternalPurchaseOrderContent();
+    }
 
     // Handle specific content for CHD PO ISSUE
     if (selectedSubMenuItem === 'generate-po') {
@@ -903,7 +929,7 @@ const DepartmentContent = ({ resetKey }) => {
   };
 
   // If a submenu item is selected, show fullscreen content
-  if (selectedSubMenuItem || showGenerateBuyerCode || showGenerateVendorCode || showGeneratePOCode || showGenerateFactoryCode || showVendorMasterSheet || showBuyerMasterSheet || showCompanyEssentials || showInternalPurchaseOrder) {
+  if (selectedSubMenuItem || showGenerateBuyerCode || showGenerateVendorCode || showGeneratePOCode || showGenerateFactoryCode || showVendorMasterSheet || showBuyerMasterSheet || showCompanyEssentials || showCompanyEssentialsMasterSheet || showInternalPurchaseOrder || showIPOMasterSheet) {
     return renderDepartmentMainContent();
   }
 
