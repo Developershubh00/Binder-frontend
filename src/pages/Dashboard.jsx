@@ -16,6 +16,7 @@ import BuyerMasterSheet from '../components/BuyerMasterSheet';
 import VendorMasterSheet from '../components/VendorMasterSheet';
 import CompanyEssentialsMasterSheet from '../components/CompanyEssentialsMasterSheet';
 import IPOMasterSheet from '../components/IPOMasterSheet';
+import CompletedIPOs from '../components/CompletedIPOs';
 import UQRFormsPreview from '../components/UQR_forms/UQRFormsPreview.jsx';
 import CourierManagement from '../components/CourierManagement.jsx';
 import InwardStoreSheet from '../components/InwardStoreSheet.jsx';
@@ -506,6 +507,13 @@ const Dashboard = () => {
             />
           );
         }
+        if (codeCreationView === 'completed-ipos') {
+          return (
+            <CompletedIPOs
+              onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }}
+            />
+          );
+        }
         if (codeCreationView === 'generate-po') {
           return <GeneratePOCode onBack={() => { setActivePage('code-creation'); setCodeCreationView(null); setHoveredMenu('code-creation'); }} />;
         }
@@ -602,6 +610,25 @@ const Dashboard = () => {
     try {
       await deleteIPO(targetId);
       const deletedCode = ipoToDelete.ipoCode || ipoToDelete.code || '';
+      // Scrub the deleted IPO from the local "completed" cache so it doesn't
+      // leave a stale entry behind. Tracked by id-or-code, so try both.
+      try {
+        const raw = localStorage.getItem('completedIpos');
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const deletedId = String(targetId);
+          const deletedCodeStr = String(deletedCode);
+          const next = parsed.filter((k) => {
+            const s = String(k);
+            return s !== deletedId && s !== deletedCodeStr;
+          });
+          if (next.length !== parsed.length) {
+            localStorage.setItem('completedIpos', JSON.stringify(next));
+          }
+        }
+      } catch (cleanupErr) {
+        console.warn('Failed to clean completedIpos cache:', cleanupErr);
+      }
       setIpoToDelete(null);
       setHoveredSubmenu(null);
       setHoveredMenu(null);
@@ -836,6 +863,9 @@ const Dashboard = () => {
                 </button>
                 <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('internal-purchase-order-master'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
                   Master IPO Sheet
+                </button>
+                <button className="hover-panel-item" onClick={() => { setActivePage('code-creation'); setCodeCreationView('completed-ipos'); setHoveredMenu(null); setHoveredSubmenu(null); }}>
+                  Completed IPOs
                 </button>
               </div>
             </div>

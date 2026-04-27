@@ -19,6 +19,7 @@ const CompanyEssentials = ({ onBack }) => {
   const [previewErrors, setPreviewErrors] = useState({});
   const [errors, setErrors] = useState({}); // { [formId]: { [fieldName]: string } }
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
+  const [saveError, setSaveError] = useState('');
   const [isSaved, setIsSaved] = useState(false);
   const [existingEssentials, setExistingEssentials] = useState([]);
 
@@ -217,85 +218,64 @@ const CompanyEssentials = ({ onBack }) => {
     return Object.keys(newPreviewErrors).length === 0;
   };
 
-  // Handle form submit for a specific form; returns created essential (with share_token) or null
+  // Format a DRF error body into a single readable line.
+  const formatApiError = (response) => {
+    if (!response) return 'No response from server';
+    if (typeof response === 'string') return response;
+    if (response.detail) return String(response.detail);
+    if (response.message && response.status !== 'success') return String(response.message);
+    if (response.error) return String(response.error);
+    // DRF field errors: { field: ["msg", ...], ... }
+    const fieldMsgs = Object.entries(response)
+      .filter(([k]) => !['status', 'message', 'data'].includes(k))
+      .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`);
+    if (fieldMsgs.length) return fieldMsgs.join(' | ');
+    return JSON.stringify(response).slice(0, 300);
+  };
+
+  // Handle form submit for a specific form; returns created essential (with share_token).
+  // Throws with a readable message when the API rejects the request.
   const submitForm = async (formId, previewMeta) => {
     const form = forms.find(f => f.id === formId);
-    if (!form) return null;
+    if (!form) throw new Error('Form not found');
 
-    try {
-      const response = await createCompanyEssential({
-        category: selectedCategory,
-        entry_date: commonDate,
-        department: form.data.department || '',
-        item_description: form.data.itemDescription || form.data.item || form.data.machineType || '',
-        item: form.data.item || '',
-        machine_type: form.data.machineType || '',
-        component_spec: form.data.componentSpec || '',
-        quantity: form.data.qty ? parseInt(form.data.qty) : null,
-        amount: form.data.amount ? parseFloat(form.data.amount) : null,
-        unit: form.data.unit || '',
-        for_field: form.data.forField || '',
-        remarks: form.data.remarks || '',
-        taken_by_name: previewMeta?.personName || '',
-        payment_method: previewMeta?.paymentMethod || '',
-      });
+    const response = await createCompanyEssential({
+      category: selectedCategory,
+      entry_date: commonDate,
+      department: form.data.department || '',
+      item_description: form.data.itemDescription || form.data.item || form.data.machineType || '',
+      item: form.data.item || '',
+      machine_type: form.data.machineType || '',
+      component_spec: form.data.componentSpec || '',
+      quantity: form.data.qty ? parseInt(form.data.qty) : null,
+      amount: form.data.amount ? parseFloat(form.data.amount) : null,
+      unit: form.data.unit || '',
+      for_field: form.data.forField || '',
+      remarks: form.data.remarks || '',
+      taken_by_name: previewMeta?.personName || '',
+      payment_method: previewMeta?.paymentMethod || '',
+    });
 
-      const data = response.data ?? response;
-      if (data && (response.status === 'success' || data.code || data.id)) {
-        const shareToken = data.share_token || data.shareToken || '';
-        if (shareToken && previewMeta?.personName) {
-          try {
-            await markPublicEssentialTaken(shareToken, {
-              taken_by_name: previewMeta.personName,
-              person_name: previewMeta.personName,
-              payment_method: previewMeta.paymentMethod || undefined,
-            });
-          } catch (markError) {
-            console.warn('Failed to mark essential as taken during submit:', markError);
-          }
-        }
-
-        const existingData = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
-        existingData.push({
-          category: selectedCategory,
-          code: data.code,
-          date: commonDate,
-          takenByName: previewMeta?.personName || '',
-          paymentMethod: previewMeta?.paymentMethod || '',
-          timestamp: new Date().toISOString()
-        });
-        localStorage.setItem('companyEssentials', JSON.stringify(existingData));
-        setExistingEssentials(existingData);
-        return data;
-      }
-      return null;
-    } catch (error) {
-      console.error('Error saving company essential:', error);
-      const dataToSave = {
-        category: selectedCategory,
-        date: commonDate,
-        department: form.data.department,
-        takenByName: previewMeta?.personName || '',
-        paymentMethod: previewMeta?.paymentMethod || '',
-        item: {
-          srNo: form.srNo,
-          itemDescription: form.data.itemDescription || form.data.item || form.data.machineType,
-          machineType: form.data.machineType,
-          componentSpec: form.data.componentSpec,
-          qty: form.data.qty,
-          amount: form.data.amount,
-          unit: form.data.unit,
-          forField: form.data.forField,
-          remarks: form.data.remarks,
-        },
-        timestamp: new Date().toISOString()
-      };
-      const existingData = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
-      existingData.push(dataToSave);
-      localStorage.setItem('companyEssentials', JSON.stringify(existingData));
-      setExistingEssentials(existingData);
-      return null;
+    const data = response?.data ?? response;
+    const isSuccess = data && (response?.status === 'success' || data.code || data.id);
+    if (!isSuccess) {
+      console.error('Save failed - server response:', response);
+      throw new Error(formatApiError(response));
     }
+
+    const shareToken = data.share_token || data.shareToken || '';
+    if (shareToken && previewMeta?.personName) {
+      try {
+        await markPublicEssentialTaken(shareToken, {
+          taken_by_name: previewMeta.personName,
+          person_name: previewMeta.personName,
+          payment_method: previewMeta.paymentMethod || undefined,
+        });
+      } catch (markError) {
+        console.warn('Failed to mark essential as taken during submit:', markError);
+      }
+    }
+    return data;
   };
 
   const handleSubmitAll = async (e) => {
@@ -322,20 +302,25 @@ const CompanyEssentials = ({ onBack }) => {
     };
 
     setShowPreviewPopup(false);
+    setSaveError('');
+    const savedItems = [];
     try {
-      let hasFailedSubmission = false;
       for (const form of forms) {
         const saved = await submitForm(form.id, previewMeta);
-        if (!saved) {
-          hasFailedSubmission = true;
-        }
+        savedItems.push({
+          category: selectedCategory,
+          code: saved.code,
+          date: commonDate,
+          takenByName: previewMeta.personName,
+          paymentMethod: previewMeta.paymentMethod,
+          timestamp: new Date().toISOString(),
+        });
       }
 
-      if (hasFailedSubmission) {
-        setSaveStatus('error');
-        setTimeout(() => setSaveStatus('idle'), 3000);
-        return;
-      }
+      const existingData = JSON.parse(localStorage.getItem('companyEssentials') || '[]');
+      const merged = [...existingData, ...savedItems];
+      localStorage.setItem('companyEssentials', JSON.stringify(merged));
+      setExistingEssentials(merged);
 
       setSaveStatus('success');
       setIsSaved(true);
@@ -344,8 +329,12 @@ const CompanyEssentials = ({ onBack }) => {
       setPreviewErrors({});
     } catch (error) {
       console.error('Error submitting forms:', error);
+      setSaveError(error?.message || 'Failed to save');
       setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      setTimeout(() => {
+        setSaveStatus('idle');
+        setSaveError('');
+      }, 8000);
     }
   };
 
@@ -449,6 +438,7 @@ const CompanyEssentials = ({ onBack }) => {
     if (isSaved || saveStatus === 'error') {
       setSaveStatus('idle');
       setIsSaved(false);
+      setSaveError('');
     }
   }, [forms, selectedCategory, commonDate]);
 
@@ -747,6 +737,11 @@ const CompanyEssentials = ({ onBack }) => {
                 Add More
               </Button>
             </div>
+            {saveStatus === 'error' && saveError && (
+              <div className="mt-2 text-sm text-red-600 break-words">
+                {saveError}
+              </div>
+            )}
           </form>
         </FormCard>
       )}

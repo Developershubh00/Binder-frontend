@@ -5,8 +5,6 @@ import { useLoading } from '../context/LoadingContext';
 
 const COMPLETED_KEY = 'completedIpos';
 
-// Read the set of completed IPO keys (id-or-code) from localStorage. Wrapped
-// in a try/catch so corrupted or missing storage doesn't break the page.
 const readCompletedKeys = () => {
   try {
     const raw = localStorage.getItem(COMPLETED_KEY);
@@ -29,8 +27,6 @@ const normalizeIpo = (ipo) => {
   const id = String(ipo.id || ipo.ipoId || '');
   const code = ipo.ipo_code || ipo.ipoCode || '';
   return {
-    // Stable identifier used for completion tracking. Prefer numeric id; fall
-    // back to the IPO code if id isn't returned by the API.
     key: id || code,
     id,
     code,
@@ -39,13 +35,10 @@ const normalizeIpo = (ipo) => {
   };
 };
 
-const IPOMasterSheet = ({ onBack }) => {
+const CompletedIPOs = ({ onBack }) => {
   const [ipos, setIpos] = useState([]);
-  const [completedKeys, setCompletedKeys] = useState(readCompletedKeys);
-  const [pendingKeys, setPendingKeys] = useState(() => new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [savedFlash, setSavedFlash] = useState(false);
   const { showLoading, hideLoading } = useLoading();
 
   const fetchIpos = useCallback(async () => {
@@ -53,14 +46,14 @@ const IPOMasterSheet = ({ onBack }) => {
     try {
       setLoading(true);
       setError(null);
+      const completedKeys = readCompletedKeys();
       const response = await getIPOs();
-      const list = extractItems(response).map(normalizeIpo);
+      const list = extractItems(response)
+        .map(normalizeIpo)
+        .filter((ipo) => completedKeys.has(ipo.key));
       setIpos(list);
-      // Re-sync the completed-keys cache too, in case the Dashboard scrubbed
-      // a deleted IPO from it while we were mounted.
-      setCompletedKeys(readCompletedKeys());
     } catch (err) {
-      console.warn('Failed to load IPOs:', err);
+      console.warn('Failed to load completed IPOs:', err);
       setError('Failed to load IPOs. Please try again.');
     } finally {
       setLoading(false);
@@ -72,35 +65,26 @@ const IPOMasterSheet = ({ onBack }) => {
     fetchIpos();
   }, [fetchIpos]);
 
-  // Refresh when an IPO is deleted from anywhere else in the app
-  // (Dashboard dispatches this after a successful deleteIPO call).
+  // Refresh when an IPO is deleted from anywhere else in the app — the
+  // Dashboard dispatches this event after a successful deleteIPO call,
+  // and also scrubs the IPO from the completedIpos localStorage cache.
   useEffect(() => {
     const handler = () => fetchIpos();
     window.addEventListener('internalPurchaseOrdersUpdated', handler);
     return () => window.removeEventListener('internalPurchaseOrdersUpdated', handler);
   }, [fetchIpos]);
 
-  const togglePending = (key) => {
-    setPendingKeys((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+  // Wipes the local "completed" list. Those IPOs become active again and
+  // will show back up in the Master IPO Sheet on its next mount.
+  const handleClearTable = () => {
+    if (ipos.length === 0) return;
+    const ok = window.confirm(
+      `Clear all ${ipos.length} completed IPO${ipos.length === 1 ? '' : 's'}? They will return to the Master IPO Sheet.`
+    );
+    if (!ok) return;
+    localStorage.removeItem(COMPLETED_KEY);
+    setIpos([]);
   };
-
-  const handleSave = () => {
-    if (pendingKeys.size === 0) return;
-    const merged = new Set([...completedKeys, ...pendingKeys]);
-    localStorage.setItem(COMPLETED_KEY, JSON.stringify(Array.from(merged)));
-    setCompletedKeys(merged);
-    setPendingKeys(new Set());
-    setSavedFlash(true);
-    setTimeout(() => setSavedFlash(false), 2000);
-  };
-
-  // Active = IPOs that haven't been marked completed yet.
-  const activeIpos = ipos.filter((ipo) => !completedKeys.has(ipo.key));
 
   const headerCellStyle = {
     padding: '14px 20px',
@@ -128,9 +112,9 @@ const IPOMasterSheet = ({ onBack }) => {
         >
           ← Back
         </Button>
-        <h1 className="fullscreen-title">Master IPO Sheet</h1>
+        <h1 className="fullscreen-title">Completed IPOs</h1>
         <p className="fullscreen-description">
-          Mark IPOs as completed and save to move them to the Completed IPOs list.
+          All internal purchase orders that have been marked completed.
         </p>
       </div>
 
@@ -139,39 +123,35 @@ const IPOMasterSheet = ({ onBack }) => {
           display: 'flex',
           alignItems: 'center',
           gap: '16px',
-          marginBottom: '20px',
+          marginBottom: '16px',
           flexWrap: 'wrap',
         }}
       >
-        <Button
-          variant="default"
-          onClick={handleSave}
-          disabled={pendingKeys.size === 0}
-          type="button"
-        >
-          Save{pendingKeys.size > 0 ? ` (${pendingKeys.size} selected)` : ''}
-        </Button>
         <span className="text-sm text-muted-foreground">
-          Active IPOs: <strong className="text-foreground">{activeIpos.length}</strong>
+          Total completed: <strong className="text-foreground">{ipos.length}</strong>
         </span>
-        {savedFlash && (
-          <span style={{ fontSize: 13, color: 'var(--primary)', fontWeight: 600 }}>
-            ✓ Saved
-          </span>
-        )}
+        <Button
+          variant="outline"
+          onClick={handleClearTable}
+          disabled={ipos.length === 0}
+          type="button"
+          className="text-destructive hover:text-destructive"
+        >
+          Clear table
+        </Button>
       </div>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '48px', color: 'var(--muted-foreground)' }}>
-          Loading IPOs...
+          Loading completed IPOs...
         </div>
       ) : error ? (
         <div style={{ textAlign: 'center', padding: '48px', color: 'var(--destructive)' }}>
           {error}
         </div>
-      ) : activeIpos.length === 0 ? (
+      ) : ipos.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px', color: 'var(--muted-foreground)' }}>
-          No active IPOs. Generate an IPO code to add one to this list.
+          No completed IPOs yet. Mark IPOs as completed in the Master IPO Sheet to see them here.
         </div>
       ) : (
         <div
@@ -191,36 +171,17 @@ const IPOMasterSheet = ({ onBack }) => {
                 }}
               >
                 <th style={headerCellStyle}>IPO CODE</th>
-                <th style={{ ...headerCellStyle, textAlign: 'center', width: '200px' }}>
-                  MARK AS COMPLETED
-                </th>
               </tr>
             </thead>
             <tbody>
-              {activeIpos.map((ipo, index) => (
+              {ipos.map((ipo, index) => (
                 <tr
                   key={ipo.key || index}
                   style={{
-                    borderBottom: index < activeIpos.length - 1 ? '1px solid var(--border)' : 'none',
-                    transition: 'background-color 0.15s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--muted)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
+                    borderBottom: index < ipos.length - 1 ? '1px solid var(--border)' : 'none',
                   }}
                 >
                   <td style={bodyCellStyle}>{ipo.code || 'N/A'}</td>
-                  <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
-                    <input
-                      type="checkbox"
-                      checked={pendingKeys.has(ipo.key)}
-                      onChange={() => togglePending(ipo.key)}
-                      style={{ width: 18, height: 18, cursor: 'pointer' }}
-                      aria-label={`Mark ${ipo.code} as completed`}
-                    />
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -231,4 +192,4 @@ const IPOMasterSheet = ({ onBack }) => {
   );
 };
 
-export default IPOMasterSheet;
+export default CompletedIPOs;
