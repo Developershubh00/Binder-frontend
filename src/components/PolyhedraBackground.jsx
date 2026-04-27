@@ -652,7 +652,7 @@ const availableH = mobile
   ? height * 0.55 - 2 * MARGIN   // mobile: cluster sits in lower row
   : height - 2 * MARGIN;
 const boundingDim = Math.min(availableW, availableH);
-const size = boundingDim / 0.42;
+const size = (boundingDim / 0.42) * 0.8;
 
       const s0 = size / 380;
 

@@ -191,6 +191,7 @@ body, html {
 }
 
 .split-tagline-block {
+  margin-top: 30px;
   padding: 18px 0 18px 18px;
   border-left: 3px solid #ffffff;
   display: flex;
@@ -225,6 +226,7 @@ body, html {
 .split-cta-row {
   display: flex;
   flex-direction: column;
+
   gap: 10px;
   opacity: 0;
   transform: translateY(24px);
@@ -232,6 +234,7 @@ body, html {
 }
 
 .right-cta {
+  margin-left: 30px;
   position: relative;
   z-index: 10;                     /* above .login-card-wrapper (z:5) so the button stays clickable */
 }
@@ -396,7 +399,9 @@ body, html {
 }
 
 .login-card {
+  margin-top: 80px;                      /* pushes card slightly below center for better visual balance */
   position: relative;
+  
   z-index: 3;
   background: var(--card);
   border-radius: 22px;
