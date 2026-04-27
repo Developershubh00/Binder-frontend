@@ -57,6 +57,18 @@ Always provide clear, concise, and helpful answers about the software's features
     }
   }, [chatMessages, isTyping]);
 
+  // Toggle a body class so the main app content can shrink to make room
+  // for the side panel. Cleaned up on unmount so we don't leave the body
+  // in a squeezed state if the component is removed (e.g. on logout).
+  useEffect(() => {
+    if (isChatOpen) {
+      document.body.classList.add('ai-panel-open');
+    } else {
+      document.body.classList.remove('ai-panel-open');
+    }
+    return () => document.body.classList.remove('ai-panel-open');
+  }, [isChatOpen]);
+
   // Convert markdown-style bold to HTML
   const formatMessageText = (text) => {
     // Replace **text** with <strong>text</strong>
@@ -160,76 +172,88 @@ Always provide clear, concise, and helpful answers about the software's features
         onClick={() => setIsChatOpen(!isChatOpen)}
       />
 
-      {/* Chatbot Modal */}
-      {isChatOpen && (
-        <div className="chatbot-modal">
-          <div className="chatbot-container">
-            <div className="chatbot-header">
-              <div className="chatbot-header-left">
-                <FaRobot className="chatbot-icon" />
-                <span>Binder AI Assistant</span>
-              </div>
-              <button className="close-chat" onClick={() => setIsChatOpen(false)}>
-                <FaTimes />
-              </button>
-            </div>
-
-            <div className="chat-messages" ref={chatMessagesRef}>
-              {chatMessages.map(message => (
-                <div key={message.id} className={`message ${message.isBot ? 'bot-message' : 'user-message'}`}>
-                  <div className="message-avatar">
-                    {message.isBot ? <FaRobot /> : <FaUser />}
-                  </div>
-                  <div className="message-content">
-                    <div 
-                      className="message-text"
-                      dangerouslySetInnerHTML={{ __html: formatMessageText(message.text) }}
-                    />
-                    <div className="message-time">
-                      {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {/* Typing Indicator */}
-              {isTyping && (
-                <div className="message bot-message">
-                  <div className="message-avatar">
-                    <FaRobot />
-                  </div>
-                  <div className="message-content">
-                    <div className="message-text typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="chat-input">
-              <input
-                type="text"
-                placeholder="Ask me anything about Binder..."
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="message-input"
-                disabled={isTyping}
-              />
-              <button 
-                onClick={sendMessage} 
-                className="send-button"
-                disabled={isTyping || !currentMessage.trim()}
-              >
-                <FaPaperPlane />
-              </button>
+      {/* AI Assistant Side Panel */}
+      <aside
+        className={`ai-side-panel${isChatOpen ? ' open' : ''}`}
+        role="dialog"
+        aria-label="Binder AI Assistant"
+        aria-hidden={!isChatOpen}
+      >
+        <div className="ai-side-panel-header">
+          <div className="ai-side-panel-header-left">
+            <span className="ai-side-panel-avatar">
+              <FaRobot />
+            </span>
+            <div className="ai-side-panel-titles">
+              <span className="ai-side-panel-title">Binder AI Assistant</span>
+              <span className="ai-side-panel-subtitle">Always here to help</span>
             </div>
           </div>
+          <button
+            className="ai-side-panel-close"
+            onClick={() => setIsChatOpen(false)}
+            aria-label="Close AI Assistant"
+            type="button"
+          >
+            <FaTimes />
+          </button>
         </div>
-      )}
+
+        <div className="chat-messages" ref={chatMessagesRef}>
+          {chatMessages.map(message => (
+            <div key={message.id} className={`message ${message.isBot ? 'bot-message' : 'user-message'}`}>
+              <div className="message-avatar">
+                {message.isBot ? <FaRobot /> : <FaUser />}
+              </div>
+              <div className="message-content">
+                <div
+                  className="message-text"
+                  dangerouslySetInnerHTML={{ __html: formatMessageText(message.text) }}
+                />
+                <div className="message-time">
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Typing Indicator */}
+          {isTyping && (
+            <div className="message bot-message">
+              <div className="message-avatar">
+                <FaRobot />
+              </div>
+              <div className="message-content">
+                <div className="message-text typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="chat-input">
+          <input
+            type="text"
+            placeholder="Ask me anything about Binder..."
+            value={currentMessage}
+            onChange={(e) => setCurrentMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="message-input"
+            disabled={isTyping}
+          />
+          <button
+            onClick={sendMessage}
+            className="send-button"
+            disabled={isTyping || !currentMessage.trim()}
+            aria-label="Send message"
+          >
+            <FaPaperPlane />
+          </button>
+        </div>
+      </aside>
     </>
   );
 };

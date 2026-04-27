@@ -1,3 +1,15 @@
+/* When the AI side panel is open, shrink the main app content so the
+   panel sits beside it instead of overlapping. The body's padding-right
+   reserves space; the panel itself remains position: fixed at the right
+   edge so it stays put while the rest of the page reflows. */
+body {
+  transition: padding-right 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.ai-panel-open {
+  padding-right: 420px;
+}
+
 /* Floating Polyhedra Chat Button */
 .polyhedra-chat-btn {
   position: fixed;
@@ -10,8 +22,12 @@
   cursor: pointer;
   z-index: 1000;
   box-shadow: 0 0 18px 4px rgba(212, 170, 90, 0.18), 0 4px 24px rgba(0,0,0,0.35);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.35s ease,
+    box-shadow 0.3s ease;
   overflow: hidden;
+  transform-origin: center center;
 }
 
 .polyhedra-chat-btn:hover {
@@ -19,75 +35,131 @@
   box-shadow: 0 0 28px 6px rgba(212, 170, 90, 0.3), 0 6px 32px rgba(0,0,0,0.4);
 }
 
+/* When the side panel is open, the logo button slides off and fades out */
 .polyhedra-chat-btn.open {
-  box-shadow: 0 0 24px 8px rgba(212, 170, 90, 0.35), 0 4px 24px rgba(0,0,0,0.35);
+  transform: scale(0.4) rotate(-180deg) translateX(40px);
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: none;
 }
 
-/* Chatbot Modal */
-.chatbot-modal {
+/* AI Assistant Side Panel */
+.ai-side-panel {
   position: fixed;
-  bottom: 100px;
-  right: 30px;
-  z-index: 1001;
-  animation: slideInUp 0.3s ease;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.chatbot-container {
-  width: 400px;
-  height: 500px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 100vw;
   background: var(--card);
-  border-radius: 16px;
-  box-shadow: var(--shadow-xl);
+  box-shadow: -16px 0 40px -8px rgba(0, 0, 0, 0.25), -4px 0 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  z-index: 1001;
+  transform: translateX(100%);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease,
+    visibility 0s linear 0.45s;
+  border-left: 1px solid var(--border);
 }
 
-.chatbot-header {
+.ai-side-panel.open {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.4s ease,
+    visibility 0s linear 0s;
+}
+
+.ai-side-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  background: var(--primary);
+  padding: 18px 22px;
+  background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, #000 0%));
   color: var(--primary-foreground);
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.chatbot-header-left {
+.ai-side-panel-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.18), transparent 60%);
+  pointer-events: none;
+}
+
+.ai-side-panel-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 600;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
 }
 
-.chatbot-icon {
-  font-size: 20px;
+.ai-side-panel-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
 }
 
-.close-chat {
-  background: none;
+.ai-side-panel-titles {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.ai-side-panel-title {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+}
+
+.ai-side-panel-subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.ai-side-panel-close {
+  background: rgba(255, 255, 255, 0.12);
   border: none;
   color: var(--primary-foreground);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  font-size: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: transform 0.25s ease, background 0.2s ease;
+  position: relative;
+  z-index: 1;
 }
 
-.close-chat:hover {
-  background: rgba(255, 255, 255, 0.2);
+.ai-side-panel-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: rotate(90deg);
+}
+
+.ai-side-panel-close:active {
+  transform: rotate(90deg) scale(0.92);
 }
 
 .chat-messages {
@@ -344,6 +416,12 @@
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+  /* On smaller screens the panel becomes an overlay rather than squeezing
+     the layout — there isn't enough horizontal room to do both. */
+  body.ai-panel-open {
+    padding-right: 0;
+  }
+
   .polyhedra-chat-btn {
     width: 52px !important;
     height: 52px !important;
@@ -356,14 +434,8 @@
     height: 52px !important;
   }
 
-  .chatbot-modal {
-    bottom: 82px;
-    right: 20px;
-  }
-
-  .chatbot-container {
-    width: 320px;
-    height: 450px;
+  .ai-side-panel {
+    width: 360px;
   }
 
   .chat-messages {
@@ -396,14 +468,12 @@
     height: 48px !important;
   }
 
-  .chatbot-container {
-    width: 280px;
-    height: 400px;
+  .ai-side-panel {
+    width: 100vw;
   }
 
-  .chatbot-modal {
-    right: 10px;
-    bottom: 70px;
+  .ai-side-panel-header {
+    padding: 14px 18px;
   }
 
   .send-button {
