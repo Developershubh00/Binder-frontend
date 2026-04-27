@@ -405,27 +405,28 @@ const Login = () => {
                     className="split-logo-img"
                   />
                 </div>
-                <h1 className="split-brand-name">BinderOS</h1>
+                <h1 className="split-brand-name">Binder OS</h1>
               </div>
 
-              <p className="split-tagline-top">YOUR COMPANY'S NERVOUS SYSTEM</p>
+              <p className="split-tagline-top">COMPANY NERVOUS SYSTEM</p>
 
-              <div className="split-description">
+              {/* <div className="split-description">
                 <p className="split-description-lead">
                   One system of record for complete traceability of operations — from raw material to finished goods.
                 </p>
                 <p className="split-description-body">
                   Binder OS replaces the chaos of spreadsheets, WhatsApp groups, and disconnected registers with a single manufacturing operating system built for India's textile ecosystem. We start where every company starts — with inventory.
                 </p>
-              </div>
+              </div> */}
 
               <div className="split-tagline-block">
                 <p className="split-tagline-main">
-                  YOU TRACK EVERYTHING MOVING THROUGH YOUR COMPANY
+                  TRACK EVERYTHING MOVING THROUGH YOUR COMPANY.<br />
+                  SO, NOTHING GETS LOST BETWEEN UNIT, VENDORS, PROCESSES.
                 </p>
-                <p className="split-tagline-sub">
+                {/* <p className="split-tagline-sub">
                   SO. NOTHING GETS LOST BETWEEN UNIT, VENDORS, PROCESSES
-                </p>
+                </p> */}
               </div>
             </div>
 
