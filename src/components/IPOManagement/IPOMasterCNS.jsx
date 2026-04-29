@@ -1325,6 +1325,43 @@ const IPOMasterCNS = ({ ipo }) => {
     return all.filter((r) => sub.matches(String(r.material_type || '')));
   }, [data, activeTab, rawSubtab, yarnRowsFromDerived, fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived, artworkRowsFromDerived]);
 
+  // Hide tabs/subtabs that resolve to zero rows so the user only sees views
+  // that actually have data. Auto-switch the current selection if it becomes
+  // empty (e.g. wizard data changes and the active subtab disappears).
+  const availableSubtabs = useMemo(() => {
+    const has = {
+      fabric: fabricRowsFromDerived.length > 0,
+      fiber: fiberRowsFromDerived.length > 0,
+      foam: foamRowsFromDerived.length > 0,
+      trim: trimRowsFromDerived.length > 0,
+      yarn: yarnRowsFromDerived.length > 0,
+    };
+    return RAW_SUBTABS.filter((s) => has[s.key]);
+  }, [fabricRowsFromDerived, fiberRowsFromDerived, foamRowsFromDerived, trimRowsFromDerived, yarnRowsFromDerived]);
+
+  const availableTabs = useMemo(() => {
+    const has = {
+      raw_material: availableSubtabs.length > 0,
+      artwork_labeling: artworkRowsFromDerived.length > 0,
+      packaging: (data?.packaging?.length || 0) > 0,
+    };
+    return TABS.filter((t) => has[t.key]);
+  }, [availableSubtabs, artworkRowsFromDerived, data]);
+
+  useEffect(() => {
+    if (availableTabs.length === 0) return;
+    if (!availableTabs.some((t) => t.key === activeTab)) {
+      setActiveTab(availableTabs[0].key);
+    }
+  }, [availableTabs, activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== 'raw_material' || availableSubtabs.length === 0) return;
+    if (!availableSubtabs.some((s) => s.key === rawSubtab)) {
+      setRawSubtab(availableSubtabs[0].key);
+    }
+  }, [availableSubtabs, activeTab, rawSubtab]);
+
   const activeConfig = activeTab === 'artwork_labeling'
     ? ARTWORK_TAB_CONFIG
     : (SUBTAB_CONFIG[rawSubtab] || SUBTAB_CONFIG.yarn);
@@ -1554,7 +1591,7 @@ const IPOMasterCNS = ({ ipo }) => {
   return (
     <div>
       <div className="flex items-center gap-2" style={{ marginBottom: 12 }}>
-        {TABS.map((t) => (
+        {availableTabs.map((t) => (
           <Button
             key={t.key}
             type="button"
@@ -1593,7 +1630,7 @@ const IPOMasterCNS = ({ ipo }) => {
             <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.5, marginRight: 4 }}>
               Category
             </span>
-            {RAW_SUBTABS.map((s) => {
+            {availableSubtabs.map((s) => {
               const active = rawSubtab === s.key;
               return (
                 <button
