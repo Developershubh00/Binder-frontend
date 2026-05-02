@@ -725,13 +725,18 @@ const GenerateFactoryCode = ({
       }
 
       normalizedPayload = normalizeFactoryCodePayloadStiffenerPlys(cloned);
-      const payload = JSON.stringify(normalizedPayload);
 
       // localStorage is best-effort cache. A quota error here must not block the backend save.
+      // Strip base64-stashed file blobs (image/artwork/packaging uploads) before writing —
+      // they push a multi-SKU draft past the ~5 MB localStorage cap. The backend draft keeps
+      // them; the local cache only needs text/structure to act as an offline safety net.
       try {
-        localStorage.setItem(STORAGE_KEY, payload);
+        const lightPayload = JSON.stringify(normalizedPayload, (key, value) =>
+          typeof key === 'string' && key.endsWith('Base64') ? undefined : value
+        );
+        localStorage.setItem(STORAGE_KEY, lightPayload);
         if (data?.ipoCode) {
-          localStorage.setItem(getStorageKey(data.ipoCode), payload);
+          localStorage.setItem(getStorageKey(data.ipoCode), lightPayload);
         }
       } catch (lsErr) {
         console.warn('Failed to save to localStorage:', lsErr);
@@ -1567,8 +1572,22 @@ const GenerateFactoryCode = ({
     const initial = getInitialStepData();
     if (!stepData) return initial;
     const hasProducts = Array.isArray(stepData.products) && stepData.products.length > 0;
-    if (hasProducts) return stepData;
-    return { ...initial, ...stepData, products: initial.products };
+    const base = hasProducts ? stepData : { ...initial, ...stepData, products: initial.products };
+    // Guarantee packaging.materials is always an array. Hydrated drafts /
+    // committed-factory-code rows can land here with packaging present but
+    // materials missing, which crashes the spread in handlePackagingMaterialChange.
+    const basePackaging = base.packaging && typeof base.packaging === 'object' ? base.packaging : {};
+    return {
+      ...base,
+      packaging: {
+        ...initial.packaging,
+        ...basePackaging,
+        materials: Array.isArray(basePackaging.materials) && basePackaging.materials.length > 0
+          ? basePackaging.materials
+          : initial.packaging.materials,
+        extraPacks: Array.isArray(basePackaging.extraPacks) ? basePackaging.extraPacks : [],
+      },
+    };
   };
 
   // Helper functions to get/set selected SKU's step data
