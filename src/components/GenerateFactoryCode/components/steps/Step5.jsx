@@ -201,7 +201,7 @@ const Step5 = ({
         
         <div className="flex flex-wrap items-start gap-4">
           {/* TO BE SHIPPED */}
-          <div className="flex flex-col" style={{ width: '220px' }}>
+          <div className="flex flex-col" style={{ width: '150px' }}>
             <label className={`text-sm font-semibold mb-2 ${errors?.packaging_toBeShipped ? 'text-red-600' : 'text-gray-700'}`}>TO BE SHIPPED <span className="text-red-500">*</span></label>
             <SearchableDropdown
               value={formData.packaging.toBeShipped || ''}
@@ -272,9 +272,9 @@ const Step5 = ({
                         }}
                         className="flex items-center gap-3 cursor-pointer px-3 py-2.5 text-sm border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 transition-colors"
                       >
-                        <div className="flex-shrink-0 w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '40px' }}>
+                        <div className="flex-shrink-0 w-[60px] h-[60px] rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '60px' }}>
                           {opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : (
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>
+                            <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>
                           )}
                         </div>
                         <span className="font-medium text-gray-800 truncate">{opt.label}</span>
@@ -331,10 +331,10 @@ const Step5 = ({
                                 const next = checked ? mainProductSelection.filter((v) => v !== opt.value) : [...mainProductSelection, opt.value];
                                 handlePackagingChange('productSelection', next);
                               }}
-                              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                              className="h-6 w-6 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             />
-                            <div className="flex-shrink-0 w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '40px' }}>
-                              {opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>}
+                            <div className="flex-shrink-0 w-[60px] h-[60px] rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '60px' }}>
+                              {opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>}
                             </div>
                             <span className="font-medium text-gray-800 truncate">{opt.label}</span>
                           </label>
@@ -583,9 +583,9 @@ const Step5 = ({
                                       }}
                                       className="flex items-center gap-3 cursor-pointer px-3 py-2.5 text-sm border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 transition-colors"
                                     >
-                                      <div className="flex-shrink-0 w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '40px' }}>
+                                      <div className="flex-shrink-0 w-[60px] h-[60px] rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '60px' }}>
                                         {opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : (
-                                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>
+                                          <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>
                                         )}
                                       </div>
                                       <span className="font-medium text-gray-800 truncate">{opt.label}</span>
@@ -623,8 +623,8 @@ const Step5 = ({
                                   const checked = packSelection.includes(ipcVal);
                                   return (
                                     <label key={ipcVal} className="flex items-center gap-3 cursor-pointer px-3 py-2.5 text-sm border-b border-gray-100 last:border-b-0 hover:bg-indigo-50">
-                                      <input type="checkbox" checked={checked} onChange={() => { const next = checked ? packSelection.filter((v) => v !== ipcVal) : [...packSelection, ipcVal]; handleExtraPackChange(extraIndex, 'productSelection', next); }} className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-                                      <div className="flex-shrink-0 w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '40px' }}>{opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>}</div>
+                                      <input type="checkbox" checked={checked} onChange={() => { const next = checked ? packSelection.filter((v) => v !== ipcVal) : [...packSelection, ipcVal]; handleExtraPackChange(extraIndex, 'productSelection', next); }} className="h-6 w-6 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                                      <div className="flex-shrink-0 w-[60px] h-[60px] rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center" style={{ minWidth: '60px' }}>{opt.imagePreview ? <img src={opt.imagePreview} alt="" className="w-full h-full object-cover" /> : <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" strokeWidth="1.5" /></svg>}</div>
                                       <span className="font-medium text-gray-800 truncate">{opt.label}</span>
                                     </label>
                                   );
