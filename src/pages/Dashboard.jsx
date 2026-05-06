@@ -23,6 +23,8 @@ import InwardStoreSheet from '../components/InwardStoreSheet.jsx';
 import InwardStoreSheetDatabase from '../components/InwardStoreSheetDatabase.jsx';
 import OutwardStoreSheet from '../components/OutwardStoreSheet.jsx';
 import OutwardStoreSheetDatabase from '../components/OutwardStoreSheetDatabase.jsx';
+import StockSheet from '../components/StockSheet.jsx';
+import MasterStockSheet from '../components/MasterStockSheet.jsx';
 import { getIPOs, deleteIPO } from '../services/integration';
 import { useLoading } from '../context/LoadingContext';
 import {
@@ -311,6 +313,10 @@ const Dashboard = () => {
         return <OutwardStoreSheet onBack={() => setActivePage('home')} />;
       case 'outward-store-sheet-db':
         return <OutwardStoreSheetDatabase onBack={() => setActivePage('home')} onOpenForm={() => setActivePage('outward-store-sheet')} />;
+      case 'stock-sheet':
+        return <StockSheet onBack={() => setActivePage('stock-sheet-db')} onSaved={() => setActivePage('stock-sheet-db')} />;
+      case 'stock-sheet-db':
+        return <MasterStockSheet onBack={() => setActivePage('home')} onOpenForm={() => setActivePage('stock-sheet')} />;
       case 'tasks':
         return <TasksContent initialView={tasksView} />;
       case 'purchase':
@@ -717,6 +723,8 @@ const Dashboard = () => {
       || activePage === 'inward-store-sheet-db'
       || activePage === 'outward-store-sheet'
       || activePage === 'outward-store-sheet-db'
+      || activePage === 'stock-sheet'
+      || activePage === 'stock-sheet-db'
       || activePage === 'ipo-management'
     ) {
       setHoveredMenu(null);
@@ -1099,6 +1107,13 @@ const Dashboard = () => {
               </button>
               <button
                 type="button"
+                className={`hover-panel-item ${activeSection === 'stock' || ['stock-sheet', 'stock-sheet-db'].includes(activePage) ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'stock', action: null, category: null })}
+              >
+                Stock Sheet
+              </button>
+              <button
+                type="button"
                 className={`hover-panel-item ${activeSection === 'uqr' || activePage === 'uqr-forms' || activePage === 'uqr-database' ? 'active' : ''}`}
                 onMouseEnter={() => setHoveredSubmenu({ menu: 'ims', section: 'uqr', action: null, category: null })}
               >
@@ -1171,6 +1186,35 @@ const Dashboard = () => {
               </div>
             </div>
           )}
+          {activeSection === 'stock' && (
+            <div className="hover-panel nested-panel">
+              <div className="hover-panel-column">
+                <div className="hover-panel-title">Stock Sheet</div>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'stock-sheet' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('stock-sheet');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  Add Stock Items
+                </button>
+                <button
+                  type="button"
+                  className={`hover-panel-item ${activePage === 'stock-sheet-db' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActivePage('stock-sheet-db');
+                    setHoveredSubmenu(null);
+                    setHoveredMenu(null);
+                  }}
+                >
+                  Master Stock Sheet
+                </button>
+              </div>
+            </div>
+          )}
           {activeSection === 'uqr' && (
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
@@ -1229,7 +1273,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeSection && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && activeSection !== 'outward' && (
+          {activeSection && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && activeSection !== 'outward' && activeSection !== 'stock' && (
             <div className="hover-panel nested-panel">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">
@@ -1251,7 +1295,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeAction && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && activeSection !== 'outward' && (
+          {activeAction && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && activeSection !== 'outward' && activeSection !== 'stock' && (
             <div className="hover-panel nested-panel second">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">Select Type</div>
@@ -1273,7 +1317,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {activeCategory && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && activeSection !== 'outward' && (
+          {activeCategory && activeSection !== 'uqr' && activeSection !== 'courier' && activeSection !== 'inward' && activeSection !== 'outward' && activeSection !== 'stock' && (
             <div className="hover-panel nested-panel third">
               <div className="hover-panel-column">
                 <div className="hover-panel-title">{activeCategoryMeta?.label}</div>
@@ -1516,7 +1560,7 @@ const Dashboard = () => {
               key={item.id}
               className={`nav-item ${
                 activePage === item.id
-                || (item.id === 'ims' && ['uqr-forms', 'uqr-database', 'courier-slip', 'courier-master', 'inward-store-sheet', 'inward-store-sheet-db', 'outward-store-sheet', 'outward-store-sheet-db'].includes(activePage))
+                || (item.id === 'ims' && ['uqr-forms', 'uqr-database', 'courier-slip', 'courier-master', 'inward-store-sheet', 'inward-store-sheet-db', 'outward-store-sheet', 'outward-store-sheet-db', 'stock-sheet', 'stock-sheet-db'].includes(activePage))
                   ? 'active'
                   : ''
               }`}

@@ -1,12 +1,12 @@
 import React from 'react';
 
-const IMSContent = ({ onOpenInwardStoreSheet }) => {
+const IMSContent = ({ onOpenInwardStoreSheet, onOpenStockSheet }) => {
   return (
     <div className="fullscreen-content">
       <div className="content-header">
         <h1 className="fullscreen-title">Inventory Management System (IMS)</h1>
         <p className="fullscreen-description">
-          Manage your inventory with inward and outward store sheets
+          Manage your inventory with inward, outward and stock sheets
         </p>
       </div>
 
@@ -28,6 +28,16 @@ const IMSContent = ({ onOpenInwardStoreSheet }) => {
           <div className="button-content">
             <span className="button-title">OUTWARD STORE SHEETS</span>
             <span className="button-subtitle">Track and manage outgoing inventory</span>
+          </div>
+        </button>
+
+        <button
+          className="fullscreen-action-button"
+          onClick={onOpenStockSheet}
+        >
+          <div className="button-content">
+            <span className="button-title">STOCK SHEET</span>
+            <span className="button-subtitle">Add stock items and view the master stock sheet</span>
           </div>
         </button>
       </div>

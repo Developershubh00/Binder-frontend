@@ -4,6 +4,50 @@ import { FormCard } from '@/components/ui/form-layout';
 import { getIPOMasterCNS, saveIPOMasterCNSRows, getFactoryCodeDraft } from '../../services/integration';
 import { useLoading } from '../../context/LoadingContext';
 
+// Excel-style frozen pane: top header row sticks to top; the leftmost columns
+// (SR# / IPC# / Select / Material Description) stick to the left.
+const COL_WIDTHS = { sr: 56, ipc: 110, select: 64, matDesc: 160 };
+const STICKY_HEADER_STYLE = {
+  position: 'sticky',
+  top: 0,
+  zIndex: 2,
+  background: '#ffffff',
+};
+const stickyHeaderLeft = (left, width) => ({
+  position: 'sticky',
+  top: 0,
+  left,
+  zIndex: 3,
+  width,
+  minWidth: width,
+  maxWidth: width,
+  background: '#ffffff',
+});
+const stickyBodyLeft = (left, width, bg) => ({
+  position: 'sticky',
+  left,
+  zIndex: 1,
+  width,
+  minWidth: width,
+  maxWidth: width,
+  background: bg || '#ffffff',
+});
+
+// Wrap any token containing "/" (e.g. "CNS/PC") — and a "/" flanked by spaces
+// (e.g. "Club / Single") — in a nowrap span so the header can use break-word
+// elsewhere without ever splitting those slash tokens.
+const formatHeader = (s) => {
+  const NBSP = '\u00A0';
+  const str = String(s ?? '').replace(/\s+\/\s+/g, NBSP + '/' + NBSP);
+  return str.split(/( +)/).map((part, i) =>
+    part.includes('/') ? (
+      <span key={i} style={{ whiteSpace: 'nowrap' }}>{part}</span>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    ),
+  );
+};
+
 // Same storage shape the IPO Derived CNS Sheet reads from, so we can resolve
 // Net CNS/PC and Unit for the yarn subtab directly from the Derived Sheet source.
 const DERIVED_STORAGE_KEY = 'factoryCodeFormData';
@@ -759,6 +803,25 @@ const fabricPurchaseWidthTotal = (row, ctx) => {
   }, 0);
 };
 
+// Sum a manual-input field across all rows in a club (or single value when not clubbed).
+const sumManualAcrossClub = (row, ctx, field) => {
+  const readOne = (id) => toNum(ctx?.manualInputs?.[id]?.[field]);
+  if (!ctx?.isClub) return readOne(row.id);
+  return ctx.clubRows.reduce((acc, r) => {
+    const v = readOne(r.id);
+    return acc + (Number.isFinite(v) ? v : 0);
+  }, 0);
+};
+
+// Sum a per-row computed value across all rows in a club (or single value when not clubbed).
+const sumComputedAcrossClub = (row, ctx, computeOne) => {
+  if (!ctx?.isClub) return computeOne(row);
+  return ctx.clubRows.reduce((acc, r) => {
+    const v = computeOne(r);
+    return acc + (Number.isFinite(v) ? v : 0);
+  }, 0);
+};
+
 // Pull Net CNS/PC and Unit for a yarn row from the Derived Sheet lookup
 // (keyed by IPC + material description). Falls back to the row's own values.
 const yarnNetCns = (row, ctx) => {
@@ -821,6 +884,30 @@ const ManualNumberCell = ({ rowId, field, ctx, invalid }) => {
   );
 };
 
+// When a "purchase_*" manual-input column is clubbed, show the sum of inputs across
+// the club (in the summary row); otherwise show the editable per-row input cell.
+const renderManualPurchase = (field) => (r, ctx) => {
+  if (ctx?.isClub) {
+    return (
+      <span style={{ fontWeight: 600 }}>
+        {formatNumber(sumManualAcrossClub(r, ctx, field), { decimals: 2 })}
+      </span>
+    );
+  }
+  return <ManualNumberCell rowId={r.id} field={field} ctx={ctx} />;
+};
+
+// When a "gross_*" counterpart column is clubbed, show the sum of the per-row computed
+// value across the club; otherwise show the per-row computed value.
+const renderSumComputed = (computeOne, decimals = 2) => (r, ctx) => {
+  const value = sumComputedAcrossClub(r, ctx, computeOne);
+  if (!Number.isFinite(value)) return '-';
+  if (ctx?.isClub) {
+    return <span style={{ fontWeight: 600 }}>{formatNumber(value, { decimals })}</span>;
+  }
+  return formatNumber(value, { decimals });
+};
+
 const FABRIC_COLUMNS = [
   { key: 'material_description', header: 'Material Description', align: 'left',
     render: (r) => r.material_description || '-' },
@@ -866,14 +953,16 @@ const FABRIC_COLUMNS = [
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_qty', header: 'Gross Length QTY', align: 'right',
-    render: (r) => {
-      const glPc = grossLengthPc(r);
-      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
-      if (!Number.isFinite(glPc) || !Number.isFinite(overage)) return '-';
-      return formatNumber(glPc * overage, { decimals: 2 });
-    } },
+    aggregatedInClub: true,
+    render: renderSumComputed((row) => {
+      const glPc = grossLengthPc(row);
+      const overage = toNum(row.overage_qty ?? row.overage_qty_pcs);
+      if (!Number.isFinite(glPc) || !Number.isFinite(overage)) return NaN;
+      return glPc * overage;
+    }) },
   { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_length_qty" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_length_qty') },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
@@ -921,38 +1010,44 @@ const TRIM_COLUMNS = [
   { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
     render: (r) => formatNumber(grossWidthPc(r)) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_width') },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
     aggregatedInClub: true,
     render: (r, ctx) => formatNumber(grossLengthCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_length_qty" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_length_qty') },
   { key: 'gross_qty_pcs', header: 'Gross QTY PCS', align: 'right',
-    render: (r) => {
+    aggregatedInClub: true,
+    render: renderSumComputed((row) => {
       // Gross QTY PCS = Gross CNS/PC × Overage Quantity
       // where Gross CNS/PC = Net CNS/PC × (1 + Gross Wastage% / 100)
-      const cns = toNum(r.cns_pc);
-      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
-      if (!Number.isFinite(cns) || !Number.isFinite(overage)) return '-';
-      const w = toNum(r.gross_wastage_length ?? r.gross_wastage);
+      const cns = toNum(row.cns_pc);
+      const overage = toNum(row.overage_qty ?? row.overage_qty_pcs);
+      if (!Number.isFinite(cns) || !Number.isFinite(overage)) return NaN;
+      const w = toNum(row.gross_wastage_length ?? row.gross_wastage);
       const grossPerPc = cns * (1 + (Number.isFinite(w) ? w : 0) / 100);
-      return formatNumber(grossPerPc * overage, { decimals: 2 });
-    } },
+      return grossPerPc * overage;
+    }) },
   { key: 'purchase_qty_pcs', header: 'Purchase QTY PCS', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_qty_pcs" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_qty_pcs') },
   { key: 'gross_weight_qty', header: 'Gross Weight QTY', align: 'right',
-    render: (r) => {
+    aggregatedInClub: true,
+    render: renderSumComputed((row) => {
       // Gross Weight QTY = Gross Weight CNS/PC × Overage Quantity
       // (per-piece weight is in grams; 0 when Unit is not KGS)
-      const gwPc = toNum(r.gross_weight_cns_pc_grams);
-      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
-      if (!Number.isFinite(gwPc) || !Number.isFinite(overage)) return '-';
-      return formatNumber(gwPc * overage, { decimals: 2 });
-    } },
+      const gwPc = toNum(row.gross_weight_cns_pc_grams);
+      const overage = toNum(row.overage_qty ?? row.overage_qty_pcs);
+      if (!Number.isFinite(gwPc) || !Number.isFinite(overage)) return NaN;
+      return gwPc * overage;
+    }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_weight_qty') },
 ];
 
 const FIBER_COLUMNS = [
@@ -991,7 +1086,8 @@ const FIBER_COLUMNS = [
   { key: 'gross_weight_cns_pc_grams', header: 'Gross Weight CNS/PC (Grams)', align: 'right',
     render: (r) => formatNumber(r.gross_weight_cns_pc_grams, { decimals: 2 }) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_width') },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
@@ -1001,7 +1097,8 @@ const FIBER_COLUMNS = [
     aggregatedInClub: true,
     render: (r, ctx) => formatNumber(grossWeightCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_weight_qty') },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
@@ -1051,7 +1148,8 @@ const FOAM_COLUMNS = [
   { key: 'gross_weight_cns_pc_grams', header: 'Gross Weight CNS/PC (Grams)', align: 'right',
     render: (r) => formatNumber(r.gross_weight_cns_pc_grams, { decimals: 2 }) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_width') },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },
   { key: 'gross_length_cns', header: 'Gross Length CNS', align: 'right',
@@ -1061,7 +1159,8 @@ const FOAM_COLUMNS = [
     aggregatedInClub: true,
     render: (r, ctx) => formatNumber(grossWeightCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'purchase_weight_qty', header: 'Purchase Weight QTY', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_weight_qty" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_weight_qty') },
   { key: 'gross_width_multiple', header: 'Gross Width Multiple', align: 'right',
     render: (r, ctx) => <ManualNumberCell rowId={r.id} field="gross_width_multiple" ctx={ctx} /> },
   { key: 'balance_gross_width_wastage', header: 'Balance Gross Width Wastage', align: 'right',
@@ -1128,17 +1227,20 @@ const ARTWORK_COLUMNS = [
     aggregatedInClub: true,
     render: (r, ctx) => formatNumber(grossLengthCnsAggregated(r, ctx), { decimals: 2 }) },
   { key: 'purchase_length_qty', header: 'Purchase Length QTY', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_length_qty" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_length_qty') },
   { key: 'gross_qty_pcs', header: 'Gross QTY PCS', align: 'right',
-    render: (r) => {
+    aggregatedInClub: true,
+    render: renderSumComputed((row) => {
       // Gross QTY PCS = Overage Quantity × (1 + Gross Wastage/PC % / 100)
-      const overage = toNum(r.overage_qty ?? r.overage_qty_pcs);
-      if (!Number.isFinite(overage)) return '-';
-      const w = toNum(r.gross_wastage_pc);
-      return formatNumber(overage * (1 + (Number.isFinite(w) ? w : 0) / 100), { decimals: 2 });
-    } },
+      const overage = toNum(row.overage_qty ?? row.overage_qty_pcs);
+      if (!Number.isFinite(overage)) return NaN;
+      const w = toNum(row.gross_wastage_pc);
+      return overage * (1 + (Number.isFinite(w) ? w : 0) / 100);
+    }) },
   { key: 'purchase_qty_pcs', header: 'Purchase QTY PCS', align: 'right',
-    render: (r, ctx) => <ManualNumberCell rowId={r.id} field="purchase_qty_pcs" ctx={ctx} /> },
+    aggregatedInClub: true,
+    render: renderManualPurchase('purchase_qty_pcs') },
 ];
 
 const SUBTAB_CONFIG = {
@@ -1369,6 +1471,17 @@ const IPOMasterCNS = ({ ipo }) => {
   const { showSrNumber, ipcAfterSelect } = activeConfig;
   const totalCols = columns.length + 5 + (showSrNumber ? 1 : 0);
 
+  // Cumulative left-offsets for the frozen left columns (Excel-style freeze pane).
+  // Layout depends on whether SR# is shown and whether IPC# is rendered before
+  // or after the Select column.
+  const stickyLeft = {
+    sr: 0,
+    leadingIpc: showSrNumber ? COL_WIDTHS.sr : 0,
+    select: (showSrNumber ? COL_WIDTHS.sr : 0) + (!ipcAfterSelect ? COL_WIDTHS.ipc : 0),
+    trailingIpc: (showSrNumber ? COL_WIDTHS.sr : 0) + COL_WIDTHS.select,
+    matDesc: (showSrNumber ? COL_WIDTHS.sr : 0) + COL_WIDTHS.select + COL_WIDTHS.ipc,
+  };
+
   const clubbedIdSet = useMemo(() => {
     const s = new Set();
     clubs.forEach((c) => c.rowIds.forEach((id) => s.add(id)));
@@ -1520,6 +1633,10 @@ const IPOMasterCNS = ({ ipo }) => {
 
   const [savingKey, setSavingKey] = useState(null);
   const [saveError, setSaveError] = useState('');
+  // Per-row/club selection of which action the Action Button column should fire.
+  // Default is 'save'; user can flip to 'send' via the dropdown arrow.
+  const [actionSelections, setActionSelections] = useState({});
+  const [actionMenuOpen, setActionMenuOpen] = useState(null);
 
   const buildSavePayload = (rowIds) => rowIds.map((id) => {
     const entry = manualInputs[id] || {};
@@ -1567,6 +1684,8 @@ const IPOMasterCNS = ({ ipo }) => {
 
   const handleSendToPurchase = (ctx) => { console.log('SEND TO PURCHASE', ctx); };
 
+  const handleCheckStock = (ctx) => { console.log('CHECK STOCK', ctx); };
+
   const actionBtnStyle = {
     background: '#16a34a',
     color: '#ffffff',
@@ -1578,6 +1697,109 @@ const IPOMasterCNS = ({ ipo }) => {
     letterSpacing: 0.5,
     cursor: 'pointer',
     whiteSpace: 'nowrap',
+  };
+
+  const ACTION_OPTIONS = [
+    { key: 'save', label: 'Save' },
+    { key: 'send', label: 'Send to Purchase' },
+  ];
+
+  const actionKey = (ctx) => (ctx.type === 'club' ? `club:${ctx.clubId}` : `row:${ctx.rowId}`);
+
+  // Close the dropdown on any click outside the action menu.
+  useEffect(() => {
+    if (!actionMenuOpen) return undefined;
+    const handler = (e) => {
+      if (!e.target.closest('[data-action-menu]')) setActionMenuOpen(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [actionMenuOpen]);
+
+  const renderActionButton = (ctx) => {
+    const key = actionKey(ctx);
+    const selected = actionSelections[key] || 'save';
+    const isOpen = actionMenuOpen === key;
+    const isSavingThis = savingKey === key;
+    const baseLabel = selected === 'send' ? 'SEND TO PURCHASE' : 'SAVE';
+    const label = selected === 'save' && isSavingThis ? 'SAVING…' : baseLabel;
+    const disabled = selected === 'save' && isSavingThis;
+    return (
+      <div data-action-menu style={{ position: 'relative', display: 'inline-flex' }}>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => (selected === 'save' ? handleSaveRow(ctx) : handleSendToPurchase(ctx))}
+          style={{
+            ...actionBtnStyle,
+            paddingRight: 28,
+            opacity: disabled ? 0.6 : 1,
+          }}
+        >
+          {label}
+        </button>
+        <button
+          type="button"
+          aria-label="Change action"
+          onClick={() => setActionMenuOpen((prev) => (prev === key ? null : key))}
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: 22,
+            background: 'rgba(0, 0, 0, 0.18)',
+            border: 'none',
+            color: '#ffffff',
+            fontSize: 9,
+            cursor: 'pointer',
+            borderRadius: '0 4px 4px 0',
+          }}
+        >
+          ▼
+        </button>
+        {isOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 4px)',
+              right: 0,
+              background: '#ffffff',
+              border: '1px solid #d1d5db',
+              borderRadius: 4,
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
+              zIndex: 50,
+              minWidth: 160,
+              overflow: 'hidden',
+            }}
+          >
+            {ACTION_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => {
+                  setActionSelections((prev) => ({ ...prev, [key]: opt.key }));
+                  setActionMenuOpen(null);
+                }}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 12px',
+                  background: selected === opt.key ? '#f3f4f6' : '#ffffff',
+                  border: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  color: '#111827',
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
 
@@ -1770,33 +1992,49 @@ const IPOMasterCNS = ({ ipo }) => {
           <FormCard
             className="rounded-2xl border-border bg-card"
             style={{
-              padding: 16,
-              overflowX: 'auto',
+              padding: 0,
               position: 'relative',
               zIndex: 1,
               background: '#ffffff',
             }}
           >
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+          <div style={{ overflow: 'auto', maxHeight: 'calc(100vh - 240px)' }}>
+          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, fontSize: 14 }}>
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '1px solid #e5e7eb' }}>
+              <tr style={{ textAlign: 'center' }}>
                 {showSrNumber && (
-                  <th style={{ padding: '8px', textAlign: 'center' }}>SR#</th>
+                  <th style={{ ...stickyHeaderLeft(stickyLeft.sr, COL_WIDTHS.sr), padding: '8px', textAlign: 'center', lineHeight: 1.2, verticalAlign: 'bottom', boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>SR#</th>
                 )}
-                {!ipcAfterSelect && <th style={{ padding: '8px' }}>IPC#</th>}
-                <th style={{ padding: '8px', textAlign: 'center' }}>Select</th>
-                {ipcAfterSelect && <th style={{ padding: '8px' }}>IPC#</th>}
-                {columns.map((c) => (
+                {!ipcAfterSelect && (
+                  <th style={{ ...stickyHeaderLeft(stickyLeft.leadingIpc, COL_WIDTHS.ipc), padding: '8px', textAlign: 'center', lineHeight: 1.2, verticalAlign: 'bottom', boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>IPC#</th>
+                )}
+                <th style={{ ...stickyHeaderLeft(stickyLeft.select, COL_WIDTHS.select), padding: '8px', textAlign: 'center', lineHeight: 1.2, verticalAlign: 'bottom', boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>Select</th>
+                {ipcAfterSelect && (
+                  <th style={{ ...stickyHeaderLeft(stickyLeft.trailingIpc, COL_WIDTHS.ipc), padding: '8px', textAlign: 'center', lineHeight: 1.2, verticalAlign: 'bottom', boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>IPC#</th>
+                )}
+                {columns.map((c, idx) => (
                   <th
                     key={c.key}
-                    style={{ padding: '8px', textAlign: c.align === 'left' ? 'left' : c.align, whiteSpace: 'nowrap' }}
+                    style={{
+                      ...(idx === 0
+                        ? stickyHeaderLeft(stickyLeft.matDesc, COL_WIDTHS.matDesc)
+                        : STICKY_HEADER_STYLE),
+                      padding: '8px',
+                      textAlign: 'center',
+                      whiteSpace: 'normal',
+                      wordBreak: 'normal',
+                      overflowWrap: 'normal',
+                      lineHeight: 1.2,
+                      verticalAlign: 'bottom',
+                      boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb',
+                    }}
                   >
-                    {c.header}
+                    {formatHeader(c.header)}
                   </th>
                 ))}
-                <th style={{ padding: '8px', textAlign: 'center' }}>Club / Single</th>
-                <th style={{ padding: '8px 4px', textAlign: 'center' }}>Save</th>
-                <th style={{ padding: '8px 4px', textAlign: 'center' }}>Send to Purchase</th>
+                <th style={{ ...STICKY_HEADER_STYLE, padding: '8px', textAlign: 'center', lineHeight: 1.2, verticalAlign: 'bottom', boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>{formatHeader('Club / Single')}</th>
+                <th style={{ ...STICKY_HEADER_STYLE, padding: '8px 4px', textAlign: 'center', lineHeight: 1.2, verticalAlign: 'bottom', boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>Action Button</th>
+                <th style={{ ...STICKY_HEADER_STYLE, padding: '8px 4px', textAlign: 'center', lineHeight: 1.2, verticalAlign: 'bottom', boxShadow: 'inset 0 -1px 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>Check Stock</th>
               </tr>
             </thead>
             <tbody>
@@ -1806,24 +2044,31 @@ const IPOMasterCNS = ({ ipo }) => {
                   <React.Fragment key={club.id}>
                     {club.resolvedRows.map((row, idx) => {
                       const isFirst = idx === 0;
-                      const isLast = idx === club.resolvedRows.length - 1;
                       const cellBase = {
                         padding: '8px',
-                        borderBottom: isLast ? '2px solid #f97316' : '1px solid #fde2c3',
+                        borderBottom: '1px solid #fde2c3',
+                        borderRight: '1px solid #fdba74',
+                        textAlign: 'center',
+                        overflowWrap: 'break-word',
+                        wordBreak: 'break-word',
                         background: '#fff7ed',
                       };
                       const ipcCell = isFirst && (
                         <td
-                          rowSpan={club.resolvedRows.length}
+                          rowSpan={club.resolvedRows.length + 1}
                           style={{
                             padding: '8px',
                             fontWeight: 600,
                             verticalAlign: 'middle',
                             textAlign: 'center',
-                            background: '#ffedd5',
                             borderRight: '1px solid #fdba74',
                             borderBottom: '2px solid #f97316',
                             borderTop: '2px solid #f97316',
+                            ...stickyBodyLeft(
+                              ipcAfterSelect ? stickyLeft.trailingIpc : stickyLeft.leadingIpc,
+                              COL_WIDTHS.ipc,
+                              '#ffedd5',
+                            ),
                           }}
                         >
                           {uniqueIpcs.map((ipc) => (
@@ -1846,14 +2091,15 @@ const IPOMasterCNS = ({ ipo }) => {
                       );
                       const selectCell = isFirst && (
                         <td
-                          rowSpan={club.resolvedRows.length}
+                          rowSpan={club.resolvedRows.length + 1}
                           style={{
                             padding: '8px',
                             textAlign: 'center',
                             verticalAlign: 'middle',
-                            background: '#ffedd5',
+                            borderRight: '1px solid #fdba74',
                             borderBottom: '2px solid #f97316',
                             borderTop: '2px solid #f97316',
+                            ...stickyBodyLeft(stickyLeft.select, COL_WIDTHS.select, '#ffedd5'),
                           }}
                         >
                           <input
@@ -1867,7 +2113,7 @@ const IPOMasterCNS = ({ ipo }) => {
                       return (
                         <tr key={row.id}>
                           {showSrNumber && (
-                            <td style={{ ...cellBase, textAlign: 'center', fontWeight: 600 }}>
+                            <td style={{ ...cellBase, textAlign: 'center', fontWeight: 600, ...stickyBodyLeft(stickyLeft.sr, COL_WIDTHS.sr, '#fff7ed') }}>
                               {serialMap.get(row.id) ?? ''}
                             </td>
                           )}
@@ -1875,115 +2121,109 @@ const IPOMasterCNS = ({ ipo }) => {
                           {selectCell}
                           {ipcAfterSelect && ipcCell}
                           {(() => {
+                            // isClub:false so aggregated columns render their per-row UI
+                            // (e.g. ManualNumberCell input) — the summary row below uses
+                            // isClub:true to show the rolled-up total.
                             const ctx = {
-                              isClub: true,
+                              isClub: false,
                               clubRows: club.resolvedRows,
                               manualInputs,
                               setManualInput,
                               yarnLookup,
                             };
-                            return columns.map((c) => {
-                              if (c.aggregatedInClub) {
-                                if (!isFirst) return null;
-                                return (
-                                  <td
-                                    key={c.key}
-                                    rowSpan={club.resolvedRows.length}
-                                    style={{
-                                      ...cellBase,
-                                      textAlign: c.align === 'left' ? undefined : c.align,
-                                      verticalAlign: 'middle',
-                                      background: '#ffedd5',
-                                      borderTop: '2px solid #f97316',
-                                      borderBottom: '2px solid #f97316',
-                                    }}
-                                  >
-                                    {c.render(row, ctx)}
-                                  </td>
-                                );
-                              }
+                            return columns.map((c, idx) => {
+                              const isMatDesc = idx === 0;
                               return (
                                 <td
                                   key={c.key}
-                                  style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
+                                  style={{
+                                    ...cellBase,
+                                    ...(isMatDesc
+                                      ? stickyBodyLeft(stickyLeft.matDesc, COL_WIDTHS.matDesc, '#fff7ed')
+                                      : { whiteSpace: 'nowrap' }),
+                                  }}
                                 >
                                   {c.render(row, ctx)}
                                 </td>
                               );
                             });
                           })()}
-                          {isFirst && (
-                            <>
-                              <td
-                                rowSpan={club.resolvedRows.length}
-                                style={{
-                                  padding: '8px',
-                                  textAlign: 'center',
-                                  verticalAlign: 'middle',
-                                  background: '#ffedd5',
-                                  borderTop: '2px solid #f97316',
-                                  borderBottom: '2px solid #f97316',
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    display: 'inline-block',
-                                    padding: '2px 10px',
-                                    borderRadius: 999,
-                                    background: '#f97316',
-                                    color: '#ffffff',
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    letterSpacing: 0.5,
-                                  }}
-                                >
-                                  CLUB
-                                </span>
-                              </td>
-                              <td
-                                rowSpan={club.resolvedRows.length}
-                                style={{
-                                  padding: '6px 4px',
-                                  textAlign: 'center',
-                                  verticalAlign: 'middle',
-                                  background: '#fff7ed',
-                                  borderTop: '2px solid #f97316',
-                                  borderBottom: '2px solid #f97316',
-                                }}
-                              >
-                                <button
-                                  type="button"
-                                  style={{ ...actionBtnStyle, opacity: savingKey === `club:${club.id}` ? 0.6 : 1 }}
-                                  disabled={savingKey === `club:${club.id}`}
-                                  onClick={() => handleSaveRow({ type: 'club', clubId: club.id })}
-                                >
-                                  {savingKey === `club:${club.id}` ? 'SAVING…' : 'SAVE'}
-                                </button>
-                              </td>
-                              <td
-                                rowSpan={club.resolvedRows.length}
-                                style={{
-                                  padding: '6px 4px',
-                                  textAlign: 'center',
-                                  verticalAlign: 'middle',
-                                  background: '#fff7ed',
-                                  borderTop: '2px solid #f97316',
-                                  borderBottom: '2px solid #f97316',
-                                }}
-                              >
-                                <button
-                                  type="button"
-                                  style={actionBtnStyle}
-                                  onClick={() => handleSendToPurchase({ type: 'club', clubId: club.id })}
-                                >
-                                  SEND TO PURCHASE
-                                </button>
-                              </td>
-                            </>
-                          )}
+                          {/* Club/Single, Action, Check Stock moved to summary row below */}
                         </tr>
                       );
                     })}
+                    {(() => {
+                      const summaryRow = club.resolvedRows[0];
+                      const summaryCtx = {
+                        isClub: true,
+                        clubRows: club.resolvedRows,
+                        manualInputs,
+                        setManualInput,
+                        yarnLookup,
+                      };
+                      const summaryCellStyle = {
+                        padding: '8px',
+                        textAlign: 'center',
+                        verticalAlign: 'middle',
+                        background: '#ffedd5',
+                        borderTop: '2px solid #f97316',
+                        borderBottom: '2px solid #f97316',
+                        borderRight: '1px solid #fdba74',
+                        overflowWrap: 'break-word',
+                        wordBreak: 'break-word',
+                        fontWeight: 600,
+                      };
+                      return (
+                        <tr key={`${club.id}-summary`}>
+                          {showSrNumber && (
+                            <td style={{ ...summaryCellStyle, ...stickyBodyLeft(stickyLeft.sr, COL_WIDTHS.sr, '#ffedd5') }} />
+                          )}
+                          {/* IPC# and Select cells already covered by rowSpan from the first data row */}
+                          {columns.map((c, idx) => {
+                            const isMatDesc = idx === 0;
+                            const stickyOverride = isMatDesc
+                              ? stickyBodyLeft(stickyLeft.matDesc, COL_WIDTHS.matDesc, '#ffedd5')
+                              : { whiteSpace: 'nowrap' };
+                            if (c.aggregatedInClub) {
+                              return (
+                                <td key={c.key} style={{ ...summaryCellStyle, ...stickyOverride }}>
+                                  {c.render(summaryRow, summaryCtx)}
+                                </td>
+                              );
+                            }
+                            return <td key={c.key} style={{ ...summaryCellStyle, ...stickyOverride }} />;
+                          })}
+                          <td style={summaryCellStyle}>
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                padding: '2px 10px',
+                                borderRadius: 999,
+                                background: '#f97316',
+                                color: '#ffffff',
+                                fontSize: 11,
+                                fontWeight: 700,
+                                letterSpacing: 0.5,
+                              }}
+                            >
+                              CLUB
+                            </span>
+                          </td>
+                          <td style={{ ...summaryCellStyle, padding: '6px 4px' }}>
+                            {renderActionButton({ type: 'club', clubId: club.id })}
+                          </td>
+                          <td style={{ ...summaryCellStyle, padding: '6px 4px' }}>
+                            <button
+                              type="button"
+                              style={actionBtnStyle}
+                              onClick={() => handleCheckStock({ type: 'club', clubId: club.id })}
+                            >
+                              CHECK
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })()}
                   </React.Fragment>
                 );
               })}
@@ -2005,6 +2245,10 @@ const IPOMasterCNS = ({ ipo }) => {
                 const cellBase = {
                   padding: '8px',
                   borderBottom: divider,
+                  borderRight: '1px solid #e5e7eb',
+                  textAlign: 'center',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
                   color: disabled ? '#9ca3af' : undefined,
                   background: disabled ? '#f9fafb' : undefined,
                 };
@@ -2016,16 +2260,26 @@ const IPOMasterCNS = ({ ipo }) => {
                       fontWeight: 600,
                       verticalAlign: 'middle',
                       textAlign: 'center',
-                      background: '#f9fafb',
                       borderRight: '1px solid #e5e7eb',
                       borderBottom: '2px solid #9ca3af',
+                      ...stickyBodyLeft(
+                        ipcAfterSelect ? stickyLeft.trailingIpc : stickyLeft.leadingIpc,
+                        COL_WIDTHS.ipc,
+                        '#f9fafb',
+                      ),
                     }}
                   >
                     {row.ipc}
                   </td>
                 );
                 const selectCell = (
-                  <td style={{ ...cellBase, textAlign: 'center' }}>
+                  <td
+                    style={{
+                      ...cellBase,
+                      textAlign: 'center',
+                      ...stickyBodyLeft(stickyLeft.select, COL_WIDTHS.select, cellBase.background || '#ffffff'),
+                    }}
+                  >
                     <input
                       type="checkbox"
                       checked={!!selected[row.id]}
@@ -2038,7 +2292,7 @@ const IPOMasterCNS = ({ ipo }) => {
                 return (
                   <tr key={row.id}>
                     {showSrNumber && (
-                      <td style={{ ...cellBase, textAlign: 'center', fontWeight: 600 }}>
+                      <td style={{ ...cellBase, textAlign: 'center', fontWeight: 600, ...stickyBodyLeft(stickyLeft.sr, COL_WIDTHS.sr, cellBase.background || '#ffffff') }}>
                         {serialMap.get(row.id) ?? ''}
                       </td>
                     )}
@@ -2053,10 +2307,15 @@ const IPOMasterCNS = ({ ipo }) => {
                         setManualInput,
                         yarnLookup,
                       };
-                      return columns.map((c) => (
+                      return columns.map((c, idx) => (
                         <td
                           key={c.key}
-                          style={{ ...cellBase, textAlign: c.align === 'left' ? undefined : c.align }}
+                          style={{
+                            ...cellBase,
+                            ...(idx === 0
+                              ? stickyBodyLeft(stickyLeft.matDesc, COL_WIDTHS.matDesc, cellBase.background || '#ffffff')
+                              : { whiteSpace: 'nowrap' }),
+                          }}
                         >
                           {c.render(row, ctx)}
                         </td>
@@ -2079,22 +2338,15 @@ const IPOMasterCNS = ({ ipo }) => {
                       </span>
                     </td>
                     <td style={{ ...cellBase, padding: '6px 4px', textAlign: 'center' }}>
-                      <button
-                        type="button"
-                        style={{ ...actionBtnStyle, opacity: savingKey === `row:${row.id}` ? 0.6 : 1 }}
-                        disabled={savingKey === `row:${row.id}`}
-                        onClick={() => handleSaveRow({ type: 'row', rowId: row.id })}
-                      >
-                        {savingKey === `row:${row.id}` ? 'SAVING…' : 'SAVE'}
-                      </button>
+                      {renderActionButton({ type: 'row', rowId: row.id })}
                     </td>
                     <td style={{ ...cellBase, padding: '6px 4px', textAlign: 'center' }}>
                       <button
                         type="button"
                         style={actionBtnStyle}
-                        onClick={() => handleSendToPurchase({ type: 'row', rowId: row.id })}
+                        onClick={() => handleCheckStock({ type: 'row', rowId: row.id })}
                       >
-                        SEND TO PURCHASE
+                        CHECK
                       </button>
                     </td>
                   </tr>
@@ -2102,6 +2354,7 @@ const IPOMasterCNS = ({ ipo }) => {
               })}
             </tbody>
           </table>
+          </div>
         </FormCard>
           </div>
         </>

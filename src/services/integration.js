@@ -1189,6 +1189,76 @@ export const getEssentialCategories = async () => {
 };
 
 // ============================================================================
+// STOCK SHEETS (IMS → Stock Sheet)
+// ============================================================================
+
+export const getStockSheets = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await apiRequest(`ims/stock-sheets/${query ? '?' + query : ''}`);
+  return await response.json();
+};
+
+export const getStockSheet = async (id) => {
+  const response = await apiRequest(`ims/stock-sheets/${id}/`);
+  return await response.json();
+};
+
+export const createStockSheet = async (data) => {
+  // If data contains File objects, send as multipart; otherwise JSON
+  const hasFile = (data?.items || []).some((it) => it && it.image instanceof File);
+  if (hasFile) {
+    const fd = new FormData();
+    Object.keys(data).forEach((key) => {
+      if (key === 'items' || key === 'packages' || key === 'item_columns') return;
+      if (data[key] !== undefined && data[key] !== null) fd.append(key, data[key]);
+    });
+    if (data.item_columns) {
+      fd.append('item_columns', JSON.stringify(data.item_columns));
+    }
+    (data.items || []).forEach((it, i) => {
+      fd.append(`items[${i}]sr_no`, it.sr_no ?? i + 1);
+      fd.append(`items[${i}]material_description`, it.material_description ?? '');
+      fd.append(`items[${i}]unit`, it.unit ?? '');
+      fd.append(`items[${i}]details`, JSON.stringify(it.details || {}));
+      if (it.image instanceof File) fd.append(`items[${i}]image`, it.image);
+    });
+    (data.packages || []).forEach((p, i) => {
+      fd.append(`packages[${i}]package_no`, p.package_no ?? i + 1);
+      fd.append(`packages[${i}]qty`, p.qty ?? 0);
+      fd.append(`packages[${i}]unit`, p.unit ?? '');
+    });
+    const response = await apiRequest('ims/stock-sheets/', { method: 'POST', body: fd });
+    return await response.json();
+  }
+  const response = await apiRequest('ims/stock-sheets/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return await response.json();
+};
+
+export const deleteStockSheet = async (id) => {
+  const response = await apiRequest(`ims/stock-sheets/${id}/`, { method: 'DELETE' });
+  if (response.status === 204) return { success: true };
+  return await response.json();
+};
+
+export const getStockSheetChoices = async () => {
+  const response = await apiRequest('ims/stock-sheets/choices/');
+  return await response.json();
+};
+
+export const getStockSheetMaterialItems = async ({ ipc, ipcCode, category, yarnSubCategory }) => {
+  const params = new URLSearchParams();
+  if (ipc) params.set('ipc', ipc);
+  if (ipcCode) params.set('ipc_code', ipcCode);
+  if (category) params.set('category', category);
+  if (yarnSubCategory) params.set('yarn_sub_category', yarnSubCategory);
+  const response = await apiRequest(`ims/stock-sheets/material-items/?${params.toString()}`);
+  return await response.json();
+};
+
+// ============================================================================
 // FACTORY CODES (IPC)
 // ============================================================================
 
