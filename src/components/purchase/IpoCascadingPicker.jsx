@@ -7,42 +7,6 @@ const IPO_TYPES = [
   { key: 'sampling', label: 'Sampling' },
 ];
 
-const columnStyle = {
-  background: '#ffffff',
-  border: '1px solid #e5e7eb',
-  borderRadius: 12,
-  minWidth: 260,
-  maxWidth: 320,
-  flex: '0 0 280px',
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-};
-
-const headerStyle = {
-  padding: '12px 14px',
-  borderBottom: '1px solid #e5e7eb',
-  fontSize: 12,
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: 0.5,
-  color: '#6b7280',
-  background: '#f9fafb',
-};
-
-const itemStyle = (active) => ({
-  padding: '10px 14px',
-  cursor: 'pointer',
-  background: active ? '#f94d00' : 'transparent',
-  color: active ? '#ffffff' : '#111827',
-  fontSize: 13,
-  borderBottom: '1px solid #f3f4f6',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 8,
-});
-
 const IpoCascadingPicker = ({ onSelectIpo }) => {
   const [activeType, setActiveType] = useState(null);
   const [ipos, setIpos] = useState([]);
@@ -76,48 +40,52 @@ const IpoCascadingPicker = ({ onSelectIpo }) => {
   return (
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
       {/* Column 1: IPO Type */}
-      <div style={columnStyle}>
-        <div style={headerStyle}>IPO Type</div>
-        {IPO_TYPES.map((t) => (
-          <div
-            key={t.key}
-            style={itemStyle(activeType === t.key)}
-            onClick={() => setActiveType(t.key)}
-          >
-            <span>{t.label}</span>
-            <span style={{ opacity: 0.6 }}>›</span>
-          </div>
-        ))}
+      <div className="hover-panel">
+        <div className="hover-panel-column">
+          <div className="hover-panel-title">IPO Type</div>
+          {IPO_TYPES.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              className={`hover-panel-item ${activeType === t.key ? 'active' : ''}`}
+              onClick={() => setActiveType(t.key)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Column 2: IPO list */}
       {activeType && (
-        <div style={columnStyle}>
-          <div style={headerStyle}>{IPO_TYPES.find((t) => t.key === activeType)?.label} IPOs</div>
-          {loading ? (
-            <div style={{ padding: 16, color: '#6b7280', fontSize: 13 }}>Loading…</div>
-          ) : error ? (
-            <div style={{ padding: 16, color: '#991b1b', fontSize: 13 }}>{error}</div>
-          ) : ipos.length === 0 ? (
-            <div style={{ padding: 16, color: '#6b7280', fontSize: 12, lineHeight: 1.5 }}>
-              No IPOs shared to Purchase yet. Open an IPO Master CNS screen and click{' '}
-              <strong>Share to Purchase</strong> first.
+        <div className="hover-panel nested-panel">
+          <div className="hover-panel-column">
+            <div className="hover-panel-title">
+              {IPO_TYPES.find((t) => t.key === activeType)?.label} IPOs
             </div>
-          ) : (
-            ipos.map((ipo) => (
-              <div
-                key={ipo.id}
-                style={itemStyle(false)}
-                onClick={() => onSelectIpo?.(ipo)}
-                title={ipo.program_name}
-              >
-                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {ipo.ipo_code}
-                </div>
-                <span style={{ opacity: 0.5 }}>›</span>
+            {loading ? (
+              <div className="hover-panel-subitem muted">Loading…</div>
+            ) : error ? (
+              <div className="hover-panel-subitem muted">{error}</div>
+            ) : ipos.length === 0 ? (
+              <div className="hover-panel-subitem muted" style={{ lineHeight: 1.5 }}>
+                No IPOs shared to Purchase yet. Open an IPO Master CNS screen and click{' '}
+                <strong>Share to Purchase</strong> first.
               </div>
-            ))
-          )}
+            ) : (
+              ipos.map((ipo) => (
+                <button
+                  key={ipo.id}
+                  type="button"
+                  className="hover-panel-item"
+                  onClick={() => onSelectIpo?.(ipo)}
+                  title={ipo.program_name}
+                >
+                  {ipo.ipo_code}
+                </button>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

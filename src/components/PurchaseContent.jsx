@@ -38,9 +38,6 @@ const PurchaseContent = () => {
   return (
     <div className="dashboard-content">
       <h1 className="dashboard-title">Purchase</h1>
-      <p className="dashboard-subtitle">
-        Pick an IPO that has been shared to Purchase to open its Master CNS Sheet.
-      </p>
       <div style={{ marginTop: 16 }}>
         <IpoCascadingPicker
           onSelectIpo={(ipo) => {

@@ -408,9 +408,6 @@ const Dashboard = () => {
         return (
           <div className="dashboard-content" style={{ padding: 24 }}>
             <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>IPO Management</h1>
-            <p style={{ color: '#6b7280' }}>
-              Use the sidebar menu to pick an IPO Type, then an IPO Code, then open <strong>IPC Spec</strong>, <strong>IPC Derived CNS</strong>, or <strong>IPO Master CNS</strong>.
-            </p>
           </div>
         );
       case 'code-creation':
@@ -725,7 +722,6 @@ const Dashboard = () => {
       || activePage === 'outward-store-sheet-db'
       || activePage === 'stock-sheet'
       || activePage === 'stock-sheet-db'
-      || activePage === 'ipo-management'
     ) {
       setHoveredMenu(null);
     }
