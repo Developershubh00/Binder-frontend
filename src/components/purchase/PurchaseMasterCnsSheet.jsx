@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   getPurchaseGrid,
@@ -41,6 +41,12 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
   const [issuing, setIssuing] = useState(false);
   const [stockPanelRow, setStockPanelRow] = useState(null);
 
+  // Stale-while-revalidate cache so flipping between tabs/categories (or back
+  // to one already viewed) renders instantly instead of waiting on the
+  // (expensive) Master CNS recompute every time. Keyed by `${tab}:${category}`.
+  const gridCache = useRef({});
+  const reqToken = useRef(0);
+
   const chips = CATEGORY_CHIPS[tab] || [];
 
   // Reset category when top tab changes.
@@ -50,22 +56,38 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
     setSelected({});
   }, [tab]);
 
-  const loadGrid = useCallback(async () => {
+  const loadGrid = useCallback(async ({ force = false } = {}) => {
     if (!ipoId || !tab || !category) return;
-    setLoading(true);
+    const key = `${ipoId}:${tab}:${category}`;
+    const cached = gridCache.current[key];
+    const token = ++reqToken.current;
+
+    // Show cached rows immediately (no spinner) and revalidate in the
+    // background. Only show the loading state when we have nothing to show.
+    if (cached && !force) {
+      setGrid(cached);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setError('');
+
     try {
       const res = await getPurchaseGrid(ipoId, { tab, category });
+      if (token !== reqToken.current) return; // a newer request superseded this one
       if (res?.detail) {
         setError(res.detail);
-        setGrid({ rows: [], groups: [] });
+        if (!cached) setGrid({ rows: [], groups: [] });
       } else {
-        setGrid({ rows: res?.rows || [], groups: res?.groups || [] });
+        const next = { rows: res?.rows || [], groups: res?.groups || [] };
+        gridCache.current[key] = next;
+        setGrid(next);
       }
     } catch (err) {
-      setError(err?.message || 'Failed to load purchase grid.');
+      if (token !== reqToken.current) return;
+      if (!cached) setError(err?.message || 'Failed to load purchase grid.');
     } finally {
-      setLoading(false);
+      if (token === reqToken.current) setLoading(false);
     }
   }, [ipoId, tab, category]);
 
@@ -80,10 +102,14 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
   const selectedCount = selectedRows.length;
 
   const handleLineItemUpdated = (row, patch) => {
-    setGrid((prev) => ({
-      ...prev,
-      rows: prev.rows.map((r) => (r.id === row.id ? { ...r, ...patch } : r)),
-    }));
+    const apply = (g) => ({
+      ...g,
+      rows: g.rows.map((r) => (r.id === row.id ? { ...r, ...patch } : r)),
+    });
+    setGrid((prev) => apply(prev));
+    // Keep the cached copy in sync so the edit survives a tab/category flip.
+    const key = `${ipoId}:${tab}:${category}`;
+    if (gridCache.current[key]) gridCache.current[key] = apply(gridCache.current[key]);
   };
 
   const buildLinesForApi = (rows) =>
@@ -93,6 +119,13 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
       qty: Number(r.balance_qty ?? r.purchase_qty ?? 0),
       unit: r.unit,
     }));
+
+  // Check Stock from the action bar: open the Stock & UQR panel for the first
+  // selected row (the panel works one material at a time).
+  const handleCheckStock = () => {
+    const row = selectedRows[0];
+    if (row) setStockPanelRow(row);
+  };
 
   const openPreview = async () => {
     if (selectedCount === 0) return;
@@ -130,7 +163,8 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
         setPreviewOpen(false);
         setPreview(null);
         setSelected({});
-        loadGrid();
+        gridCache.current = {}; // balances changed — drop cache and refetch fresh
+        loadGrid({ force: true });
       }
     } catch (err) {
       setPreviewErrors([err?.message || 'Failed to issue VPO.']);
@@ -253,6 +287,14 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
               </span>
               <Button
                 type="button"
+                variant="outline"
+                onClick={handleCheckStock}
+                disabled={selectedCount === 0}
+              >
+                Check Stock
+              </Button>
+              <Button
+                type="button"
                 variant="default"
                 onClick={openPreview}
                 disabled={selectedCount === 0}
@@ -316,7 +358,8 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
         onClose={() => setStockPanelRow(null)}
         onIssued={() => {
           setStockPanelRow(null);
-          loadGrid();
+          gridCache.current = {}; // balances changed — drop cache and refetch fresh
+          loadGrid({ force: true });
         }}
       />
     </div>

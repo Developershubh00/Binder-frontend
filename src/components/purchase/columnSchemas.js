@@ -14,8 +14,22 @@ const fixedFront = (extra = []) => [
   ...extra,
 ];
 
+// Render a stored percentage value (e.g. 5 → "5%"). Blank when absent.
+export const fmtPercent = (value) => {
+  if (value === null || value === undefined || value === '') return '—';
+  const n = Number(value);
+  if (Number.isNaN(n)) return String(value);
+  return `${n}%`;
+};
+
 const balanceCol = { key: '_balance', label: 'Balance Qty / Unit', align: 'right', width: 160 };
 const unitCol = { key: 'unit', label: 'Unit', align: 'center', width: 96, editable: true };
+// Rate (INR) / Unit — manual entry with an explicit Save button (handled by a
+// dedicated cell in PurchaseGrid); persisted via PATCH to the line item.
+const rateCol = { key: 'rate', label: 'Rate (INR) / Unit', align: 'right', width: 150 };
+
+// Every grid ends with the same trailing pair: Balance Qty / Unit + Rate.
+const tail = [balanceCol, rateCol];
 
 export const TOP_TABS = [
   { key: 'raw_material', label: 'Raw Material' },
@@ -54,10 +68,14 @@ export const COLUMN_SCHEMAS = {
     ...fixedFront([
       { key: 'component', label: 'IPC / Component', align: 'left', width: 180 },
       { key: 'material_description', label: 'Material Description', align: 'left', width: 280 },
-      { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130 },
+      // "Purchase Qty" is a grouped header spanning the full Master CNS Purchase
+      // Qty breakdown. Gross CNS = Net CNS/PC × (1 + Gross Wastage %) — all fetched.
+      { key: 'net_cns_pc', label: 'Net CNS / PC', align: 'right', width: 120, headerGroup: 'Purchase Qty' },
+      { key: 'gross_wastage', label: 'Gross Wastage', align: 'right', width: 130, formatter: fmtPercent, headerGroup: 'Purchase Qty' },
+      { key: 'purchase_qty', label: 'Gross CNS', align: 'right', width: 120, headerGroup: 'Purchase Qty' },
       unitCol,
     ]),
-    balanceCol,
+    ...tail,
   ],
 
   'raw_material:fabric': [
@@ -67,7 +85,7 @@ export const COLUMN_SCHEMAS = {
       { key: 'purchase_length_qty', label: 'Purchase Length Qty', align: 'right', width: 160 },
       unitCol,
     ]),
-    balanceCol,
+    ...tail,
   ],
 
   'raw_material:fiber': [
@@ -78,7 +96,7 @@ export const COLUMN_SCHEMAS = {
       { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130 },
       unitCol,
     ]),
-    balanceCol,
+    ...tail,
   ],
 
   'raw_material:foam': [
@@ -90,7 +108,7 @@ export const COLUMN_SCHEMAS = {
       { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130 },
       unitCol,
     ]),
-    balanceCol,
+    ...tail,
   ],
 
   'raw_material:trims': [
@@ -102,7 +120,7 @@ export const COLUMN_SCHEMAS = {
       { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130 },
       unitCol,
     ]),
-    balanceCol,
+    ...tail,
   ],
 
   // ------------------------- ARTWORK & LABELING ----------------------------
@@ -115,7 +133,7 @@ export const COLUMN_SCHEMAS = {
         { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130 },
         unitCol,
       ]),
-      balanceCol,
+      ...tail,
     ];
     return acc;
   }, {}),
@@ -130,7 +148,7 @@ export const COLUMN_SCHEMAS = {
           { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130 },
           unitCol,
         ]),
-        balanceCol,
+        ...tail,
       ];
       return acc;
     },

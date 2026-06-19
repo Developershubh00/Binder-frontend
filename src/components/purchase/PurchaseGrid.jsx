@@ -36,6 +36,23 @@ const stickyLeftCell = (left, width, bg) => ({
   background: bg || '#ffffff',
 });
 
+// Approx height of one header row, used to offset the second (sub) header row
+// so both stay sticky when the grid scrolls. Matches stickyHeader padding.
+const HEADER_ROW_H = 38;
+// Second-row (sub-column) header sits directly below the group header.
+const subHeader = {
+  ...stickyHeader,
+  top: HEADER_ROW_H,
+  zIndex: 2,
+};
+// A grouped parent header that spans several sub-columns.
+const groupHeader = {
+  ...stickyHeader,
+  textAlign: 'center',
+  borderLeft: '1px solid #e5e7eb',
+  borderRight: '1px solid #e5e7eb',
+};
+
 const CELL_BASE = {
   padding: '10px 12px',
   fontSize: 13,
@@ -61,7 +78,7 @@ const cellValue = (row, key, category) => {
     return `${fmtNum(row.balance_qty)} ${row.unit || ''}`.trim();
   }
   const raw = row[key];
-  if (typeof raw === 'number' || (typeof raw === 'string' && raw.match(/^\-?\d+(\.\d+)?$/))) {
+  if (typeof raw === 'number' || (typeof raw === 'string' && raw.match(/^-?\d+(\.\d+)?$/))) {
     return fmtNum(raw);
   }
   return raw ?? '';
@@ -81,6 +98,32 @@ const PurchaseGrid = ({
   const schema = useMemo(() => getColumnSchema(tab, category), [tab, category]);
   const [editing, setEditing] = useState({}); // { rowId-fieldKey: value }
   const [saving, setSaving] = useState({}); // { rowId-fieldKey: bool }
+  // Rate (INR)/Unit — manual entry per row with an explicit Save button.
+  const [rateDraft, setRateDraft] = useState({}); // { rowId: uncommitted string }
+  const [rateSaving, setRateSaving] = useState({}); // { rowId: bool }
+
+  const handleSaveRate = async (row) => {
+    const value = rateDraft[row.id];
+    if (value === undefined) return;
+    setRateSaving((p) => ({ ...p, [row.id]: true }));
+    try {
+      await patchPurchaseLineItem(row.source_type, row.source_id, { rate: value });
+      onLineItemUpdated?.(row, { rate: value });
+      setRateDraft((p) => {
+        const next = { ...p };
+        delete next[row.id]; // committed → input falls back to saved value, button hides
+        return next;
+      });
+    } catch (err) {
+      console.error('Failed to save rate', err);
+    } finally {
+      setRateSaving((p) => {
+        const next = { ...p };
+        delete next[row.id];
+        return next;
+      });
+    }
+  };
 
   if (!schema) {
     return (
@@ -105,6 +148,9 @@ const PurchaseGrid = ({
     if (!g.row_ids?.length) return;
     groupSpan[g.row_ids[0]] = g.row_ids.length;
   });
+
+  // Whether any column declares a `headerGroup` — drives the two-row header.
+  const hasGroups = schema.some((c) => c.headerGroup);
 
   // Build sticky-left offsets dynamically based on the schema fixed-front
   // columns (IPC + Select).
@@ -190,30 +236,82 @@ const PurchaseGrid = ({
       <table style={{ borderCollapse: 'collapse', width: 'max-content', minWidth: '100%' }}>
         <thead>
           <tr>
-            {schema.map((col) => {
-              const leftEntry = leftOffsets.find((o) => o.key === col.key);
-              if (leftEntry) {
-                return (
-                  <th key={col.key} style={stickyLeftHeader(leftEntry.left, leftEntry.width)}>
+            {(() => {
+              // Build the top header row, merging consecutive columns that share
+              // a `headerGroup` into a single spanning cell. Ungrouped columns
+              // span both header rows (rowSpan) when any group is present.
+              const cells = [];
+              let i = 0;
+              while (i < schema.length) {
+                const col = schema[i];
+                if (col.headerGroup) {
+                  let j = i;
+                  const groupCols = [];
+                  while (j < schema.length && schema[j].headerGroup === col.headerGroup) {
+                    groupCols.push(schema[j]);
+                    j += 1;
+                  }
+                  const totalWidth = groupCols.reduce((s, c) => s + (c.width || 0), 0);
+                  cells.push(
+                    <th
+                      key={`grp-${col.headerGroup}`}
+                      colSpan={groupCols.length}
+                      style={{ ...groupHeader, width: totalWidth, minWidth: totalWidth }}
+                    >
+                      {col.headerGroup}
+                    </th>
+                  );
+                  i = j;
+                } else {
+                  const leftEntry = leftOffsets.find((o) => o.key === col.key);
+                  const rowSpan = hasGroups ? 2 : 1;
+                  if (leftEntry) {
+                    cells.push(
+                      <th key={col.key} rowSpan={rowSpan} style={stickyLeftHeader(leftEntry.left, leftEntry.width)}>
+                        {col.label}
+                      </th>
+                    );
+                  } else {
+                    cells.push(
+                      <th
+                        key={col.key}
+                        rowSpan={rowSpan}
+                        style={{
+                          ...stickyHeader,
+                          width: col.width,
+                          minWidth: col.width,
+                          textAlign: col.align || 'left',
+                        }}
+                      >
+                        {col.label}
+                      </th>
+                    );
+                  }
+                  i += 1;
+                }
+              }
+              return cells;
+            })()}
+          </tr>
+          {hasGroups && (
+            <tr>
+              {schema
+                .filter((col) => col.headerGroup)
+                .map((col) => (
+                  <th
+                    key={`sub-${col.key}`}
+                    style={{
+                      ...subHeader,
+                      width: col.width,
+                      minWidth: col.width,
+                      textAlign: col.align || 'left',
+                    }}
+                  >
                     {col.label}
                   </th>
-                );
-              }
-              return (
-                <th
-                  key={col.key}
-                  style={{
-                    ...stickyHeader,
-                    width: col.width,
-                    minWidth: col.width,
-                    textAlign: col.align || 'left',
-                  }}
-                >
-                  {col.label}
-                </th>
-              );
-            })}
-          </tr>
+                ))}
+            </tr>
+          )}
         </thead>
         <tbody>
           {rows.map((row) => {
@@ -306,6 +404,57 @@ const PurchaseGrid = ({
                     );
                   }
 
+                  // Rate (INR)/Unit — manual number input with a Save button
+                  // that appears once a value is entered/changed and hides
+                  // again once saved to the database.
+                  if (col.key === 'rate') {
+                    const savedRate = row.rate ?? '';
+                    const draft = rateDraft[row.id];
+                    const current = draft !== undefined ? draft : (savedRate === null ? '' : String(savedRate));
+                    const dirty = draft !== undefined && String(draft) !== String(savedRate ?? '');
+                    const savingRate = Boolean(rateSaving[row.id]);
+                    const showSave = dirty && String(current).trim() !== '';
+                    return (
+                      <td
+                        key={col.key}
+                        style={{ ...CELL_BASE, width: col.width, textAlign: col.align || 'right' }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                          <input
+                            type="number"
+                            step="any"
+                            min="0"
+                            value={current}
+                            placeholder="—"
+                            onChange={(e) => setRateDraft((p) => ({ ...p, [row.id]: e.target.value }))}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && showSave && !savingRate) handleSaveRate(row);
+                            }}
+                            style={{
+                              border: '1px solid #d1d5db',
+                              borderRadius: 4,
+                              padding: '2px 6px',
+                              width: 80,
+                              fontSize: 12,
+                              textAlign: 'right',
+                            }}
+                          />
+                          {showSave && (
+                            <Button
+                              type="button"
+                              variant="default"
+                              size="sm"
+                              disabled={savingRate}
+                              onClick={() => handleSaveRate(row)}
+                            >
+                              {savingRate ? '…' : 'Save'}
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  }
+
                   // Editable cell handling
                   const editKey = `${row.id}-${col.key}`;
                   const isEditing = editing[editKey] !== undefined;
@@ -368,7 +517,9 @@ const PurchaseGrid = ({
                       key={col.key}
                       style={{ ...CELL_BASE, width: col.width, textAlign: col.align || 'left' }}
                     >
-                      {cellValue(row, col.key, category)}
+                      {col.formatter
+                        ? col.formatter(row[col.key], row)
+                        : cellValue(row, col.key, category)}
                     </td>
                   );
                 })}
