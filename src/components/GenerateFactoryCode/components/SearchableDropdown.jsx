@@ -16,7 +16,8 @@ const SearchableDropdown = ({
   onBlur,
   strictMode = false, // If true, only accepts values from options list
   usePortal = false, // If true, render dropdown in portal so it isn't clipped by overflow
-  placeholderDim = false // If true, dim placeholder to avoid confusion when value is selected
+  placeholderDim = false, // If true, dim placeholder to avoid confusion when value is selected
+  onCustomValue // (value) => void — fired when a typed value is committed that is NOT in `options`
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -110,11 +111,20 @@ const SearchableDropdown = ({
     if (blurTimeoutRef.current) {
       clearTimeout(blurTimeoutRef.current);
     }
+    // Capture the typed text before the timeout clears it.
+    const typed = (searchTerm || '').trim();
     // Delay to allow click on option
     blurTimeoutRef.current = setTimeout(() => {
       setIsOpen(false);
       setSearchTerm('');
-      
+
+      // Non-strict mode: if the user typed a value that isn't one of the known
+      // options, surface it so the caller can persist it to the tenant list.
+      if (!strictMode && typed && onCustomValue) {
+        const known = options.some((opt) => opt.toLowerCase() === typed.toLowerCase());
+        if (!known) onCustomValue(typed);
+      }
+
       // In strict mode, validate the search term on blur
       if (strictMode && searchTerm) {
         // Check if search term matches any option (case-insensitive)

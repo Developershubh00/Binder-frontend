@@ -432,16 +432,41 @@ const Step5 = ({
               </div>
 
               {material.packagingMaterialType && (
-                <PackagingMaterialTypeFields
-                  material={material}
-                  materialIndex={materialIndex}
-                  onChange={(field, value) => handlePackagingMaterialChange(materialIndex, field, value)}
-                  errorKeyPrefix={`packaging_material_${materialIndex}`}
-                  errors={errors}
-                  casepackQty={formData.packaging?.casepackQty}
-                  productSelection={formData.packaging?.productSelection}
-                  skus={formData.skus}
-                />
+                <>
+                  {/* Auto-generated MATERIAL DESC (read-only). Click reveals the
+                      source spec fields below so the user edits the origin. */}
+                  <div className="flex flex-col" style={{ width: '100%', maxWidth: '640px', marginBottom: '16px' }}>
+                    <label className="text-sm font-bold text-gray-800 mb-2">MATERIAL DESC</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={material.materialDescription || ''}
+                      onClick={() => {
+                        if (typeof document !== 'undefined') {
+                          const card = document.querySelector(`[data-packaging-material-index="${materialIndex}"]`);
+                          const anchor = card?.querySelector('[data-spec-anchor]') || card;
+                          anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      title="Auto-generated from specifications — click to edit the source fields"
+                      placeholder="Fill specifications below"
+                      className="border-2 rounded-lg text-sm bg-gray-100 text-gray-900 border-gray-200 cursor-pointer focus:outline-none"
+                      style={{ padding: '10px 14px', height: '44px' }}
+                    />
+                  </div>
+                  <div data-spec-anchor>
+                    <PackagingMaterialTypeFields
+                      material={material}
+                      materialIndex={materialIndex}
+                      onChange={(field, value) => handlePackagingMaterialChange(materialIndex, field, value)}
+                      errorKeyPrefix={`packaging_material_${materialIndex}`}
+                      errors={errors}
+                      casepackQty={formData.packaging?.casepackQty}
+                      productSelection={formData.packaging?.productSelection}
+                      skus={formData.skus}
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>

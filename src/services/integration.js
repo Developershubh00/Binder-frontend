@@ -1298,6 +1298,36 @@ export const deleteFactoryCode = async (id) => {
   return await response.json();
 };
 
+// ============================================================================
+// MATERIAL OPTIONS (tenant-scoped custom dropdown values)
+// ============================================================================
+
+// Fetch tenant-scoped custom dropdown options. Filter by material_type /
+// field_key / parent_key to scope to a single field (e.g. all custom Fabric
+// Names for the "Cotton" fiber type).
+export const getMaterialOptions = async (params = {}) => {
+  const query = new URLSearchParams(
+    Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== null))
+  ).toString();
+  const response = await apiRequest(`ims/material-options/${query ? '?' + query : ''}`);
+  return await response.json();
+};
+
+// Persist a custom value the user typed that wasn't in the built-in list, so it
+// becomes available to the whole tenant next time. Idempotent on the backend.
+export const saveMaterialOption = async ({ materialType, fieldKey, parentKey = '', value }) => {
+  const response = await apiRequest('ims/material-options/', {
+    method: 'POST',
+    body: JSON.stringify({
+      material_type: materialType,
+      field_key: fieldKey,
+      parent_key: parentKey || '',
+      value,
+    }),
+  });
+  return await response.json();
+};
+
 // Factory code draft (save/load per step - PostgreSQL, sync across devices).
 // Drafts are scoped to (user, IPO). Pass `ipoId` when editing an existing IPO
 // so that switching between IPOs doesn't clobber each other's in-progress
