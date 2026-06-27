@@ -35,6 +35,8 @@ import {
 } from '../../data/textileFabricHelpers';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import SearchableDropdown from '../SearchableDropdown';
+import { isAutoDescriptionType } from '../../utils/materialDescription';
+import { useMaterialOptions } from '../../utils/useMaterialOptions';
 import { UNIT_OPTIONS, UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import TrimAccessoryFields from '../TrimAccessoryFields';
 import { 
@@ -176,6 +178,31 @@ const FABRIC_TESTING_REQUIREMENT_OPTIONS = [
 const isSimpleRequirementWorkOrder = (workOrderType) =>
   SIMPLE_REQUIREMENT_WORK_ORDERS.includes(workOrderType);
 
+// Advance-Spec visibility flag per auto-description material type. Clicking the
+// read-only MATERIAL DESC field opens these so every source dropdown (including
+// the advance fields that feed the description) is editable.
+const SPEC_ADVANCE_FLAG = {
+  Fabric: 'showFabricAdvancedFilter',
+  Yarn: 'showAdvancedFilter',
+  Foam: 'showFoamAdvancedSpec',
+  Fiber: 'showFiberAdvancedSpec',
+};
+
+// Reveal & scroll to the spec source fields for a raw-material row when the user
+// clicks its read-only MATERIAL DESC field.
+const focusMaterialSpecSource = (actualIndex, materialType, handleRawMaterialChange) => {
+  const flag = SPEC_ADVANCE_FLAG[materialType];
+  if (flag) handleRawMaterialChange(actualIndex, flag, true);
+  if (typeof document !== 'undefined') {
+    // Defer so the advance panel has expanded before we scroll.
+    setTimeout(() => {
+      const card = document.querySelector(`[data-raw-material-index="${actualIndex}"]`);
+      const anchor = card?.querySelector('[data-spec-anchor]') || card;
+      anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+};
+
 const Step2 = ({
   formData,
   errors,
@@ -195,6 +222,8 @@ const Step2 = ({
 }) => {
   const prevWorkOrdersLengthRef = useRef({});
   const isInitialMountRef = useRef(true);
+  // Tenant-scoped custom dropdown options (merge built-in + tenant; persist new typed values).
+  const { mergeOptions, addCustomOption } = useMaterialOptions();
   const [selectedComponent, setSelectedComponent] = useState(''); // Component selected at top
   const [showMaterialTypeModal, setShowMaterialTypeModal] = useState(false);
   const savedComponents = savedComponentsProp; // Use parent's state so "Add material" clears Saved
@@ -619,16 +648,33 @@ const Step2 = ({
                   width="sm"
                   error={errors[`rawMaterial_${actualIndex}_materialDescription`]}
                 >
-                  <Input
-                    type="text"
-                    value={material.materialDescription}
-                    onChange={(e) => {
-                      handleRawMaterialChange(actualIndex, 'materialDescription', e.target.value);
-                    }}
-                    placeholder="e.g., Cotton 200TC"
-                    aria-invalid={errors[`rawMaterial_${actualIndex}_materialDescription`] ? true : undefined}
-                    required
-                  />
+                  {isAutoDescriptionType(material.materialType) ? (
+                    // Auto-generated from the spec fields below. Read-only: clicking
+                    // reveals the source spec dropdowns (incl. Advance Spec) so the
+                    // user edits the origin instead of the derived text.
+                    <Input
+                      type="text"
+                      value={material.materialDescription || ''}
+                      onChange={() => {}}
+                      readOnly
+                      onClick={() => focusMaterialSpecSource(actualIndex, material.materialType, handleRawMaterialChange)}
+                      title="Auto-generated from specifications — click to edit the source fields"
+                      placeholder="Fill specifications below"
+                      className="cursor-pointer bg-muted/40"
+                      aria-invalid={errors[`rawMaterial_${actualIndex}_materialDescription`] ? true : undefined}
+                    />
+                  ) : (
+                    <Input
+                      type="text"
+                      value={material.materialDescription}
+                      onChange={(e) => {
+                        handleRawMaterialChange(actualIndex, 'materialDescription', e.target.value);
+                      }}
+                      placeholder="e.g., Cotton 200TC"
+                      aria-invalid={errors[`rawMaterial_${actualIndex}_materialDescription`] ? true : undefined}
+                      required
+                    />
+                  )}
                 </Field>
                 
                 {/* Net CNS and Unit: hidden for Stitching Thread (uses stitchingThreadQty + stitchingThreadUnit) */}
@@ -1186,7 +1232,8 @@ const Step2 = ({
                           handleRawMaterialChange(actualIndex, 'spinningType', '');
                         }
                       }}
-                      options={getFiberTypes()}
+                      options={mergeOptions(getFiberTypes(), 'Yarn', 'fiberType')}
+                      onCustomValue={(val) => addCustomOption('Yarn', 'fiberType', '', val)}
                       placeholder="Select or type Fiber Type"
                       className={errors[`rawMaterial_${actualIndex}_fiberType`] ? 'border-red-600' : ''}
                     />
@@ -1209,7 +1256,8 @@ const Step2 = ({
                           handleRawMaterialChange(actualIndex, 'windingOptions', '');
                         }
                       }}
-                      options={material.fiberType ? getYarnTypes(material.fiberType) : []}
+                      options={material.fiberType ? mergeOptions(getYarnTypes(material.fiberType), 'Yarn', 'yarnType', material.fiberType) : []}
+                      onCustomValue={(val) => addCustomOption('Yarn', 'yarnType', material.fiberType, val)}
                       placeholder={material.fiberType ? 'Select or type Yarn Type' : 'Select Fiber Type First'}
                       disabled={!material.fiberType}
                       error={Boolean(errors[`rawMaterial_${actualIndex}_yarnType`])}
@@ -1225,7 +1273,7 @@ const Step2 = ({
                   
                   return (
                     <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
-                      <h4 className="text-sm font-semibold text-foreground/90 mb-6">YARN SPECIFICATIONS</h4>
+                      <h4 data-spec-anchor className="text-sm font-semibold text-foreground/90 mb-6">YARN SPECIFICATIONS</h4>
                       
                       {/* Input Fields Row */}
                       <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
@@ -1455,7 +1503,7 @@ const Step2 = ({
             {material.materialType == "Fabric" && (<>
             <div style={{ marginTop: '2rem' }}>
               <div style={{ marginBottom: '1rem' }}>
-                <h3 className="text-sm font-semibold text-foreground/90">FABRIC SPECIFICATIONS</h3>
+                <h3 data-spec-anchor className="text-sm font-semibold text-foreground/90">FABRIC SPECIFICATIONS</h3>
               </div>
               
               <div className="bg-card rounded-lg border border-border" style={{ padding: '1.25rem' }}>
@@ -1472,7 +1520,8 @@ const Step2 = ({
                           handleRawMaterialChange(actualIndex, 'fabricName', '');
                         }
                       }}
-                      options={getTextileFabricFiberTypes()}
+                      options={mergeOptions(getTextileFabricFiberTypes(), 'Fabric', 'fabricFiberType')}
+                      onCustomValue={(val) => addCustomOption('Fabric', 'fabricFiberType', '', val)}
                       placeholder="Select or type Fiber Type"
                       className={errors[`rawMaterial_${actualIndex}_fabricFiberType`] ? 'border-red-600' : ''}
                     />
@@ -1492,7 +1541,8 @@ const Step2 = ({
                           handleRawMaterialChange(actualIndex, 'fabricApproval', []);
                         }
                       }}
-                      options={material.fabricFiberType ? getTextileFabricNames(material.fabricFiberType) : []}
+                      options={material.fabricFiberType ? mergeOptions(getTextileFabricNames(material.fabricFiberType), 'Fabric', 'fabricName', material.fabricFiberType) : []}
+                      onCustomValue={(val) => addCustomOption('Fabric', 'fabricName', material.fabricFiberType, val)}
                       placeholder={material.fabricFiberType ? 'Select or type Fabric Name' : 'Select Fiber Type First'}
                       disabled={!material.fabricFiberType}
                       className={errors[`rawMaterial_${actualIndex}_fabricName`] ? 'border-red-600' : ''}
@@ -1504,9 +1554,10 @@ const Step2 = ({
                     <SearchableDropdown
                       value={material.fabricComposition || ''}
                       onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricComposition', value)}
-                      options={material.fabricFiberType && material.fabricName 
-                        ? getFabricCompositionOptions(material.fabricFiberType, material.fabricName)
+                      options={material.fabricFiberType && material.fabricName
+                        ? mergeOptions(getFabricCompositionOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'fabricComposition', `${material.fabricFiberType}|${material.fabricName}`)
                         : []}
+                      onCustomValue={(val) => addCustomOption('Fabric', 'fabricComposition', `${material.fabricFiberType}|${material.fabricName}`, val)}
                       placeholder={material.fabricFiberType && material.fabricName ? "Select or type Composition" : "Select Fabric First"}
                       disabled={!material.fabricFiberType || !material.fabricName}
                       className={errors[`rawMaterial_${actualIndex}_fabricComposition`] ? 'border-red-600' : ''}
@@ -1602,9 +1653,10 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.constructionType || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'constructionType', value)}
-                          options={material.fabricFiberType && material.fabricName 
-                            ? getFabricConstructionTypeOptions(material.fabricFiberType, material.fabricName)
+                          options={material.fabricFiberType && material.fabricName
+                            ? mergeOptions(getFabricConstructionTypeOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'constructionType', `${material.fabricFiberType}|${material.fabricName}`)
                             : []}
+                          onCustomValue={(val) => addCustomOption('Fabric', 'constructionType', `${material.fabricFiberType}|${material.fabricName}`, val)}
                           placeholder={material.fabricFiberType && material.fabricName ? "Select or type Construction Type" : "Select Fabric First"}
                           disabled={!material.fabricFiberType || !material.fabricName}
                         />
@@ -1615,9 +1667,10 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.weaveKnitType || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'weaveKnitType', value)}
-                          options={material.fabricFiberType && material.fabricName 
-                            ? getFabricWeaveKnitTypeOptions(material.fabricFiberType, material.fabricName)
+                          options={material.fabricFiberType && material.fabricName
+                            ? mergeOptions(getFabricWeaveKnitTypeOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'weaveKnitType', `${material.fabricFiberType}|${material.fabricName}`)
                             : []}
+                          onCustomValue={(val) => addCustomOption('Fabric', 'weaveKnitType', `${material.fabricFiberType}|${material.fabricName}`, val)}
                           placeholder={material.fabricFiberType && material.fabricName ? "Select or type Weave/Knit Type" : "Select Fabric First"}
                           disabled={!material.fabricFiberType || !material.fabricName}
                         />
@@ -1699,7 +1752,7 @@ const Step2 = ({
               <>
                 <div style={{ marginTop: '32px' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <h3 className="text-sm font-bold text-gray-800">TRIM & ACCESSORY SPECIFICATIONS</h3>
+                    <h3 data-spec-anchor className="text-sm font-bold text-gray-800">TRIM & ACCESSORY SPECIFICATIONS</h3>
                   </div>
                   
                   <div className="bg-white rounded-lg border border-gray-200" style={{ padding: '20px' }}>
@@ -1761,7 +1814,7 @@ const Step2 = ({
               <>
                 <div style={{ marginTop: '32px' }}>
                   <div style={{ marginBottom: '1rem' }}>
-                    <h3 className="text-sm font-semibold text-foreground/90">FOAM SPECIFICATIONS</h3>
+                    <h3 data-spec-anchor className="text-sm font-semibold text-foreground/90">FOAM SPECIFICATIONS</h3>
                   </div>
                   
                   <div className="bg-card rounded-lg border border-border" style={{ padding: '1.25rem' }}>
@@ -2015,7 +2068,8 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.foamType || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamType', selectedValue)}
-                          options={['EVA Foam (Ethylene Vinyl Acetate)']}
+                          options={mergeOptions(['EVA Foam (Ethylene Vinyl Acetate)'], 'Foam', 'foamType')}
+                          onCustomValue={(val) => addCustomOption('Foam', 'foamType', '', val)}
                           placeholder="Select or type"
                           className={errors[`rawMaterial_${actualIndex}_foamType`] ? 'border-red-600' : ''}
                         />
@@ -2026,7 +2080,8 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.foamSubtype || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamSubtype', selectedValue)}
-                          options={['Virgin EVA', 'Recycled EVA', 'Blended']}
+                          options={mergeOptions(['Virgin EVA', 'Recycled EVA', 'Blended'], 'Foam', 'foamSubtype', material.foamType || '')}
+                          onCustomValue={(val) => addCustomOption('Foam', 'foamSubtype', material.foamType || '', val)}
                           placeholder="Select or type"
                           className={errors[`rawMaterial_${actualIndex}_foamSubtype`] ? 'border-red-600' : ''}
                         />
@@ -5049,7 +5104,7 @@ const Step2 = ({
               <>
                 <div style={{ marginTop: '32px' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <h3 className="text-sm font-bold text-gray-800">FIBER SPECIFICATIONS</h3>
+                    <h3 data-spec-anchor className="text-sm font-bold text-gray-800">FIBER SPECIFICATIONS</h3>
                   </div>
                   
                   <div className="bg-white rounded-lg border border-gray-200" style={{ padding: '20px' }}>
@@ -5151,7 +5206,8 @@ const Step2 = ({
                           <SearchableDropdown
                             value={material.fiberFiberType || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberFiberType', selectedValue)}
-                            options={['Polyester (PET)', 'Recycled Polyester (rPET)']}
+                            options={mergeOptions(['Polyester (PET)', 'Recycled Polyester (rPET)'], 'Fiber', 'fiberFiberType')}
+                            onCustomValue={(val) => addCustomOption('Fiber', 'fiberFiberType', '', val)}
                             placeholder="Select or type"
                             className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`rawMaterial_${actualIndex}_fiberFiberType`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                             style={{ padding: '10px 14px', height: '44px' }}
@@ -5165,7 +5221,8 @@ const Step2 = ({
                         <SearchableDropdown
                           value={material.fiberSubtype || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberSubtype', selectedValue)}
-                          options={['Virgin', 'Recycled', 'Conjugate', 'Hollow Conjugate']}
+                          options={mergeOptions(['Virgin', 'Recycled', 'Conjugate', 'Hollow Conjugate'], 'Fiber', 'fiberSubtype', material.fiberFiberType || '')}
+                          onCustomValue={(val) => addCustomOption('Fiber', 'fiberSubtype', material.fiberFiberType || '', val)}
                           placeholder="Select or type"
                           className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors[`rawMaterial_${actualIndex}_fiberSubtype`] ? 'border-red-600' : 'border-[#e5e7eb]'}`}
                           style={{ padding: '10px 14px', height: '44px' }}

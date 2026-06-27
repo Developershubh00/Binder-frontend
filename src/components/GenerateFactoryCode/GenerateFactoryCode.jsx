@@ -3,6 +3,7 @@ import { useSidebar, SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '@/c
 import TEXTILE_FIBER_DATA from './data/textileFiberData';
 import { getFiberTypes, getYarnTypes, getSpinningMethod, getYarnDetails } from './utils/yarnHelpers';
 import { initializeRawMaterials, initializeConsumptionMaterials } from './utils/initializers';
+import { generateMaterialDescription, getDescriptionSourceFields, isAutoDescriptionType, generateArtworkDescription, getArtworkDescriptionSourceFields, generatePackagingDescription, getPackagingDescriptionSourceFields } from './utils/materialDescription';
 import { calculateTotalWastage, calculateGrossConsumption } from './utils/calculations';
 import { isShrinkageWidthApplicable, isShrinkageLengthApplicable, DYEING_TYPES } from './data/dyeingData';
 import {
@@ -2069,7 +2070,33 @@ const GenerateFactoryCode = ({
           [field]: value
         };
       }
-      
+
+      // Auto-generate MATERIAL DESC from the spec fields for Fabric/Yarn/Foam/Fiber.
+      // The description is derived, not typed: regenerate whenever the material
+      // type or any description-source field changes.
+      {
+        const updatedMaterial = updatedRawMaterials[materialIndex];
+        if (updatedMaterial) {
+          const auto = isAutoDescriptionType(updatedMaterial.materialType);
+          if (field === 'materialType') {
+            updatedRawMaterials[materialIndex] = {
+              ...updatedMaterial,
+              materialDescription: auto ? generateMaterialDescription(updatedMaterial) : '',
+            };
+          } else if (
+            auto &&
+            (field === 'subMaterial' ||
+              field === 'trimAccessory' ||
+              getDescriptionSourceFields(updatedMaterial.materialType, updatedMaterial.trimAccessory).includes(field))
+          ) {
+            updatedRawMaterials[materialIndex] = {
+              ...updatedMaterial,
+              materialDescription: generateMaterialDescription(updatedMaterial),
+            };
+          }
+        }
+      }
+
       const nextRawSavedComponents = componentName
         ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
         : getNormalizedRawSavedComponents(stepData);
@@ -3987,9 +4014,25 @@ const GenerateFactoryCode = ({
         };
       }
 
+      // Auto-generate MATERIAL DESC from the artwork spec fields. Regenerate when
+      // the category or any description-source field (incl. OTHERS-text siblings)
+      // changes.
+      {
+        const updated = updatedMaterials[materialIndex];
+        if (
+          field === 'artworkCategory' ||
+          getArtworkDescriptionSourceFields(updated.artworkCategory).includes(field)
+        ) {
+          updatedMaterials[materialIndex] = {
+            ...updated,
+            materialDescription: generateArtworkDescription(updated),
+          };
+        }
+      }
+
       return withUpdatedIpcSavedState({ ...stepData, artworkMaterials: updatedMaterials }, { artwork: false });
     });
-    
+
     // Clear error
     const errorKey = `artworkMaterial_${materialIndex}_${field}`;
     if (errors[errorKey]) {
@@ -4279,7 +4322,23 @@ const GenerateFactoryCode = ({
         updatedMaterials[materialIndex].totalWastage = totalWastagePercent.toFixed(2);
         updatedMaterials[materialIndex].grossConsumption = grossConsumption.toFixed(4);
       }
-      
+
+      // Auto-generate MATERIAL DESC from the packaging spec fields. Runs after the
+      // legacy dimension-sync logic so cleared dims (e.g. carton stiffener) are
+      // reflected. Regenerate on category change or any source-field change.
+      {
+        const updated = updatedMaterials[materialIndex];
+        if (
+          field === 'packagingMaterialType' ||
+          getPackagingDescriptionSourceFields(updated.packagingMaterialType).includes(field)
+        ) {
+          updatedMaterials[materialIndex] = {
+            ...updated,
+            materialDescription: generatePackagingDescription(updated),
+          };
+        }
+      }
+
       return {
         ...stepData,
         packaging: {

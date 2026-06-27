@@ -7683,7 +7683,28 @@ const Step4 = ({
 
                 {material.artworkCategory && (
                   <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
+                  {/* Auto-generated MATERIAL DESC (read-only). Clicking reveals the
+                      source spec fields below so the user edits the origin. */}
+                  <div className="flex flex-col" style={{ width: '100%', maxWidth: '640px', marginBottom: '20px' }}>
+                    <label className="text-sm font-bold text-gray-800 mb-2">MATERIAL DESC</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={material.materialDescription || ''}
+                      onClick={() => {
+                        if (typeof document !== 'undefined') {
+                          const card = document.querySelector(`[data-artwork-material-index="${actualIndex}"]`);
+                          const anchor = card?.querySelector('[data-spec-anchor]') || card;
+                          anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      title="Auto-generated from specifications — click to edit the source fields"
+                      placeholder="Fill specifications below"
+                      className="border-2 rounded-lg text-sm bg-gray-100 text-gray-900 border-border cursor-pointer focus:outline-none"
+                      style={{ padding: '10px 14px', height: '44px' }}
+                    />
+                  </div>
+                  <div data-spec-anchor className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-5">
                     {/* TYPE Field */}
                     {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'HEADER CARD', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
