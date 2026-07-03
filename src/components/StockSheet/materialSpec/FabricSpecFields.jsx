@@ -4,7 +4,6 @@
 // TrimAccessoryFields, so AddNewMaterials can treat all material types uniformly.
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { PercentInput } from "@/components/ui/percent-input";
 import { TestingRequirementsInput } from "@/components/ui/testing-requirements-input";
 import SearchableDropdown from "../../GenerateFactoryCode/components/SearchableDropdown";
 import AdvanceSpecButton from "../AdvanceSpecButton";
@@ -191,40 +190,6 @@ const FabricSpecFields = ({
               }
               placeholder="e.g., 90"
               aria-invalid={!!err("gsm")}
-            />
-          </Field>
-
-          {/* Surplus */}
-          <Field
-            label="SURPLUS %"
-            required
-            width="sm"
-            error={err("fabricSurplus")}
-          >
-            <PercentInput
-              value={material.fabricSurplus || ""}
-              onChange={(e) =>
-                handleChange(materialIndex, "fabricSurplus", e.target.value)
-              }
-              placeholder="e.g., 5"
-              error={!!err("fabricSurplus")}
-            />
-          </Field>
-
-          {/* Wastage */}
-          <Field
-            label="WASTAGE %"
-            required
-            width="sm"
-            error={err("fabricWastage")}
-          >
-            <PercentInput
-              value={material.fabricWastage || ""}
-              onChange={(e) =>
-                handleChange(materialIndex, "fabricWastage", e.target.value)
-              }
-              placeholder="e.g., 3"
-              error={!!err("fabricWastage")}
             />
           </Field>
 

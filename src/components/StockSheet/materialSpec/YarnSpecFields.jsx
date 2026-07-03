@@ -6,7 +6,6 @@
 // the shared ui/ primitives for consistency.
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { PercentInput } from "@/components/ui/percent-input";
 import { TestingRequirementsInput } from "@/components/ui/testing-requirements-input";
 import SearchableDropdown from "../../GenerateFactoryCode/components/SearchableDropdown";
 import AdvanceSpecButton from "../AdvanceSpecButton";
@@ -58,21 +57,7 @@ const YarnSpecFields = ({
 
   return (
     <div style={{ marginTop: "2rem" }}>
-      {/* Sub-material */}
-      <Field label="SUB-MATERIAL" width="sm">
-        <SearchableDropdown
-          value={material.subMaterial || ""}
-          onChange={(selectedSubMaterial) => {
-            handleChange(materialIndex, "subMaterial", selectedSubMaterial);
-            if (selectedSubMaterial === "Stitching Thread") {
-              handleChange(materialIndex, "fiberType", "");
-              handleChange(materialIndex, "yarnType", "");
-            }
-          }}
-          options={["Stitching Thread"]}
-          placeholder="Select sub-material (optional)"
-        />
-      </Field>
+      {/* Sub-material is chosen in the header (Sub-Material) and drives which form renders. */}
 
       {/* Stitching Thread specifications */}
       {isStitching && (
@@ -261,34 +246,6 @@ const YarnSpecFields = ({
                   }
                   options={["Yardage", "Kgs"]}
                   placeholder="Select unit"
-                />
-              </Field>
-
-              <Field label="SURPLUS %" width="sm">
-                <PercentInput
-                  value={material.stitchingThreadSurplus || ""}
-                  onChange={(e) =>
-                    handleChange(
-                      materialIndex,
-                      "stitchingThreadSurplus",
-                      e.target.value,
-                    )
-                  }
-                  placeholder="e.g., 5"
-                />
-              </Field>
-
-              <Field label="WASTAGE %" width="sm">
-                <PercentInput
-                  value={material.stitchingThreadWastage || ""}
-                  onChange={(e) =>
-                    handleChange(
-                      materialIndex,
-                      "stitchingThreadWastage",
-                      e.target.value,
-                    )
-                  }
-                  placeholder="e.g., 3"
                 />
               </Field>
 
@@ -611,46 +568,6 @@ const YarnSpecFields = ({
                           className={
                             err("windingOptions") ? "border-red-600" : ""
                           }
-                        />
-                      </Field>
-
-                      <Field
-                        label="SURPLUS %"
-                        required
-                        width="sm"
-                        error={err("surplus")}
-                      >
-                        <PercentInput
-                          value={material.surplus || ""}
-                          onChange={(e) =>
-                            handleChange(
-                              materialIndex,
-                              "surplus",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="e.g., 5"
-                          error={!!err("surplus")}
-                        />
-                      </Field>
-
-                      <Field
-                        label="WASTAGE %"
-                        required
-                        width="sm"
-                        error={err("wastage")}
-                      >
-                        <PercentInput
-                          value={material.wastage || ""}
-                          onChange={(e) =>
-                            handleChange(
-                              materialIndex,
-                              "wastage",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="e.g., 3"
-                          error={!!err("wastage")}
                         />
                       </Field>
 
