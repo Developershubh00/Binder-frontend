@@ -19,7 +19,7 @@ import InwardStoreSheet from "../InwardStoreSheet.jsx";
 import InwardStoreSheetDatabase from "../InwardStoreSheetDatabase.jsx";
 import OutwardStoreSheet from "../OutwardStoreSheet.jsx";
 import OutwardStoreSheetDatabase from "../OutwardStoreSheetDatabase.jsx";
-import StockSheet from "../StockSheet.jsx";
+import StockSheet from "../StockSheet/StockSheet.jsx";
 import MasterStockSheet from "../MasterStockSheet.jsx";
 
 const DashboardContent = ({

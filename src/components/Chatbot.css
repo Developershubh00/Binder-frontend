@@ -18,7 +18,9 @@ body.ai-panel-open {
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: transparent;
+  /* Opaque disc so the orb actually covers whatever is behind it (e.g. the
+     Save button) instead of showing through the transparent canvas. */
+  background: #ffffff;
   cursor: pointer;
   z-index: 1000;
   box-shadow: 0 0 18px 4px rgba(212, 170, 90, 0.18), 0 4px 24px rgba(0,0,0,0.35);

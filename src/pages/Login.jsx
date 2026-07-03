@@ -257,7 +257,7 @@ import PolyhedraBackground from "../components/PolyhedraBackground";
 import PolyhedraLogo from "../components/PolyhedraLogo";
 import "./Login.css";
 import { scrollToFirstError } from "@/utils/scrollToFirstError";
-import PrimeRadiant from "@/components/Primeradiant";
+
 
 const Login = () => {
   const navigate = useNavigate();

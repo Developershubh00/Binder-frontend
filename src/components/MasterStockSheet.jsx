@@ -1,31 +1,19 @@
-import { useEffect, useState } from 'react';
-import { getStockSheets } from '../services/integration';
-import { useLoading } from '../context/LoadingContext';
-import './InwardStoreSheet.css';
-import './StockSheet.css';
+import { useEffect, useState } from "react";
+import { FiPlusCircle, FiSearch } from "react-icons/fi";
+import { getStockSheets } from "../services/integration";
+import { useLoading } from "../context/LoadingContext";
+import "./InwardStoreSheet.css";
+import "./StockSheet/StockSheet.css";
 
-const CATEGORY_LABELS = {
-  YARN: 'Yarn',
-  FABRIC: 'Fabric',
-  FIBER: 'Fiber',
-  FOAM: 'Foam',
-  TRIMS_ACCESSORY: 'Trims & Accessory',
-  ARTWORK_LABELLING: 'Artwork & Labelling',
-  PACKAGING: 'Packaging',
-  COMPANY_ESSENTIALS: 'Company Essentials',
-};
-
-const IPO_TYPE_LABELS = {
-  PRODUCTION: 'Production',
-  SAMPLING: 'Sampling',
-  COMPANY: 'Company',
-  COMPANY_ESSENTIALS: 'Company Essentials',
+const SOURCE_LABELS = {
+  ADD_NEW: "ADD_NEW",
+  FROM_IPO: "FROM_IPO",
 };
 
 const MasterStockSheet = ({ onBack, onOpenForm }) => {
   const [sheets, setSheets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const { showLoading, hideLoading } = useLoading();
 
@@ -46,224 +34,684 @@ const MasterStockSheet = ({ onBack, onOpenForm }) => {
     }
   };
 
-  useEffect(() => { loadSheets(); }, []);
+  useEffect(() => {
+    loadSheets();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
     loadSheets();
   };
 
-  const formatDate = (iso) => {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-IN', {
-      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  const formatDateParts = (iso) => {
+    if (!iso) return { date: "—", time: "" };
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return { date: "—", time: "" };
+    const date = d.toLocaleDateString("en-CA"); // YYYY-MM-DD
+    const time = d.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return { date, time };
+  };
+
+  const formatFullDate = (iso) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
-  const formatNumber = (val) => {
+  const formatQty = (val) => {
     const n = parseFloat(val);
-    if (!Number.isFinite(n)) return '0.00';
-    return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 3 });
+    if (!Number.isFinite(n)) return "—";
+    return n.toLocaleString("en-US", {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3,
+    });
   };
 
+  const formatMoney = (val) => {
+    const n = parseFloat(val);
+    if (!Number.isFinite(n)) return "—";
+    return n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  // Human-friendly value for a detail field (parses stored JSON maps).
+  const formatDetailValue = (raw) => {
+    if (raw === null || raw === undefined) return "—";
+    const str = String(raw).trim();
+    if (str === "") return "—";
+    if (str.startsWith("{") || str.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(str);
+        if (parsed && typeof parsed === "object") {
+          const vals = Object.entries(parsed).map(([k, v]) => `${k}: ${v}`);
+          return vals.join(", ") || "—";
+        }
+      } catch {
+        /* fall through to raw string */
+      }
+    }
+    return str;
+  };
+
+  const categoryPill = (cat) => (cat || "").replace(/_/g, " ");
+
+  // Primary "ITEM" text + optional secondary badge for the collapsed row.
+  const itemSummary = (sheet) => {
+    const items = sheet.items || [];
+    if (items.length > 0) {
+      const first = items[0].material_description || "—";
+      const more = items.length > 1 ? items.length - 1 : 0;
+      return { text: first, more, pending: false };
+    }
+    if (sheet.source === "FROM_IPO") {
+      return {
+        text: sheet.ipo_code_display || "—",
+        more: 0,
+        pending: true,
+      };
+    }
+    return { text: "—", more: 0, pending: false };
+  };
+
+  const refCode = (sheet) =>
+    sheet.ipc_code_text ||
+    sheet.ipc_code_display ||
+    sheet.ipo_code_display ||
+    "";
+
+  const HEAD = {
+    padding: "12px 16px",
+    textAlign: "left",
+    fontWeight: 600,
+    fontSize: 11,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    color: "var(--muted-foreground)",
+    whiteSpace: "nowrap",
+  };
+  const CELL = {
+    padding: "14px 16px",
+    verticalAlign: "middle",
+    fontSize: 13,
+    color: "var(--foreground)",
+  };
+  const NUM = { textAlign: "right", fontVariantNumeric: "tabular-nums" };
+
   return (
-    <div className="iss-container">
-      <div className="iss-header">
-        <button className="iss-back-button" onClick={onBack}>← Back</button>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+    <div
+      className="ss-scope min-h-full w-full overflow-y-auto bg-[#f3f4f6] py-9"
+      style={{ fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif" }}
+    >
+      <div className="mx-auto max-w-[95%] space-y-5">
+        {/* Back */}
+        <button
+          type="button"
+          onClick={onBack}
+          className="mb-5 inline-flex items-center gap-1 rounded-md border border-[#e2e3e8] hover:shadow-lg bg-white cursor-pointer px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-[#f5f5f5]"
+        >
+          ← Back
+        </button>
+
+        {/* Title + primary action */}
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="iss-title" style={{ marginBottom: 4 }}>Master Stock Sheet</h1>
-            <p className="iss-description" style={{ marginBottom: 0 }}>All saved stock sheet entries</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              Master Stock Logs
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              All saved stock sheet entries
+            </p>
           </div>
-          <button className="iss-btn iss-btn-primary" onClick={onOpenForm}>+ Add Stock Items</button>
+          <button
+            type="button"
+            onClick={onOpenForm}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+          >
+            <FiPlusCircle className="text-base" />
+            Add Stock Items
+          </button>
         </div>
-      </div>
 
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: 12, marginBottom: 24, maxWidth: 500 }}>
-        <input
-          className="iss-form-input"
-          type="text"
-          placeholder="Search by IPC / IPO code…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ flex: 1 }}
-        />
-        <button type="submit" className="iss-btn iss-btn-secondary">Search</button>
-      </form>
-
-      {loading ? (
-        <p style={{ color: 'var(--muted-foreground)', padding: 24 }}>Loading…</p>
-      ) : sheets.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--muted-foreground)' }}>
-          <p style={{ fontSize: 16, marginBottom: 12 }}>No stock sheets yet.</p>
-          <button className="iss-btn iss-btn-primary" onClick={onOpenForm}>Create your first one</button>
+        {/* Search */}
+        <div className="rounded-lg border border-[#e2e3e8] bg-card p-4">
+          <form onSubmit={handleSearch} className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search by IPC / IPO code…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-md border border-[#e2e3e8] bg-card py-3 pl-10 pr-4 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
+              />
+            </div>
+            <button
+              type="submit"
+              className="cursor-pointer rounded-md border border-[#e2e3e8] bg-muted px-6 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:bg-[#e9eaee]"
+            >
+              Search
+            </button>
+          </form>
         </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {sheets.map((sheet) => {
-            const isExpanded = expandedId === sheet.id;
-            return (
-              <div
-                key={sheet.id}
+
+        {loading ? (
+          <p style={{ color: "var(--muted-foreground)", padding: 24 }}>
+            Loading…
+          </p>
+        ) : sheets.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "var(--muted-foreground)",
+            }}
+          >
+            <p style={{ fontSize: 16, marginBottom: 12 }}>
+              No stock sheets yet.
+            </p>
+            <button className="iss-btn iss-btn-primary" onClick={onOpenForm}>
+              Create your first one
+            </button>
+          </div>
+        ) : (
+          <div
+            style={{
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+              overflow: "hidden",
+              background: "var(--card)",
+            }}
+          >
+            <div style={{ overflowX: "auto" }}>
+              <table
                 style={{
-                  border: '1px solid var(--border)',
-                  borderRadius: 8,
-                  background: 'var(--background)',
-                  overflow: 'hidden',
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  minWidth: 960,
                 }}
               >
-                <button
-                  type="button"
-                  onClick={() => setExpandedId(isExpanded ? null : sheet.id)}
-                  style={{
-                    width: '100%',
-                    display: 'grid',
-                    gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr 1fr auto',
-                    gap: 16,
-                    padding: '14px 18px',
-                    alignItems: 'center',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 600 }}>{sheet.ipc_code_display || '—'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>
-                      {sheet.ipo_code_display || '—'}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>IPO Type</div>
-                    <div>{IPO_TYPE_LABELS[sheet.ipo_type] || sheet.ipo_type}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Category</div>
-                    <div>{CATEGORY_LABELS[sheet.category] || sheet.category}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}># Pkgs</div>
-                    <div>{sheet.num_packages}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Total Qty</div>
-                    <div>{formatNumber(sheet.total_qty)}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Amount</div>
-                    <div>{formatNumber(sheet.amount)}</div>
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>{formatDate(sheet.created_at)}</div>
-                </button>
+                <thead>
+                  <tr
+                    style={{
+                      background: "var(--muted)",
+                      borderBottom: "1px solid var(--border)",
+                    }}
+                  >
+                    <th style={{ ...HEAD, width: 36 }} />
+                    <th style={HEAD}>Category</th>
+                    <th style={HEAD}>Source</th>
+                    <th style={HEAD}>Item</th>
+                    <th style={{ ...HEAD, ...NUM }}>Total Qty</th>
+                    <th style={{ ...HEAD, ...NUM }}>Rate</th>
+                    <th style={{ ...HEAD, ...NUM }}>Amount</th>
+                    <th style={{ ...HEAD, textAlign: "center" }}>Pkgs</th>
+                    <th style={HEAD}>Ref Code</th>
+                    <th style={HEAD}>Created</th>
+                  </tr>
+                </thead>
+                {sheets.map((sheet) => {
+                  const isExpanded = expandedId === sheet.id;
+                  const summary = itemSummary(sheet);
+                  const created = formatDateParts(sheet.created_at);
+                  const ref = refCode(sheet);
+                  return (
+                    <tbody
+                      key={sheet.id}
+                      style={{ display: "table-row-group" }}
+                    >
+                      <tr
+                        onClick={() =>
+                          setExpandedId(isExpanded ? null : sheet.id)
+                        }
+                        style={{
+                          borderBottom: "1px solid var(--border)",
+                          cursor: "pointer",
+                          background: isExpanded
+                            ? "var(--muted)"
+                            : "transparent",
+                          transition: "background-color 0.12s",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isExpanded)
+                            e.currentTarget.style.background = "var(--muted)";
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isExpanded)
+                            e.currentTarget.style.background = "transparent";
+                        }}
+                      >
+                        <td
+                          style={{
+                            ...CELL,
+                            paddingLeft: 12,
+                            paddingRight: 4,
+                            color: "var(--muted-foreground)",
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: "inline-block",
+                              transition: "transform 0.15s",
+                              transform: isExpanded
+                                ? "rotate(90deg)"
+                                : "rotate(0deg)",
+                              fontSize: 12,
+                            }}
+                          >
+                            ▶
+                          </span>
+                        </td>
+                        <td style={CELL}>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              padding: "4px 10px",
+                              borderRadius: 999,
+                              background: "var(--muted)",
+                              color: "var(--muted-foreground)",
+                              fontSize: 11,
+                              fontWeight: 700,
+                              letterSpacing: "0.04em",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {categoryPill(sheet.category)}
+                          </span>
+                        </td>
+                        <td style={CELL}>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              padding: "3px 8px",
+                              borderRadius: 6,
+                              border: "1px solid var(--border)",
+                              background: "var(--background)",
+                              fontSize: 11,
+                              fontWeight: 600,
+                              fontFamily: "var(--font-mono)",
+                              color: "var(--muted-foreground)",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {SOURCE_LABELS[sheet.source] || sheet.source || "—"}
+                          </span>
+                        </td>
+                        <td style={{ ...CELL, maxWidth: 340, minWidth: 220 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                lineHeight: 1.35,
+                              }}
+                            >
+                              {summary.text}
+                            </span>
+                            {summary.more > 0 && (
+                              <span
+                                style={{
+                                  padding: "2px 7px",
+                                  borderRadius: 999,
+                                  background: "var(--muted)",
+                                  color: "var(--muted-foreground)",
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                +{summary.more} more
+                              </span>
+                            )}
+                            {summary.pending && (
+                              <span
+                                style={{
+                                  padding: "2px 7px",
+                                  borderRadius: 999,
+                                  background: "var(--muted)",
+                                  color: "var(--muted-foreground)",
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                details pending
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{ ...CELL, ...NUM }}>
+                          {formatQty(sheet.total_qty)}
+                        </td>
+                        <td style={{ ...CELL, ...NUM }}>
+                          {formatMoney(sheet.rate)}
+                        </td>
+                        <td style={{ ...CELL, ...NUM }}>
+                          {formatMoney(sheet.amount)}
+                        </td>
+                        <td style={{ ...CELL, textAlign: "center" }}>
+                          {sheet.num_packages ?? (sheet.packages || []).length}
+                        </td>
+                        <td
+                          style={{
+                            ...CELL,
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 12,
+                            color: ref
+                              ? "var(--foreground)"
+                              : "var(--muted-foreground)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {ref || "—"}
+                        </td>
+                        <td
+                          style={{
+                            ...CELL,
+                            fontSize: 12,
+                            color: "var(--muted-foreground)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <div>{created.date}</div>
+                          {created.time && (
+                            <div style={{ opacity: 0.75 }}>{created.time}</div>
+                          )}
+                        </td>
+                      </tr>
 
-                {isExpanded && (
-                  <div style={{ borderTop: '1px solid var(--border)', padding: '16px 18px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
-                      <div>
-                        <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Rate</div>
-                        <div>{formatNumber(sheet.rate)}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Yarn Sub-Category</div>
-                        <div>{sheet.yarn_sub_category || '—'}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Source</div>
-                        <div>{sheet.source}</div>
-                      </div>
-                    </div>
+                      {isExpanded && (
+                        <tr>
+                          <td
+                            colSpan={10}
+                            style={{
+                              padding: 0,
+                              borderBottom: "1px solid var(--border)",
+                              background: "var(--muted)",
+                            }}
+                          >
+                            <div style={{ padding: "18px 22px" }}>
+                              {(sheet.items || []).length === 0 ? (
+                                <p
+                                  style={{
+                                    color: "var(--muted-foreground)",
+                                    fontSize: 13,
+                                    margin: 0,
+                                  }}
+                                >
+                                  {sheet.source === "FROM_IPO"
+                                    ? "Item specifications are pulled from the linked IPC and are not stored on this record."
+                                    : "No item details."}
+                                </p>
+                              ) : (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 14,
+                                  }}
+                                >
+                                  {sheet.items.map((it) => {
+                                    const cols = (
+                                      sheet.item_columns || []
+                                    ).filter(
+                                      (c) =>
+                                        it.details &&
+                                        String(
+                                          it.details[c.key] ?? "",
+                                        ).trim() !== "",
+                                    );
+                                    return (
+                                      <div
+                                        key={it.id}
+                                        style={{
+                                          border: "1px solid var(--border)",
+                                          borderRadius: 10,
+                                          background: "var(--card)",
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            gap: 12,
+                                            padding: "12px 16px",
+                                            borderBottom:
+                                              cols.length > 0
+                                                ? "1px dashed var(--border)"
+                                                : "none",
+                                          }}
+                                        >
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: 10,
+                                              minWidth: 0,
+                                            }}
+                                          >
+                                            <span
+                                              style={{
+                                                flexShrink: 0,
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                minWidth: 26,
+                                                height: 22,
+                                                padding: "0 7px",
+                                                borderRadius: 6,
+                                                background: "#334155",
+                                                color: "#fff",
+                                                fontSize: 12,
+                                                fontWeight: 700,
+                                              }}
+                                            >
+                                              #{it.sr_no}
+                                            </span>
+                                            <span
+                                              style={{
+                                                fontSize: 14,
+                                                fontWeight: 600,
+                                                color: "var(--foreground)",
+                                              }}
+                                            >
+                                              {it.material_description || "—"}
+                                            </span>
+                                          </div>
+                                          {it.unit && (
+                                            <span
+                                              style={{
+                                                flexShrink: 0,
+                                                padding: "3px 9px",
+                                                borderRadius: 6,
+                                                border:
+                                                  "1px solid var(--border)",
+                                                background: "var(--background)",
+                                                fontSize: 11,
+                                                fontWeight: 600,
+                                                color:
+                                                  "var(--muted-foreground)",
+                                              }}
+                                            >
+                                              {it.unit}
+                                            </span>
+                                          )}
+                                        </div>
 
-                    {/* Items */}
-                    <div className="ss-section" style={{ marginTop: 0 }}>
-                      <h3 className="ss-section-title">Items ({sheet.items?.length || 0})</h3>
-                      {(sheet.items || []).length === 0 ? (
-                        <p className="ss-muted">No items</p>
-                      ) : (
-                        <div className="ss-table-wrap">
-                          <table className="ss-table">
-                            <thead>
-                              <tr>
-                                <th style={{ width: 70 }}>Sr.</th>
-                                {(sheet.item_columns || []).map((col) => (
-                                  <th key={col.key}>{col.label}</th>
-                                ))}
-                                {(!sheet.item_columns || sheet.item_columns.length === 0) && (
-                                  <>
-                                    <th>Material Description</th>
-                                    <th style={{ width: 100 }}>Unit</th>
-                                  </>
-                                )}
-                                <th style={{ width: 140 }}>Image</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {sheet.items.map((it) => (
-                                <tr key={it.id}>
-                                  <td>{it.sr_no}</td>
-                                  {(sheet.item_columns || []).map((col) => (
-                                    <td key={col.key}>
-                                      {it.details && it.details[col.key] !== undefined && it.details[col.key] !== ''
-                                        ? String(it.details[col.key])
-                                        : '—'}
-                                    </td>
+                                        {cols.length > 0 && (
+                                          <div
+                                            style={{
+                                              display: "grid",
+                                              gridTemplateColumns:
+                                                "repeat(auto-fill, minmax(210px, 1fr))",
+                                              gap: "16px 24px",
+                                              padding: "16px",
+                                            }}
+                                          >
+                                            {cols.map((col) => (
+                                              <div key={col.key}>
+                                                <div
+                                                  style={{
+                                                    fontSize: 10.5,
+                                                    fontWeight: 600,
+                                                    letterSpacing: "0.05em",
+                                                    textTransform: "uppercase",
+                                                    color:
+                                                      "var(--muted-foreground)",
+                                                    marginBottom: 3,
+                                                  }}
+                                                >
+                                                  {col.label}
+                                                </div>
+                                                <div
+                                                  style={{
+                                                    fontSize: 13,
+                                                    color: "var(--foreground)",
+                                                    wordBreak: "break-word",
+                                                  }}
+                                                >
+                                                  {formatDetailValue(
+                                                    it.details?.[col.key],
+                                                  )}
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+
+                                        {it.image_url && (
+                                          <div
+                                            style={{ padding: "0 16px 16px" }}
+                                          >
+                                            <a
+                                              href={it.image_url}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                            >
+                                              <img
+                                                src={it.image_url}
+                                                alt="item"
+                                                style={{
+                                                  height: 60,
+                                                  width: 60,
+                                                  objectFit: "cover",
+                                                  borderRadius: 8,
+                                                  border:
+                                                    "1px solid var(--border)",
+                                                }}
+                                              />
+                                            </a>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {/* Packages */}
+                              {(sheet.packages || []).length > 0 && (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    flexWrap: "wrap",
+                                    marginTop: 16,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: 10.5,
+                                      fontWeight: 600,
+                                      letterSpacing: "0.05em",
+                                      textTransform: "uppercase",
+                                      color: "var(--muted-foreground)",
+                                    }}
+                                  >
+                                    Packages
+                                  </span>
+                                  {sheet.packages.map((pkg) => (
+                                    <span
+                                      key={pkg.id}
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: 6,
+                                        padding: "4px 10px",
+                                        borderRadius: 8,
+                                        border: "1px solid var(--border)",
+                                        background: "var(--card)",
+                                        fontSize: 12,
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          color: "var(--muted-foreground)",
+                                          fontWeight: 600,
+                                        }}
+                                      >
+                                        #{pkg.package_no}
+                                      </span>
+                                      <span style={{ fontWeight: 600 }}>
+                                        {formatQty(pkg.qty)}
+                                        {pkg.unit ? ` ${pkg.unit}` : ""}
+                                      </span>
+                                    </span>
                                   ))}
-                                  {(!sheet.item_columns || sheet.item_columns.length === 0) && (
-                                    <>
-                                      <td>{it.material_description || '—'}</td>
-                                      <td>{it.unit || '—'}</td>
-                                    </>
-                                  )}
-                                  <td>
-                                    {it.image_url ? (
-                                      <a href={it.image_url} target="_blank" rel="noreferrer">
-                                        <img src={it.image_url} alt="item" className="ss-thumb" />
-                                      </a>
-                                    ) : '—'}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
+                                </div>
+                              )}
 
-                    {/* Packages */}
-                    <div className="ss-section" style={{ marginTop: 16 }}>
-                      <h3 className="ss-section-title">Packages ({sheet.packages?.length || 0})</h3>
-                      {(sheet.packages || []).length === 0 ? (
-                        <p className="ss-muted">No packages</p>
-                      ) : (
-                        <div className="ss-table-wrap">
-                          <table className="ss-table">
-                            <thead>
-                              <tr>
-                                <th style={{ width: 100 }}>Package #</th>
-                                <th>QTY</th>
-                                <th style={{ width: 140 }}>Unit</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {sheet.packages.map((pkg) => (
-                                <tr key={pkg.id}>
-                                  <td>{pkg.package_no}</td>
-                                  <td>{formatNumber(pkg.qty)}</td>
-                                  <td>{pkg.unit || '—'}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                              {/* Meta footer */}
+                              <div
+                                style={{
+                                  marginTop: 16,
+                                  fontSize: 11,
+                                  fontFamily: "var(--font-mono)",
+                                  color: "var(--muted-foreground)",
+                                  display: "flex",
+                                  gap: 18,
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                <span>record: {sheet.id}</span>
+                                <span>
+                                  updated: {formatFullDate(sheet.updated_at)}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
                       )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+                    </tbody>
+                  );
+                })}
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
