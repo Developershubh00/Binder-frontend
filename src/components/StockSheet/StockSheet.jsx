@@ -86,6 +86,13 @@ const StockSheet = ({ onBack, onSaved }) => {
   const [yarnSubCategory, setYarnSubCategory] = useState("");
   const isFromIpo = source === "FROM_IPO";
 
+  // The Yarn "sub-material" drives which spec form renders. It doubles as the yarn
+  // sub-category: "Stitching Thread" → stitching form; "Not Applicable" → regular yarn.
+  const yarnSubMaterial =
+    category === "YARN" && yarnSubCategory === "STITCHING_THREAD"
+      ? "Stitching Thread"
+      : "";
+
   // Item rows (Sr.No., material_description, unit, image, details)
   const [itemRows, setItemRows] = useState([]);
   const [itemColumns, setItemColumns] = useState([]);
@@ -467,11 +474,17 @@ const StockSheet = ({ onBack, onSaved }) => {
 
             {category === "YARN" && (
               <SelectField
-                label="Yarn Sub-Category"
+                label="Sub-Material"
                 className="max-w-[29.5rem]"
                 required
                 value={yarnSubCategory}
-                onChange={setYarnSubCategory}
+                onChange={(v) => {
+                  setYarnSubCategory(v);
+                  // Switching sub-material is a mode switch — rebuild the material(s)
+                  // so the correct (stitching vs regular) form renders cleanly.
+                  setMaterials([]);
+                  setItemErrors({});
+                }}
                 options={YARN_SUB_OPTIONS}
               />
             )}
@@ -490,6 +503,7 @@ const StockSheet = ({ onBack, onSaved }) => {
             setMaterials={setMaterials}
             errors={itemErrors}
             subCategorySelected={category !== "YARN" || !!yarnSubCategory}
+            yarnSubMaterial={yarnSubMaterial}
           />
         )}
 

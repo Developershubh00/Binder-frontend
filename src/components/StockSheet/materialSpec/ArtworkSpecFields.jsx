@@ -383,30 +383,6 @@ const ArtworkSpecFields = ({ material, materialIndex, handleChange, errors = {} 
                     )}
 
 
-                    {/* SURPLUS Field with FOR SECTION - For all except LAW LABEL / CONTENTS TAG, ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER */}
-                    {material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'HEADER CARD' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
-                    <div className="flex flex-col md:col-span-2">
-                      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS (%AGE / FOR)</label>
-                      <div className={`flex items-center gap-0 border-2 rounded-lg bg-white overflow-hidden focus-within:border-primary transition-all ${errors[`artworkMaterial_${actualIndex}_surplus`] || errors[`artworkMaterial_${actualIndex}_surplusForSection`] ? 'border-red-600' : 'border-border'}`} style={{ height: '44px' }}>
-                        <input
-                          type="text"
-                            value={material.surplus || ''}
-                          onChange={(e) => handleArtworkMaterialChange(actualIndex, 'surplus', e.target.value)}
-                          className="text-sm bg-transparent text-foreground focus:outline-none border-r border-border"
-                          style={{ padding: '10px 14px', width: '80px' }}
-                          placeholder="5%"
-                        />
-                        <input
-                          type="text"
-                            value={material.surplusForSection || ''}
-                          onChange={(e) => handleArtworkMaterialChange(actualIndex, 'surplusForSection', e.target.value)}
-                          className="text-sm bg-transparent text-foreground focus:outline-none flex-grow"
-                          style={{ padding: '10px 14px' }}
-                          placeholder="FOR SECTION (e.g., PACKAGING / QUALITY)"
-                        />
-                      </div>
-                    </div>
-                    )}
 
 
                     {/* APPROVAL Field - Excluded for ANTI-COUNTERFEIT & HOLOGRAMS, BELLY BAND / WRAPPER, CARE & COMPOSITION, FLAMMABILITY / SAFETY LABELS, HANG TAG SEALS / STRINGS, HEAT TRANSFER LABELS, INSERT CARDS, LABELS (BRAND/MAIN), LAW LABEL / CONTENTS TAG, PRICE TICKET / BARCODE TAG, QC / INSPECTION LABELS, RFID / SECURITY TAGS, RIBBONS, SIZE LABELS (INDIVIDUAL), TAGS & SPECIAL LABELS, and UPC LABEL / BARCODE STICKER (have their own) */}

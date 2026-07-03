@@ -51,10 +51,11 @@ const TRIM_OPTIONS = [
   "ZIPPERS",
 ];
 
-const makeBlankMaterial = (materialType) => ({
+const makeBlankMaterial = (materialType, yarnSubMaterial = "") => ({
   materialType,
   materialDescription: "",
   unit: "",
+  ...(materialType === "Yarn" ? { subMaterial: yarnSubMaterial } : {}),
   ...(materialType === "Trim & Accessory" ? { trimAccessory: "" } : {}),
   ...(materialType === "Packaging" ? { packagingMaterialType: "" } : {}),
   ...(materialType === "Artwork"
@@ -90,6 +91,7 @@ const AddNewMaterials = ({
   setMaterials,
   errors = {},
   subCategorySelected = true,
+  yarnSubMaterial = "",
 }) => {
   const materialType = CATEGORY_TO_MATERIAL_TYPE[category];
   const isSupported = SUPPORTED_CATEGORIES.includes(category);
@@ -99,9 +101,17 @@ const AddNewMaterials = ({
   useEffect(() => {
     if (!isSupported || !subCategorySelected) return;
     setMaterials((prev) =>
-      prev.length === 0 ? [makeBlankMaterial(materialType)] : prev,
+      prev.length === 0
+        ? [makeBlankMaterial(materialType, yarnSubMaterial)]
+        : prev,
     );
-  }, [isSupported, subCategorySelected, materialType, setMaterials]);
+  }, [
+    isSupported,
+    subCategorySelected,
+    materialType,
+    yarnSubMaterial,
+    setMaterials,
+  ]);
 
   const updateMaterial = (index, field, value) => {
     setMaterials((prev) => {
@@ -113,7 +123,10 @@ const AddNewMaterials = ({
   };
 
   const addMaterial = () => {
-    setMaterials((prev) => [...prev, makeBlankMaterial(materialType)]);
+    setMaterials((prev) => [
+      ...prev,
+      makeBlankMaterial(materialType, yarnSubMaterial),
+    ]);
   };
 
   const removeMaterial = (index) => {
