@@ -100,3 +100,43 @@
   gap: 12px;
   margin-top: 24px;
 }
+
+/* The embedded spec inputs (Packaging Surplus/Wastage, etc. rendered by the
+   GenerateFactoryCode field components) default to an indigo focus border.
+   Re-tint that focus state to our orange primary so it matches every other
+   StockSheet input. Scoped to .ss-scope and to the exact indigo utility so it
+   only affects the inputs that were turning blue — nothing else. */
+.ss-scope .focus\:border-indigo-500:focus {
+  border-color: var(--primary);
+}
+
+/* Surplus / Wastage (and Surplus / For-Section) live in a flex row whose fields
+   are hard-pinned to 280px, so they end up narrower than the fluid grid fields
+   (Type, Material, etc.) above them. Re-size each field to exactly one grid
+   column — and match the grid's 1.5rem (gap-x-6) gutter — so they line up with
+   the rest. Widths mirror the source grid: 4 cols @xl, 3 @lg, 2 @md, 1 below.
+   !important is needed to beat the inline width:280px on the field + input. */
+.ss-scope [data-spec-anchor] .flex.items-end.gap-4 {
+  gap: 1.5rem;
+}
+.ss-scope [data-spec-anchor] .flex.items-end.gap-4 > .flex.flex-col {
+  width: 100% !important;
+}
+.ss-scope [data-spec-anchor] .flex.items-end.gap-4 > .flex.flex-col input {
+  width: 100% !important;
+}
+@media (min-width: 768px) {
+  .ss-scope [data-spec-anchor] .flex.items-end.gap-4 > .flex.flex-col {
+    width: calc((100% - 1.5rem) / 2) !important;
+  }
+}
+@media (min-width: 1024px) {
+  .ss-scope [data-spec-anchor] .flex.items-end.gap-4 > .flex.flex-col {
+    width: calc((100% - 3rem) / 3) !important;
+  }
+}
+@media (min-width: 1280px) {
+  .ss-scope [data-spec-anchor] .flex.items-end.gap-4 > .flex.flex-col {
+    width: calc((100% - 4.5rem) / 4) !important;
+  }
+}

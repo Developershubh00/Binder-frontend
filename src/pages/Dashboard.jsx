@@ -341,7 +341,7 @@ const Dashboard = () => {
         />
 
         <main className="main-content ">
-          <div className="content-wrapper">
+          <div className="content-wrapper ">
             <DashboardContent
               activePage={activePage}
               user={user}

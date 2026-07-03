@@ -1,9 +1,13 @@
 /* src/pages/Community.css */
-/* Reset and base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Reset and base styles — layered so Tailwind utilities can override it (an unlayered
+   universal margin/padding reset leaks app-wide via the global CSS import and beats
+   every Tailwind spacing utility in v4). */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 html {
