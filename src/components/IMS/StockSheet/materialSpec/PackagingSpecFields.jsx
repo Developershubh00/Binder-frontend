@@ -2,8 +2,8 @@
 // standalone PackagingMaterialTypeFields (the per-material part of Step5) — the packaging
 // header / IPC selection / extra packs from Step5 are wizard/IPO concepts and are omitted.
 // Same prop shape as the other *SpecFields: (materialIndex, field, value) change handler.
-import SearchableDropdown from "../../GenerateFactoryCode/components/SearchableDropdown";
-import PackagingMaterialTypeFields from "../../GenerateFactoryCode/components/PackagingMaterialTypeFields";
+import SearchableDropdown from "../../../GenerateFactoryCode/components/SearchableDropdown";
+import PackagingMaterialTypeFields from "../../../GenerateFactoryCode/components/PackagingMaterialTypeFields";
 import Reveal from "./Reveal";
 
 const PACKAGING_MATERIAL_TYPE_OPTIONS = [
@@ -48,24 +48,28 @@ const PackagingSpecFields = ({
           className={errors[typeErrKey] ? "border-destructive" : ""}
         />
         {errors[typeErrKey] && (
-          <span className="text-destructive text-xs mt-1">{errors[typeErrKey]}</span>
+          <span className="text-destructive text-xs mt-1">
+            {errors[typeErrKey]}
+          </span>
         )}
       </div>
 
       {material.packagingMaterialType && (
         <Reveal>
-        <div data-spec-anchor>
-          <PackagingMaterialTypeFields
-            material={material}
-            materialIndex={materialIndex}
-            onChange={(field, value) => handleChange(materialIndex, field, value)}
-            errorKeyPrefix={errorPrefix}
-            errors={errors}
-            casepackQty=""
-            productSelection={[]}
-            skus={[]}
-          />
-        </div>
+          <div data-spec-anchor>
+            <PackagingMaterialTypeFields
+              material={material}
+              materialIndex={materialIndex}
+              onChange={(field, value) =>
+                handleChange(materialIndex, field, value)
+              }
+              errorKeyPrefix={errorPrefix}
+              errors={errors}
+              casepackQty=""
+              productSelection={[]}
+              skus={[]}
+            />
+          </div>
         </Reveal>
       )}
     </div>

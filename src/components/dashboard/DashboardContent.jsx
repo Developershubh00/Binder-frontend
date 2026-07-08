@@ -14,12 +14,13 @@ import CompanyEssentialsMasterSheet from "../CompanyEssentialsMasterSheet";
 import IPOMasterSheet from "../IPOMasterSheet";
 import CompletedIPOs from "../CompletedIPOs";
 import UQRFormsPreview from "../UQR_forms/UQRFormsPreview.jsx";
-import CourierManagement from "../CourierManagement.jsx";
+import CourierSlip from "../CourierManagement/CourierSlip.jsx";
+import MasterCourierSheet from "../CourierManagement/MasterCourierSheet.jsx";
 import InwardStoreSheet from "../InwardStoreSheet.jsx";
 import InwardStoreSheetDatabase from "../InwardStoreSheetDatabase.jsx";
 import OutwardStoreSheet from "../OutwardStoreSheet.jsx";
 import OutwardStoreSheetDatabase from "../OutwardStoreSheetDatabase.jsx";
-import StockSheet from "../StockSheet/StockSheet.jsx";
+import StockSheet from "../IMS/StockSheet/StockSheet.jsx";
 import MasterStockSheet from "../MasterStockSheet.jsx";
 
 const DashboardContent = ({
@@ -51,9 +52,9 @@ const DashboardContent = ({
     case "uqr-database":
       return <UQRFormsPreview mode="database" />;
     case "courier-slip":
-      return <CourierManagement mode="slip" />;
+      return <CourierSlip onBack={() => setActivePage("home")} />;
     case "courier-master":
-      return <CourierManagement mode="master" />;
+      return <MasterCourierSheet onBack={() => setActivePage("home")} />;
     case "inward-store-sheet":
       return <InwardStoreSheet onBack={() => setActivePage("home")} />;
     case "inward-store-sheet-db":

@@ -7,9 +7,9 @@
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { TestingRequirementsInput } from "@/components/ui/testing-requirements-input";
-import SearchableDropdown from "../../GenerateFactoryCode/components/SearchableDropdown";
+import SearchableDropdown from "../../../GenerateFactoryCode/components/SearchableDropdown";
 import AdvanceSpecButton from "../AdvanceSpecButton";
-import { useMaterialOptions } from "../../GenerateFactoryCode/utils/useMaterialOptions";
+import { useMaterialOptions } from "../../../GenerateFactoryCode/utils/useMaterialOptions";
 import {
   getFiberTypes,
   getYarnTypes,
@@ -20,12 +20,12 @@ import {
   getYarnPlyOptions,
   getYarnWindingOptions,
   getYarnSpinningMethodOptions,
-} from "../../GenerateFactoryCode/utils/yarnHelpers";
-import { MATERIAL_APPROVAL_OPTIONS } from "../../GenerateFactoryCode/data/approvalOptions";
+} from "../../../GenerateFactoryCode/utils/yarnHelpers";
+import { MATERIAL_APPROVAL_OPTIONS } from "../../../GenerateFactoryCode/data/approvalOptions";
 import {
   FIBER_CATEGORIES,
   ORIGINS,
-} from "../../GenerateFactoryCode/data/advancedFilterData";
+} from "../../../GenerateFactoryCode/data/advancedFilterData";
 import Reveal from "./Reveal";
 
 const YARN_TESTING_REQUIREMENT_OPTIONS = [

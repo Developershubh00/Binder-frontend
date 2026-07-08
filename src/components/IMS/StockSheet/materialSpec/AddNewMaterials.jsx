@@ -7,12 +7,12 @@ import { Layers, PackageOpen, Plus } from "lucide-react";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import SearchableDropdown from "../../GenerateFactoryCode/components/SearchableDropdown";
-import TrimAccessoryFields from "../../GenerateFactoryCode/components/TrimAccessoryFields";
+import SearchableDropdown from "../../../GenerateFactoryCode/components/SearchableDropdown";
+import TrimAccessoryFields from "../../../GenerateFactoryCode/components/TrimAccessoryFields";
 import {
   UNIT_OPTIONS,
   UNIT_OPTIONS_WITH_PCS,
-} from "../../GenerateFactoryCode/constants/unitOptions";
+} from "../../../GenerateFactoryCode/constants/unitOptions";
 import FabricSpecFields from "./FabricSpecFields";
 import YarnSpecFields from "./YarnSpecFields";
 import FoamSpecFields from "./FoamSpecFields";

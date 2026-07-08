@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import IpoCascadingPicker from './purchase/IpoCascadingPicker';
-import PurchaseMasterCnsSheet from './purchase/PurchaseMasterCnsSheet';
-import VpoHistory from './purchase/VpoHistory';
+import { useState } from "react";
+import IpoCascadingPicker from "./purchase/IpoCascadingPicker";
+import PurchaseMasterCnsSheet from "./purchase/PurchaseMasterCnsSheet";
+import VpoHistory from "./purchase/VpoHistory";
 
 // Top-level Purchase route. Three views:
 //   'picker'     → cascading IPO Type → IPO list
@@ -9,40 +9,40 @@ import VpoHistory from './purchase/VpoHistory';
 //   'vpo_history'→ VPO history list for the selected IPO
 
 const PurchaseContent = () => {
-  const [view, setView] = useState('picker');
+  const [view, setView] = useState("picker");
   const [selectedIpo, setSelectedIpo] = useState(null);
 
-  if (view === 'sheet' && selectedIpo) {
+  if (view === "sheet" && selectedIpo) {
     return (
       <PurchaseMasterCnsSheet
         ipo={selectedIpo}
         onBack={() => {
           setSelectedIpo(null);
-          setView('picker');
+          setView("picker");
         }}
-        onOpenVpoHistory={() => setView('vpo_history')}
+        onOpenVpoHistory={() => setView("vpo_history")}
       />
     );
   }
 
-  if (view === 'vpo_history' && selectedIpo) {
+  if (view === "vpo_history" && selectedIpo) {
     return (
       <VpoHistory
         ipoId={selectedIpo.id}
         ipoCode={selectedIpo.ipo_code}
-        onBack={() => setView('sheet')}
+        onBack={() => setView("sheet")}
       />
     );
   }
 
   return (
     <div className="dashboard-content">
-      <h1 className="dashboard-title">Purchase</h1>
+      <h1 className="dashboard-title p-4">Purchase</h1>
       <div style={{ marginTop: 16 }}>
         <IpoCascadingPicker
           onSelectIpo={(ipo) => {
             setSelectedIpo(ipo);
-            setView('sheet');
+            setView("sheet");
           }}
         />
       </div>

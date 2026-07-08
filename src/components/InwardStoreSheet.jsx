@@ -5,7 +5,7 @@ import {
   createInwardStoreSheet,
   generateInwardStoreSheetCodes,
 } from "../services/integration";
-import ThemedSelect from "./StockSheet/ThemedSelect";
+import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
 
 // Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp:
 // small radius, defined grey borders, no shadows, orange primary, grey neutrals.

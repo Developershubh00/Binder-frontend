@@ -5,15 +5,15 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TestingRequirementsInput } from "@/components/ui/testing-requirements-input";
-import SearchableDropdown from "../../GenerateFactoryCode/components/SearchableDropdown";
+import SearchableDropdown from "../../../GenerateFactoryCode/components/SearchableDropdown";
 import AdvanceSpecButton from "../AdvanceSpecButton";
-import QualityVerificationToggle from "../../GenerateFactoryCode/components/QualityVerificationToggle";
-import { useMaterialOptions } from "../../GenerateFactoryCode/utils/useMaterialOptions";
-import { MATERIAL_APPROVAL_OPTIONS } from "../../GenerateFactoryCode/data/approvalOptions";
+import QualityVerificationToggle from "../../../GenerateFactoryCode/components/QualityVerificationToggle";
+import { useMaterialOptions } from "../../../GenerateFactoryCode/utils/useMaterialOptions";
+import { MATERIAL_APPROVAL_OPTIONS } from "../../../GenerateFactoryCode/data/approvalOptions";
 import {
   FIBER_CATEGORIES,
   ORIGINS,
-} from "../../GenerateFactoryCode/data/advancedFilterData";
+} from "../../../GenerateFactoryCode/data/advancedFilterData";
 
 const FoamSpecFields = ({
   material,

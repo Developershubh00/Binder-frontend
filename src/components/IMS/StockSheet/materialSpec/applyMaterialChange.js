@@ -11,7 +11,7 @@ import {
   getPackagingDescriptionSourceFields,
   generateArtworkDescription,
   getArtworkDescriptionSourceFields,
-} from "../../GenerateFactoryCode/utils/materialDescription";
+} from "../../../GenerateFactoryCode/utils/materialDescription";
 
 /**
  * Apply a single field change to a material object and regenerate its
@@ -30,9 +30,9 @@ export const applyMaterialChange = (material, field, value) => {
   if (updated.materialType === "Packaging") {
     if (
       field === "packagingMaterialType" ||
-      getPackagingDescriptionSourceFields(updated.packagingMaterialType).includes(
-        field,
-      )
+      getPackagingDescriptionSourceFields(
+        updated.packagingMaterialType,
+      ).includes(field)
     ) {
       updated.materialDescription = generatePackagingDescription(updated);
     }
@@ -43,10 +43,7 @@ export const applyMaterialChange = (material, field, value) => {
   // from its primary item fields so the saved item isn't blank.
   if (updated.materialType === "CompanyEssentials") {
     updated.materialDescription =
-      updated.item ||
-      updated.itemDescription ||
-      updated.machineType ||
-      "";
+      updated.item || updated.itemDescription || updated.machineType || "";
     return updated;
   }
 

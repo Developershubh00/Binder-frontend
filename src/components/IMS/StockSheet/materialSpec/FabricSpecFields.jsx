@@ -5,9 +5,9 @@
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { TestingRequirementsInput } from "@/components/ui/testing-requirements-input";
-import SearchableDropdown from "../../GenerateFactoryCode/components/SearchableDropdown";
+import SearchableDropdown from "../../../GenerateFactoryCode/components/SearchableDropdown";
 import AdvanceSpecButton from "../AdvanceSpecButton";
-import { useMaterialOptions } from "../../GenerateFactoryCode/utils/useMaterialOptions";
+import { useMaterialOptions } from "../../../GenerateFactoryCode/utils/useMaterialOptions";
 import {
   getTextileFabricFiberTypes,
   getTextileFabricNames,
@@ -15,11 +15,11 @@ import {
   getFabricConstructionTypeOptions,
   getFabricWeaveKnitTypeOptions,
   getFabricApprovalOptions,
-} from "../../GenerateFactoryCode/data/textileFabricHelpers";
+} from "../../../GenerateFactoryCode/data/textileFabricHelpers";
 import {
   FIBER_CATEGORIES,
   ORIGINS,
-} from "../../GenerateFactoryCode/data/advancedFilterData";
+} from "../../../GenerateFactoryCode/data/advancedFilterData";
 import Reveal from "./Reveal";
 
 const FABRIC_TESTING_REQUIREMENT_OPTIONS = [

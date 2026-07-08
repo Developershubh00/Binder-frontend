@@ -1,29 +1,272 @@
-import React, { useMemo, useEffect, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Field } from '@/components/ui/field';
-import { FullscreenContent } from '@/components/ui/form-layout';
-import { SearchableCombobox } from '@/components/ui/searchable-combobox';
-import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { createTask } from '../services/integration';
-import { uploadToBlob } from '../services/blobUpload';
-import { normalizeOrderType } from '../utils/orderType';
+import React, { useMemo, useEffect, useState } from "react";
+import {
+  ImagePlus,
+  X,
+  Check,
+  Ban,
+  ListChecks,
+  Plus,
+  ArrowRight,
+} from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
+import { createTask } from "../services/integration";
+import { uploadToBlob } from "../services/blobUpload";
+import { normalizeOrderType } from "../utils/orderType";
 
-const TasksContent = ({ initialView = 'assign' }) => {
+/* ------------------------------------------------------------------ *
+ * Flat/clean theme (matches the StockSheet revamp) — class strings + local primitives.
+ * ------------------------------------------------------------------ */
+const CARD = "rounded-lg border border-[#e2e3e8] bg-card p-5 md:p-6";
+const LABEL =
+  "mb-2 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground";
+const CTRL =
+  "w-full rounded-md border border-[#e2e3e8] bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15";
+const PRIMARY_BTN =
+  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
+const OUTLINE_BTN =
+  "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[#e2e3e8] bg-card px-4 py-2 text-sm font-semibold text-foreground/70 transition-colors hover:bg-muted";
+
+const PRIORITY_LEVELS = ["Low", "Medium", "High", "Urgent"];
+const PRIORITY_PILL = {
+  Low: "bg-slate-100 text-slate-600",
+  Medium: "bg-amber-100 text-amber-700",
+  High: "bg-orange-100 text-orange-700",
+  Urgent: "bg-red-100 text-red-700",
+};
+const STATUS_BADGE = {
+  pending: { cls: "bg-amber-100 text-amber-700", label: "Pending" },
+  accepted: { cls: "bg-green-100 text-green-700", label: "Accepted" },
+  rejected: { cls: "bg-red-100 text-red-700", label: "Rejected" },
+};
+
+const Input = ({ className = "", ...props }) => (
+  <input className={`${CTRL} ${className}`} {...props} />
+);
+
+const Field = ({ label, required, children, className = "" }) => (
+  <div className={`flex flex-col ${className}`}>
+    {label && (
+      <label className={LABEL}>
+        {label} {required && <span className="text-primary">*</span>}
+      </label>
+    )}
+    {children}
+  </div>
+);
+
+const SectionTitle = ({ step, children }) => (
+  <h2 className="mb-5 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-foreground">
+    {step && (
+      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-xs font-bold text-primary">
+        {step}
+      </span>
+    )}
+    {children}
+  </h2>
+);
+
+const PriorityChips = ({ value, onChange }) => (
+  <div className="flex flex-wrap gap-2">
+    {PRIORITY_LEVELS.map((level) => {
+      const active = value === level;
+      const activeCls =
+        level === "Urgent"
+          ? "border-red-500 bg-red-500/10 text-red-600"
+          : "border-primary bg-primary/10 text-primary";
+      return (
+        <button
+          key={level}
+          type="button"
+          onClick={() => onChange(level)}
+          className={`cursor-pointer rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+            active
+              ? activeCls
+              : "border-[#e2e3e8] text-muted-foreground hover:bg-muted"
+          }`}
+        >
+          {level}
+        </button>
+      );
+    })}
+  </div>
+);
+
+const PriorityPill = ({ level }) => {
+  const key = level || "Low";
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+        PRIORITY_PILL[key] || PRIORITY_PILL.Low
+      }`}
+    >
+      {key}
+    </span>
+  );
+};
+
+const StatusBadge = ({ status }) => {
+  const s = STATUS_BADGE[status] || STATUS_BADGE.pending;
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${s.cls}`}
+    >
+      {s.label}
+    </span>
+  );
+};
+
+const Meta = ({ label, children }) => (
+  <div className="min-w-0">
+    <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      {label}
+    </div>
+    <div className="wrap-break-word text-sm text-foreground">{children}</div>
+  </div>
+);
+
+// Truncate a filename to `max` chars, keeping the extension and adding an ellipsis.
+const truncateName = (name, max = 22) => {
+  if (!name || name.length <= max) return name || "";
+  const dot = name.lastIndexOf(".");
+  const ext = dot > 0 ? name.slice(dot) : "";
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  const keep = Math.max(1, max - ext.length - 3);
+  return `${base.slice(0, keep)}...${ext}`;
+};
+
+// Themed image picker: dashed upload button, or once chosen a thumbnail + name + X to clear.
+const ImageUpload = ({ id, value, onChange }) => {
+  const [preview, setPreview] = useState(null);
+
+  useEffect(() => {
+    if (!value) {
+      setPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(value);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [value]);
+
+  if (value) {
+    return (
+      <div className="flex items-center gap-2.5 rounded-md border border-[#e2e3e8] bg-card p-1.5">
+        {preview ? (
+          <img
+            src={preview}
+            alt={value.name}
+            className="h-10 w-10 shrink-0 rounded object-cover"
+          />
+        ) : (
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
+            <ImagePlus className="h-4 w-4" />
+          </div>
+        )}
+        <span
+          className="flex-1 truncate text-sm font-medium text-foreground"
+          title={value.name}
+        >
+          {truncateName(value.name)}
+        </span>
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          title="Remove image"
+          className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <label
+      htmlFor={id}
+      className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#cdced6] bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+    >
+      <ImagePlus className="h-4 w-4" />
+      Upload Image
+      <input
+        id={id}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => onChange(e.target.files?.[0] || null)}
+      />
+    </label>
+  );
+};
+
+// Tag input for multiple users — styled to match the other bordered fields (grey border,
+// orange focus ring, same height). Type a name and press Enter (or comma) to add a chip.
+const UsersInput = ({ value = [], onChange, placeholder }) => {
+  const [draft, setDraft] = useState("");
+  const values = Array.isArray(value) ? value : [];
+
+  const addValue = (raw) => {
+    const v = raw.trim();
+    if (!v || values.includes(v)) return;
+    onChange([...values, v]);
+  };
+
+  const handleKeyDown = (e) => {
+    if ((e.key === "Enter" || e.key === ",") && draft.trim()) {
+      e.preventDefault();
+      addValue(draft);
+      setDraft("");
+    } else if (e.key === "Backspace" && draft === "" && values.length > 0) {
+      onChange(values.slice(0, -1));
+    }
+  };
+
+  return (
+    <div className="flex min-h-11 w-full flex-wrap items-center gap-2 rounded-md border border-[#e2e3e8] bg-card px-3 py-2 text-sm transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+      {values.map((val) => (
+        <span
+          key={val}
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e3e8] bg-muted px-2.5 py-1 text-xs font-medium text-foreground"
+        >
+          {val}
+          <button
+            type="button"
+            onClick={() => onChange(values.filter((x) => x !== val))}
+            title="Remove"
+            className="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </span>
+      ))}
+      <input
+        type="text"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={values.length === 0 ? placeholder : "Add more..."}
+        className="min-w-30 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+      />
+    </div>
+  );
+};
+
+const PO_TYPE_OPTIONS = ["Company", "Production", "Sampling"];
+const DEPARTMENT_OPTIONS = ["Department 1", "Department 2", "Department 3"];
+const toOptions = (values) => values.map((v) => ({ value: v, label: v }));
+
+const TasksContent = ({ initialView = "assign" }) => {
   const [activeView, setActiveView] = useState(initialView);
-  const [selectedType, setSelectedType] = useState('Production');
-  const [selectedIpo, setSelectedIpo] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedType, setSelectedType] = useState("Production");
+  const [selectedIpo, setSelectedIpo] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [task, setTask] = useState('');
-  const [subTask, setSubTask] = useState('');
-  const [remarks, setRemarks] = useState('');
+  const [task, setTask] = useState("");
+  const [subTask, setSubTask] = useState("");
+  const [remarks, setRemarks] = useState("");
   const [taskImage, setTaskImage] = useState(null);
-  const [taskImagePreview, setTaskImagePreview] = useState('');
-  const [taskImageInputKey, setTaskImageInputKey] = useState(0);
-  const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('');
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState("");
   const [existingIPOs, setExistingIPOs] = useState([]);
   const [assignedTasks, setAssignedTasks] = useState([]);
   const [rejectingTasks, setRejectingTasks] = useState({});
@@ -38,50 +281,58 @@ const TasksContent = ({ initialView = 'assign' }) => {
   const todayDate = useMemo(() => {
     const now = new Date();
     const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   }, []);
 
   useEffect(() => {
     const loadIPOs = () => {
       try {
-        const stored = JSON.parse(localStorage.getItem('internalPurchaseOrders') || '[]');
+        const stored = JSON.parse(
+          localStorage.getItem("internalPurchaseOrders") || "[]",
+        );
         const normalized = Array.isArray(stored)
-          ? stored.map((ipo) => ({ ...ipo, orderType: normalizeOrderType(ipo.orderType || ipo.order_type) }))
+          ? stored.map((ipo) => ({
+              ...ipo,
+              orderType: normalizeOrderType(ipo.orderType || ipo.order_type),
+            }))
           : [];
         setExistingIPOs(normalized);
       } catch (error) {
-        console.error('Error loading IPOs:', error);
+        console.error("Error loading IPOs:", error);
         setExistingIPOs([]);
       }
     };
 
     loadIPOs();
     const handleStorage = (event) => {
-      if (event.key === 'internalPurchaseOrders') {
+      if (event.key === "internalPurchaseOrders") {
         loadIPOs();
       }
     };
     const handleIpoUpdate = () => loadIPOs();
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('internalPurchaseOrdersUpdated', handleIpoUpdate);
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("internalPurchaseOrdersUpdated", handleIpoUpdate);
     return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('internalPurchaseOrdersUpdated', handleIpoUpdate);
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener(
+        "internalPurchaseOrdersUpdated",
+        handleIpoUpdate,
+      );
     };
   }, []);
 
   useEffect(() => {
-    setActiveView(initialView || 'assign');
+    setActiveView(initialView || "assign");
   }, [initialView]);
 
   useEffect(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem('assignedTasks') || '[]');
+      const stored = JSON.parse(localStorage.getItem("assignedTasks") || "[]");
       setAssignedTasks(Array.isArray(stored) ? stored : []);
     } catch (error) {
-      console.error('Error loading assigned tasks:', error);
+      console.error("Error loading assigned tasks:", error);
       setAssignedTasks([]);
     }
   }, []);
@@ -89,27 +340,27 @@ const TasksContent = ({ initialView = 'assign' }) => {
   const persistAssignedTasks = (nextTasks) => {
     setAssignedTasks(nextTasks);
     try {
-      localStorage.setItem('assignedTasks', JSON.stringify(nextTasks));
+      localStorage.setItem("assignedTasks", JSON.stringify(nextTasks));
     } catch (error) {
-      console.error('Error saving assigned tasks:', error);
+      console.error("Error saving assigned tasks:", error);
     }
   };
 
   const resetTaskForm = () => {
-    setTask('');
-    setSubTask('');
-    setRemarks('');
+    setTask("");
+    setSubTask("");
+    setRemarks("");
     setTaskImage(null);
-    setTaskImagePreview('');
-    setTaskImageInputKey((prev) => prev + 1);
-    setDueDate('');
-    setPriority('');
+    setDueDate("");
+    setPriority("");
     setSelectedUsers([]);
   };
 
   const updateTask = (taskId, updater) => {
     persistAssignedTasks(
-      assignedTasks.map((taskItem) => (taskItem.id === taskId ? updater(taskItem) : taskItem))
+      assignedTasks.map((taskItem) =>
+        taskItem.id === taskId ? updater(taskItem) : taskItem,
+      ),
     );
   };
 
@@ -119,16 +370,16 @@ const TasksContent = ({ initialView = 'assign' }) => {
       setAddUserForms((prev) => ({
         ...prev,
         [taskId]: {
-          user: '',
-          department: taskItem.department || '',
-          ipo: taskItem.ipo || '',
-          task: taskItem.task || '',
-          remarks: taskItem.remarks || '',
+          user: "",
+          department: taskItem.department || "",
+          ipo: taskItem.ipo || "",
+          task: taskItem.task || "",
+          remarks: taskItem.remarks || "",
           dueDate: taskItem.dueDate || todayDate,
-          priority: taskItem.priority || 'Low'
-        }
+          priority: taskItem.priority || "Low",
+        },
       }));
-      return { ...taskItem, status: 'accepted' };
+      return { ...taskItem, status: "accepted" };
     });
   };
 
@@ -137,111 +388,90 @@ const TasksContent = ({ initialView = 'assign' }) => {
   };
 
   const handleSendRejection = (taskId) => {
-    const note = (rejectionNotes[taskId] || '').trim();
+    const note = (rejectionNotes[taskId] || "").trim();
     updateTask(taskId, (taskItem) => ({
       ...taskItem,
-      status: 'rejected',
-      rejectedRemark: note
+      status: "rejected",
+      rejectedRemark: note,
     }));
     setRejectingTasks((prev) => ({ ...prev, [taskId]: false }));
   };
 
   const handleAddAssignee = (taskId) => {
     const form = addUserForms[taskId] || {};
-    const newAssignee = (form.user || '').trim();
+    const newAssignee = (form.user || "").trim();
     if (!newAssignee) return;
     updateTask(taskId, (taskItem) => ({
       ...taskItem,
       assignees: [...(taskItem.assignees || []), newAssignee],
-      status: 'accepted'
+      status: "accepted",
     }));
     setAddUserForms((prev) => {
       const next = { ...prev };
       delete next[taskId];
       return next;
     });
-    setNewAssignees((prev) => ({ ...prev, [taskId]: '' }));
+    setNewAssignees((prev) => ({ ...prev, [taskId]: "" }));
     setShowAddUserForm((prev) => ({ ...prev, [taskId]: false }));
     setShowUserAssignedDialog(true);
   };
 
   const handleOpenAddUserForm = (taskItem) => {
-    const draft = (newAssignees[taskItem.id] || '').trim();
+    const draft = (newAssignees[taskItem.id] || "").trim();
     if (!draft) return;
     setAddUserForms((prev) => ({
       ...prev,
       [taskItem.id]: {
         user: draft,
-        department: '',
-        ipo: '',
-        task: '',
-        remarks: '',
-        dueDate: '',
-        priority: ''
-      }
+        department: "",
+        ipo: "",
+        task: "",
+        remarks: "",
+        dueDate: "",
+        priority: "",
+      },
     }));
     setShowAddUserForm((prev) => ({ ...prev, [taskItem.id]: true }));
   };
 
-  const userOptions = [];
-
-  const handleTaskImageChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) {
+  const handleTaskImageSelect = (file) => {
+    if (!file || !file.type?.startsWith("image/")) {
       setTaskImage(null);
-      setTaskImagePreview('');
       return;
     }
-    if (!file.type.startsWith('image/')) {
-      setTaskImage(null);
-      setTaskImagePreview('');
-      setTaskImageInputKey((prev) => prev + 1);
-      return;
-    }
-
     setTaskImage(file);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setTaskImagePreview(typeof reader.result === 'string' ? reader.result : '');
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleClearTaskImage = () => {
-    setTaskImage(null);
-    setTaskImagePreview('');
-    setTaskImageInputKey((prev) => prev + 1);
   };
 
   const handleAssignTask = async () => {
     if (isAssigning) return;
     setIsAssigning(true);
     try {
-      const primaryAssignee = selectedUsers.length > 0 ? selectedUsers[0] : 'Unassigned';
-      let uploadedTaskImageUrl = '';
+      const primaryAssignee =
+        selectedUsers.length > 0 ? selectedUsers[0] : "Unassigned";
+      let uploadedTaskImageUrl = "";
 
       if (taskImage) {
         try {
-          uploadedTaskImageUrl = (await uploadToBlob(taskImage, 'tasks')) || '';
+          uploadedTaskImageUrl = (await uploadToBlob(taskImage, "tasks")) || "";
         } catch (error) {
-          console.error('Error uploading task image:', error);
+          console.error("Error uploading task image:", error);
         }
       }
 
       const taskPayload = {
-        po_type: selectedType || '',
-        ipo_code: selectedIpo || '',
-        department: selectedDepartment || '',
-        task: task.trim() || 'Task',
+        po_type: selectedType || "",
+        ipo_code: selectedIpo || "",
+        department: selectedDepartment || "",
+        task: task.trim() || "Task",
         sub_task: subTask.trim(),
         remarks: remarks.trim(),
         due_date: dueDate || todayDate,
-        priority: priority || 'Low',
-        status: 'pending',
+        priority: priority || "Low",
+        status: "pending",
         assigned_to: primaryAssignee,
         assignees: selectedUsers,
-        image_url: uploadedTaskImageUrl || '',
-        image_name: taskImage?.name || ''
+        image_url: uploadedTaskImageUrl || "",
+        image_name: taskImage?.name || "",
       };
 
       let serverTask = null;
@@ -249,11 +479,12 @@ const TasksContent = ({ initialView = 'assign' }) => {
         const response = await createTask(taskPayload);
         serverTask = response?.data ?? response;
       } catch (error) {
-        console.warn('Task API save failed, keeping local copy only:', error);
+        console.warn("Task API save failed, keeping local copy only:", error);
       }
 
-      const persistedTaskId = serverTask?.id ?? serverTask?.task_id ?? Date.now();
-      const normalizedTaskId = String(persistedTaskId).startsWith('task-')
+      const persistedTaskId =
+        serverTask?.id ?? serverTask?.task_id ?? Date.now();
+      const normalizedTaskId = String(persistedTaskId).startsWith("task-")
         ? String(persistedTaskId)
         : `task-${persistedTaskId}`;
       const newTask = {
@@ -261,16 +492,20 @@ const TasksContent = ({ initialView = 'assign' }) => {
         dbId: serverTask?.id ?? serverTask?.task_id ?? null,
         user: primaryAssignee,
         department: selectedDepartment,
-        ipo: selectedIpo || '',
-        task: task.trim() || 'Task',
+        ipo: selectedIpo || "",
+        task: task.trim() || "Task",
         subTask: subTask.trim(),
         remarks: remarks.trim(),
         dueDate: dueDate || todayDate,
-        priority: priority || 'Low',
-        imageUrl: uploadedTaskImageUrl || serverTask?.image_url || serverTask?.image || '',
-        imageName: taskImage?.name || serverTask?.image_name || '',
-        status: 'pending',
-        assignees: selectedUsers
+        priority: priority || "Low",
+        imageUrl:
+          uploadedTaskImageUrl ||
+          serverTask?.image_url ||
+          serverTask?.image ||
+          "",
+        imageName: taskImage?.name || serverTask?.image_name || "",
+        status: "pending",
+        assignees: selectedUsers,
       };
 
       const nextTasks = [newTask, ...assignedTasks];
@@ -278,7 +513,7 @@ const TasksContent = ({ initialView = 'assign' }) => {
       resetTaskForm();
       setShowAssignedDialog(true);
     } catch (error) {
-      console.error('Error assigning task:', error);
+      console.error("Error assigning task:", error);
     } finally {
       setIsAssigning(false);
     }
@@ -287,454 +522,531 @@ const TasksContent = ({ initialView = 'assign' }) => {
   const ipoOptions = useMemo(() => {
     const normalizedType = normalizeOrderType(selectedType);
     return existingIPOs
-      .filter((ipo) => normalizeOrderType(ipo.orderType || ipo.order_type) === normalizedType && (ipo.ipoCode || ipo.code))
+      .filter(
+        (ipo) =>
+          normalizeOrderType(ipo.orderType || ipo.order_type) ===
+            normalizedType &&
+          (ipo.ipoCode || ipo.code),
+      )
       .map((ipo) => ipo.ipoCode || ipo.code)
       .filter(Boolean);
   }, [existingIPOs, selectedType]);
 
   useEffect(() => {
-    setSelectedIpo('');
+    setSelectedIpo("");
   }, [selectedType]);
 
   const handleDueDateChange = (event) => {
     const value = event.target.value;
     if (value && value < todayDate) {
-      setDueDate('');
+      setDueDate("");
       return;
     }
     setDueDate(value);
   };
 
-  return (
-    <FullscreenContent style={{ overflowY: 'auto' }}>
-      <div className="dashboard-content">
-      <h1 className="dashboard-title">Tasks</h1>
-      <p className="dashboard-subtitle">Assign and track work across departments.</p>
-      <div className="tasks-tabs">
-        <button
-          type="button"
-          className={`tasks-tab${activeView === 'assigned' ? ' active' : ''}`}
-          onClick={() => setActiveView('assigned')}
-        >
-          Tasks Assigned To You
-        </button>
-        <button
-          type="button"
-          className={`tasks-tab${activeView === 'assign' ? ' active' : ''}`}
-          onClick={() => setActiveView('assign')}
-        >
-          Assign Tasks
-        </button>
-      </div>
+  const TABS = [
+    { key: "assign", label: "Assign Tasks" },
+    { key: "assigned", label: "Tasks Assigned To You" },
+  ];
 
-      {activeView === 'assign' && (
-        <div className="tasks-grid">
-          <div className="tasks-card">
-            <div className="tasks-card-title">Assign Tasks</div>
-            <Field label="Select PO Type" width="md">
-              <SearchableCombobox
-                value={selectedType}
-                onChange={setSelectedType}
-                options={['Company', 'Production', 'Sampling']}
-                placeholder="Select PO type"
-                strictMode
-                className="h-10"
-                style={{ paddingLeft: '1rem', paddingRight: '2.25rem' }}
-              />
-            </Field>
-            <Field label="Select IPO" width="md">
-              <SearchableCombobox
-                value={selectedIpo}
-                onChange={setSelectedIpo}
-                options={ipoOptions}
-                placeholder={ipoOptions.length === 0 ? 'No IPOs available' : 'Select IPO'}
-                strictMode={ipoOptions.length > 0}
-                disabled={ipoOptions.length === 0}
-                className="h-10"
-                style={{ paddingLeft: '1rem', paddingRight: '2.25rem' }}
-              />
-            </Field>
-            <Field label="Select Department" width="md">
-              <SearchableCombobox
-                value={selectedDepartment}
-                onChange={setSelectedDepartment}
-                options={['Department 1', 'Department 2', 'Department 3']}
-                placeholder="Select department"
-                strictMode={false}
-                className="h-10"
-                style={{ paddingLeft: '1rem', paddingRight: '2.25rem' }}
-              />
-            </Field>
-            <Field label="Users" width="md">
-              <TestingRequirementsInput
-                value={selectedUsers}
-                onChange={setSelectedUsers}
-                options={userOptions}
-                placeholder="Type user name and press Enter"
-              />
-            </Field>
-          </div>
-          <div className="tasks-card">
-            <div className="tasks-card-title">Define Task</div>
-            <Field label="Define Task" width="lg">
-              <Input
-                placeholder="Write the task..."
-                value={task}
-                onChange={(e) => setTask(e.target.value)}
-              />
-            </Field>
-            <Field label="Add Sub Task" width="lg">
-              <Input
-                placeholder="Optional sub task"
-                value={subTask}
-                onChange={(e) => setSubTask(e.target.value)}
-              />
-            </Field>
-            <Field label="Remarks" width="lg">
-              <textarea
-                className="tasks-textarea"
-                placeholder="Context, notes, or constraints"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-              />
-            </Field>
-            <Field label="Image Upload" width="md">
-              <div className="tasks-image-upload">
-                <input
-                  key={taskImageInputKey}
-                  id="task-image-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleTaskImageChange}
-                />
-                <label htmlFor="task-image-upload" className="tasks-image-upload-trigger">
-                  {taskImage ? 'Change Image' : 'Upload Image'}
-                </label>
-                {taskImage && (
-                  <button
-                    type="button"
-                    className="tasks-image-clear"
-                    onClick={handleClearTaskImage}
+  return (
+    <div
+      className="min-h-full w-full overflow-y-auto bg-[#f3f4f6] py-9"
+      style={{
+        zoom: 0.9,
+        fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+        "--accent": "#edeef1",
+      }}
+    >
+      <div className="mx-auto max-w-[95%] space-y-5">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Tasks</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Assign and track work across departments.
+          </p>
+        </div>
+
+        {/* Tabs */}
+        <div className="inline-flex rounded-md border border-[#e2e3e8] bg-muted p-1">
+          {TABS.map((tab) => {
+            const active = activeView === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveView(tab.key)}
+                className={`inline-flex cursor-pointer items-center gap-2 rounded px-5 py-2 text-sm font-semibold transition-all ${
+                  active
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+                {tab.key === "assigned" && assignedTasks.length > 0 && (
+                  <span
+                    className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+                      active
+                        ? "bg-white/20 text-primary-foreground"
+                        : "bg-primary/10 text-primary"
+                    }`}
                   >
-                    Remove
-                  </button>
-                )}
-                {taskImage && (
-                  <span className="tasks-image-name" title={taskImage.name}>
-                    {taskImage.name}
+                    {assignedTasks.length}
                   </span>
                 )}
-                {taskImagePreview && (
-                  <div className="tasks-image-preview">
-                    <img src={taskImagePreview} alt="Task upload preview" />
-                  </div>
-                )}
-              </div>
-            </Field>
-            <Field label="Due Date" width="md">
-              <Input
-                type="date"
-                min={todayDate}
-                value={dueDate}
-                onChange={handleDueDateChange}
-              />
-            </Field>
-            <Field label="Priority" width="lg">
-              <div className="tasks-priority">
-                {['Low', 'Medium', 'High', 'Urgent'].map((level) => (
-                  <button
-                    key={level}
-                    type="button"
-                    className={`tasks-chip${priority === level ? ' active' : ''}${level === 'Urgent' ? ' urgent' : ''}`}
-                    onClick={() => setPriority(level)}
-                  >
-                    {level}
-                  </button>
-                ))}
-              </div>
-            </Field>
-            <Button
-              type="button"
-              size="sm"
-              variant="default"
-              style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
-              onClick={handleAssignTask}
-              disabled={isAssigning}
-            >
-              {isAssigning ? 'Assigning...' : 'Assign'}
-            </Button>
-          </div>
+              </button>
+            );
+          })}
         </div>
-      )}
 
-      {activeView === 'assigned' && (
-        <div className="tasks-card tasks-card-full">
-          <div className="tasks-card-title">Tasks Assigned To You</div>
-          <div className="tasks-assigned-list">
-            {assignedTasks.length === 0 && (
-              <div className="tasks-empty">No tasks assigned yet.</div>
-            )}
-            {assignedTasks.map((taskItem) => {
-              const chain = taskItem.assignees || [];
-              const progress = 0;
-              return (
-                <div key={taskItem.id} className="tasks-assigned-card">
-                  <div className="tasks-assigned-layout">
-                    <div className="tasks-assigned-left">
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">User</span>
-                        <span className="tasks-assigned-value">{taskItem.user}</span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">User Department</span>
-                        <span className="tasks-assigned-value">{taskItem.department}</span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">IPO</span>
-                        <span className="tasks-assigned-value">{taskItem.ipo || '-'}</span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">Define Task</span>
-                        <span className="tasks-assigned-value">{taskItem.task}</span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">Remarks</span>
-                        <span className="tasks-assigned-value">{taskItem.remarks || '-'}</span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">Image</span>
-                        <span className="tasks-assigned-value">
-                          {taskItem.imageUrl ? (
-                            <a
-                              href={taskItem.imageUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="tasks-image-link"
-                            >
-                              View Image
-                            </a>
-                          ) : (
-                            taskItem.imageName || '-'
-                          )}
-                        </span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">Due Date</span>
-                        <span className="tasks-assigned-value">{taskItem.dueDate}</span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <span className="tasks-assigned-label">Priority</span>
-                        <span
-                          className={`tasks-priority-pill ${taskItem.priority?.toLowerCase() || 'low'}`}
-                          style={{ width: 'fit-content' }}
-                        >
-                          {taskItem.priority}
-                        </span>
-                      </div>
-                      <div className="tasks-right-row">
-                        <div className="tasks-actions">
-                          {taskItem.status === 'pending' && (
-                            <>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
-                                className="tasks-action accept"
-                                onClick={() => handleAcceptTask(taskItem.id)}
-                              >
-                                Accept
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
-                                className="tasks-action reject"
-                                onClick={() => handleRejectTask(taskItem.id)}
-                              >
-                                Reject
-                              </Button>
-                            </>
-                          )}
-                          {taskItem.status === 'accepted' && (
-                            <span className="tasks-status accepted">Accepted</span>
-                          )}
-                          {taskItem.status === 'rejected' && (
-                            <span className="tasks-status rejected">Rejected</span>
-                          )}
+        {/* ---------------- Assign view ---------------- */}
+        {activeView === "assign" && (
+          <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
+            {/* Assignment */}
+            <div className={CARD}>
+              <SectionTitle step="1">Assignment</SectionTitle>
+              <div className="space-y-4">
+                <Field label="Select PO Type" required>
+                  <ThemedSelect
+                    value={selectedType}
+                    onChange={setSelectedType}
+                    options={toOptions(PO_TYPE_OPTIONS)}
+                    placeholder="Select PO type"
+                  />
+                </Field>
+                <Field label="Select IPO" required>
+                  <ThemedSelect
+                    value={selectedIpo}
+                    onChange={setSelectedIpo}
+                    isDisabled={ipoOptions.length === 0}
+                    options={toOptions(ipoOptions)}
+                    placeholder={
+                      ipoOptions.length === 0
+                        ? "No IPOs available"
+                        : "Select IPO"
+                    }
+                  />
+                </Field>
+                <Field label="Select Department" required>
+                  <ThemedSelect
+                    value={selectedDepartment}
+                    onChange={setSelectedDepartment}
+                    options={toOptions(DEPARTMENT_OPTIONS)}
+                    placeholder="Select department"
+                  />
+                </Field>
+                <Field label="Users">
+                  <UsersInput
+                    value={selectedUsers}
+                    onChange={setSelectedUsers}
+                    placeholder="Type user name and press Enter"
+                  />
+                </Field>
+              </div>
+            </div>
+
+            {/* Task details */}
+            <div className={CARD}>
+              <SectionTitle step="2">Task Details</SectionTitle>
+              <div className="space-y-4">
+                <Field label="Define Task" required>
+                  <Input
+                    placeholder="Write the task..."
+                    value={task}
+                    onChange={(e) => setTask(e.target.value)}
+                  />
+                </Field>
+                <Field label="Add Sub Task">
+                  <Input
+                    placeholder="Optional sub task"
+                    value={subTask}
+                    onChange={(e) => setSubTask(e.target.value)}
+                  />
+                </Field>
+                <Field label="Remarks">
+                  <textarea
+                    className={`${CTRL} min-h-20 resize-y`}
+                    placeholder="Context, notes, or constraints"
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                  />
+                </Field>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field label="Image Upload">
+                    <ImageUpload
+                      id="task-image-upload"
+                      value={taskImage}
+                      onChange={handleTaskImageSelect}
+                    />
+                  </Field>
+                  <Field label="Due Date">
+                    <Input
+                      type="date"
+                      min={todayDate}
+                      value={dueDate}
+                      onChange={handleDueDateChange}
+                    />
+                  </Field>
+                </div>
+                <Field label="Priority">
+                  <PriorityChips value={priority} onChange={setPriority} />
+                </Field>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  type="button"
+                  className={PRIMARY_BTN}
+                  onClick={handleAssignTask}
+                  disabled={isAssigning}
+                >
+                  {isAssigning ? "Assigning..." : "Assign Task"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- Assigned view ---------------- */}
+        {activeView === "assigned" && (
+          <div className="space-y-4">
+            {assignedTasks.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#d5d6dc] bg-card px-6 py-16 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <ListChecks className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">
+                  No tasks assigned yet
+                </h3>
+                <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                  Tasks assigned to you will appear here. Use the “Assign Tasks”
+                  tab to create one.
+                </p>
+              </div>
+            ) : (
+              assignedTasks.map((taskItem) => {
+                const chain = taskItem.assignees || [];
+                const progress = 0;
+                const isRejecting =
+                  rejectingTasks[taskItem.id] && taskItem.status !== "accepted";
+                return (
+                  <div key={taskItem.id} className={CARD}>
+                    {/* Card header */}
+                    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#e2e3e8] pb-4">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base font-bold text-foreground">
+                            {taskItem.task || "Task"}
+                          </h3>
+                          <PriorityPill level={taskItem.priority} />
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {taskItem.user}
+                          {taskItem.department
+                            ? ` · ${taskItem.department}`
+                            : ""}
+                          {taskItem.ipo ? ` · IPO ${taskItem.ipo}` : ""}
                         </div>
                       </div>
-                      {rejectingTasks[taskItem.id] && taskItem.status !== 'accepted' && (
-                        <div className="tasks-reject">
-                          <div className="tasks-reject-label">Remark</div>
-                          <textarea
-                            className="tasks-textarea"
-                            placeholder="Add remark before sending"
-                            value={rejectionNotes[taskItem.id] || ''}
-                            onChange={(e) => setRejectionNotes((prev) => ({ ...prev, [taskItem.id]: e.target.value }))}
-                            style={{ maxWidth: '360px' }}
-                          />
-                          <Button
+                      <StatusBadge status={taskItem.status} />
+                    </div>
+
+                    {/* Detail grid */}
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-3 py-4 sm:grid-cols-2 lg:grid-cols-3">
+                      <Meta label="User">{taskItem.user || "-"}</Meta>
+                      <Meta label="User Department">
+                        {taskItem.department || "-"}
+                      </Meta>
+                      <Meta label="IPO">{taskItem.ipo || "-"}</Meta>
+                      <Meta label="Sub Task">{taskItem.subTask || "-"}</Meta>
+                      <Meta label="Remarks">{taskItem.remarks || "-"}</Meta>
+                      <Meta label="Due Date">{taskItem.dueDate || "-"}</Meta>
+                      <Meta label="Image">
+                        {taskItem.imageUrl ? (
+                          <a
+                            href={taskItem.imageUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-medium text-primary hover:underline"
+                          >
+                            View Image
+                          </a>
+                        ) : (
+                          taskItem.imageName || "-"
+                        )}
+                      </Meta>
+                    </div>
+
+                    {/* Chain of custody */}
+                    <div className="flex flex-wrap items-center gap-2 rounded-md bg-muted/50 px-3 py-2.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        Chain of custody
+                      </span>
+                      {chain.length > 0 ? (
+                        chain.map((assignee, idx) => (
+                          <React.Fragment key={`${taskItem.id}-chain-${idx}`}>
+                            {idx > 0 && (
+                              <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                            )}
+                            <span className="rounded-full border border-[#e2e3e8] bg-card px-2.5 py-0.5 text-xs text-foreground">
+                              {assignee}
+                            </span>
+                          </React.Fragment>
+                        ))
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          No linked users
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Actions (pending) */}
+                    {taskItem.status === "pending" && !isRejecting && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700"
+                          onClick={() => handleAcceptTask(taskItem.id)}
+                        >
+                          <Check className="h-4 w-4" /> Accept
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-[#e2e3e8] px-4 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+                          onClick={() => handleRejectTask(taskItem.id)}
+                        >
+                          <Ban className="h-4 w-4" /> Reject
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Reject remark */}
+                    {isRejecting && (
+                      <div className="mt-4 rounded-md border border-[#e2e3e8] bg-muted/40 p-4">
+                        <label className={LABEL}>Rejection Remark</label>
+                        <textarea
+                          className={`${CTRL} min-h-20 resize-y`}
+                          placeholder="Add a remark before sending"
+                          value={rejectionNotes[taskItem.id] || ""}
+                          onChange={(e) =>
+                            setRejectionNotes((prev) => ({
+                              ...prev,
+                              [taskItem.id]: e.target.value,
+                            }))
+                          }
+                        />
+                        <div className="mt-3 flex justify-end">
+                          <button
                             type="button"
-                            size="sm"
-                            variant="default"
-                            style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
+                            className={PRIMARY_BTN}
                             onClick={() => handleSendRejection(taskItem.id)}
                           >
                             Send
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="tasks-assigned-right">
-                      <div className="tasks-assigned-chain">
-                        <div className="tasks-chain-label">Chain of custody</div>
-                        <div className="tasks-chain-value">
-                          {chain.length > 0 ? chain.join(' → ') : 'No linked users'}
+                          </button>
                         </div>
                       </div>
-                      {taskItem.status === 'accepted' && (
-                        <div className="tasks-progress">
-                          <div className="tasks-progress-header">
-                            <span>In Progress</span>
-                            <span>{progress}%</span>
+                    )}
+
+                    {/* Rejected note */}
+                    {taskItem.status === "rejected" &&
+                      taskItem.rejectedRemark && (
+                        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+                          Remark sent: {taskItem.rejectedRemark}
+                        </div>
+                      )}
+
+                    {/* Progress + add user (accepted) */}
+                    {taskItem.status === "accepted" && (
+                      <div className="mt-4 space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-medium text-foreground">
+                              In Progress
+                            </span>
+                            <span className="text-muted-foreground">
+                              {progress}%
+                            </span>
                           </div>
-                          <div className="tasks-progress-bar">
-                            <div className="tasks-progress-fill" style={{ width: `${progress}%` }} />
+                          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-primary transition-all"
+                              style={{ width: `${progress}%` }}
+                            />
                           </div>
-                          {!showAddUserForm[taskItem.id] && (
-                            <div className="tasks-add-user">
+                        </div>
+
+                        {!showAddUserForm[taskItem.id] && (
+                          <div className="flex flex-wrap items-end gap-2">
+                            <div className="min-w-55 flex-1">
                               <Input
-                                placeholder="Type user name"
-                                value={newAssignees[taskItem.id] || ''}
-                                onChange={(e) => setNewAssignees((prev) => ({ ...prev, [taskItem.id]: e.target.value }))}
+                                placeholder="Type user name to hand over"
+                                value={newAssignees[taskItem.id] || ""}
+                                onChange={(e) =>
+                                  setNewAssignees((prev) => ({
+                                    ...prev,
+                                    [taskItem.id]: e.target.value,
+                                  }))
+                                }
                               />
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="default"
-                                style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
-                                onClick={() => handleOpenAddUserForm(taskItem)}
-                              >
-                                Add User
-                              </Button>
                             </div>
-                          )}
-                          {showAddUserForm[taskItem.id] && (
-                            <div className="tasks-add-user-form">
-                              <Field label="User" width="md">
+                            <button
+                              type="button"
+                              className={OUTLINE_BTN}
+                              onClick={() => handleOpenAddUserForm(taskItem)}
+                            >
+                              <Plus className="h-4 w-4" /> Add User
+                            </button>
+                          </div>
+                        )}
+
+                        {showAddUserForm[taskItem.id] && (
+                          <div className="rounded-lg border border-[#e2e3e8] bg-muted/30 p-4">
+                            <div className="mb-4 text-xs font-bold uppercase tracking-wide text-foreground">
+                              Hand over to a new user
+                            </div>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                              <Field label="User">
                                 <Input
                                   placeholder="Type user name"
-                                  value={addUserForms[taskItem.id]?.user || ''}
-                                  onChange={(e) => setAddUserForms((prev) => ({
-                                    ...prev,
-                                    [taskItem.id]: { ...(prev[taskItem.id] || {}), user: e.target.value }
-                                  }))}
+                                  value={addUserForms[taskItem.id]?.user || ""}
+                                  onChange={(e) =>
+                                    setAddUserForms((prev) => ({
+                                      ...prev,
+                                      [taskItem.id]: {
+                                        ...(prev[taskItem.id] || {}),
+                                        user: e.target.value,
+                                      },
+                                    }))
+                                  }
                                 />
                               </Field>
-                              <Field label="User Department" width="md">
-                                <SearchableCombobox
-                                  value={addUserForms[taskItem.id]?.department || ''}
-                                  onChange={(value) => setAddUserForms((prev) => ({
-                                    ...prev,
-                                    [taskItem.id]: { ...(prev[taskItem.id] || {}), department: value }
-                                  }))}
-                                  options={['Department 1', 'Department 2', 'Department 3']}
+                              <Field label="User Department">
+                                <ThemedSelect
+                                  value={
+                                    addUserForms[taskItem.id]?.department || ""
+                                  }
+                                  onChange={(value) =>
+                                    setAddUserForms((prev) => ({
+                                      ...prev,
+                                      [taskItem.id]: {
+                                        ...(prev[taskItem.id] || {}),
+                                        department: value,
+                                      },
+                                    }))
+                                  }
+                                  options={toOptions(DEPARTMENT_OPTIONS)}
                                   placeholder="Select department"
-                                  strictMode={false}
-                                  className="h-10"
-                                  style={{ paddingLeft: '1rem', paddingRight: '2.25rem' }}
                                 />
                               </Field>
-                              <Field label="IPO" width="md">
-                                <SearchableCombobox
-                                  value={addUserForms[taskItem.id]?.ipo || ''}
-                                  onChange={(value) => setAddUserForms((prev) => ({
-                                    ...prev,
-                                    [taskItem.id]: { ...(prev[taskItem.id] || {}), ipo: value }
-                                  }))}
-                                  options={ipoOptions}
+                              <Field label="IPO">
+                                <ThemedSelect
+                                  value={addUserForms[taskItem.id]?.ipo || ""}
+                                  onChange={(value) =>
+                                    setAddUserForms((prev) => ({
+                                      ...prev,
+                                      [taskItem.id]: {
+                                        ...(prev[taskItem.id] || {}),
+                                        ipo: value,
+                                      },
+                                    }))
+                                  }
+                                  options={toOptions(ipoOptions)}
                                   placeholder="Select IPO"
-                                  strictMode={false}
-                                  className="h-10"
-                                  style={{ paddingLeft: '1rem', paddingRight: '2.25rem' }}
                                 />
                               </Field>
-                              <Field label="Define Task" width="lg">
-                                <Input
-                                  placeholder="Define task"
-                                  value={addUserForms[taskItem.id]?.task || ''}
-                                  onChange={(e) => setAddUserForms((prev) => ({
-                                    ...prev,
-                                    [taskItem.id]: { ...(prev[taskItem.id] || {}), task: e.target.value }
-                                  }))}
-                                />
-                              </Field>
-                              <Field label="Remarks" width="lg">
-                                <textarea
-                                  className="tasks-textarea"
-                                  placeholder="Remarks"
-                                  value={addUserForms[taskItem.id]?.remarks || ''}
-                                  onChange={(e) => setAddUserForms((prev) => ({
-                                    ...prev,
-                                    [taskItem.id]: { ...(prev[taskItem.id] || {}), remarks: e.target.value }
-                                  }))}
-                                />
-                              </Field>
-                              <Field label="Due Date" width="md">
+                              <Field label="Due Date">
                                 <Input
                                   type="date"
                                   min={todayDate}
-                                  value={addUserForms[taskItem.id]?.dueDate || ''}
-                                  onChange={(e) => setAddUserForms((prev) => ({
-                                    ...prev,
-                                    [taskItem.id]: { ...(prev[taskItem.id] || {}), dueDate: e.target.value }
-                                  }))}
+                                  value={
+                                    addUserForms[taskItem.id]?.dueDate || ""
+                                  }
+                                  onChange={(e) =>
+                                    setAddUserForms((prev) => ({
+                                      ...prev,
+                                      [taskItem.id]: {
+                                        ...(prev[taskItem.id] || {}),
+                                        dueDate: e.target.value,
+                                      },
+                                    }))
+                                  }
                                 />
                               </Field>
-                              <Field label="Priority" width="lg">
-                                <div className="tasks-priority">
-                                  {['Low', 'Medium', 'High', 'Urgent'].map((level) => (
-                                    <button
-                                      key={level}
-                                      type="button"
-                                      className={`tasks-chip${(addUserForms[taskItem.id]?.priority || 'Low') === level ? ' active' : ''}${level === 'Urgent' ? ' urgent' : ''}`}
-                                      onClick={() => setAddUserForms((prev) => ({
-                                        ...prev,
-                                        [taskItem.id]: { ...(prev[taskItem.id] || {}), priority: level }
-                                      }))}
-                                    >
-                                      {level}
-                                    </button>
-                                  ))}
-                                </div>
+                              <Field
+                                label="Define Task"
+                                className="sm:col-span-2"
+                              >
+                                <Input
+                                  placeholder="Define task"
+                                  value={addUserForms[taskItem.id]?.task || ""}
+                                  onChange={(e) =>
+                                    setAddUserForms((prev) => ({
+                                      ...prev,
+                                      [taskItem.id]: {
+                                        ...(prev[taskItem.id] || {}),
+                                        task: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                />
                               </Field>
-                              <Button
+                              <Field label="Remarks" className="sm:col-span-2">
+                                <textarea
+                                  className={`${CTRL} min-h-20 resize-y`}
+                                  placeholder="Remarks"
+                                  value={
+                                    addUserForms[taskItem.id]?.remarks || ""
+                                  }
+                                  onChange={(e) =>
+                                    setAddUserForms((prev) => ({
+                                      ...prev,
+                                      [taskItem.id]: {
+                                        ...(prev[taskItem.id] || {}),
+                                        remarks: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                />
+                              </Field>
+                              <Field label="Priority" className="sm:col-span-2">
+                                <PriorityChips
+                                  value={
+                                    addUserForms[taskItem.id]?.priority || "Low"
+                                  }
+                                  onChange={(level) =>
+                                    setAddUserForms((prev) => ({
+                                      ...prev,
+                                      [taskItem.id]: {
+                                        ...(prev[taskItem.id] || {}),
+                                        priority: level,
+                                      },
+                                    }))
+                                  }
+                                />
+                              </Field>
+                            </div>
+                            <div className="mt-5 flex justify-end">
+                              <button
                                 type="button"
-                                size="sm"
-                                variant="default"
-                                style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
+                                className={PRIMARY_BTN}
                                 onClick={() => handleAddAssignee(taskItem.id)}
                               >
                                 Assign
-                              </Button>
+                              </button>
                             </div>
-                          )}
-                        </div>
-                      )}
-                      {taskItem.status === 'rejected' && taskItem.rejectedRemark && (
-                        <div className="tasks-reject-note">Remark sent: {taskItem.rejectedRemark}</div>
-                      )}
-                    </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Dialogs */}
       <Dialog
         open={showAssignedDialog}
         onOpenChange={(open) => {
@@ -747,57 +1059,50 @@ const TasksContent = ({ initialView = 'assign' }) => {
       >
         <DialogContent
           showCloseButton={false}
-          className="max-w-xs"
-          style={{
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px'
-          }}
+          className="max-w-xs rounded-xl"
+          style={{ textAlign: "center" }}
         >
-          <DialogTitle style={{ fontSize: '16px' }}>Task Assigned</DialogTitle>
-          <Button
-            type="button"
-            size="sm"
-            variant="default"
-            style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
-            onClick={() => setShowAssignedDialog(false)}
-          >
-            OK
-          </Button>
+          <div className="flex flex-col items-center gap-3 py-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+              <Check className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-base">Task Assigned</DialogTitle>
+            <button
+              type="button"
+              className={`${PRIMARY_BTN} w-full`}
+              onClick={() => setShowAssignedDialog(false)}
+            >
+              OK
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
-      <Dialog open={showUserAssignedDialog} onOpenChange={setShowUserAssignedDialog}>
+
+      <Dialog
+        open={showUserAssignedDialog}
+        onOpenChange={setShowUserAssignedDialog}
+      >
         <DialogContent
           showCloseButton={false}
-          className="max-w-xs"
-          style={{
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px'
-          }}
+          className="max-w-xs rounded-xl"
+          style={{ textAlign: "center" }}
         >
-          <DialogTitle style={{ fontSize: '16px' }}>User Assigned</DialogTitle>
-          <Button
-            type="button"
-            size="sm"
-            variant="default"
-            style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem', width: 'fit-content' }}
-            onClick={() => setShowUserAssignedDialog(false)}
-          >
-            OK
-          </Button>
+          <div className="flex flex-col items-center gap-3 py-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+              <Check className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-base">User Assigned</DialogTitle>
+            <button
+              type="button"
+              className={`${PRIMARY_BTN} w-full`}
+              onClick={() => setShowUserAssignedDialog(false)}
+            >
+              OK
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
-    </FullscreenContent>
   );
 };
 

@@ -3,7 +3,7 @@ import { FiPlusCircle, FiSearch } from "react-icons/fi";
 import { getStockSheets } from "../services/integration";
 import { useLoading } from "../context/LoadingContext";
 import "./InwardStoreSheet.css";
-import "./StockSheet/StockSheet.css";
+import "./IMS/StockSheet/StockSheet.css";
 
 const SOURCE_LABELS = {
   ADD_NEW: "ADD_NEW",

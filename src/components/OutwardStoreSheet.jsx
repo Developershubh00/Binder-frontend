@@ -6,7 +6,7 @@ import {
   getIPOs,
   getOutwardStoreSheetChoices,
 } from "../services/integration";
-import ThemedSelect from "./StockSheet/ThemedSelect";
+import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
 
 // Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp:
 // small radius, defined grey borders, no shadows, orange primary, grey neutrals.
@@ -803,7 +803,9 @@ const OutwardStoreSheet = ({ onBack }) => {
                 className={CTRL}
                 type="text"
                 value={companyChallanNumber}
-                onChange={(event) => setCompanyChallanNumber(event.target.value)}
+                onChange={(event) =>
+                  setCompanyChallanNumber(event.target.value)
+                }
                 placeholder="Enter company challan number"
               />
               <div className="mt-2">
@@ -858,7 +860,10 @@ const OutwardStoreSheet = ({ onBack }) => {
                   const showCarryForward = balance > 0;
 
                   return (
-                    <tr key={row.id} className="transition-colors hover:bg-muted/40">
+                    <tr
+                      key={row.id}
+                      className="transition-colors hover:bg-muted/40"
+                    >
                       <td className={`${TD} text-center font-semibold`}>
                         {rowIndex + 1}
                       </td>
@@ -912,7 +917,10 @@ const OutwardStoreSheet = ({ onBack }) => {
                       <td className={TD}>
                         <div className="flex flex-col gap-1.5">
                           {row.usn_links.map((link, linkIndex) => (
-                            <div key={link.id} className="flex items-center gap-1">
+                            <div
+                              key={link.id}
+                              className="flex items-center gap-1"
+                            >
                               <input
                                 className={TCTRL}
                                 type="text"
@@ -935,7 +943,9 @@ const OutwardStoreSheet = ({ onBack }) => {
                                 <button
                                   type="button"
                                   className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-lg leading-none text-destructive transition-colors hover:bg-destructive/10"
-                                  onClick={() => removeUsnLinkRow(row.id, link.id)}
+                                  onClick={() =>
+                                    removeUsnLinkRow(row.id, link.id)
+                                  }
                                   title="Remove USN link"
                                 >
                                   ×
@@ -994,7 +1004,11 @@ const OutwardStoreSheet = ({ onBack }) => {
                           type="text"
                           value={row.remark}
                           onChange={(event) =>
-                            handleRowChange(row.id, "remark", event.target.value)
+                            handleRowChange(
+                              row.id,
+                              "remark",
+                              event.target.value,
+                            )
                           }
                           placeholder="Remark"
                         />
