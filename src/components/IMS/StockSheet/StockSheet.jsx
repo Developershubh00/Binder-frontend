@@ -3,8 +3,8 @@ import {
   getIPOs,
   getFactoryCodes,
   createStockSheet,
-} from "../../services/integration";
-import "../InwardStoreSheet.css";
+} from "../../../services/integration";
+import "../../InwardStoreSheet.css";
 import AddNewMaterials from "./materialSpec/AddNewMaterials";
 import {
   buildItemsFromMaterials,

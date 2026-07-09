@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import {
   getPurchaseGrid,
   previewVpo,
@@ -15,16 +14,23 @@ import VpoPreviewModal from './VpoPreviewModal';
 import JobWorkVpoPreviewModal from './JobWorkVpoPreviewModal';
 import StockUqrPanel from './StockUqrPanel';
 
-const orangeChip = (active) => ({
-  background: active ? '#f97316' : '#ffffff',
-  color: active ? '#ffffff' : '#374151',
-  border: active ? '1px solid #f97316' : '1px solid #e5e7eb',
-  borderRadius: 6,
-  padding: '4px 12px',
-  fontSize: 12,
-  fontWeight: active ? 600 : 500,
-  cursor: 'pointer',
-});
+// Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp.
+const OUTLINE_BTN =
+  'cursor-pointer rounded-md border border-[#e2e3e8] bg-card px-4 py-2 text-sm font-semibold text-foreground/70 transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50';
+const PRIMARY_BTN =
+  'cursor-pointer rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50';
+// Segmented toggle item (top tabs + mode toggle)
+const segItem = (active) =>
+  `cursor-pointer rounded px-4 py-1.5 text-sm font-semibold transition-all ${
+    active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+  }`;
+// Category chip
+const chipCls = (active) =>
+  `cursor-pointer rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+    active
+      ? 'border-primary bg-primary text-primary-foreground'
+      : 'border-[#e2e3e8] bg-card text-muted-foreground hover:bg-muted'
+  }`;
 
 const MODE_OPTIONS = [
   { key: 'generate_vpo', label: 'Generate VPO' },
@@ -261,65 +267,51 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
   };
 
   return (
-    <div className="dashboard-content">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <h1 className="dashboard-title">Purchase — Master CNS Sheet</h1>
-          <p className="dashboard-subtitle">IPO {ipo?.ipo_code}</p>
+    <div
+      className="min-h-full w-full overflow-y-auto bg-[#f3f4f6] py-9"
+      style={{
+        zoom: 0.9,
+        fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+        '--accent': '#edeef1',
+      }}
+    >
+      <div className="mx-auto max-w-[95%] space-y-4">
+        {/* Header */}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              Purchase — Master CNS Sheet
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">IPO {ipo?.ipo_code}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button type="button" className={OUTLINE_BTN} onClick={onOpenVpoHistory}>
+              VPO History
+            </button>
+            <button type="button" className={OUTLINE_BTN} onClick={onBack}>
+              ← Back to IPOs
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button type="button" variant="outline" onClick={onOpenVpoHistory}>
-            VPO History
-          </Button>
-          <Button type="button" variant="outline" onClick={onBack}>
-            ← Back to IPOs
-          </Button>
-        </div>
-      </div>
 
-      {/* Top tabs */}
-      <div className="flex items-center gap-2" style={{ margin: '16px 0 8px', flexWrap: 'wrap' }}>
-        {TOP_TABS.map((t) => (
-          <Button
-            key={t.key}
-            type="button"
-            variant={tab === t.key ? 'default' : 'outline'}
-            onClick={() => setTab(t.key)}
-          >
-            {t.label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Category chips */}
-      {chips.length > 0 && (
-        <div
-          style={{
-            position: 'relative',
-            marginLeft: 16,
-            marginBottom: 12,
-            paddingLeft: 16,
-            borderLeft: '2px solid #f97316',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              flexWrap: 'wrap',
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: '#6b7280',
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-                marginRight: 4,
-              }}
+        {/* Top tabs */}
+        <div className="inline-flex flex-wrap gap-1 rounded-md border border-[#e2e3e8] bg-muted p-1">
+          {TOP_TABS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              className={segItem(tab === t.key)}
+              onClick={() => setTab(t.key)}
             >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Category chips */}
+        {chips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 border-l-2 border-primary pl-4">
+            <span className="mr-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Category
             </span>
             {chips.map((c) => (
@@ -330,107 +322,86 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
                   setCategory(c.key);
                   setSelected({});
                 }}
-                style={orangeChip(category === c.key)}
+                className={chipCls(category === c.key)}
               >
                 {c.label}
               </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Mode toggle + action buttons (raw-material / artwork / packaging only —
-          Job Work issues a VPO per work-order table instead). */}
-      {!isJobWork && (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 12,
-          marginBottom: 12,
-        }}
-      >
-        <div className="flex items-center gap-2">
-          {MODE_OPTIONS.map((opt) => (
-            <Button
-              key={opt.key}
-              type="button"
-              variant={mode === opt.key ? 'default' : 'outline'}
-              onClick={() => {
-                setMode(opt.key);
-                setSelected({});
-              }}
-              size="sm"
-            >
-              {opt.label}
-            </Button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          {mode === 'generate_vpo' && (
-            <>
-              <span style={{ fontSize: 12, color: '#6b7280' }}>
-                {selectedCount} row(s) selected
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCheckStock}
-                disabled={selectedCount === 0}
-              >
-                Check Stock
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                onClick={openPreview}
-                disabled={selectedCount === 0}
-              >
-                Generate VPO
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-      )}
+        {/* Mode toggle + action buttons (raw-material / artwork / packaging only —
+            Job Work issues a VPO per work-order table instead). */}
+        {!isJobWork && (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex flex-wrap gap-1 rounded-md border border-[#e2e3e8] bg-muted p-1">
+              {MODE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  className={segItem(mode === opt.key)}
+                  onClick={() => {
+                    setMode(opt.key);
+                    setSelected({});
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              {mode === 'generate_vpo' && (
+                <>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedCount} row(s) selected
+                  </span>
+                  <button
+                    type="button"
+                    className={OUTLINE_BTN}
+                    onClick={handleCheckStock}
+                    disabled={selectedCount === 0}
+                  >
+                    Check Stock
+                  </button>
+                  <button
+                    type="button"
+                    className={PRIMARY_BTN}
+                    onClick={openPreview}
+                    disabled={selectedCount === 0}
+                  >
+                    Generate VPO
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
-      {error && (
-        <div
-          style={{
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            color: '#991b1b',
-            padding: 10,
-            borderRadius: 8,
-            marginBottom: 12,
-            fontSize: 13,
-          }}
-        >
-          {error}
-        </div>
-      )}
+        {error && (
+          <div className="rounded-md border border-destructive/40 bg-destructive/10 px-5 py-4 text-sm font-medium text-destructive">
+            {error}
+          </div>
+        )}
 
-      {loading ? (
-        <div style={{ color: '#6b7280', padding: 24 }}>Loading grid…</div>
-      ) : isJobWork ? (
-        <JobWorkGrid data={jobWork} onGenerateVpo={openJobWorkPreview} />
-      ) : (
-        <PurchaseGrid
-          rows={grid.rows}
-          groups={grid.groups}
-          tab={tab}
-          category={category}
-          mode={mode}
-          selected={selected}
-          onSelectedChange={setSelected}
-          onCheckStock={(row) => setStockPanelRow(row)}
-          onLineItemUpdated={handleLineItemUpdated}
-        />
-      )}
+        {loading ? (
+          <div className="p-6 text-sm text-muted-foreground">Loading grid…</div>
+        ) : isJobWork ? (
+          <JobWorkGrid data={jobWork} onGenerateVpo={openJobWorkPreview} />
+        ) : (
+          <PurchaseGrid
+            rows={grid.rows}
+            groups={grid.groups}
+            tab={tab}
+            category={category}
+            mode={mode}
+            selected={selected}
+            onSelectedChange={setSelected}
+            onCheckStock={(row) => setStockPanelRow(row)}
+            onLineItemUpdated={handleLineItemUpdated}
+          />
+        )}
 
-      <JobWorkVpoPreviewModal
+        <JobWorkVpoPreviewModal
         open={jwPreviewOpen}
         preview={jwPreview}
         errors={jwPreviewErrors}
@@ -469,6 +440,7 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
           loadGrid({ force: true });
         }}
       />
+      </div>
     </div>
   );
 };
