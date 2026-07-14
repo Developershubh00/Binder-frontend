@@ -2145,6 +2145,9 @@ const GenerateFactoryCode = ({
             auto &&
             (field === 'subMaterial' ||
               field === 'trimAccessory' ||
+              // Any stitching-thread field regenerates so the description backfills
+              // from already-filled specs (e.g. when the user only edits Remarks).
+              field.startsWith('stitchingThread') ||
               getDescriptionSourceFields(updatedMaterial.materialType, updatedMaterial.trimAccessory, updatedMaterial).includes(field))
           ) {
             updatedRawMaterials[materialIndex] = {

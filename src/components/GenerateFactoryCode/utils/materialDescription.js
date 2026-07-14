@@ -111,6 +111,20 @@ const YARN_TAIL_FIELDS = [
   { key: 'yarnColour' },
 ];
 
+// Stitching Thread is a Yarn sub-material with its own spec fields (no
+// doubling/count/ply). It leads with a "Stitching Thread" label.
+const STITCHING_THREAD_LABEL = 'Stitching Thread';
+const STITCHING_THREAD_FIELDS = [
+  { key: 'stitchingThreadType' },
+  { key: 'stitchingThreadFibreContent', format: composition },
+  { key: 'stitchingThreadCountTicket' },
+  { key: 'stitchingThreadTex' },
+  { key: 'stitchingThreadPly' },
+  { key: 'stitchingThreadColour' },
+  { key: 'stitchingThreadFinish' },
+  { key: 'stitchingThreadBrand' },
+];
+
 // ---- Trim & Accessory --------------------------------------------------------
 // Each trim category has its own BASIC syntax. The generated description leads
 // with the category label, then the category's basic spec fields (advance-spec
@@ -707,8 +721,11 @@ export const generateMaterialDescription = (material) => {
   const type = material.materialType;
 
   if (type === 'Yarn') {
-    // Stitching Thread sub-material doesn't use the yarn spec syntax.
-    if (material.subMaterial === 'Stitching Thread') return '';
+    // Stitching Thread sub-material has its own fields (no doubling/count/ply).
+    if (material.subMaterial === 'Stitching Thread') {
+      const parts = [STITCHING_THREAD_LABEL, ...STITCHING_THREAD_FIELDS.map((d) => buildPart(material, d))];
+      return parts.filter(Boolean).join(SEP);
+    }
     const parts = [yarnFirstToken(material), ...YARN_TAIL_FIELDS.map((d) => buildPart(material, d))];
     return parts.filter(Boolean).join(SEP);
   }
@@ -744,11 +761,14 @@ export const getDescriptionSourceFields = (materialType, trimCategory, material)
     return [
       // `fiberType` is the top-level Yarn selector; changing it clears the spec
       // fields, so regenerate (typically clearing the description) when it changes.
+      // `subMaterial` switches between regular yarn and stitching thread.
       'fiberType',
+      'subMaterial',
       'yarnDoublingOptions',
       'yarnCountRange',
       'yarnPlyOptions',
       ...YARN_TAIL_FIELDS.map((d) => d.key),
+      ...STITCHING_THREAD_FIELDS.map((d) => d.key),
     ];
   }
   if (materialType === 'Trim & Accessory') {
@@ -841,6 +861,7 @@ export const getPackagingDescriptionSourceFields = (packagingType) => {
 // soon as any field is filled, the generated value replaces this.
 const FABRIC_SYNTAX = 'Fabric Name/Composition/GSM/Construction Type/Weave-Knit Type';
 const YARN_SYNTAX = 'Doubling/Count×Ply/Composition/Yarn Type/Winding/Colour';
+const STITCHING_THREAD_SYNTAX = 'Stitching Thread/Type/Fibre Content/Count-Ticket/Tex/Ply/Colour/Finish/Brand';
 const FOAM_SYNTAX = 'Foam Type/Subtype/VA Content/Colour/Thickness/Sheet-Pcs/GSM/LxW';
 const FIBER_SYNTAX = 'Fiber Type/Subtype/Form/Denier/Siliconized/Conjugate-Crimp/Colour';
 
@@ -849,7 +870,7 @@ export const getMaterialDescriptionSyntax = (material) => {
   if (!material) return '';
   const type = material.materialType;
   if (type === 'Fabric') return FABRIC_SYNTAX;
-  if (type === 'Yarn') return material.subMaterial === 'Stitching Thread' ? '' : YARN_SYNTAX;
+  if (type === 'Yarn') return material.subMaterial === 'Stitching Thread' ? STITCHING_THREAD_SYNTAX : YARN_SYNTAX;
   if (type === 'Foam') return FOAM_SYNTAX;
   if (type === 'Fiber') return FIBER_SYNTAX;
   if (type === 'Trim & Accessory') {
