@@ -779,8 +779,9 @@ export const previewNextVendorCode = async () => {
 /**
  * Get vendor master sheet
  */
-export const getVendorMasterSheet = async () => {
-  const response = await apiRequest('ims/vendor-codes/master-sheet/');
+export const getVendorMasterSheet = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await apiRequest(`ims/vendor-codes/master-sheet/${query ? '?' + query : ''}`);
   return await response.json();
 };
 

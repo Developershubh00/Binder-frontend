@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import Pagination from '@/components/ui/Pagination';
 import { getIPOs } from '../services/integration';
 import { useLoading } from '../context/LoadingContext';
+
+const PAGE_SIZE = 10;
 
 const COMPLETED_KEY = 'completedIpos';
 
@@ -46,6 +49,7 @@ const IPOMasterSheet = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [page, setPage] = useState(1);
   const { showLoading, hideLoading } = useLoading();
 
   const fetchIpos = useCallback(async () => {
@@ -53,7 +57,10 @@ const IPOMasterSheet = ({ onBack }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await getIPOs();
+      // "Completed" status lives in localStorage (not the backend), so we
+      // fetch the full IPO set (page_size at the server max) and split
+      // active/completed on the client. Pagination below is client-side.
+      const response = await getIPOs({ page_size: 200 });
       const list = extractItems(response).map(normalizeIpo);
       setIpos(list);
       // Re-sync the completed-keys cache too, in case the Dashboard scrubbed
@@ -100,7 +107,18 @@ const IPOMasterSheet = ({ onBack }) => {
   };
 
   // Active = IPOs that haven't been marked completed yet.
-  const activeIpos = ipos.filter((ipo) => !completedKeys.has(ipo.key));
+  const activeIpos = useMemo(
+    () => ipos.filter((ipo) => !completedKeys.has(ipo.key)),
+    [ipos, completedKeys],
+  );
+
+  // Client-side pagination over the active list (10 per screen). Clamp the
+  // page if the list shrinks (e.g. after saving completions).
+  const totalPages = Math.max(1, Math.ceil(activeIpos.length / PAGE_SIZE));
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+  const pagedIpos = activeIpos.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const headerCellStyle = {
     padding: '14px 20px',
@@ -197,11 +215,11 @@ const IPOMasterSheet = ({ onBack }) => {
               </tr>
             </thead>
             <tbody>
-              {activeIpos.map((ipo, index) => (
+              {pagedIpos.map((ipo, index) => (
                 <tr
                   key={ipo.key || index}
                   style={{
-                    borderBottom: index < activeIpos.length - 1 ? '1px solid var(--border)' : 'none',
+                    borderBottom: index < pagedIpos.length - 1 ? '1px solid var(--border)' : 'none',
                     transition: 'background-color 0.15s',
                   }}
                   onMouseEnter={(e) => {
@@ -226,6 +244,15 @@ const IPOMasterSheet = ({ onBack }) => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {!loading && !error && (
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          totalCount={activeIpos.length}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );

@@ -608,6 +608,14 @@ BOM & WO) → fill **3 fields per work order**:
 
 **Verified:** `npm run build` green; no `no-undef`.
 
+### Change 18 — Starting / Completion dates: drop the mandatory check — ✅ DONE
+Follow-up to Change 17: after the date inputs were removed, saving still failed because
+`src/utils/validationSchemas.js` spread `WORK_ORDER_DATE_FIELDS = ['startDate',
+'dateOfCompletion']` into the **`required`** list of every WORK_ORDER schema (13 of
+them). Emptied both `WORK_ORDER_DATE_FIELDS` and `WORK_ORDER_DATE_LABELS` so every
+`...WORK_ORDER_DATE_*` spread becomes a no-op — dates no longer required, other required
+fields untouched. **Build green.**
+
 ### Change 17 — Starting / Completion dates removed (BOM & WO) — ✅ DONE
 Per Vikram: remove the work-order **"starting date *" / "completion date *"** pair from
 the IPC Spec.

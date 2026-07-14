@@ -48,23 +48,41 @@ const FABRIC_FIELDS = [
   { key: 'weaveKnitType' },
 ];
 
-const FOAM_FIELDS = [
-  { key: 'foamType' },
-  { key: 'foamSubtype' },
-  { key: 'foamVaContent' },
-  { key: 'foamColour' },
-  { key: 'foamThickness' },
-  { key: 'foamSheetPcs' },
-  { key: 'foamGsm', format: gsm },
-  { key: '__dims__', dims: ['foamLengthCm', 'foamWidthCm'], suffix: 'cm' },
-  // Advance Spec (only contribute when filled)
-  { key: 'foamShoreHardness' },
-  { key: 'foamCellStructure' },
-  { key: 'foamFireRetardant' },
-  { key: 'foamUvResistance' },
-  { key: 'foamDensity' },
-  { key: 'foamCertification' },
-];
+// Foam has one field-group per sub-type, each with its own key prefix, chosen by
+// `foamTableType`. Rather than a fixed list we read a common suffix set off the
+// active prefix; suffixes that don't exist for a sub-type resolve to '' and drop
+// out (e.g. VaContent is EVA-only, Grade is HR/PU/Memory-only).
+const FOAM_PREFIX_BY_TABLE = {
+  'EVA-foam': 'foam',
+  'memory-foam': 'foamMemory',
+  'HR-foam': 'foamHr',
+  'pu-foam': 'foamPu',
+  'pe-epe': 'foamPeEpe',
+  'rebonded-foam': 'foamRebonded',
+  'gel-infused-foam': 'foamGelInfused',
+  'latex-foam': 'foamLatex',
+};
+const FOAM_BASIC_SUFFIXES = ['Type', 'Subtype', 'Grade', 'VaContent', 'Colour', 'Thickness', 'SheetPcs'];
+const FOAM_ADV_SUFFIXES = ['ShoreHardness', 'Ild', 'CellStructure', 'FireRetardant', 'UvResistance', 'Density', 'Certification'];
+
+const foamPrefix = (material) => FOAM_PREFIX_BY_TABLE[material.foamTableType] || 'foam';
+
+const buildFoamParts = (material) => {
+  const p = foamPrefix(material);
+  const parts = FOAM_BASIC_SUFFIXES.map((suf) => clean(material[`${p}${suf}`]));
+  parts.push(gsm(material[`${p}Gsm`]));
+  const l = clean(material[`${p}LengthCm`]);
+  const w = clean(material[`${p}WidthCm`]);
+  parts.push(l && w ? `${l}x${w}cm` : '');
+  FOAM_ADV_SUFFIXES.forEach((suf) => parts.push(clean(material[`${p}${suf}`])));
+  return parts;
+};
+
+const foamSourceFields = (material) => {
+  const p = foamPrefix(material);
+  const suffixes = [...FOAM_BASIC_SUFFIXES, 'Gsm', 'LengthCm', 'WidthCm', ...FOAM_ADV_SUFFIXES];
+  return ['foamTableType', ...suffixes.map((s) => `${p}${s}`)];
+};
 
 const FIBER_FIELDS = [
   { key: 'fiberFiberType' },
@@ -644,7 +662,7 @@ const buildPackagingPart = (material, def) => {
 
 export const MATERIAL_TYPE_FIELDS = {
   Fabric: FABRIC_FIELDS,
-  Foam: FOAM_FIELDS,
+  // Foam is handled specially (prefix per sub-type) via buildFoamParts.
   Fiber: FIBER_FIELDS,
   Yarn: [
     { key: 'yarnDoublingOptions' },
@@ -703,6 +721,10 @@ export const generateMaterialDescription = (material) => {
     return parts.filter(Boolean).join(SEP);
   }
 
+  if (type === 'Foam') {
+    return buildFoamParts(material).filter(Boolean).join(SEP);
+  }
+
   const defs = MATERIAL_TYPE_FIELDS[type];
   if (!defs) return ''; // Artwork/Packaging handled elsewhere
 
@@ -717,7 +739,7 @@ export const generateMaterialDescription = (material) => {
  * @param {string} materialType
  * @returns {string[]}
  */
-export const getDescriptionSourceFields = (materialType, trimCategory) => {
+export const getDescriptionSourceFields = (materialType, trimCategory, material) => {
   if (materialType === 'Yarn') {
     return [
       // `fiberType` is the top-level Yarn selector; changing it clears the spec
@@ -734,12 +756,15 @@ export const getDescriptionSourceFields = (materialType, trimCategory) => {
     if (!defs) return [];
     return defs.flatMap((d) => (d.lengthKey ? [d.lengthKey, d.widthKey] : [d.key]));
   }
+  if (materialType === 'Foam') {
+    // Prefix depends on the selected foamTableType; source keys track that prefix.
+    return foamSourceFields(material || {});
+  }
   const defs = MATERIAL_TYPE_FIELDS[materialType];
   if (!defs) return [];
   const fields = defs.flatMap((d) => (d.dims ? d.dims : [d.key])).filter((k) => k && k !== '__dims__');
   // Sub-type table selectors reset the dependent spec fields; treat them as
   // triggers so the description regenerates (clears) when they change.
-  if (materialType === 'Foam') fields.push('foamTableType');
   if (materialType === 'Fiber') fields.push('fiberTableType');
   return fields;
 };

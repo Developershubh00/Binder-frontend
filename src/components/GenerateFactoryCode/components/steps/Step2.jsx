@@ -461,24 +461,29 @@ const Step2 = ({
                       MATERIAL DESC <span className="text-red-600">*</span>
                     </>
                   }
-                  width="sm"
+                  width="lg"
                   error={errors[`rawMaterial_${actualIndex}_materialDescription`]}
                 >
                   {isAutoDescriptionType(material.materialType) ? (
                     // Auto-generated from the spec fields below. Read-only: clicking
                     // reveals the source spec dropdowns (incl. Advance Spec) so the
-                    // user edits the origin instead of the derived text.
-                    <Input
-                      type="text"
-                      value={material.materialDescription || ''}
-                      onChange={() => {}}
-                      readOnly
+                    // user edits the origin instead of the derived text. Rendered as
+                    // an auto-height wrapping box so long descriptions stay fully
+                    // visible instead of being clipped in a single-line input.
+                    <div
+                      role="textbox"
+                      tabIndex={0}
                       onClick={() => focusMaterialSpecSource(actualIndex, material.materialType, handleRawMaterialChange)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); focusMaterialSpecSource(actualIndex, material.materialType, handleRawMaterialChange); } }}
                       title="Auto-generated from specifications — click to edit the source fields"
-                      placeholder={getMaterialDescriptionSyntax(material) || 'Fill specifications below'}
-                      className="cursor-pointer bg-muted/40"
                       aria-invalid={errors[`rawMaterial_${actualIndex}_materialDescription`] ? true : undefined}
-                    />
+                      className={`cursor-pointer bg-muted/40 border rounded-md text-sm w-full min-h-[44px] break-words [overflow-wrap:anywhere] transition-colors ${errors[`rawMaterial_${actualIndex}_materialDescription`] ? 'border-destructive' : 'border-input'}`}
+                      style={{ padding: '10px 14px' }}
+                    >
+                      {material.materialDescription
+                        ? <span className="text-foreground">{material.materialDescription}</span>
+                        : <span className="text-muted-foreground">{getMaterialDescriptionSyntax(material) || 'Fill specifications below'}</span>}
+                    </div>
                   ) : (
                     <Input
                       type="text"

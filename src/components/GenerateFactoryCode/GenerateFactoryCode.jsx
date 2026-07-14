@@ -2145,7 +2145,7 @@ const GenerateFactoryCode = ({
             auto &&
             (field === 'subMaterial' ||
               field === 'trimAccessory' ||
-              getDescriptionSourceFields(updatedMaterial.materialType, updatedMaterial.trimAccessory).includes(field))
+              getDescriptionSourceFields(updatedMaterial.materialType, updatedMaterial.trimAccessory, updatedMaterial).includes(field))
           ) {
             updatedRawMaterials[materialIndex] = {
               ...updatedMaterial,

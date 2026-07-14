@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import Pagination from '@/components/ui/Pagination';
 import { getIPOs } from '../services/integration';
 import { useLoading } from '../context/LoadingContext';
 
 const COMPLETED_KEY = 'completedIpos';
+const PAGE_SIZE = 10;
 
 const readCompletedKeys = () => {
   try {
@@ -39,6 +41,7 @@ const CompletedIPOs = ({ onBack }) => {
   const [ipos, setIpos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
   const { showLoading, hideLoading } = useLoading();
 
   const fetchIpos = useCallback(async () => {
@@ -47,7 +50,9 @@ const CompletedIPOs = ({ onBack }) => {
       setLoading(true);
       setError(null);
       const completedKeys = readCompletedKeys();
-      const response = await getIPOs();
+      // Completion is tracked in localStorage, so fetch the full IPO set
+      // (server max page size) and filter to the completed ones on the client.
+      const response = await getIPOs({ page_size: 200 });
       const list = extractItems(response)
         .map(normalizeIpo)
         .filter((ipo) => completedKeys.has(ipo.key));
@@ -100,6 +105,13 @@ const CompletedIPOs = ({ onBack }) => {
     fontSize: '14px',
     color: 'var(--foreground)',
   };
+
+  // Client-side pagination (10 per screen); clamp when the list shrinks.
+  const totalPages = Math.max(1, Math.ceil(ipos.length / PAGE_SIZE));
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+  const pagedIpos = ipos.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="fullscreen-content" style={{ overflowY: 'auto' }}>
@@ -174,11 +186,11 @@ const CompletedIPOs = ({ onBack }) => {
               </tr>
             </thead>
             <tbody>
-              {ipos.map((ipo, index) => (
+              {pagedIpos.map((ipo, index) => (
                 <tr
                   key={ipo.key || index}
                   style={{
-                    borderBottom: index < ipos.length - 1 ? '1px solid var(--border)' : 'none',
+                    borderBottom: index < pagedIpos.length - 1 ? '1px solid var(--border)' : 'none',
                   }}
                 >
                   <td style={bodyCellStyle}>{ipo.code || 'N/A'}</td>
@@ -187,6 +199,15 @@ const CompletedIPOs = ({ onBack }) => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {!loading && !error && (
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          totalCount={ipos.length}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );
