@@ -63,86 +63,138 @@ const setUser = (user) => {
 };
 
 /**
- * Refresh access token
+ * Fired when the refresh token itself is rejected and the session is truly over.
+ * AuthContext listens for this and drops the user to the login screen.
  */
-const refreshToken = async () => {
-  const refresh = getRefreshToken();
-  if (!refresh) {
-    clearTokens();
-    return false;
-  }
-  
-  try {
-    const response = await fetch(`${API_BASE_URL}auth/token/refresh/`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh }),
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      getStorage().setItem('access_token', data.access);
-      return true;
-    } else {
-      clearTokens();
-      return false;
-    }
-  } catch (error) {
-    console.error('Token refresh error:', error);
-    clearTokens();
-    return false;
+const SESSION_EXPIRED_EVENT = 'auth:session-expired';
+
+const emitSessionExpired = () => {
+  clearTokens();
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
   }
 };
 
-/**
- * Make authenticated API request
- */
-const apiRequest = async (endpoint, options = {}) => {
-  const token = getAccessToken();
-  
-  // Don't set Content-Type for FormData, browser will set it with boundary
-  const isFormData = options.body instanceof FormData;
-  
-  const defaultHeaders = {};
-  
-  if (!isFormData) {
-    defaultHeaders['Content-Type'] = 'application/json';
-  }
-  
-  if (token) {
-    defaultHeaders['Authorization'] = `Bearer ${token}`;
-  }
-  
-  const config = {
-    // Send cookies so httpOnly auth cookies flow once cookie-mode is enabled.
-    // Harmless in Bearer mode (there simply are no auth cookies to send).
+const postRefresh = (refresh) =>
+  fetch(`${API_BASE_URL}auth/token/refresh/`, {
+    method: 'POST',
     credentials: 'include',
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh }),
+  });
+
+/**
+ * Exchange the refresh token for a fresh access token.
+ *
+ * The backend runs ROTATE_REFRESH_TOKENS + BLACKLIST_AFTER_ROTATION, so each
+ * refresh returns a NEW refresh token and blacklists the one we just sent.
+ * We must persist BOTH tokens — storing only the access token (the old bug)
+ * left us holding a blacklisted refresh token, so the next refresh 401'd and
+ * the user got bounced to the login screen every ~15 minutes.
+ */
+const doRefresh = async () => {
+  let refresh = getRefreshToken();
+  if (!refresh) {
+    emitSessionExpired();
+    return false;
+  }
+
+  // Two attempts: the second covers the cross-tab race where another tab
+  // rotated the token out from under us while this request was in flight.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let response;
+    try {
+      response = await postRefresh(refresh);
+    } catch (error) {
+      // Offline / DNS / CORS blip — transient. Keep the session; the caller
+      // just sees the original failure and can retry later.
+      console.error('Token refresh network error:', error);
+      return false;
+    }
+
+    if (response.ok) {
+      const data = await response.json();
+      // Persist the rotated refresh token, else the next refresh is dead on arrival.
+      setTokens(data.access, data.refresh || refresh);
+      return true;
+    }
+
+    // Server-side hiccup — don't destroy a valid session over a 500.
+    if (response.status >= 500) return false;
+
+    // 4xx: this refresh token is genuinely dead (expired or blacklisted).
+    // If another tab already rotated it, storage now holds a newer one — retry once.
+    const latest = getRefreshToken();
+    if (latest && latest !== refresh) {
+      refresh = latest;
+      continue;
+    }
+    break;
+  }
+
+  // Refresh token expired/blacklisted with no newer one available: real logout.
+  emitSessionExpired();
+  return false;
+};
+
+/**
+ * Single-flight wrapper. When an access token expires, every in-flight request
+ * 401s at once; without this they would each POST the same refresh token and
+ * all but the winner would get "Token is blacklisted" and force a logout.
+ * Concurrent callers now share one refresh and then retry.
+ */
+let refreshPromise = null;
+
+const refreshToken = async () => {
+  if (!refreshPromise) {
+    refreshPromise = doRefresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+};
+
+/**
+ * Make an authenticated API request.
+ *
+ * This is the single auth "interceptor" for the whole app: it attaches the
+ * Bearer token, and on a 401 transparently refreshes the access token once and
+ * replays the request, so an expired access token never surfaces to the caller
+ * as an endpoint failure. Only a dead refresh token ends the session.
+ */
+export const apiRequest = async (endpoint, options = {}) => {
+  const isFormData = options.body instanceof FormData;
+
+  const buildConfig = () => {
+    const token = getAccessToken();
+    const headers = {};
+    // Don't set Content-Type for FormData; the browser adds it with the boundary.
+    if (!isFormData) headers['Content-Type'] = 'application/json';
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return {
+      // Send cookies so httpOnly auth cookies flow once cookie-mode is enabled.
+      // Harmless in Bearer mode (there simply are no auth cookies to send).
+      credentials: 'include',
+      ...options,
+      headers: { ...headers, ...options.headers },
+    };
   };
-  
+
+  const fullUrl = `${API_BASE_URL}${endpoint}`;
+
   try {
-    const fullUrl = `${API_BASE_URL}${endpoint}`;
-    console.log('API Request:', fullUrl, config.method || 'GET');
-    
-    const response = await fetch(fullUrl, config);
-    
-    // Handle 401 Unauthorized - try to refresh token
-    if (response.status === 401 && token) {
+    const hadToken = Boolean(getAccessToken());
+    const response = await fetch(fullUrl, buildConfig());
+
+    // Access token expired → refresh once (shared across concurrent callers)
+    // and replay the original request with the new token.
+    if (response.status === 401 && hadToken) {
       const refreshed = await refreshToken();
       if (refreshed) {
-        // Retry request with new token
-        config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
-        return await fetch(fullUrl, config);
+        return await fetch(fullUrl, buildConfig());
       }
     }
-    
+
     return response;
   } catch (error) {
     console.error('API Request Error:', error);
@@ -554,5 +606,5 @@ export const resendVerification = async (email) => {
 };
 
 // Export utility functions for use in other parts of the app
-export { getAccessToken, getRefreshToken, setTokens, getUser, setUser, clearTokens };
+export { getAccessToken, getRefreshToken, setTokens, getUser, setUser, clearTokens, refreshToken, SESSION_EXPIRED_EVENT };
 

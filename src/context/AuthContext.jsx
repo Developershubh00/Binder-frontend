@@ -46,6 +46,18 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
+  // The refresh token is dead (expired or blacklisted) — the session is really
+  // over, so drop to signed-out state. Fired by authService after a refresh is
+  // genuinely rejected; transient network/5xx failures never reach here.
+  useEffect(() => {
+    const onSessionExpired = () => {
+      setUser(null);
+      setIsAuthenticated(false);
+    };
+    window.addEventListener(authService.SESSION_EXPIRED_EVENT, onSessionExpired);
+    return () => window.removeEventListener(authService.SESSION_EXPIRED_EVENT, onSessionExpired);
+  }, []);
+
   // Login with email/password; backend returns user with role for redirect
   const login = async (credentials) => {
     try {
