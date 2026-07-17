@@ -15,7 +15,11 @@
 
 // Share a single token store with authService so that "Remember me"
 // (sessionStorage vs localStorage) is honored consistently across the app.
+// apiRequest is the app's single auth interceptor (Bearer header + transparent
+// 401 refresh-and-replay). Importing it here — rather than keeping a second copy —
+// means IMS calls get the same single-flight refresh and token rotation handling.
 import {
+  apiRequest,
   getAccessToken,
   getRefreshToken,
   setTokens,
@@ -29,92 +33,6 @@ import {
 // ============================================================================
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://binder-backend-0szj.onrender.com/api/';
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-
-/**
- * Make authenticated API request
- */
-const apiRequest = async (endpoint, options = {}) => {
-  const token = getAccessToken();
-  
-  // Don't set Content-Type for FormData, browser will set it with boundary
-  const isFormData = options.body instanceof FormData;
-  
-  const defaultHeaders = {};
-  
-  if (!isFormData) {
-    defaultHeaders['Content-Type'] = 'application/json';
-  }
-  
-  if (token) {
-    defaultHeaders['Authorization'] = `Bearer ${token}`;
-  }
-  
-  const config = {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  };
-  
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
-    // Handle 401 Unauthorized - try to refresh token
-    if (response.status === 401 && token) {
-      const refreshed = await refreshToken();
-      if (refreshed) {
-        // Retry request with new token
-        config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
-        return await fetch(`${API_BASE_URL}${endpoint}`, config);
-      }
-    }
-    
-    return response;
-  } catch (error) {
-    console.error('API Request Error:', error);
-    throw error;
-  }
-};
-
-/**
- * Refresh access token
- */
-const refreshToken = async () => {
-  const refresh = getRefreshToken();
-  if (!refresh) {
-    clearTokens();
-    return false;
-  }
-  
-  try {
-    const response = await fetch(`${API_BASE_URL}auth/token/refresh/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh }),
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      // Write back to the same store (sessionStorage/localStorage) the refresh came from.
-      setTokens(data.access, refresh);
-      return true;
-    } else {
-      clearTokens();
-      return false;
-    }
-  } catch (error) {
-    console.error('Token refresh error:', error);
-    clearTokens();
-    return false;
-  }
-};
 
 // ============================================================================
 // AUTHENTICATION APIs
