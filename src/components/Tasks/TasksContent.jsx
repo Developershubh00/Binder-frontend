@@ -445,6 +445,24 @@ const TasksContent = ({ initialView }) => {
     }
   };
 
+  // Add a comment (from the detail modal) — stamped with the current user's id + name.
+  const handleAddComment = (taskId, message) => {
+    const text = message.trim();
+    if (!text) return;
+    const comment = {
+      id: nextCommentId(),
+      userId: currentUserId,
+      name: currentUserName || 'You',
+      message: text,
+    };
+    const append = (task) => ({
+      ...task,
+      comments: [...(Array.isArray(task.comments) ? task.comments : []), comment],
+    });
+    setTasks((prev) => prev.map((task) => (task.id === taskId ? append(task) : task)));
+    setSelectedTask((prev) => (prev && prev.id === taskId ? append(prev) : prev));
+  };
+
   return (
     <div
       className="min-h-full w-full overflow-y-auto bg-[#f3f4f6] py-9"
