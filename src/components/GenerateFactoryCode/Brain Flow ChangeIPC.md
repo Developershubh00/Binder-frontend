@@ -98,10 +98,16 @@ longer hint at position:
   ([:5136](GenerateFactoryCode.jsx#L5136)).
 
 ### Data plumbing
-- All step edits go into a **top-level working copy** (`formData.products`,
-  `.rawMaterials`, `.artworkMaterials`, `.packaging`) and are merged into the
-  selected SKU's `stepData` via `getMergedFormData()` ([:4633](GenerateFactoryCode.jsx#L4633)) /
-  `updateSelectedSkuStepData()`.
+- Every step edit writes **straight into the selected SKU's `stepData`** via
+  `updateSelectedSkuStepData()` ([:1548](GenerateFactoryCode.jsx#L1548)) — state is
+  keyed per IPC, there is **no** top-level working copy.
+  > Corrected 2026-07-17: this section used to claim edits went into a top-level
+  > `formData.products`/`.rawMaterials` copy that was merged down on save. They don't,
+  > and that description sends you hunting for a cross-IPC overwrite that isn't there.
+- **Reads** go the other way: `getMergedFormData()` ([:5024](GenerateFactoryCode.jsx#L5024))
+  overlays the selected SKU's `stepData` onto `formData` before handing it to
+  Step2/Step4/Step1/Step5 — which is why the step components *look* like they read a
+  global object but are actually per-IPC.
 - `selectedSku` = the IPC item id (`product_0`, `subproduct_1_0`, …). `parseSelectedSku()`
   resolves it to `{ type, skuIndex, subproductIndex }`.
 
@@ -607,6 +613,43 @@ BOM & WO) → fill **3 fields per work order**:
   completed IPC (draft is saved on every step) surfaces there; nothing new needed.
 
 **Verified:** `npm run build` green; no `no-undef`.
+
+### Change 19 — IPC-2's data vanished: the draft PUT was rejected, and "Saved" lied — ✅ DONE
+**Symptom (Vikram):** filled IPC-1 *and* IPC-2; on reopen only IPC-1 had data — IPC-2
+was blank with all three badges ○.
+
+**Not the cause (ruled out, don't re-hunt these):** per-IPC state is sound. Every edit
+writes to the selected SKU's own `stepData` via `updateSelectedSkuStepData`;
+`duplicateSku` deep-clones; the flag-restore effect ([:4763](GenerateFactoryCode.jsx#L4763))
+keys off `selectedSku` correctly. **Nothing overwrites IPC-2 with IPC-1 in memory.**
+The data never reached the DB at all.
+
+**Actual cause — two faults compounding:**
+1. **Backend size cap.** The draft is one JSON PUT carrying *every* IPC's `stepData`
+   with images inlined as base64. `DATA_UPLOAD_MAX_MEMORY_SIZE` was never set →
+   Django's **2.5 MB default**. Two filled IPCs cross it → Django rejects with **400
+   before the view runs** → the DB keeps the last under-limit draft = **IPC-1 only**.
+   Fixed: `DATA_UPLOAD_MAX_MEMORY_SIZE = 64 MB` (env-tunable) in `binder_config/settings.py`.
+2. **The save reported success on failure.** `apiRequest` resolves for *every* HTTP
+   status; `saveFactoryCodeDraft` did `return await response.json()` with **no
+   `response.ok` check**. The 400's JSON body parsed cleanly → promise resolved →
+   `saveToLocalStorage`'s `.then()` set `serverSaveState='saved'` → **"✓ Saved to
+   server"** while nothing saved. This is why the loss was invisible for a whole
+   session. Fixed with `throwIfNotOk` in `services/integration.js`, applied to the
+   draft PUT, the **draft GET** (a failed GET read as "no draft" → wizard starts blank →
+   next save overwrites the real draft with nothing), and the section PUT.
+
+**Consequence:** Change 5's "⚠ Not saved to server + Retry" indicator was dead code —
+it could never fire. It works now.
+
+**Data recovery:** none — IPC-2's work was never persisted server-side. It must be
+re-entered. Nothing was corrupted; the draft simply predates it.
+
+**Verified:** `manage.py check` clean; setting resolves to 67108864; `npm run build` green.
+
+> Follow-up worth doing: the draft only grows. Base64 images are the bulk of it — the
+> "trim + rehydrate" work in §Still open #1 is now a **reliability** issue, not just
+> latency. 64 MB buys headroom, not a cure.
 
 ### Change 18 — Starting / Completion dates: drop the mandatory check — ✅ DONE
 Follow-up to Change 17: after the date inputs were removed, saving still failed because

@@ -1234,6 +1234,21 @@ export const saveMaterialOption = async ({ materialType, fieldKey, parentKey = '
   return await response.json();
 };
 
+// `apiRequest` resolves for every HTTP status, so a rejected save still returns a
+// readable body. Callers that treat "promise resolved" as "persisted" MUST go
+// through this — without it a 400/413/500 parses cleanly and reports success
+// while the write never landed.
+const throwIfNotOk = async (response, what) => {
+  if (response.ok) return response;
+  let detail = '';
+  try {
+    detail = (await response.clone().text()).slice(0, 300);
+  } catch {
+    // body already consumed or unreadable — the status alone is enough
+  }
+  throw new Error(`${what} failed: HTTP ${response.status}${detail ? ` — ${detail}` : ''}`);
+};
+
 // Factory code draft (save/load per step - PostgreSQL, sync across devices).
 // Drafts are scoped to (user, IPO). Pass `ipoId` when editing an existing IPO
 // so that switching between IPOs doesn't clobber each other's in-progress
@@ -1241,6 +1256,9 @@ export const saveMaterialOption = async ({ materialType, fieldKey, parentKey = '
 export const getFactoryCodeDraft = async (ipoId = null) => {
   const query = ipoId ? `?ipo_id=${encodeURIComponent(ipoId)}` : '';
   const response = await apiRequest(`ims/factory-codes/draft/${query}`);
+  // A failed GET must not read as "this IPO has no draft" — that starts the
+  // wizard blank and the next save overwrites the real draft with nothing.
+  await throwIfNotOk(response, 'Draft load');
   return await response.json();
 };
 
@@ -1250,6 +1268,7 @@ export const saveFactoryCodeDraft = async (payload, ipoId = null) => {
     method: 'PUT',
     body: JSON.stringify({ payload }),
   });
+  await throwIfNotOk(response, 'Draft save');
   return await response.json();
 };
 
@@ -1268,6 +1287,7 @@ export const saveFactoryCodeSection = async (ipoId, skuKey, section, payload) =>
     method: 'PUT',
     body: JSON.stringify({ payload }),
   });
+  await throwIfNotOk(response, `Section '${section}' save`);
   return await response.json();
 };
 
