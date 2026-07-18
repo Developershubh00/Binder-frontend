@@ -34,8 +34,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -86,8 +86,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -138,8 +138,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -191,8 +191,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -243,8 +243,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -296,8 +296,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -349,8 +349,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -404,8 +404,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -459,8 +459,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -511,8 +511,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -522,8 +522,7 @@ export const formsConfig = {
         columns: [
           { name: 'usn', label: 'USN', type: 'text' },
           { name: 'type', label: 'Type', type: 'text' },
-          { name: 'material', label: 'Material', type: 'text' },
-          { name: 'base', label: 'Base', type: 'text' }, // Specific to Heat Transfer
+          { name: 'materialBase', label: 'Material Base', type: 'text' }, // Specific to Heat Transfer
           { name: 'sizeSpec', label: 'Size Spec', type: 'text' },
           { name: 'quantity', label: 'Quantity', type: 'number' }
         ]
@@ -564,8 +563,8 @@ export const formsConfig = {
         {
           title: 'Artwork & Result',
           fields: [
-            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-            { name: 'result', label: 'RESULT', type: 'text' },
+            { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+            { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
             { name: 'remarks', label: 'REMARKS', type: 'text' }
           ]
         }
@@ -616,8 +615,8 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -668,8 +667,8 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -681,7 +680,8 @@ export const formsConfig = {
         { name: 'type', label: 'Type', type: 'text' },
         { name: 'material', label: 'Material', type: 'text' },
         { name: 'sizeSpec', label: 'Size Spec', type: 'text' },
-        { name: 'contentCodingSystem', label: 'Content Coding System', type: 'text' },
+        { name: 'content', label: 'Content', type: 'text' },
+        { name: 'codingSystem', label: 'Coding System', type: 'text' },
         { name: 'gummingQuality', label: 'Gumming Quality', type: 'text' },
         { name: 'quantity', label: 'Quantity', type: 'number' }
       ]
@@ -722,8 +722,8 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -776,8 +776,8 @@ export const formsConfig = {
       {
         title: 'Artwork & Result',
         fields: [
-          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'artworkApproval', label: 'ARTWORK APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -787,8 +787,7 @@ export const formsConfig = {
       columns: [
         { name: 'usn', label: 'USN', type: 'text' },
         { name: 'type', label: 'Type', type: 'text' },
-        { name: 'material', label: 'Material', type: 'text' },
-        { name: 'base', label: 'Base', type: 'text' },
+        { name: 'materialBase', label: 'Material Base', type: 'text' },
         { name: 'sizeSpec', label: 'Size Spec', type: 'text' },
         { name: 'adhesive', label: 'Adhesive', type: 'text' },
         { name: 'quantity', label: 'Quantity', type: 'number' }
@@ -835,8 +834,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -886,8 +885,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -940,8 +939,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -991,8 +990,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1041,8 +1040,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1093,8 +1092,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1145,8 +1144,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1197,8 +1196,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1252,8 +1251,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1268,6 +1267,7 @@ export const formsConfig = {
         { name: 'width', label: 'Width', type: 'text' },
         { name: 'colour', label: 'Colour', type: 'text' },
         { name: 'designReference', label: 'Design Reference', type: 'text' },
+        { name: 'sizeSpec2', label: 'Size Spec', type: 'text' },
         { name: 'finishing', label: 'Finishing', type: 'text' },
         { name: 'stretch', label: 'Stretch', type: 'text' }
       ]
@@ -1306,8 +1306,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1359,8 +1359,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1413,8 +1413,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1465,8 +1465,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1518,8 +1518,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1570,8 +1570,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1622,8 +1622,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1674,8 +1674,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1727,8 +1727,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1781,8 +1781,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1834,8 +1834,8 @@ export const formsConfig = {
           {
             title: 'Inspection Result',
             fields: [
-              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-              { name: 'result', label: 'RESULT', type: 'text' },
+              { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+              { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
               { name: 'remarks', label: 'REMARKS', type: 'text' }
             ]
           }
@@ -1895,8 +1895,8 @@ export const formsConfig = {
       {
         title: 'Inspection Result',
         fields: [
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1909,16 +1909,16 @@ export const formsConfig = {
         { name: 'subtype', label: 'SUBTYPE', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
+        // SHAPE/SIZE SPEC group
+        { name: 'gsm', label: 'GSM', type: 'number' },
+        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
+        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
         { name: 'shape', label: 'SHAPE', type: 'text' },
         { name: 'interlocking', label: 'INTERLOCKING', type: 'text' },
         { name: 'waterResistance', label: 'WATER RESISTANCE', type: 'text' },
         { name: 'uvResistance', label: 'UV RESISTANCE', type: 'text' },
         { name: 'antiSlip', label: 'ANTI SLIP', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
-        { name: 'gsm', label: 'GSM', type: 'number' },
-        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
-        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -1956,7 +1956,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certification', label: 'CERTIFICATION', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -1969,17 +1969,18 @@ export const formsConfig = {
         { name: 'subtype', label: 'SUBTYPE', type: 'text' },
         { name: 'gelType', label: 'GEL TYPE', type: 'text' },
         { name: 'gelContent', label: 'GEL CONTENT', type: 'text' },
+        { name: 'gelType2', label: 'GEL TYPE', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
+        // SHAPE/SIZE SPEC group
+        { name: 'gsm', label: 'GSM', type: 'number' },
+        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
+        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
         { name: 'shape', label: 'SHAPE', type: 'text' },
         { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
         { name: 'coolingEffect', label: 'COOLING EFFECT', type: 'text' },
         { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
-        { name: 'gsm', label: 'GSM', type: 'number' },
-        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
-        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -2017,7 +2018,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certification', label: 'CERTIFICATION', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2031,15 +2032,15 @@ export const formsConfig = {
         { name: 'grade', label: 'GRADE', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
+        // SHAPE/SIZE SPEC group
+        { name: 'gsm', label: 'GSM', type: 'number' },
+        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
+        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
         { name: 'shape', label: 'SHAPE', type: 'text' },
         { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
         { name: 'supportFactor', label: 'SUPPORT FACTOR', type: 'text' },
         { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
-        { name: 'gsm', label: 'GSM', type: 'number' },
-        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
-        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -2077,7 +2078,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certification', label: 'CERTIFICATION', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2092,16 +2093,16 @@ export const formsConfig = {
         { name: 'subtype', label: 'SUBTYPE', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
+        // SHAPE/SIZE SPEC group
+        { name: 'gsm', label: 'GSM', type: 'number' },
+        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
+        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
         { name: 'shape', label: 'SHAPE', type: 'text' },
         { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
         { name: 'hypoallergenic', label: 'HYPOALLERGENIC', type: 'text' },
         { name: 'antiMicrobial', label: 'ANTI-MICROBIAL', type: 'text' },
         { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
-        { name: 'gsm', label: 'GSM', type: 'number' },
-        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
-        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -2139,7 +2140,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certification', label: 'CERTIFICATION', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2153,14 +2154,14 @@ export const formsConfig = {
         { name: 'grade', label: 'GRADE', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
-        { name: 'shape', label: 'SHAPE', type: 'text' },
-        { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
-        { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
+        // SHAPE/SIZE SPEC group
         { name: 'gsm', label: 'GSM', type: 'number' },
         { name: 'length', label: 'LENGTH (CM)', type: 'number' },
         { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'shape', label: 'SHAPE', type: 'text' },
+        { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
+        { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -2198,7 +2199,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certification', label: 'CERTIFICATION', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2211,16 +2212,16 @@ export const formsConfig = {
         { name: 'subtype', label: 'SUBTYPE', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
+        // SHAPE/SIZE SPEC group
+        { name: 'gsm', label: 'GSM', type: 'number' },
+        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
+        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
         { name: 'shape', label: 'SHAPE', type: 'text' },
         { name: 'lamination', label: 'LAMINATION', type: 'text' },
         { name: 'waterResistance', label: 'WATER RESISTANCE', type: 'text' },
         { name: 'thermalInsulation', label: 'THERMAL INSULATION', type: 'text' },
         { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
-        { name: 'gsm', label: 'GSM', type: 'number' },
-        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
-        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -2258,7 +2259,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certification', label: 'CERTIFICATION', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2272,16 +2273,16 @@ export const formsConfig = {
         { name: 'grade', label: 'GRADE', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
+        // SHAPE/SIZE SPEC group
+        { name: 'gsm', label: 'GSM', type: 'number' },
+        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
+        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
         { name: 'shape', label: 'SHAPE', type: 'text' },
         { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
         { name: 'supportFactor', label: 'SUPPORT FACTOR', type: 'text' },
         { name: 'antiMicrobial', label: 'ANTI-MICROBIAL', type: 'text' },
         { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
-        { name: 'gsm', label: 'GSM', type: 'number' },
-        { name: 'length', label: 'LENGTH (CM)', type: 'number' },
-        { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -2319,7 +2320,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certification', label: 'CERTIFICATION', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2335,14 +2336,14 @@ export const formsConfig = {
         { name: 'bonding', label: 'BONDING', type: 'text' },
         { name: 'color', label: 'COLOR', type: 'text' },
         { name: 'thickness', label: 'THICKNESS', type: 'text' },
-        { name: 'shape', label: 'SHAPE', type: 'text' },
-        { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
-        { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
-        { name: 'density', label: 'DENSITY', type: 'text' },
+        // SHAPE/SIZE SPEC group
         { name: 'gsm', label: 'GSM', type: 'number' },
         { name: 'length', label: 'LENGTH (CM)', type: 'number' },
         { name: 'width', label: 'WIDTH (CM)', type: 'number' },
-        { name: 'shapeSizeSpec', label: 'SHAPE/SIZE SPEC', type: 'text' }
+        { name: 'shape', label: 'SHAPE', type: 'text' },
+        { name: 'ildIfd', label: 'ILD/IFD (FIRMNESS)', type: 'text' },
+        { name: 'fireRetardant', label: 'FIRE RETARDANT', type: 'text' },
+        { name: 'density', label: 'DENSITY', type: 'text' }
       ]
     }
   },
@@ -2384,7 +2385,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certifications', label: 'CERTIFICATIONS', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2436,7 +2437,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certifications', label: 'CERTIFICATIONS', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2493,7 +2494,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certifications', label: 'CERTIFICATIONS', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2548,7 +2549,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certifications', label: 'CERTIFICATIONS', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2605,7 +2606,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certifications', label: 'CERTIFICATIONS', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2661,7 +2662,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certifications', label: 'CERTIFICATIONS', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2718,7 +2719,7 @@ export const formsConfig = {
         title: 'Inspection Result',
         fields: [
           { name: 'certifications', label: 'CERTIFICATIONS', type: 'text' },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2785,8 +2786,8 @@ export const formsConfig = {
         fields: [
           { name: 'avgWeightDiff', label: 'AVG WEIGHT DIFFERENCE FOUND', type: 'text' },
           { name: 'moisturePercentage', label: 'MOISTURE %AGE', type: 'text' },
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2858,8 +2859,8 @@ export const formsConfig = {
         title: 'Final Metrics',
         fields: [
           { name: 'moisturePercentage', label: 'MOISTURE %AGE', type: 'text' },
-          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
-          { name: 'result', label: 'RESULT', type: 'text' },
+          { name: 'shadeApproval', label: 'SHADE APPROVAL', type: 'text' },
+          { name: 'result', label: 'RESULT', type: 'select', options: ['CONDITIONALLY APPROVED', 'MANAGEMENT', 'NO', 'YES'] },
           { name: 'remarks', label: 'REMARKS', type: 'text' }
         ]
       }
@@ -2877,19 +2878,19 @@ export const formsConfig = {
         { name: 'fiberCategory', label: 'FIBER CATEGORY', type: 'text' },
         { name: 'origin', label: 'ORIGIN', type: 'text' },
         { name: 'width', label: 'Width', type: 'text' },
-        { name: 'defectAtMtr', label: 'Defect at MTR', type: 'text' },
-        { name: 'length', label: 'Length', type: 'text' },
+        { name: 'defectAtMtrLength', label: 'Defect at MTR Length', type: 'text' },
         // DROPDOWN IN DEFECT
-        { 
-          name: 'defect', 
-          label: 'Defect', 
-          type: 'select', 
-          options: ['Fabric Damage', 'Stain', 'Stain Patch', 'Weaving Line', 'Cut/Hole'] 
+        {
+          name: 'defect',
+          label: 'Defect',
+          type: 'select',
+          options: ['Fabric Damage', 'Stain', 'Stain Patch', 'Weaving Line', 'Cut/Hole']
         },
         { name: 'major', label: 'Major', type: 'number' },
         { name: 'minor', label: 'Minor', type: 'number' },
         { name: 'findings', label: 'Findings', type: 'text' },
-        { name: 'attachRefImage', label: 'Attach Ref Image', type: 'text' }
+        { name: 'attachRefImage', label: 'Attach Ref Image', type: 'text' },
+        { name: 'lengthMeter', label: 'Length (Meter)', type: 'text' }
       ]
     }
   }

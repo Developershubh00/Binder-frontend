@@ -1,10 +1,89 @@
 import { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
+import ThemedSelect from '../IMS/StockSheet/ThemedSelect';
 import {
   getUQRFormDraft,
   saveUQRFormDraft,
   getContextualUQRFormDraft,
   saveContextualUQRFormDraft,
 } from '../../services/integration';
+
+// Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp.
+const LABEL =
+  'mb-2 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground';
+const CTRL =
+  'w-full rounded-md border border-[#e2e3e8] bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70';
+const TCTRL =
+  'w-full rounded-md border border-[#e2e3e8] bg-card px-2.5 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70';
+const SECTION_TITLE =
+  'mb-3 text-[11px] font-semibold uppercase tracking-wider text-foreground/60';
+const TH =
+  'border-b border-r border-[#e2e3e8] bg-muted px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-foreground whitespace-nowrap';
+const TD = 'border-b border-r border-[#e2e3e8] px-2 py-1.5 align-middle';
+const PRIMARY_BTN =
+  'inline-flex cursor-pointer items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50';
+const OUTLINE_BTN =
+  'inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-[#e2e3e8] bg-card px-4 py-2 text-sm font-semibold text-foreground/70 transition-colors hover:bg-muted';
+const NO_SPIN =
+  '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
+
+const toOptions = (values) => (values || []).map((v) => ({ value: v, label: v }));
+
+const pad2 = (value) => String(value).padStart(2, '0');
+
+const todayDateValue = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+};
+
+const nowTimeValue = () => {
+  const now = new Date();
+  return `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+};
+
+const getStoredUser = () => {
+  try {
+    const raw = localStorage.getItem('user');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+const getUserDisplayName = (user) => {
+  if (!user) return '';
+  const firstLast = [user.first_name, user.last_name]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+  return firstLast || user.full_name || user.name || user.email || '';
+};
+
+// Prefill DATE/TIME (now) and the "checked/approved/inspected by" fields (name from the
+// logged-in `user` in localStorage) for whichever of these fields the form actually has.
+// The user's id is kept alongside the name so it's saved in the draft payload.
+const buildPrefill = (sections, readOnly) => {
+  if (readOnly) return {};
+  const fieldNames = new Set();
+  sections?.forEach((section) =>
+    section?.fields?.forEach((field) => fieldNames.add(field.name)),
+  );
+
+  const user = getStoredUser();
+  const name = getUserDisplayName(user);
+  const userId = user?.id || '';
+
+  const prefill = {};
+  if (fieldNames.has('date')) prefill.date = todayDateValue();
+  if (fieldNames.has('time')) prefill.time = nowTimeValue();
+  ['qualityCheckedBy', 'approvedBy', 'inspectedBy'].forEach((fieldName) => {
+    if (fieldNames.has(fieldName)) prefill[fieldName] = name;
+  });
+  if (fieldNames.has('qualityCheckedBy')) prefill.qualityCheckedById = userId;
+  if (fieldNames.has('approvedBy')) prefill.approvedById = userId;
+  if (fieldNames.has('inspectedBy')) prefill.inspectedById = userId;
+  return prefill;
+};
 
 const BaseFormTemplate = ({
   formId,
@@ -15,6 +94,10 @@ const BaseFormTemplate = ({
   onSubmitSuccess,
   apiContext = null,
   readOnly = false,
+  // Auto-fill values from the picked IPO/IPC: header fields (e.g. UIN, PO NO,
+  // FACTORY PO CODE) and the first table row (e.g. USN). A saved draft still wins.
+  prefillValues = null,
+  tablePrefill = null,
 }) => {
   const getInitialState = () => {
     const state = {};
@@ -70,8 +153,17 @@ const BaseFormTemplate = ({
   };
 
   useEffect(() => {
-    const initialFormState = getInitialState();
-    const initialTableRows = tableConfig ? [getEmptyRow()] : [];
+    // Start from a prefilled state (today's date/time + current user for the
+    // checked/approved-by fields, plus IPO/IPC context values); a loaded draft
+    // merges on top and wins.
+    const initialFormState = {
+      ...getInitialState(),
+      ...buildPrefill(sections, readOnly),
+      ...(readOnly ? {} : prefillValues || {}),
+    };
+    const initialTableRows = tableConfig
+      ? [{ ...getEmptyRow(), ...(readOnly ? {} : tablePrefill || {}) }]
+      : [];
     let cancelled = false;
 
     setFormData(initialFormState);
@@ -122,27 +214,13 @@ const BaseFormTemplate = ({
     draftStorageKey,
     sections,
     tableConfig,
+    readOnly,
+    prefillValues,
+    tablePrefill,
     apiContext?.orderType,
     apiContext?.ipoCode,
     apiContext?.ipcCode,
   ]);
-
-  const handleChange = (event) => {
-    if (readOnly) return;
-    const { name, value, type, checked } = event.target;
-    setFormData((previous) => ({
-      ...previous,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleTableChange = (rowIndex, event) => {
-    if (readOnly) return;
-    const { name, value } = event.target;
-    const updatedRows = [...tableRows];
-    updatedRows[rowIndex][name] = value;
-    setTableRows(updatedRows);
-  };
 
   const handleRemoveRow = (rowIndex) => {
     if (readOnly) return;
@@ -161,172 +239,50 @@ const BaseFormTemplate = ({
     });
   };
 
-  const styles = {
-    header: {
-      fontSize: '24px',
-      fontWeight: '700',
-      marginBottom: '24px',
-      color: 'var(--primary-foreground)',
-      background: 'var(--primary)',
-      padding: '16px 20px',
-      borderRadius: 'var(--radius)',
-      boxShadow: 'var(--shadow-sm)',
-    },
-    section: {
-      marginBottom: '20px',
-      padding: '20px',
-      background: 'var(--card)',
-      borderRadius: 'var(--radius)',
-      border: '1px solid var(--border)',
-    },
-    sectionTitle: {
-      fontSize: '14px',
-      fontWeight: '600',
-      marginBottom: '16px',
-      color: '#000000',
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-      gap: '16px',
-    },
-    label: {
-      display: 'block',
-      fontWeight: '500',
-      color: '#000000',
-      fontSize: '13px',
-      marginBottom: '6px',
-    },
-    input: {
-      width: '100%',
-      padding: '10px 12px',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)',
-      fontSize: '14px',
-      background: 'var(--input)',
-      color: 'var(--foreground)',
-      outline: 'none',
-    },
-    cardGrid: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      marginTop: '10px',
-    },
-    cardRow: {
-      position: 'relative',
-      background: 'var(--background)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)',
-      padding: '16px',
-      boxShadow: 'var(--shadow-xs)',
-    },
-    cardGridInner: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '12px',
-    },
-    cardFieldWrapper: {
-      display: 'flex',
-      flexDirection: 'column',
-    },
-    cardLabel: {
-      fontSize: '11px',
-      fontWeight: '600',
-      color: '#000000',
-      marginBottom: '4px',
-      textTransform: 'uppercase',
-    },
-    cardInput: {
-      width: '100%',
-      padding: '8px 10px',
-      border: '1px solid var(--border)',
-      borderRadius: '4px',
-      fontSize: '14px',
-      background: 'var(--input)',
-      color: 'var(--foreground)',
-    },
-    deleteBtn: {
-      position: 'absolute',
-      top: '8px',
-      right: '8px',
-      width: '24px',
-      height: '24px',
-      borderRadius: '50%',
-      border: '1px solid var(--border)',
-      background: 'var(--background)',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '14px',
-      color: 'var(--muted-foreground)',
-      zIndex: 10,
-    },
-    actions: {
-      display: 'flex',
-      gap: '12px',
-      justifyContent: 'flex-end',
-      marginTop: '24px',
-    },
-    btnPrimary: {
-      padding: '10px 24px',
-      border: 'none',
-      borderRadius: 'var(--radius)',
-      background: 'var(--primary)',
-      color: 'var(--primary-foreground)',
-      cursor: 'pointer',
-      fontWeight: '600',
-    },
-    btnSecondary: {
-      padding: '8px 14px',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)',
-      background: 'var(--background)',
-      color: 'var(--foreground)',
-      cursor: 'pointer',
-      fontWeight: '600',
-      fontSize: '12px',
-    },
+  const setFieldValue = (name, value) => {
+    if (readOnly) return;
+    setFormData((previous) => ({ ...previous, [name]: value }));
+  };
+
+  const setTableCellValue = (rowIndex, name, value) => {
+    if (readOnly) return;
+    setTableRows((previous) => {
+      const next = [...previous];
+      next[rowIndex] = { ...next[rowIndex], [name]: value };
+      return next;
+    });
   };
 
   const renderField = (field) => (
     <div key={field.name}>
-      <label style={styles.label}>
-        {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
+      <label className={LABEL}>
+        {field.label} {field.required && <span className="text-primary">*</span>}
       </label>
       {field.type === 'select' ? (
-        <select
-          name={field.name}
+        <ThemedSelect
           value={formData[field.name] || ''}
-          onChange={handleChange}
-          style={styles.input}
+          onChange={(value) => setFieldValue(field.name, value)}
+          options={toOptions(field.options)}
+          placeholder="Select"
+          isDisabled={readOnly}
+          isSearchable={false}
+        />
+      ) : field.type === 'checkbox' ? (
+        <input
+          type="checkbox"
+          checked={!!formData[field.name]}
+          onChange={(event) => setFieldValue(field.name, event.target.checked)}
           disabled={readOnly}
-        >
-          <option value="">Select</option>
-          {field.options?.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+          className="h-4.5 w-4.5 cursor-pointer accent-[#f94d00]"
+        />
       ) : (
         <input
           type={field.type || 'text'}
-          name={field.name}
           value={formData[field.name] || ''}
-          onChange={handleChange}
-          style={styles.input}
+          onChange={(event) => setFieldValue(field.name, event.target.value)}
+          className={`${CTRL} ${field.type === 'number' ? NO_SPIN : ''}`}
           readOnly={readOnly}
           disabled={readOnly}
-          onFocus={(event) => {
-            event.target.style.borderColor = 'var(--primary)';
-          }}
-          onBlur={(event) => {
-            event.target.style.borderColor = 'var(--border)';
-          }}
         />
       )}
     </div>
@@ -381,104 +337,128 @@ const BaseFormTemplate = ({
   };
 
   return (
-    <form>
-      <h2 style={styles.header}>{title}</h2>
+    <form className="space-y-6">
+      {/* Title band */}
+      <div className="rounded-md bg-primary px-5 py-3.5">
+        <h2 className="text-base font-bold uppercase tracking-wide text-primary-foreground">
+          {title}
+        </h2>
+      </div>
 
+      {/* Sections */}
       {sections?.map((section, index) => (
-        <div key={index} style={styles.section}>
-          <h3 style={styles.sectionTitle}>{section.title}</h3>
-          <div style={styles.grid}>{section?.fields?.map(renderField)}</div>
-        </div>
+        <section key={index}>
+          <h3 className={SECTION_TITLE}>{section.title}</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {section?.fields?.map(renderField)}
+          </div>
+        </section>
       ))}
 
+      {/* Table */}
       {tableConfig && (
-        <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>{tableConfig.title}</h3>
-          <div style={styles.cardGrid}>
-            {tableRows.map((row, rowIndex) => (
-              <div key={rowIndex} style={styles.cardRow}>
-                {!readOnly && tableRows.length > 1 && (
-                  <button
-                    type="button"
-                    style={styles.deleteBtn}
-                    onClick={() => handleRemoveRow(rowIndex)}
-                    title="Remove this entry"
-                  >
-                    x
-                  </button>
-                )}
-
-                <div style={styles.cardGridInner}>
+        <section>
+          <h3 className={SECTION_TITLE}>{tableConfig.title}</h3>
+          {/* pb gives an expanded in-cell dropdown room to render inside the
+              horizontal-scroll wrapper (which would otherwise clip the menu). */}
+          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8] pb-52">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
                   {tableConfig.columns.map((column) => (
-                    <div key={column.name} style={styles.cardFieldWrapper}>
-                      <label style={styles.cardLabel}>{column.label}</label>
-                      {column.type === 'select' ? (
-                        <select
-                          name={column.name}
-                          value={row[column.name] || ''}
-                          onChange={(event) => handleTableChange(rowIndex, event)}
-                          style={styles.cardInput}
-                          disabled={readOnly}
-                        >
-                          <option value="">Select</option>
-                          {column.options?.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          type={column.type || 'text'}
-                          name={column.name}
-                          value={row[column.name] || ''}
-                          onChange={(event) => handleTableChange(rowIndex, event)}
-                          style={styles.cardInput}
-                          readOnly={readOnly}
-                          disabled={readOnly}
-                        />
-                      )}
-                    </div>
+                    <th
+                      key={column.name}
+                      className={TH}
+                      style={{ minWidth: column.type === 'select' ? 170 : 130 }}
+                    >
+                      {column.label}
+                    </th>
                   ))}
-                </div>
-              </div>
-            ))}
+                  {!readOnly && (
+                    <th className={TH} style={{ width: 48, minWidth: 48 }} aria-label="Actions" />
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {tableConfig.columns.map((column) => (
+                      <td
+                        key={column.name}
+                        className={TD}
+                        style={{ minWidth: column.type === 'select' ? 170 : 130 }}
+                      >
+                        {column.type === 'select' ? (
+                          <ThemedSelect
+                            value={row[column.name] || ''}
+                            onChange={(value) =>
+                              setTableCellValue(rowIndex, column.name, value)
+                            }
+                            options={toOptions(column.options)}
+                            placeholder="Select"
+                            isDisabled={readOnly}
+                            isSearchable={false}
+                          />
+                        ) : (
+                          <input
+                            type={column.type || 'text'}
+                            value={row[column.name] || ''}
+                            onChange={(event) =>
+                              setTableCellValue(rowIndex, column.name, event.target.value)
+                            }
+                            className={`${TCTRL} ${column.type === 'number' ? NO_SPIN : ''}`}
+                            readOnly={readOnly}
+                            disabled={readOnly}
+                          />
+                        )}
+                      </td>
+                    ))}
+                    {!readOnly && (
+                      <td className={`${TD} text-center`} style={{ width: 48, minWidth: 48 }}>
+                        {tableRows.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveRow(rowIndex)}
+                            title="Remove this entry"
+                            className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {!readOnly && (
-            <div style={{ marginTop: '12px' }}>
-              <button
-                type="button"
-                style={styles.btnSecondary}
-                onClick={handleAddRow}
-              >
+            <div className="mt-3">
+              <button type="button" className={OUTLINE_BTN} onClick={handleAddRow}>
                 + Add Row
               </button>
             </div>
           )}
-        </div>
+        </section>
       )}
 
+      {/* Actions */}
       {(!readOnly || submitMessage) && (
-        <div style={styles.actions}>
+        <div className="flex items-center justify-end gap-3 pt-1">
           {submitMessage && (
             <div
-              style={{
-                marginRight: 'auto',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: submitMessage.startsWith('Unable') ? '#b91c1c' : '#15803d',
-              }}
+              className={`mr-auto text-sm font-semibold ${
+                submitMessage.startsWith('Unable')
+                  ? 'text-destructive'
+                  : 'text-green-600'
+              }`}
             >
               {submitMessage}
             </div>
           )}
           {!readOnly && (
-            <button
-              type="button"
-              style={styles.btnPrimary}
-              onClick={handleSubmit}
-            >
+            <button type="button" className={PRIMARY_BTN} onClick={handleSubmit}>
               Submit
             </button>
           )}

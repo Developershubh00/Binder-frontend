@@ -1,473 +1,428 @@
-import { useEffect, useMemo, useState } from "react";
-import { Check } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import BaseFormTemplate from "./BaseFormTemplate";
 import { formsConfig } from "./formConfig";
 import ThemedSelect from "../IMS/StockSheet/ThemedSelect";
-import { getIPOs } from "../../services/integration";
 import {
-  getFormDisplayName,
-  getOrderTypeLabel,
-  isQualityYes,
-  mapArtworkCategoryToFormKey,
-  mapRawMaterialToFormKey,
+  getIPOs,
+  getFactoryCodes,
+  getFactoryCode,
+  getFactoryCodesByIpo,
+} from "../../services/integration";
+import { toOrderTypeApiValue } from "../../utils/orderType";
+import {
   ORDER_TYPE_SEQUENCE,
-  toCollectionArray,
+  FORM_DISPLAY_NAME_BY_KEY,
 } from "@/utils/uqrMappings";
 
-const FACTORY_STORAGE_KEY = "factoryCodeFormData";
-const INTERNAL_PURCHASE_ORDERS_KEY = "internalPurchaseOrders";
-const UQR_FILLED_SECTIONS_KEY = "uqrFilledSections";
 const UQR_DRAFT_PREFIX = "uqrDraft::";
 
 // Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp.
 const CARD = "rounded-lg border border-[#e2e3e8] bg-card p-5 md:p-6";
 const LABEL =
   "mb-2 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground";
-const SECTION_TITLE =
-  "mb-4 text-sm font-bold uppercase tracking-wide text-foreground";
 
-const parseJson = (value, fallback) => {
-  try {
-    const parsed = JSON.parse(value);
-    return parsed == null ? fallback : parsed;
-  } catch {
-    return fallback;
-  }
+// Material filter — mirrors StockSheet's "Select Category" options.
+const MATERIAL_OPTIONS = [
+  { value: "YARN", label: "Yarn" },
+  { value: "FABRIC", label: "Fabric" },
+  { value: "FOAM", label: "Foam" },
+  { value: "FIBER", label: "Fiber" },
+  { value: "TRIMS_ACCESSORY", label: "Trims & Accessory" },
+  { value: "ARTWORK_LABELLING", label: "Artwork & Labelling" },
+];
+
+// Which single UQR form a material maps to. Foam/Fiber/Trims/Artwork pick a
+// sub-type instead (each maps to its own form) — see SUBTYPE_CONFIG below.
+const MATERIAL_TO_FORM_KEY = {
+  YARN: "yarn",
+  FABRIC: "fabric",
+};
+
+// Foam / Fiber sub-types — the option `value` IS the form key in formsConfig.
+const FOAM_TYPE_OPTIONS = [
+  { value: "foamEva", label: "EVA" },
+  { value: "foamGelInfused", label: "Gel Infused" },
+  { value: "foamHr", label: "HR" },
+  { value: "foamLatex", label: "Latex" },
+  { value: "foamMemory", label: "Memory" },
+  { value: "foamPeEpe", label: "PE EPE" },
+  { value: "foamPu", label: "PU" },
+  { value: "foamRebonded", label: "Rebonded" },
+];
+
+const FIBER_TYPE_OPTIONS = [
+  { value: "fiberCottonFill", label: "Cotton Fill" },
+  { value: "fiberDownAlternative", label: "Down Alternative" },
+  { value: "fiberDownFeather", label: "Down Feather" },
+  { value: "fiberMicrofiber", label: "Microfiber" },
+  { value: "fiberPolyesterFill", label: "Polyester" },
+  { value: "fiberSpecialityFill", label: "Speciality Fill" },
+  { value: "fiberWoolNatural", label: "Wool Natural" },
+];
+
+// Build { value: formKey, label } options from a list of form keys, using the
+// shared display-name map, sorted alphabetically by label.
+const toFormKeyOptions = (keys) =>
+  keys
+    .map((key) => ({ value: key, label: FORM_DISPLAY_NAME_BY_KEY[key] || key }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+const TRIM_TYPE_OPTIONS = toFormKeyOptions([
+  "trimsBuckles", "trimsButtons", "trimsCableTies", "trimsCordStops", "trimsFelt",
+  "trimsFrTrims", "trimsHooksEyes", "trimsInterlining", "trimsLace",
+  "trimsMagneticClosure", "trimsNiwarWebbing", "trimsPinBarbs", "trimsReflectiveTapes",
+  "trimsRibbing", "trimsRingsLoops", "trimsRivets", "trimsSeamTape", "trimsShoulderPads",
+  "trimsVelcro", "trimsZippers",
+]);
+
+const ARTWORK_TYPE_OPTIONS = toFormKeyOptions([
+  "artworksAntiCounterfeit", "artworksBellyBand", "artworksCareComposition",
+  "artworksFlammability", "artworksHangtagSeals", "artworksHeatTransfer",
+  "artworksInsertCards", "artworksLabelMain", "artworksLawLabel", "artworksPriceTag",
+  "artworksQcLabels", "artworksRfid", "artworksSizeLabels", "artworksTagsSpecial",
+  "artworksUpcLabel",
+]);
+
+// Materials that need a second "type" dropdown → its label, placeholder, options.
+const SUBTYPE_CONFIG = {
+  FOAM: { label: "Foam Type", placeholder: "Select foam type", options: FOAM_TYPE_OPTIONS },
+  FIBER: { label: "Fibre Type", placeholder: "Select fibre type", options: FIBER_TYPE_OPTIONS },
+  TRIMS_ACCESSORY: { label: "Trim Type", placeholder: "Select trim type", options: TRIM_TYPE_OPTIONS },
+  ARTWORK_LABELLING: { label: "Artwork Type", placeholder: "Select artwork type", options: ARTWORK_TYPE_OPTIONS },
 };
 
 const getSectionContextKey = ({ orderType, ipoCode, ipcCode, formKey }) =>
   `${orderType}::${ipoCode}::${ipcCode}::${formKey}`;
 
-const parseSectionContextKey = (contextKey = "") => {
-  const [orderType = "", ipoCode = "", ipcCode = "", formKey = ""] =
-    String(contextKey).split("::");
-  if (!orderType || !ipoCode || !ipcCode || !formKey) {
-    return null;
-  }
-  return { orderType, ipoCode, ipcCode, formKey };
-};
-
 const getDraftStorageKey = (contextKey = "") =>
   contextKey ? `${UQR_DRAFT_PREFIX}${contextKey}` : "";
-const toCodeKey = (value) =>
-  String(value || "")
-    .trim()
-    .toUpperCase();
 
-const compareOrderType = (left, right) => {
-  const leftIndex = ORDER_TYPE_SEQUENCE.indexOf(left);
-  const rightIndex = ORDER_TYPE_SEQUENCE.indexOf(right);
-  const normalizedLeft = leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex;
-  const normalizedRight =
-    rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex;
-  if (normalizedLeft !== normalizedRight) {
-    return normalizedLeft - normalizedRight;
-  }
-  return String(left || "").localeCompare(String(right || ""));
-};
-
-const formatSavedAt = (value) => {
-  if (!value) return "Saved draft";
-  const parsedDate = new Date(value);
-  if (Number.isNaN(parsedDate.getTime())) return "Saved draft";
-  return parsedDate.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-const collectUqrFormsForStepData = (stepData = {}) => {
-  const formKeys = new Set();
-
-  toCollectionArray(stepData.rawMaterials).forEach((material) => {
-    const hasMaterialQualityYes = isQualityYes(material?.qualityVerification);
-    const hasWorkOrderQualityYes = toCollectionArray(material?.workOrders).some(
-      (workOrder) => isQualityYes(workOrder?.qualityVerification),
-    );
-    if (!hasMaterialQualityYes && !hasWorkOrderQualityYes) return;
-
-    const formKey = mapRawMaterialToFormKey(material);
-    if (formKey && formsConfig[formKey]) formKeys.add(formKey);
-  });
-
-  toCollectionArray(stepData.artworkMaterials).forEach((material) => {
-    const artworkCategory = material?.artworkCategory;
-    const qualityValue =
-      material?.qualityVerificationByCategory?.[artworkCategory] ??
-      material?.qualityVerification;
-
-    if (artworkCategory && isQualityYes(qualityValue)) {
-      const formKey = mapArtworkCategoryToFormKey(artworkCategory);
-      if (formKey && formsConfig[formKey]) formKeys.add(formKey);
-      return;
-    }
-
-    const qualityByCategory = material?.qualityVerificationByCategory;
-    if (qualityByCategory && typeof qualityByCategory === "object") {
-      Object.entries(qualityByCategory).forEach(([category, quality]) => {
-        if (!isQualityYes(quality)) return;
-        const formKey = mapArtworkCategoryToFormKey(category);
-        if (formKey && formsConfig[formKey]) formKeys.add(formKey);
-      });
-    }
-  });
-
-  return Array.from(formKeys);
-};
-
-const getIpcEntriesFromFactoryDraft = (entry = {}) => {
-  const ipcMap = new Map();
-  const skus = toCollectionArray(entry?.skus);
-
-  const addIpc = (ipcCode, stepData) => {
-    const code = String(ipcCode || "").trim();
-    if (!code) return;
-    const forms = ipcMap.get(code) || new Set();
-    if (stepData) {
-      collectUqrFormsForStepData(stepData).forEach((formKey) =>
-        forms.add(formKey),
-      );
-    }
-    ipcMap.set(code, forms);
-  };
-
-  skus.forEach((sku, skuIndex) => {
-    const mainIpcCode = sku?.ipcCode || `IPC-${skuIndex + 1}`;
-    addIpc(mainIpcCode, sku?.stepData);
-
-    toCollectionArray(sku?.subproducts).forEach((subproduct, spIndex) => {
-      const spIpcCode =
-        subproduct?.ipcCode ||
-        `${String(mainIpcCode).replace(/\/SP-?\d+$/i, "")}/SP-${spIndex + 1}`;
-      addIpc(spIpcCode, subproduct?.stepData);
-    });
-  });
-
-  return Array.from(ipcMap.entries()).map(([ipcCode, forms]) => ({
-    ipcCode,
-    uqrForms: Array.from(forms),
-  }));
-};
-
-const sortIpcEntries = (ipcs = []) =>
-  [...ipcs]
-    .map((ipc) => ({
-      ...ipc,
-      uqrForms: [...(ipc.uqrForms || [])].sort((left, right) =>
-        getFormDisplayName(
-          left,
-          formsConfig[left]?.title || left,
-        ).localeCompare(
-          getFormDisplayName(right, formsConfig[right]?.title || right),
-        ),
-      ),
-    }))
-    .sort((left, right) => left.ipcCode.localeCompare(right.ipcCode));
-
-const sortEntries = (entries = []) =>
-  [...entries]
-    .map((entry) => ({
-      ...entry,
-      ipcs: sortIpcEntries(entry.ipcs),
-    }))
-    .sort((left, right) => {
-      const orderTypeComparison = compareOrderType(
-        left.orderType,
-        right.orderType,
-      );
-      if (orderTypeComparison !== 0) return orderTypeComparison;
-      return left.code.localeCompare(right.code);
-    });
-
-const loadFactorySavedEntries = (ipoSource = []) => {
-  const keySet = new Set([FACTORY_STORAGE_KEY]);
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
-    if (key?.startsWith(`${FACTORY_STORAGE_KEY}:`)) {
-      keySet.add(key);
+// First non-empty value among candidate keys on an object.
+const firstOf = (obj, keys) => {
+  for (const key of keys) {
+    const value = obj?.[key];
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return String(value);
     }
   }
-
-  const entryMap = new Map();
-  const mergeIpcs = (existing = [], incoming = []) => {
-    const ipcMap = new Map();
-    existing.forEach((ipc) => {
-      ipcMap.set(ipc.ipcCode, new Set(ipc.uqrForms || []));
-    });
-    incoming.forEach((ipc) => {
-      const forms = ipcMap.get(ipc.ipcCode) || new Set();
-      (ipc.uqrForms || []).forEach((formKey) => forms.add(formKey));
-      ipcMap.set(ipc.ipcCode, forms);
-    });
-    return Array.from(ipcMap.entries()).map(([ipcCode, forms]) => ({
-      ipcCode,
-      uqrForms: Array.from(forms),
-    }));
-  };
-
-  Array.from(keySet).forEach((key) => {
-    const raw = localStorage.getItem(key);
-    const parsed = parseJson(raw, null);
-    if (!parsed || typeof parsed !== "object") return;
-
-    const orderType = getOrderTypeLabel(
-      parsed?.orderType || parsed?.order_type || "",
-    );
-    const code = String(parsed?.ipoCode || parsed?.code || "").trim();
-    if (!orderType || !code) return;
-
-    const ipcs = getIpcEntriesFromFactoryDraft(parsed);
-    if (ipcs.length === 0) return;
-
-    const mapKey = `${orderType}::${toCodeKey(code)}`;
-    const previousEntry = entryMap.get(mapKey);
-    entryMap.set(
-      mapKey,
-      previousEntry
-        ? { ...previousEntry, ipcs: mergeIpcs(previousEntry.ipcs, ipcs) }
-        : { orderType, code, ipcs },
-    );
-  });
-
-  if (!Array.isArray(ipoSource)) return [];
-
-  const combined = new Map();
-  ipoSource.forEach((ipo) => {
-    const orderType = getOrderTypeLabel(
-      ipo?.orderType || ipo?.order_type || "",
-    );
-    const code = String(ipo?.ipoCode || ipo?.code || "").trim();
-    if (!orderType || !code) return;
-
-    const mapKey = `${orderType}::${toCodeKey(code)}`;
-    const factoryEntry = entryMap.get(mapKey);
-    combined.set(mapKey, {
-      orderType,
-      code,
-      ipcs: factoryEntry?.ipcs || [],
-    });
-  });
-
-  return sortEntries(Array.from(combined.values()));
-};
-
-const loadSavedDatabaseEntries = (filledSections = {}) => {
-  const entryMap = new Map();
-
-  const ensureIpcEntry = (entry, ipcCode) => {
-    const existingIpc = entry.ipcs.find((ipc) => ipc.ipcCode === ipcCode);
-    if (existingIpc) return existingIpc;
-    const nextIpc = { ipcCode, uqrForms: [], savedAtByForm: {} };
-    entry.ipcs.push(nextIpc);
-    return nextIpc;
-  };
-
-  const addSavedContext = (contextKey, savedAt = "") => {
-    const context = parseSectionContextKey(contextKey);
-    if (!context || !formsConfig[context.formKey]) return;
-
-    const entryKey = `${context.orderType}::${toCodeKey(context.ipoCode)}`;
-    const entry = entryMap.get(entryKey) || {
-      orderType: context.orderType,
-      code: context.ipoCode,
-      ipcs: [],
-    };
-
-    const ipcEntry = ensureIpcEntry(entry, context.ipcCode);
-    if (!ipcEntry.uqrForms.includes(context.formKey)) {
-      ipcEntry.uqrForms.push(context.formKey);
-    }
-    if (!ipcEntry.savedAtByForm[context.formKey] || savedAt) {
-      ipcEntry.savedAtByForm[context.formKey] = savedAt;
-    }
-
-    entryMap.set(entryKey, entry);
-  };
-
-  Object.entries(filledSections).forEach(([contextKey, savedAt]) => {
-    addSavedContext(contextKey, typeof savedAt === "string" ? savedAt : "");
-  });
-
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
-    if (!key?.startsWith(UQR_DRAFT_PREFIX)) continue;
-    const contextKey = key.slice(UQR_DRAFT_PREFIX.length);
-    addSavedContext(contextKey, filledSections?.[contextKey] || "");
-  }
-
-  return sortEntries(Array.from(entryMap.values()));
+  return "";
 };
 
 const UQRFormsPreview = ({ mode = "forms", onBack }) => {
   const isDatabaseMode = mode === "database";
-  const [formEntries, setFormEntries] = useState([]);
-  const [databaseEntries, setDatabaseEntries] = useState([]);
-  const [filledSections, setFilledSections] = useState({});
+
+  // Section → IPO → IPC, loaded from the API exactly like StockSheet's From-IPO flow.
+  // Nothing is pre-selected — the user picks each one.
   const [selectedOrderType, setSelectedOrderType] = useState("");
-  const [selectedIpoCode, setSelectedIpoCode] = useState("");
-  const [selectedIpcCode, setSelectedIpcCode] = useState("");
-  const [selectedFormKey, setSelectedFormKey] = useState("");
+  const [ipoList, setIpoList] = useState([]);
+  const [selectedIpoId, setSelectedIpoId] = useState("");
+  const [ipcList, setIpcList] = useState([]);
+  const [selectedIpcId, setSelectedIpcId] = useState("");
+  const [ipcDetail, setIpcDetail] = useState(null);
+  const [selectedMaterial, setSelectedMaterial] = useState("");
+  // Foam/Fiber sub-type (a form key); empty for Yarn/Fabric.
+  const [selectedSubType, setSelectedSubType] = useState("");
+  const [loadingIpos, setLoadingIpos] = useState(false);
+  const [loadingIpcs, setLoadingIpcs] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-      const nextFilledSections = parseJson(
-        localStorage.getItem(UQR_FILLED_SECTIONS_KEY),
-        {},
+  /* ---------------------------------------------------------------- *
+   * IPOs for the selected section (mirrors StockSheet)
+   * ---------------------------------------------------------------- */
+  const loadIpos = useCallback(async () => {
+    if (!selectedOrderType) {
+      setIpoList([]);
+      return;
+    }
+    const orderType = toOrderTypeApiValue(selectedOrderType);
+    setLoadingIpos(true);
+    try {
+      const data = await getIPOs({ order_type: orderType });
+      const results = data?.results || data?.data || data || [];
+      setIpoList(
+        Array.isArray(results)
+          ? results.filter((ipo) => ipo.order_type === orderType)
+          : [],
       );
-      const normalizedFilledSections =
-        nextFilledSections && typeof nextFilledSections === "object"
-          ? nextFilledSections
-          : {};
+    } catch (error) {
+      console.warn("UQR: failed to load IPOs:", error);
+      setIpoList([]);
+    } finally {
+      setLoadingIpos(false);
+    }
+  }, [selectedOrderType]);
 
-      let ipoList = [];
+  useEffect(() => {
+    loadIpos();
+    window.addEventListener("internalPurchaseOrdersUpdated", loadIpos);
+    return () =>
+      window.removeEventListener("internalPurchaseOrdersUpdated", loadIpos);
+  }, [loadIpos]);
+
+  // Drop the IPO selection if it's no longer in the list (never auto-pick one).
+  useEffect(() => {
+    if (
+      selectedIpoId &&
+      !ipoList.some((ipo) => String(ipo.id) === String(selectedIpoId))
+    ) {
+      setSelectedIpoId("");
+    }
+  }, [ipoList, selectedIpoId]);
+
+  /* ---------------------------------------------------------------- *
+   * IPCs (factory codes) for the selected IPO (mirrors StockSheet)
+   * ---------------------------------------------------------------- */
+  useEffect(() => {
+    if (!selectedIpoId) {
+      setIpcList([]);
+      setSelectedIpcId("");
+      return undefined;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoadingIpcs(true);
       try {
-        const response = await getIPOs();
-        const rawItems = response?.results || response?.data || response || [];
-        ipoList = Array.isArray(rawItems) ? rawItems : [];
+        const data = await getFactoryCodes({ ipo: selectedIpoId });
+        const results = data?.results || data?.data || data || [];
+        // Dedupe by displayed code so the dropdown doesn't show repeats.
+        const seen = new Set();
+        const unique = [];
+        for (const fc of Array.isArray(results) ? results : []) {
+          const label = fc.ipc_code || fc.code || "";
+          if (!label || seen.has(label)) continue;
+          seen.add(label);
+          unique.push(fc);
+        }
+        if (!cancelled) setIpcList(unique);
       } catch (error) {
-        console.warn("Failed to load IPOs from API:", error);
-        ipoList = [];
+        console.warn("UQR: failed to load factory codes:", error);
+        if (!cancelled) setIpcList([]);
+      } finally {
+        if (!cancelled) setLoadingIpcs(false);
       }
-
-      setFormEntries(loadFactorySavedEntries(ipoList));
-      setDatabaseEntries(loadSavedDatabaseEntries(normalizedFilledSections));
-      setFilledSections(normalizedFilledSections);
-    };
-
-    loadData();
-    window.addEventListener("storage", loadData);
-    window.addEventListener("factoryCodeFormDataUpdated", loadData);
-    window.addEventListener("internalPurchaseOrdersUpdated", loadData);
-    window.addEventListener("uqrFilledSectionsUpdated", loadData);
+    })();
     return () => {
-      window.removeEventListener("storage", loadData);
-      window.removeEventListener("factoryCodeFormDataUpdated", loadData);
-      window.removeEventListener("internalPurchaseOrdersUpdated", loadData);
-      window.removeEventListener("uqrFilledSectionsUpdated", loadData);
+      cancelled = true;
     };
-  }, []);
+  }, [selectedIpoId]);
 
-  const activeEntries = isDatabaseMode ? databaseEntries : formEntries;
-  const orderTypes = ORDER_TYPE_SEQUENCE;
-
+  // Drop the IPC selection if it's no longer in the list (never auto-pick one).
   useEffect(() => {
-    if (!orderTypes.includes(selectedOrderType)) {
-      setSelectedOrderType(orderTypes[0] || "");
+    if (
+      selectedIpcId &&
+      !ipcList.some((ipc) => String(ipc.id) === String(selectedIpcId))
+    ) {
+      setSelectedIpcId("");
     }
-  }, [orderTypes, selectedOrderType]);
+  }, [ipcList, selectedIpcId]);
 
-  const ipoEntries = useMemo(
-    () =>
-      activeEntries.filter((entry) => entry.orderType === selectedOrderType),
-    [activeEntries, selectedOrderType],
+  /* ---------------------------------------------------------------- *
+   * Full IPC (factory code) detail for the selected IPC. The list record
+   * is only a summary, so we fetch:
+   *   - getFactoryCode(id)          → the by-id detail
+   *   - getFactoryCodesByIpo(ipoId) → the nested/complete committed shape,
+   *     from which we pick the row matching this IPC (carries the components).
+   * ---------------------------------------------------------------- */
+  useEffect(() => {
+    if (!selectedIpcId) {
+      setIpcDetail(null);
+      return undefined;
+    }
+    let cancelled = false;
+
+    // Pull out the component-ish arrays from a factory-code record.
+    const extractComponents = (fc) => {
+      if (!fc || typeof fc !== "object") return null;
+      const products = fc.products || fc.skus || [];
+      const productList = Array.isArray(products) ? products : [];
+      return {
+        rawMaterials: fc.raw_materials || fc.rawMaterials || [],
+        artworkMaterials: fc.artwork_materials || fc.artworkMaterials || [],
+        packagingMaterials: fc.packaging_materials || fc.packagingMaterials || [],
+        products: productList,
+        productComponents: productList.flatMap((p) => p?.components || []),
+        subproducts: fc.subproducts || [],
+      };
+    };
+
+    (async () => {
+      try {
+        const [detailRes, byIpoRes] = await Promise.all([
+          getFactoryCode(selectedIpcId).catch((error) => {
+            console.warn("UQR: getFactoryCode failed:", error);
+            return null;
+          }),
+          selectedIpoId
+            ? getFactoryCodesByIpo(selectedIpoId).catch((error) => {
+                console.warn("UQR: getFactoryCodesByIpo failed:", error);
+                return null;
+              })
+            : null,
+        ]);
+        if (cancelled) return;
+
+        const detail = detailRes?.data || detailRes || null;
+        const byIpoList =
+          byIpoRes?.results || byIpoRes?.data || byIpoRes || [];
+        const ipoScopedRecord = (Array.isArray(byIpoList) ? byIpoList : []).find(
+          (fc) => String(fc.id) === String(selectedIpcId),
+        );
+
+        // Prefer whichever actually carries components.
+        const complete =
+          (extractComponents(detail)?.rawMaterials?.length ||
+          extractComponents(detail)?.products?.length
+            ? detail
+            : null) ||
+          ipoScopedRecord ||
+          detail;
+
+        setIpcDetail(complete);
+        console.log("[UQR] Full IPC details", {
+          ipcId: selectedIpcId,
+          ipoId: selectedIpoId,
+          detail, // getFactoryCode(id)
+          ipoScopedRecord, // matching row from getFactoryCodesByIpo
+          detailFields: detail ? Object.keys(detail) : [],
+          ipoScopedFields: ipoScopedRecord ? Object.keys(ipoScopedRecord) : [],
+          components:
+            extractComponents(detail) || extractComponents(ipoScopedRecord),
+        });
+      } catch (error) {
+        console.warn("UQR: failed to load full IPC details:", error);
+        if (!cancelled) setIpcDetail(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIpcId, selectedIpoId]);
+
+  /* ---------------------------------------------------------------- *
+   * Derived — the context keys are code-based, the dropdowns are id-based.
+   * ---------------------------------------------------------------- */
+  const selectedIpo = useMemo(
+    () => ipoList.find((ipo) => String(ipo.id) === String(selectedIpoId)) || null,
+    [ipoList, selectedIpoId],
   );
 
-  useEffect(() => {
-    if (!ipoEntries.some((entry) => entry.code === selectedIpoCode)) {
-      setSelectedIpoCode(ipoEntries[0]?.code || "");
-    }
-  }, [ipoEntries, selectedIpoCode]);
-
-  const selectedIpoEntry = useMemo(
-    () => ipoEntries.find((entry) => entry.code === selectedIpoCode) || null,
-    [ipoEntries, selectedIpoCode],
+  const selectedIpcRecord = useMemo(
+    () => ipcList.find((ipc) => String(ipc.id) === String(selectedIpcId)) || null,
+    [ipcList, selectedIpcId],
   );
 
-  const ipcEntries = selectedIpoEntry?.ipcs || [];
+  const selectedIpoCode = selectedIpo?.ipo_code || selectedIpo?.code || "";
+  const selectedIpcCode =
+    selectedIpcRecord?.ipc_code || selectedIpcRecord?.code || "";
 
+  // Debug: dump every field the API returns for the picked IPO / IPC.
   useEffect(() => {
-    if (!ipcEntries.some((ipc) => ipc.ipcCode === selectedIpcCode)) {
-      setSelectedIpcCode(ipcEntries[0]?.ipcCode || "");
-    }
-  }, [ipcEntries, selectedIpcCode]);
+    if (!selectedIpo && !selectedIpcRecord) return;
+    console.log("[UQR] Selected IPO / IPC details", {
+      section: selectedOrderType,
+      ipoCode: selectedIpoCode,
+      ipcCode: selectedIpcCode,
+      ipo: selectedIpo,
+      ipc: selectedIpcRecord,
+      ipoFields: selectedIpo ? Object.keys(selectedIpo) : [],
+      ipcFields: selectedIpcRecord ? Object.keys(selectedIpcRecord) : [],
+    });
+  }, [
+    selectedOrderType,
+    selectedIpo,
+    selectedIpcRecord,
+    selectedIpoCode,
+    selectedIpcCode,
+  ]);
 
-  const selectedIpcEntry = useMemo(
-    () => ipcEntries.find((ipc) => ipc.ipcCode === selectedIpcCode) || null,
-    [ipcEntries, selectedIpcCode],
+  /* ---------------------------------------------------------------- *
+   * Material form (Materials dropdown) — e.g. YARN → the Yarn UQR form.
+   * Foam/Fiber pick a sub-type whose value is the form key.
+   * ---------------------------------------------------------------- */
+  const subTypeCfg = SUBTYPE_CONFIG[selectedMaterial] || null;
+  const needsSubType = Boolean(subTypeCfg);
+  const materialFormKey = needsSubType
+    ? selectedSubType
+    : MATERIAL_TO_FORM_KEY[selectedMaterial] || "";
+  const materialFormConfig = materialFormKey
+    ? formsConfig[materialFormKey]
+    : null;
+  const hasFullContext = Boolean(
+    selectedOrderType && selectedIpoCode && selectedIpcCode,
   );
-
-  const sections = useMemo(() => {
-    const formKeys = selectedIpcEntry?.uqrForms || [];
-    return formKeys
-      .filter((formKey) => Boolean(formsConfig[formKey]))
-      .map((formKey) => ({
-        formKey,
-        label: getFormDisplayName(
-          formKey,
-          formsConfig[formKey]?.title || formKey,
-        ),
-        savedAt: selectedIpcEntry?.savedAtByForm?.[formKey] || "",
-      }))
-      .sort((left, right) => left.label.localeCompare(right.label));
-  }, [selectedIpcEntry]);
-
-  useEffect(() => {
-    if (!sections.some((section) => section.formKey === selectedFormKey)) {
-      setSelectedFormKey(sections[0]?.formKey || "");
-    }
-  }, [sections, selectedFormKey]);
-
-  const selectedContext =
-    selectedOrderType && selectedIpoCode && selectedIpcCode && selectedFormKey
-      ? {
+  // Save contextually when an IPO+IPC is chosen; otherwise keep a material-scoped
+  // local draft so the form is still usable on its own.
+  const materialContextKey = materialFormKey
+    ? hasFullContext
+      ? getSectionContextKey({
           orderType: selectedOrderType,
           ipoCode: selectedIpoCode,
           ipcCode: selectedIpcCode,
-          formKey: selectedFormKey,
-        }
-      : null;
-
-  const selectedContextKey = selectedContext
-    ? getSectionContextKey(selectedContext)
+          formKey: materialFormKey,
+        })
+      : `material::${selectedMaterial}::${materialFormKey}`
     : "";
-  const selectedFormConfig = selectedFormKey
-    ? formsConfig[selectedFormKey]
+  const materialDraftKey = getDraftStorageKey(materialContextKey);
+  const materialApiContext = hasFullContext
+    ? {
+        orderType: selectedOrderType,
+        ipoCode: selectedIpoCode,
+        ipcCode: selectedIpcCode,
+      }
     : null;
-  const draftStorageKey = getDraftStorageKey(selectedContextKey);
-  const selectedSavedAt =
-    selectedIpcEntry?.savedAtByForm?.[selectedFormKey] || "";
 
-  const isSectionFilled = (formKey) => {
-    if (isDatabaseMode) return true;
-    if (!selectedOrderType || !selectedIpoCode || !selectedIpcCode)
-      return false;
+  // Auto-fill from the picked PO/IPC: PO NO ← IPO code, FACTORY PO CODE ← IPC code,
+  // UIN ← the unit id on the IPC record (candidate keys; blank if the API omits it).
+  // Prefer the richer by-id detail; fall back to the list record.
+  const ipcSource = useMemo(
+    () => ({ ...(selectedIpcRecord || {}), ...(ipcDetail || {}) }),
+    [selectedIpcRecord, ipcDetail],
+  );
 
-    const contextKey = getSectionContextKey({
-      orderType: selectedOrderType,
-      ipoCode: selectedIpoCode,
-      ipcCode: selectedIpcCode,
-      formKey,
-    });
-    return Boolean(filledSections[contextKey]);
-  };
+  const materialPrefillValues = useMemo(() => {
+    if (!materialFormKey) return null;
+    const poNo =
+      firstOf(selectedIpo, ["ipo_code", "ipoCode", "po_no", "poNo", "code"]) ||
+      selectedIpoCode;
+    const factoryPoCode =
+      firstOf(ipcSource, [
+        "ipc_code",
+        "ipcCode",
+        "factory_po_code",
+        "factoryPoCode",
+        "code",
+      ]) || selectedIpcCode;
+    // UIN (Unit ID) ← a dedicated unit id if present, else the factory code (e.g. "FC-211").
+    const uin = firstOf(ipcSource, [
+      "uin",
+      "unit_id",
+      "unitId",
+      "uid",
+      "code",
+    ]);
+    const values = {};
+    if (poNo) values.poNo = poNo;
+    if (factoryPoCode) values.factoryPoCode = factoryPoCode;
+    if (uin) values.uin = uin;
+    return Object.keys(values).length ? values : null;
+  }, [materialFormKey, selectedIpo, ipcSource, selectedIpoCode, selectedIpcCode]);
 
-  const handleSectionSubmitSuccess = () => {
-    if (!selectedContext) return;
-    const contextKey = getSectionContextKey(selectedContext);
-    const nextFilledSections = {
-      ...filledSections,
-      [contextKey]: new Date().toISOString(),
-    };
-    setFilledSections(nextFilledSections);
-    localStorage.setItem(
-      UQR_FILLED_SECTIONS_KEY,
-      JSON.stringify(nextFilledSections),
-    );
-    window.dispatchEvent(new Event("uqrFilledSectionsUpdated"));
-  };
-
-  const emptyIpoMessage = isDatabaseMode
-    ? "No saved UQR forms available for this section."
-    : "No IPOs available for this section.";
-  const emptyIpcMessage = isDatabaseMode
-    ? "No saved IPCs available for this IPO."
-    : "No IPCs available for this IPO.";
-  const emptySectionsMessage = isDatabaseMode
-    ? "No saved UQR forms found for this IPO and IPC."
-    : "No Quality inspection required";
+  // USN (Unit Sequence #) ← a dedicated field if present, else the trailing sequence of
+  // the IPC code (e.g. ".../IPC-2" → "2"), else the SKU. Fills the first table row.
+  const materialTablePrefill = useMemo(() => {
+    if (!materialFormKey) return null;
+    const dedicated = firstOf(ipcSource, [
+      "usn",
+      "unit_sequence",
+      "unit_sequence_no",
+      "unitSequence",
+    ]);
+    const ipcCode = firstOf(ipcSource, ["ipc_code", "ipcCode"]);
+    const sequenceMatch = ipcCode.match(/(?:IPC|SP)-?(\d+)\s*$/i);
+    const usn =
+      dedicated || (sequenceMatch && sequenceMatch[1]) || firstOf(ipcSource, ["sku"]);
+    return usn ? { usn } : null;
+  }, [materialFormKey, ipcSource]);
 
   return (
     <div
@@ -496,20 +451,25 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {isDatabaseMode
-              ? "Browse all saved UQR forms using the same section, IPO, IPC, and form filters."
-              : "Create and submit UQR forms using the existing section, IPO, IPC, and form flow."}
+              ? "Browse all saved UQR forms using the same section, IPO, IPC, and material filters."
+              : "Create and submit UQR forms using the existing section, IPO, IPC, and material flow."}
           </p>
         </div>
 
         {/* Filters */}
-        <div className={CARD}>
+        <div className={`${CARD} space-y-4`}>
+          {/* Row 1: Section / IPO / IPC */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <label className={LABEL}>Section</label>
               <ThemedSelect
                 value={selectedOrderType}
-                onChange={setSelectedOrderType}
-                options={orderTypes.map((type) => ({
+                onChange={(value) => {
+                  setSelectedOrderType(value);
+                  setSelectedIpoId("");
+                  setSelectedIpcId("");
+                }}
+                options={ORDER_TYPE_SEQUENCE.map((type) => ({
                   value: type,
                   label: type,
                 }))}
@@ -521,91 +481,96 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
             <div>
               <label className={LABEL}>IPO</label>
               <ThemedSelect
-                value={selectedIpoCode}
-                onChange={setSelectedIpoCode}
-                options={ipoEntries.map((entry) => ({
-                  value: entry.code,
-                  label: entry.code,
+                value={selectedIpoId}
+                onChange={(value) => {
+                  setSelectedIpoId(value);
+                  setSelectedIpcId("");
+                }}
+                options={ipoList.map((ipo) => ({
+                  value: String(ipo.id),
+                  label: ipo.program_name
+                    ? `${ipo.ipo_code} — ${ipo.program_name}`
+                    : ipo.ipo_code || ipo.code || String(ipo.id),
                 }))}
-                placeholder="No IPOs"
+                isDisabled={!selectedOrderType || loadingIpos || ipoList.length === 0}
+                placeholder={
+                  !selectedOrderType
+                    ? "Select section first"
+                    : loadingIpos
+                      ? "Loading IPOs…"
+                      : ipoList.length === 0
+                        ? "No IPOs"
+                        : "-- Select IPO --"
+                }
               />
             </div>
 
             <div>
               <label className={LABEL}>IPC</label>
               <ThemedSelect
-                value={selectedIpcCode}
-                onChange={setSelectedIpcCode}
-                options={ipcEntries.map((ipc) => ({
-                  value: ipc.ipcCode,
-                  label: ipc.ipcCode,
+                value={selectedIpcId}
+                onChange={setSelectedIpcId}
+                options={ipcList.map((ipc) => ({
+                  value: String(ipc.id),
+                  label: ipc.ipc_code || ipc.code || String(ipc.id),
                 }))}
-                placeholder="No IPCs"
+                isDisabled={!selectedIpoId || loadingIpcs || ipcList.length === 0}
+                placeholder={
+                  !selectedIpoId
+                    ? "Select IPO first"
+                    : loadingIpcs
+                      ? "Loading IPCs…"
+                      : ipcList.length === 0
+                        ? "No IPCs"
+                        : "-- Select IPC --"
+                }
               />
             </div>
           </div>
-        </div>
 
-        {/* Sections */}
-        <div className={CARD}>
-          <h2 className={SECTION_TITLE}>
-            {isDatabaseMode ? "Saved UQR Forms" : "Quality Inspection Sections"}
-          </h2>
-          {ipoEntries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{emptyIpoMessage}</p>
-          ) : ipcEntries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{emptyIpcMessage}</p>
-          ) : sections.length > 0 ? (
-            <div className="flex flex-wrap gap-2.5">
-              {sections.map((section) => {
-                const filled = isSectionFilled(section.formKey);
-                const isActive = selectedFormKey === section.formKey;
-                return (
-                  <button
-                    key={section.formKey}
-                    type="button"
-                    onClick={() => setSelectedFormKey(section.formKey)}
-                    className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors ${
-                      isActive
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-[#e2e3e8] bg-card text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    <span>{section.label}</span>
-                    {filled && <Check className="h-3.5 w-3.5 text-green-600" />}
-                  </button>
-                );
-              })}
+          {/* Row 2: Materials (+ Foam/Fiber type when applicable) */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <label className={LABEL}>Materials</label>
+              <ThemedSelect
+                value={selectedMaterial}
+                onChange={(value) => {
+                  setSelectedMaterial(value);
+                  setSelectedSubType(""); // reset the sub-type on material change
+                }}
+                options={MATERIAL_OPTIONS}
+                isSearchable={false}
+                placeholder="Select material"
+              />
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              {emptySectionsMessage}
-            </p>
-          )}
-        </div>
 
-        {selectedFormConfig && selectedContext && (
-          <div className={CARD}>
-            {isDatabaseMode && (
-              <div className="mb-4 rounded-md border border-[#e2e3e8] bg-muted px-4 py-3 text-sm font-medium text-muted-foreground">
-                {`Showing saved record: ${formatSavedAt(selectedSavedAt)}`}
+            {subTypeCfg && (
+              <div>
+                <label className={LABEL}>{subTypeCfg.label}</label>
+                <ThemedSelect
+                  value={selectedSubType}
+                  onChange={setSelectedSubType}
+                  options={subTypeCfg.options}
+                  placeholder={subTypeCfg.placeholder}
+                />
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Material form */}
+        {materialFormConfig && (
+          <div className={CARD}>
             <BaseFormTemplate
-              key={selectedContextKey}
-              formId={selectedFormKey}
-              title={selectedFormConfig.title}
-              sections={selectedFormConfig.sections}
-              tableConfig={selectedFormConfig.tableConfig}
-              draftStorageKey={draftStorageKey}
-              apiContext={{
-                orderType: selectedOrderType,
-                ipoCode: selectedIpoCode,
-                ipcCode: selectedIpcCode,
-              }}
-              onSubmitSuccess={
-                isDatabaseMode ? undefined : handleSectionSubmitSuccess
-              }
+              key={materialContextKey}
+              formId={materialFormKey}
+              title={materialFormConfig.title}
+              sections={materialFormConfig.sections}
+              tableConfig={materialFormConfig.tableConfig}
+              draftStorageKey={materialDraftKey}
+              apiContext={materialApiContext}
+              prefillValues={materialPrefillValues}
+              tablePrefill={materialTablePrefill}
               readOnly={isDatabaseMode}
             />
           </div>
