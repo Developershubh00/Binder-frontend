@@ -293,20 +293,28 @@
 }
 
 .profile-nav-back {
-  display: block;
-  padding: 10px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--primary-foreground);
+  background: var(--primary);
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.18s;
   margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(249, 77, 0, 0.35);
 }
 
 .profile-nav-back:hover {
   color: var(--primary-foreground);
-  background: rgba(255,255,255,0.08);
+  background: var(--primary);
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(249, 77, 0, 0.45);
   text-decoration: none;
 }
 

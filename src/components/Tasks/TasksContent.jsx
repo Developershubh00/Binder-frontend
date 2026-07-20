@@ -6,7 +6,7 @@
 // optimistic (the card lands instantly) and roll back if the server rejects the move.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DragDropContext } from '@hello-pangea/dnd';
-import { Plus, User, Loader2 } from 'lucide-react';
+import { Plus, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   getIPOs,
@@ -23,6 +23,7 @@ import {
 } from '../../services/integration';
 import { normalizeOrderType } from '../../utils/orderType';
 import KanbanColumn from './KanbanColumn';
+import TasksBoardSkeleton from './TasksBoardSkeleton';
 import AssignTaskModal from './AssignTaskModal';
 import TaskDetailModal from './TaskDetailModal';
 import ConfirmDialog from './ConfirmDialog';
@@ -494,10 +495,7 @@ const TasksContent = ({ initialView }) => {
 
         {/* Board */}
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Loading tasks...
-          </div>
+          <TasksBoardSkeleton />
         ) : loadError ? (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-8 text-center">
             <p className="text-sm font-medium text-destructive">{loadError}</p>

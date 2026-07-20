@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Home, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Home, ChevronLeft, ShieldCheck } from "lucide-react";
 import {
   FingerprintScanIcon,
   ReceiptIcon,
@@ -7,6 +8,12 @@ import {
   Stack3Icon,
   StorefrontIcon,
 } from "../icons/SidebarIcons";
+
+// Aliased so ESLint credits `motion` as used (JSX member-expression usage isn't
+// detected by jsx-uses-vars in this repo's config — same pattern as Reveal.jsx).
+const MotionAside = motion.aside;
+const MotionSpan = motion.span;
+const MotionDiv = motion.div;
 
 const IMS_ACTIVE_PAGES = [
   "courier-slip",
@@ -31,6 +38,18 @@ const getMenuItems = () => [
   { id: "ims", label: "Inventory Management", icon: StorefrontIcon },
   { id: "quality", label: "Quality", icon: ShieldCheck },
 ];
+
+const SIDEBAR_WIDTH = 248;
+const SIDEBAR_COLLAPSED_WIDTH = 72;
+
+// Shared reveal animation for text that hides when the sidebar collapses.
+const labelMotion = {
+  initial: { opacity: 0, width: 0 },
+  animate: { opacity: 1, width: "auto" },
+  exit: { opacity: 0, width: 0 },
+  transition: { duration: 0.18, ease: "easeOut" },
+  className: "overflow-hidden whitespace-nowrap",
+};
 
 const Sidebar = ({
   sidebarRef,
@@ -78,12 +97,13 @@ const Sidebar = ({
   };
 
   return (
-    <aside
+    <MotionAside
       ref={sidebarRef}
+      initial={false}
+      animate={{ width: collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
+      transition={{ type: "spring", stiffness: 400, damping: 38 }}
       style={{ fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif" }}
-      className={`relative z-[100] flex h-full shrink-0 flex-col border-r border-[#e2e3e8] bg-card transition-[width] duration-200 ease-in-out ${
-        collapsed ? "w-18" : "w-62"
-      }`}
+      className="relative z-[100] flex h-full shrink-0 flex-col border-r border-[#e2e3e8] bg-[#f8f9fb] shadow-[2px_0_12px_rgba(17,24,39,0.06)]"
     >
       {/* Edge collapse / expand toggle */}
       <button
@@ -93,7 +113,13 @@ const Sidebar = ({
         title={collapsed ? "Expand" : "Collapse"}
         className="absolute -right-3 top-7 z-[110] flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#e2e3e8] bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary hover:text-primary"
       >
-        {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        <MotionSpan
+          animate={{ rotate: collapsed ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="inline-flex"
+        >
+          <ChevronLeft size={14} />
+        </MotionSpan>
       </button>
 
       {/* Header / logo */}
@@ -119,15 +145,20 @@ const Sidebar = ({
         >
           {companyInitials}
         </div>
-        {!collapsed && (
-          <span className="min-w-0 truncate text-[18px] font-bold text-foreground">
-            {companyDisplayName.split(" ")[0]}
-          </span>
-        )}
+        <AnimatePresence initial={false}>
+          {!collapsed && (
+            <MotionSpan
+              {...labelMotion}
+              className="min-w-0 overflow-hidden truncate whitespace-nowrap text-[18px] font-bold text-foreground"
+            >
+              {companyDisplayName.split(" ")[0]}
+            </MotionSpan>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2.5 py-3">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-3">
         {getMenuItems().map((item) => {
           const active = isActive(item.id);
           return (
@@ -138,7 +169,7 @@ const Sidebar = ({
               onClick={() => handleNavClick(item.id)}
               className={`mb-1 flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
                 collapsed ? "justify-center" : ""
-              } ${active ? "bg-primary" : "hover:bg-[#f3f4f6]"}`}
+              } ${active ? "bg-primary" : "hover:bg-[#eceef1]"}`}
             >
               <span
                 className={`inline-flex shrink-0 items-center justify-center ${
@@ -148,17 +179,20 @@ const Sidebar = ({
               >
                 <item.icon size={18} />
               </span>
-              {!collapsed && (
-                <span
-                  className={`text-sm ${
-                    active
-                      ? "font-semibold text-primary-foreground"
-                      : "font-medium text-[#374151]"
-                  }`}
-                >
-                  {item.label}
-                </span>
-              )}
+              <AnimatePresence initial={false}>
+                {!collapsed && (
+                  <MotionSpan
+                    {...labelMotion}
+                    className={`overflow-hidden whitespace-nowrap text-sm ${
+                      active
+                        ? "font-semibold text-primary-foreground"
+                        : "font-medium text-[#374151]"
+                    }`}
+                  >
+                    {item.label}
+                  </MotionSpan>
+                )}
+              </AnimatePresence>
             </button>
           );
         })}
@@ -173,60 +207,72 @@ const Sidebar = ({
           type="button"
           onClick={() => setShowProfileMenu((prev) => !prev)}
           aria-label="Open profile menu"
-          className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border border-transparent p-2 text-left transition-colors hover:border-[#e2e3e8] hover:bg-[#f3f4f6] ${
+          className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border border-transparent p-2 text-left transition-colors hover:border-[#e2e3e8] hover:bg-[#eceef1] ${
             collapsed ? "justify-center" : ""
           }`}
         >
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             {displayName?.charAt(0)?.toUpperCase() || "U"}
           </span>
-          {!collapsed && (
-            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-              {displayName}
-            </span>
-          )}
+          <AnimatePresence initial={false}>
+            {!collapsed && (
+              <MotionSpan
+                {...labelMotion}
+                className="min-w-0 flex-1 overflow-hidden truncate whitespace-nowrap text-sm font-semibold text-foreground"
+              >
+                {displayName}
+              </MotionSpan>
+            )}
+          </AnimatePresence>
         </button>
 
-        {showProfileMenu && (
-          <div
-            className={`absolute z-[200] rounded-[10px] border border-[#e2e3e8] bg-card p-2.5 shadow-[0_8px_24px_rgba(17,24,39,0.1)] ${
-              collapsed
-                ? "bottom-2 left-[calc(100%+8px)] w-56"
-                : "inset-x-2.5 bottom-[calc(100%+8px)]"
-            }`}
-          >
-            {showEmailLine && (
-              <div className="break-all px-1.5 pb-2 pt-1 text-xs leading-relaxed text-muted-foreground">
-                {user.email}
-              </div>
-            )}
-            {showEmailLine && <div className="my-2 h-px bg-[#e2e3e8]" />}
-            <Link
-              to="/company-profile"
-              className="block rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[#f3f4f6]"
-              onClick={() => setShowProfileMenu(false)}
+        <AnimatePresence>
+          {showProfileMenu && (
+            <MotionDiv
+              initial={{ opacity: 0, y: 8, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.97 }}
+              transition={{ duration: 0.16, ease: "easeOut" }}
+              style={{ transformOrigin: "bottom" }}
+              className={`absolute z-[200] rounded-[10px] border border-[#e2e3e8] bg-card p-2.5 shadow-[0_8px_24px_rgba(17,24,39,0.1)] ${
+                collapsed
+                  ? "bottom-2 left-[calc(100%+8px)] w-56"
+                  : "inset-x-2.5 bottom-[calc(100%+8px)]"
+              }`}
             >
-              Profile
-            </Link>
-            <Link
-              to="/profile"
-              className="mt-1 block rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[#f3f4f6]"
-              onClick={() => setShowProfileMenu(false)}
-            >
-              Master Panel
-            </Link>
-            <div className="my-2 h-px bg-[#e2e3e8]" />
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="w-full cursor-pointer rounded-md border border-[#e2e3e8] px-3 py-2 text-left text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
-            >
-              Logout
-            </button>
-          </div>
-        )}
+              {showEmailLine && (
+                <div className="break-all px-1.5 pb-2 pt-1 text-xs leading-relaxed text-muted-foreground">
+                  {user.email}
+                </div>
+              )}
+              {showEmailLine && <div className="my-2 h-px bg-[#e2e3e8]" />}
+              <Link
+                to="/company-profile"
+                className="block rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[#f3f4f6]"
+                onClick={() => setShowProfileMenu(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                to="/profile"
+                className="mt-1 block rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[#f3f4f6]"
+                onClick={() => setShowProfileMenu(false)}
+              >
+                Master Panel
+              </Link>
+              <div className="my-2 h-px bg-[#e2e3e8]" />
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full cursor-pointer rounded-md border border-[#e2e3e8] px-3 py-2 text-left text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+              >
+                Logout
+              </button>
+            </MotionDiv>
+          )}
+        </AnimatePresence>
       </div>
-    </aside>
+    </MotionAside>
   );
 };
 

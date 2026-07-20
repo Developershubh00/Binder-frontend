@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { LayoutDashboard } from 'lucide-react';
 import { getInitials } from './helpers';
 
 // Left rail: avatar, name/role, and the nav that switches the active section.
@@ -36,7 +37,9 @@ export default function ProfileSidebar({
           </button>
         ))}
         <div className="profile-nav-divider" />
-        <Link to="/dashboard" className="profile-nav-back">← Dashboard</Link>
+        <Link to="/dashboard" className="profile-nav-back">
+          <LayoutDashboard size={16} /> Back to Dashboard
+        </Link>
       </nav>
     </aside>
   );
