@@ -349,7 +349,9 @@ const Dashboard = () => {
       try {
         const essRes = await getCompanyEssentials();
         const essentials = essRes?.results || essRes?.data || essRes || [];
-        setExistingCompanyEssentials(Array.isArray(essentials) ? essentials : []);
+        setExistingCompanyEssentials(
+          Array.isArray(essentials) ? essentials : [],
+        );
       } catch (e) {
         setExistingCompanyEssentials([]);
       }
@@ -439,7 +441,7 @@ const Dashboard = () => {
           handleLogout={handleLogout}
         />
 
-        <main className="main-content ">
+        <main className="main-content bg-gray-100">
           <div className="content-wrapper ">
             <DashboardContent
               activePage={activePage}

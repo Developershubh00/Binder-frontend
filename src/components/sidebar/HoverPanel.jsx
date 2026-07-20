@@ -77,10 +77,7 @@ const HoverPanel = ({
           ? hoveredSubmenu.category
           : null;
       return (
-        <div
-          className="hover-panel-group"
-          ref={hoverPanelRef}
-        >
+        <div className="hover-panel-group" ref={hoverPanelRef}>
           <div className="hover-panel">
             <div className="hover-panel-column">
               <button
@@ -321,10 +318,7 @@ const HoverPanel = ({
       };
 
       return (
-        <div
-          className="hover-panel-group"
-          ref={hoverPanelRef}
-        >
+        <div className="hover-panel-group" ref={hoverPanelRef}>
           <div className="hover-panel">
             <div className="hover-panel-column">
               <div className="hover-panel-title">IPO Type</div>
@@ -434,10 +428,7 @@ const HoverPanel = ({
         hoveredSubmenu?.menu === "purchase" ? hoveredSubmenu.category : null;
       const items = activeCategory ? ipoByType(activeCategory) : [];
       return (
-        <div
-          className="hover-panel-group"
-          ref={hoverPanelRef}
-        >
+        <div className="hover-panel-group" ref={hoverPanelRef}>
           <div className="hover-panel">
             <div className="hover-panel-column">
               <div className="hover-panel-title">Purchase</div>
@@ -516,10 +507,7 @@ const HoverPanel = ({
         ? getItemsForCategory(activeCategory, activeCategoryMeta?.type)
         : [];
       return (
-        <div
-          className="hover-panel-group"
-          ref={hoverPanelRef}
-        >
+        <div className="hover-panel-group" ref={hoverPanelRef}>
           <div className="hover-panel">
             <div className="hover-panel-column">
               <div className="hover-panel-title">IMS</div>
@@ -846,10 +834,7 @@ const HoverPanel = ({
       const ipoItems = activeTypeMeta ? getIpoItems(activeTypeMeta.type) : [];
 
       return (
-        <div
-          className="hover-panel-group"
-          ref={hoverPanelRef}
-        >
+        <div className="hover-panel-group" ref={hoverPanelRef}>
           <div className="hover-panel">
             <div className="hover-panel-column">
               <div className="hover-panel-title">Tasks</div>
