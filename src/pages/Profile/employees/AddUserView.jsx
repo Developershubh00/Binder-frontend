@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Select from 'react-select';
 import { ArrowLeft, ChevronRight, Check, ShieldCheck } from 'lucide-react';
 import { getBuyerCodes } from '../../../services/integration';
 import {
@@ -44,27 +45,82 @@ function TextField({ label, type = 'text', value, onChange, placeholder }) {
   );
 }
 
+// react-select styling for the access-level dropdown — strictly orange + grey.
+// The closed control reflects the selected level's colour (grey shades → orange);
+// menu options use grey hover and soft-orange selected. Menu is portalled so the
+// scrolling permission matrix never clips it.
+const levelSelectStyles = (lvl) => ({
+  control: (base, state) => ({
+    ...base,
+    minHeight: 34,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: state.isFocused ? '#f94d00' : lvl.v > 0 ? lvl.color : '#e2e3e8',
+    backgroundColor: lvl.v > 0 ? lvl.bg : '#ffffff',
+    boxShadow: state.isFocused ? '0 0 0 2px rgba(249,77,0,0.15)' : 'none',
+    cursor: 'pointer',
+    fontSize: 12,
+    fontWeight: 600,
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+    '&:hover': { borderColor: lvl.v > 0 ? lvl.color : '#c9cad2' },
+  }),
+  valueContainer: (base) => ({ ...base, padding: '0 8px' }),
+  singleValue: (base) => ({ ...base, color: lvl.v > 0 ? lvl.color : '#9ca3af', fontWeight: 600 }),
+  indicatorSeparator: () => ({ display: 'none' }),
+  dropdownIndicator: (base) => ({
+    ...base,
+    padding: 4,
+    color: lvl.v > 0 ? lvl.color : '#9ca3af',
+    '&:hover': { color: lvl.v > 0 ? lvl.color : '#6b7280' },
+  }),
+  menu: (base) => ({
+    ...base,
+    borderRadius: 8,
+    border: '1px solid #e2e3e8',
+    boxShadow: '0 8px 24px rgba(17,24,39,0.1)',
+    overflow: 'hidden',
+  }),
+  menuList: (base) => ({ ...base, padding: 4 }),
+  menuPortal: (base) => ({ ...base, zIndex: 10001 }),
+  option: (base, state) => ({
+    ...base,
+    borderRadius: 6,
+    padding: '7px 10px',
+    fontSize: 12.5,
+    fontWeight: 600,
+    cursor: 'pointer',
+    color: state.isSelected ? '#f94d00' : '#374151',
+    backgroundColor: state.isSelected
+      ? '#fdece4'
+      : state.isFocused
+        ? '#f3f4f6'
+        : 'transparent',
+    ':active': { backgroundColor: '#f3f4f6' },
+  }),
+});
+
+function LevelSelect({ value, max, onChange }) {
+  const lvl = LEVELS[value];
+  const options = LEVELS.filter((l) => l.v <= max).map((l) => ({ value: l.v, label: l.opt }));
+  return (
+    <Select
+      value={{ value, label: lvl.opt }}
+      onChange={(opt) => onChange(opt ? opt.value : 0)}
+      options={options}
+      isSearchable={false}
+      menuPlacement="auto"
+      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+      menuPosition="fixed"
+      styles={levelSelectStyles(lvl)}
+    />
+  );
+}
+
 // One permission cell: cumulative access select + optional approve toggle.
 function PermCell({ value, max, onChange, approve, apOn, onAp }) {
-  const L = LEVELS[value];
   return (
     <div className="flex flex-col gap-1.5">
-      <select
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full cursor-pointer rounded-md border px-2 py-1.5 text-xs font-semibold outline-none"
-        style={{
-          background: value > 0 ? L.bg : '#ffffff',
-          borderColor: value > 0 ? L.color : '#e2e3e8',
-          color: value > 0 ? L.color : '#9ca3af',
-        }}
-      >
-        {LEVELS.filter((l) => l.v <= max).map((l) => (
-          <option key={l.v} value={l.v} style={{ color: '#1f2937' }}>
-            {l.opt}
-          </option>
-        ))}
-      </select>
+      <LevelSelect value={value} max={max} onChange={onChange} />
       {approve && (
         <button
           type="button"
