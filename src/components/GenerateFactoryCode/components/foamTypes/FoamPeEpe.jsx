@@ -6,7 +6,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const FoamPeEpe = ({
   material,
@@ -18,7 +18,7 @@ const FoamPeEpe = ({
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
     {/* FOAM TYPE */}
     <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeType`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPeEpeType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeType', selectedValue)}
         options={['PE Foam', 'EPE Foam (Expanded Polyethylene)']}
@@ -29,7 +29,7 @@ const FoamPeEpe = ({
 
     {/* SUBTYPE */}
     <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeSubtype`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPeEpeSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeSubtype', selectedValue)}
         options={['Virgin PE', 'Recycled PE', 'Cross-Linked PE (XLPE)']}
@@ -40,7 +40,7 @@ const FoamPeEpe = ({
 
     {/* COLOUR */}
     <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeColour`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPeEpeColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeColour', selectedValue)}
         options={['White (standard)', 'Black', 'Pink (anti-static)', 'Blue', 'Custom']}
@@ -192,20 +192,10 @@ const FoamPeEpe = ({
         </div>
       </Field>
 
-    {/* SURPLUS % */}
-    <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeSurplus`]}>
-      <PercentInput
-        value={material.foamPeEpeSurplus || ''}
-        onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPeEpeSurplus', e.target.value)}
-        placeholder="e.g., 3-5"
-        error={Boolean(errors[`rawMaterial_${actualIndex}_foamPeEpeSurplus`])}
-      />
-    </Field>
-
     {/* WASTAGE % */}
     <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeWastage`]}>
       <div className="relative">
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamPeEpeWastage || ''}
           onChange={(selectedValue) => {
             const predefinedOptions = ['Packaging', 'Insulation', 'Protective Wrap', 'Underlayment'];
@@ -229,7 +219,7 @@ const FoamPeEpe = ({
 
       {/* APPROVAL */}
       <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPeEpeApproval`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamPeEpeApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeApproval', selectedValue)}
           options={MATERIAL_APPROVAL_OPTIONS}
@@ -266,7 +256,7 @@ const FoamPeEpe = ({
       <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
           <Field label="CELL STRUCTURE" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeCellStructure || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeCellStructure', selectedValue)}
               options={['Closed Cell (standard for PE foam)']}
@@ -274,7 +264,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="LAMINATION" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeLamination || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeLamination', selectedValue)}
               options={['None', 'PE Film Laminated', 'Foil Laminated', 'Fabric Laminated']}
@@ -282,7 +272,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="CROSS-LINKED" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeCrossLinked || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeCrossLinked', selectedValue)}
               options={['Non Cross-Linked (standard EPE)', 'Cross-Linked (XLPE - denser, stronger)']}
@@ -290,7 +280,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="ANTI-STATIC" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeAntiStatic || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeAntiStatic', selectedValue)}
               options={['Standard', 'Anti-Static (Pink ESD foam)']}
@@ -298,7 +288,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="WATER RESISTANCE" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeWaterResistance || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeWaterResistance', selectedValue)}
               options={['Excellent (closed cell)']}
@@ -306,7 +296,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="CUSHIONING" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeCushioning || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeCushioning', selectedValue)}
               options={['Good shock absorption', 'Low compression set']}
@@ -314,7 +304,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="FIRE RETARDANT" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeFireRetardant || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeFireRetardant', selectedValue)}
               options={['Standard', 'FR Treated (HF-1, UL94)']}
@@ -322,7 +312,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="THERMAL INSULATION" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeThermalInsulation || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeThermalInsulation', selectedValue)}
               options={['Good thermal insulation (R-value)']}
@@ -330,7 +320,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="CERTIFICATION" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeCertification || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeCertification', selectedValue)}
               options={['REACH Compliant', 'RoHS Compliant', 'OEKO-TEX']}
@@ -338,7 +328,7 @@ const FoamPeEpe = ({
             />
           </Field>
           <Field label="DENSITY" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamPeEpeDensity || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPeEpeDensity', selectedValue)}
               options={['18 kg/m³', '20 kg/m³', '25 kg/m³', '30 kg/m³', '35 kg/m³', '45 kg/m³']}

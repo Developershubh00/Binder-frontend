@@ -1,7 +1,7 @@
 // CategorySizeLabels — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { SIZE_LABELS_TYPES, SIZE_LABELS_MATERIALS, SIZE_LABELS_SIZE_SYSTEM_OPTIONS, SIZE_LABELS_SIZE_CODE_OPTIONS, SIZE_LABELS_FOLD_TYPE_OPTIONS, SIZE_LABELS_TESTING_REQUIREMENTS, SIZE_LABELS_APPROVAL_OPTIONS } from '../../data/sizeLabelsData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategorySizeLabels = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.sizeLabelsType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'sizeLabelsType', selectedValue);
@@ -46,7 +46,7 @@ const CategorySizeLabels = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.sizeLabelsMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'sizeLabelsMaterial', selectedValue);
@@ -113,7 +113,7 @@ const CategorySizeLabels = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.sizeLabelsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -130,7 +130,7 @@ const CategorySizeLabels = ({
                         {/* SIZE SYSTEM - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE SYSTEM <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.sizeLabelsSizeSystem || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeSystem', selectedValue);
@@ -158,7 +158,7 @@ const CategorySizeLabels = ({
                         {/* SIZE / CODE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SIZE / CODE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.sizeLabelsSizeCode || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'sizeLabelsSizeCode', selectedValue);
@@ -186,7 +186,7 @@ const CategorySizeLabels = ({
                         {/* FOLD TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FOLD TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.sizeLabelsFoldType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'sizeLabelsFoldType', selectedValue);
@@ -315,7 +315,7 @@ const CategorySizeLabels = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.sizeLabelsApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'sizeLabelsApproval', selectedValue);

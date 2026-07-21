@@ -1,4 +1,4 @@
-import SearchableDropdown from './SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../constants/unitOptions';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -141,7 +141,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="TYPE" width="sm" required={!isOptionalField('zipType')} error={errors[getErrorKey('zipType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.zipType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'zipType', selectedValue)}
                             options={['Concealed (Invisible)', 'Open (Separating)', 'Closed-End (Non-Separating)']}
@@ -150,7 +150,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="BRAND" width="sm" required={!isOptionalField('brand')} error={errors[getErrorKey('brand')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.brand || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'brand', selectedValue)}
                             options={['YKK', 'RIRI', 'SBS', 'Unbranded']}
@@ -159,7 +159,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="TEETH" width="sm" required={!isOptionalField('teeth')} error={errors[getErrorKey('teeth')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.teeth || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'teeth', selectedValue)}
                             options={['Coil (Nylon/Polyester)', 'Plastic (Molded Vislon)', 'Metal (Brass, Aluminium)']}
@@ -168,7 +168,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="PULLER" width="sm" required={!isOptionalField('puller')} error={errors[getErrorKey('puller')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.puller || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'puller', selectedValue)}
                             options={['Metal', 'DTM (Dyed-to-Match Plastic)', 'Custom Logo', 'Ring']}
@@ -177,7 +177,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="PULLER TYPE" width="sm" required={!isOptionalField('pullerType')} error={errors[getErrorKey('pullerType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.pullerType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'pullerType', selectedValue)}
                             options={['Lockable (Auto-lock for secure closure)', 'Non-Lockable (Free-gliding)', 'Semi-']}
@@ -217,7 +217,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
 
                         <Field label="LENGTH" width="sm" required={!isOptionalField('length')} error={errors[getErrorKey('length')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.length || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'length', selectedValue)}
                             options={['Specific Length (e.g', '20 cm', '7 inches', '500 mm)']}
@@ -226,7 +226,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="UNIT" width="sm" required={!isOptionalField('unitAdditional')} error={errors[getErrorKey('unitAdditional')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.unitAdditional || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'unitAdditional', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -243,7 +243,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('approval')} error={errors[getErrorKey('approval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.approval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'approval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -296,7 +296,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('buttonType')} error={errors[getErrorKey('buttonType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.buttonType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'buttonType', selectedValue)}
                             options={['Sewing (Flat/Shank)', 'Snap (Press Stud)', 'Tack (Jeans)', 'Toggle', 'Magnetic', 'Covered']}
@@ -305,7 +305,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('buttonMaterial')} error={errors[getErrorKey('buttonMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.buttonMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'buttonMaterial', selectedValue)}
                             options={['Polyester', 'Metal (Brass, Alloy, Zinc)', 'Shell', 'Wood', 'Horn', 'Corozo', 'Coconut']}
@@ -323,7 +323,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="LIGNE" width="sm" required={!isOptionalField('buttonLigne')} error={errors[getErrorKey('buttonLigne')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.buttonLigne || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'buttonLigne', selectedValue)}
                             options={['14L', '16L', '18L', '20L', '22L', '24L', '26L', '28L', '30L', '32L', '34L', '36L', '38L', '40L']}
@@ -332,7 +332,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="HOLES" width="sm" required={!isOptionalField('buttonHoles')} error={errors[getErrorKey('buttonHoles')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.buttonHoles || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'buttonHoles', selectedValue)}
                             options={['2-Hole', '4-Hole', 'Shank (no holes)', 'Snap Components']}
@@ -342,7 +342,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                         <Field label="FINISH/COLOUR" width="sm" required={!isOptionalField('buttonFinishColour')} error={errors[getErrorKey('buttonFinishColour')]}>
                           <div className="flex flex-col gap-2">
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.buttonFinishColour || ''}
                               onChange={(selectedValue) => handleChange(materialIndex, 'buttonFinishColour', selectedValue)}
                               options={['DTM', 'Glossy', 'Matte', 'Engraved', 'Plated (Nickel)', 'Plated (Antique Brass)', 'Plated (Gunmetal)']}
@@ -449,7 +449,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('buttonApproval')} error={errors[getErrorKey('buttonApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.buttonApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'buttonApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -502,7 +502,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="PART" width="sm" required={!isOptionalField('velcroPart')} error={errors[getErrorKey('velcroPart')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.velcroPart || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'velcroPart', selectedValue)}
                             options={['HOOK','LOOP','BOTH']}
@@ -511,7 +511,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="TYPE" width="sm" required={!isOptionalField('velcroType')} error={errors[getErrorKey('velcroType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.velcroType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'velcroType', selectedValue)}
                             options={['Sew-On', 'Adhesive Backed (PSA)', 'Die-Cut Shapes', 'ONE-WRAP', 'Soft Loop', 'Mushroom']}
@@ -520,7 +520,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('velcroMaterial')} error={errors[getErrorKey('velcroMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.velcroMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'velcroMaterial', selectedValue)}
                             options={['Nylon (Higher cycle life)', 'Polyester (UV/moisture resistant)']}
@@ -529,7 +529,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="ATTACHMENT" width="sm" required={!isOptionalField('velcroAttachment')} error={errors[getErrorKey('velcroAttachment')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.velcroAttachment || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'velcroAttachment', selectedValue)}
                             options={['Sewing', 'Adhesive','General','High','Temp','Permanent']}
@@ -656,7 +656,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('velcroApproval')} error={errors[getErrorKey('velcroApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.velcroApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'velcroApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -711,7 +711,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('rivetType')} error={errors[getErrorKey('rivetType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.rivetType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'rivetType', selectedValue)}
                             options={['Double Cap', 'Single Cap', 'Tubular', 'Rapid', 'Decorative']}
@@ -720,7 +720,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('rivetMaterial')} error={errors[getErrorKey('rivetMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.rivetMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'rivetMaterial', selectedValue)}
                             options={['Brass', 'Steel', 'Aluminum', 'Zinc Alloy']}
@@ -747,7 +747,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="FINISH/PLATING" width="sm" required={!isOptionalField('rivetFinishPlating')} error={errors[getErrorKey('rivetFinishPlating')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.rivetFinishPlating || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'rivetFinishPlating', selectedValue)}
                             options={['Nickel', 'Copper', 'Antique Brass', 'Gunmetal', 'Black Oxide', 'Matte', 'Shiny']}
@@ -838,7 +838,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('rivetApproval')} error={errors[getErrorKey('rivetApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.rivetApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'rivetApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -892,7 +892,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm"
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.niwarType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'niwarType', selectedValue)}
                             options={['Woven (Twill, Plain, Herringbone)', 'Knitted', 'Non-Woven', 'Binding Tape', 'Grosgrain']}
@@ -902,7 +902,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                         <Field label="MATERIAL" width="sm"
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.niwarMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'niwarMaterial', selectedValue)}
                             options={['Cotton', 'Polyester', 'Polypropylene (PP)', 'Nylon', 'Blends', 'Jute']}
@@ -964,7 +964,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         )}
                         <Field label="WEAVE PATTERN" width="sm"
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.niwarWeavePattern || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'niwarWeavePattern', selectedValue)}
                             options={['Plain', 'Twill', 'Herringbone', 'Seatbelt-style', 'Tubular']}
@@ -1072,7 +1072,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             (!isOptionalField('niwarQtyType') && !material.niwarQtyType ? 'Required' : undefined)
                           }
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.niwarQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'niwarQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
@@ -1138,7 +1138,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                         <Field label="APPROVAL" width="sm"
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.niwarApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'niwarApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -1192,7 +1192,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('laceType')} error={errors[getErrorKey('laceType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.laceType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'laceType', selectedValue)}
                             options={['Trim Lace', 'Stretch Lace', 'Leavers Lace', 'Embroidery Lace', 'Crochet Lace']}
@@ -1201,7 +1201,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('laceMaterial')} error={errors[getErrorKey('laceMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.laceMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'laceMaterial', selectedValue)}
                             options={['Cotton', 'Polyester', 'Nylon', 'Rayon', 'Blends']}
@@ -1210,7 +1210,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('laceColour')} error={errors[getErrorKey('laceColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.laceColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'laceColour', selectedValue)}
                             options={['DTM', 'White', 'Black', 'Natural', 'Pantone TPX/TCX']}
@@ -1302,7 +1302,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             (!isOptionalField('laceQtyType') && !material.laceQtyType ? 'Required' : undefined)
                           }
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.laceQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'laceQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
@@ -1363,7 +1363,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('laceApproval')} error={errors[getErrorKey('laceApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.laceApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'laceApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -1417,7 +1417,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('feltType')} error={errors[getErrorKey('feltType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.feltType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'feltType', selectedValue)}
                             options={['Needle Felt', 'Pressed Felt', 'Wool Felt', 'Synthetic Felt']}
@@ -1426,7 +1426,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('feltMaterial')} error={errors[getErrorKey('feltMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.feltMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'feltMaterial', selectedValue)}
                             options={['Wool', 'Polyester', 'Rayon', 'Blends']}
@@ -1435,7 +1435,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('feltColour')} error={errors[getErrorKey('feltColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.feltColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'feltColour', selectedValue)}
                             options={['DTM', 'White', 'Black', 'Natural', 'Pantone TPX/TCX']}
@@ -1509,7 +1509,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             (!isOptionalField('feltQtyType') && !material.feltQtyType ? 'Required' : undefined)
                           }
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.feltQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'feltQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
@@ -1572,7 +1572,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('feltApproval')} error={errors[getErrorKey('feltApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.feltApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'feltApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -1625,7 +1625,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('interliningType')} error={errors[getErrorKey('interliningType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.interliningType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'interliningType', selectedValue)}
                             options={['Woven', 'Non-Woven', 'Knit', 'Fusible (adhesive)', 'Non-Fusible (sew-in)', 'Weft Insert', 'Bi-Stretch']}
@@ -1634,7 +1634,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('interliningMaterial')} error={errors[getErrorKey('interliningMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.interliningMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'interliningMaterial', selectedValue)}
                             options={['Polyester', 'Cotton', 'Cellulose (Rayon)', 'Polyamide', 'Blends']}
@@ -1643,7 +1643,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="ADHESIVE TYPE" width="sm" required={!isOptionalField('interliningAdhesiveType')} error={errors[getErrorKey('interliningAdhesiveType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.interliningAdhesiveType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'interliningAdhesiveType', selectedValue)}
                             options={['PA (Polyamide)', 'LDPE', 'PES (Polyester)', 'Double Dot', 'Scatter Coat', 'Paste']}
@@ -1652,7 +1652,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('interliningColour')} error={errors[getErrorKey('interliningColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.interliningColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'interliningColour', selectedValue)}
                             options={['White', 'Black', 'Grey', 'Charcoal', 'DTM']}
@@ -1742,7 +1742,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             (!isOptionalField('interliningQtyType') && !material.interliningQtyType ? 'Required' : undefined)
                           }
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.interliningQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'interliningQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
@@ -1805,7 +1805,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('interliningApproval')} error={errors[getErrorKey('interliningApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.interliningApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'interliningApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -1859,7 +1859,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('hookEyeType')} error={errors[getErrorKey('hookEyeType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.hookEyeType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeType', selectedValue)}
                             options={['Standard', 'Slider', 'Flat', 'Lingerie', 'Coat', 'Pants', 'Bra', 'Custom']}
@@ -1868,7 +1868,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('hookEyeMaterial')} error={errors[getErrorKey('hookEyeMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.hookEyeMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeMaterial', selectedValue)}
                             options={['Metal (Steel)', 'Brass', 'Nylon Coated', 'Stainless Steel']}
@@ -1886,7 +1886,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR FINISH" width="sm" required={!isOptionalField('hookEyeColourFinish')} error={errors[getErrorKey('hookEyeColourFinish')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.hookEyeColourFinish || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeColourFinish', selectedValue)}
                             options={['Nickel', 'Black', 'Antique Brass', 'Gunmetal', 'Matte']}
@@ -1895,7 +1895,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="FINISH TYPE" width="sm" required={!isOptionalField('hookEyeFinishType')} error={errors[getErrorKey('hookEyeFinishType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.hookEyeFinishType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeFinishType', selectedValue)}
                             options={['Polished', 'Matte', 'Coated', 'Plated']}
@@ -1946,7 +1946,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('hookEyeApproval')} error={errors[getErrorKey('hookEyeApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.hookEyeApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'hookEyeApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -1994,7 +1994,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('bucklesType')} error={errors[getErrorKey('bucklesType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.bucklesType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'bucklesType', selectedValue)}
                             options={['Side Release', 'D-Ring', 'Tri-Glide', 'Ladder Lock', 'Belt Buckle', 'Cam Buckle', 'Snap', 'Swivel', 'Center Bar', 'O-Ring', 'Magnetic', 'Roller', 'Military/Web']}
@@ -2003,7 +2003,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL DESC." width="sm" required={!isOptionalField('bucklesMaterial')} error={errors[getErrorKey('bucklesMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.bucklesMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'bucklesMaterial', selectedValue)}
                             options={['Plastic (Nylon)', 'Plastic (POM/Acetal)', 'Plastic (ABS)', 'Metal (Brass)', 'Metal (Zinc)', 'Metal (Steel)', 'Metal (Stainless)', 'Metal (Aluminium)', 'Acetal/POM', 'Zinc Alloy Die-Cast', 'Carbon Fiber Look']}
@@ -2012,7 +2012,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="SIZE (Webbing Width)" width="sm" required={!isOptionalField('bucklesSize')} error={errors[getErrorKey('bucklesSize')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.bucklesSize || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'bucklesSize', selectedValue)}
                             options={['10mm', '15mm', '20mm', '25mm', '32mm', '38mm', '50mm', '1"', '1.5"', '2"']}
@@ -2021,7 +2021,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="FINISH/COLOUR" width="sm" required={!isOptionalField('bucklesFinishColour')} error={errors[getErrorKey('bucklesFinishColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.bucklesFinishColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'bucklesFinishColour', selectedValue)}
                             options={['Black', 'Clear', 'DTM', 'Plating (Nickel)', 'Plating (Gunmetal)', 'Plating (Antique Brass)', 'Matte', 'Glossy', 'Antique', 'Plated (Nickel/Chrome)', 'Powder Coated', 'Anodized']}
@@ -2093,7 +2093,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('bucklesApproval')} error={errors[getErrorKey('bucklesApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.bucklesApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'bucklesApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -2147,7 +2147,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('shoulderPadType')} error={errors[getErrorKey('shoulderPadType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadType', selectedValue)}
                             options={['Set-In Pad', 'Raglan Pad', 'Sleeve Head Roll', 'Bra Cup', 'Push-Up Pad', 'Removable Insert']}
@@ -2156,7 +2156,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('shoulderPadMaterial')} error={errors[getErrorKey('shoulderPadMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadMaterial', selectedValue)}
                             options={['Foam (Polyurethane)', 'Synthetic Fiber', 'Felt', 'Cotton Wadding']}
@@ -2183,7 +2183,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="SHAPE" width="sm" required={!isOptionalField('shoulderPadShape')} error={errors[getErrorKey('shoulderPadShape')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadShape || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadShape', selectedValue)}
                             options={['Crescent', 'Triangular', 'Oval', 'Round', 'Custom Molded']}
@@ -2192,7 +2192,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COVERING" width="sm" required={!isOptionalField('shoulderPadCovering')} error={errors[getErrorKey('shoulderPadCovering')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadCovering || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadCovering', selectedValue)}
                             options={['Covered (knit/non-woven)', 'Uncovered (raw)']}
@@ -2201,7 +2201,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COVERING COLOUR" width="sm" required={!isOptionalField('shoulderPadCoveringColour')} error={errors[getErrorKey('shoulderPadCoveringColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadCoveringColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadCoveringColour', selectedValue)}
                             options={['White', 'Black', 'DTM', 'Nude']}
@@ -2210,7 +2210,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="ATTACHMENT" width="sm" required={!isOptionalField('shoulderPadAttachment')} error={errors[getErrorKey('shoulderPadAttachment')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadAttachment || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadAttachment', selectedValue)}
                             options={['Sew-In', 'Fusible (adhesive)', 'Removable (pocket)']}
@@ -2219,7 +2219,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="DENSITY" width="sm" required={!isOptionalField('shoulderPadDensity')} error={errors[getErrorKey('shoulderPadDensity')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadDensity || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadDensity', selectedValue)}
                             options={['Soft', 'Medium', 'Firm']}
@@ -2289,7 +2289,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('shoulderPadApproval')} error={errors[getErrorKey('shoulderPadApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.shoulderPadApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'shoulderPadApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -2315,7 +2315,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('ribbingType')} error={errors[getErrorKey('ribbingType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ribbingType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ribbingType', selectedValue)}
                             options={['1x1 Rib', '2x2 Rib', 'Interlock', 'Jersey']}
@@ -2324,7 +2324,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('ribbingMaterial')} error={errors[getErrorKey('ribbingMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ribbingMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ribbingMaterial', selectedValue)}
                             options={['Cotton', 'Polyester', 'Spandex', 'Blend']}
@@ -2430,7 +2430,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             (!isOptionalField('ribbingQtyType') && !material.ribbingQtyType ? 'Required' : undefined)
                           }
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ribbingQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ribbingQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
@@ -2496,7 +2496,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                         </Field>
                         <Field label="APPROVAL" width="sm"
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ribbingApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ribbingApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -2549,7 +2549,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('cableTieType')} error={errors[getErrorKey('cableTieType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cableTieType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cableTieType', selectedValue)}
                             options={['Standard Lock', 'Releasable/Reusable', 'Bar-Lok Loop (hang tags)', 'Security Tie']}
@@ -2558,7 +2558,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('cableTieMaterial')} error={errors[getErrorKey('cableTieMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cableTieMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cableTieMaterial', selectedValue)}
                             options={['Nylon (PA66)', 'Polypropylene (PP)', 'Metal Detectable']}
@@ -2567,7 +2567,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="SIZE SPEC" width="sm" required={!isOptionalField('cableTieSize')} error={errors[getErrorKey('cableTieSize')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cableTieSize || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cableTieSize', selectedValue)}
                             options={['100x2.5mm', '150x3.6mm', '200x4.8mm']}
@@ -2576,7 +2576,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('cableTieColour')} error={errors[getErrorKey('cableTieColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cableTieColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cableTieColour', selectedValue)}
                             options={['Clear/Natural', 'Black', 'Custom']}
@@ -2647,7 +2647,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('cableTieApproval')} error={errors[getErrorKey('cableTieApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cableTieApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cableTieApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -2695,7 +2695,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('seamTapeType')} error={errors[getErrorKey('seamTapeType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.seamTapeType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeType', selectedValue)}
                             options={['2-Layer (PU/PVC)', '3-Layer (Tri-laminate)', 'Adhesive Film', 'Elastic Tape', 'Hot Melt Seam Tape', 'PU Seam Tape', 'TPU Tape', 'Reflective Seam Tape', 'Reinforcement Tape', 'Edge Binding Tape', 'Waterproof Sealing', 'Stretch Seam Support', 'Edge Stabilization', 'Hem Tape', 'Shoulder Tape']}
@@ -2704,7 +2704,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('seamTapeMaterial')} error={errors[getErrorKey('seamTapeMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.seamTapeMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeMaterial', selectedValue)}
                             options={['TPU (Thermoplastic Polyurethane)', 'PEVA', 'PU', 'Nylon Backing']}
@@ -2713,7 +2713,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="WIDTH" width="sm" required={!isOptionalField('seamTapeWidth')} error={errors[getErrorKey('seamTapeWidth')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.seamTapeWidth || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeWidth', selectedValue)}
                             options={['16mm', '20mm', '22mm', '25mm', '30mm']}
@@ -2722,7 +2722,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('seamTapeColour')} error={errors[getErrorKey('seamTapeColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.seamTapeColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeColour', selectedValue)}
                             options={['Clear/Transparent', 'Black', 'DTM (rare)']}
@@ -2731,7 +2731,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="ADHESIVE TYPE" width="sm" required={!isOptionalField('seamTapeAdhesiveType')} error={errors[getErrorKey('seamTapeAdhesiveType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.seamTapeAdhesiveType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeAdhesiveType', selectedValue)}
                             options={['Heat Activated', 'Low Melting Point', 'High Bond']}
@@ -2829,7 +2829,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('seamTapeApproval')} error={errors[getErrorKey('seamTapeApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.seamTapeApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'seamTapeApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -2877,7 +2877,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('reflectiveTapeType')} error={errors[getErrorKey('reflectiveTapeType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.reflectiveTapeType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeType', selectedValue)}
                             options={['Sew-on Tape', 'Heat Transfer Film', 'Piping', 'Segmented/Perforated', 'Stretch Reflective']}
@@ -2886,7 +2886,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('reflectiveTapeMaterial')} error={errors[getErrorKey('reflectiveTapeMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.reflectiveTapeMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeMaterial', selectedValue)}
                             options={['Glass Bead Technology', 'Micro-Prismatic Vinyl (higher)']}
@@ -2895,7 +2895,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('reflectiveTapeColour')} error={errors[getErrorKey('reflectiveTapeColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.reflectiveTapeColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeColour', selectedValue)}
                             options={['Silver/Grey', 'Fluorescent Yellow/Lime', 'Fluorescent Orange', 'Coloured']}
@@ -2904,7 +2904,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="BASE FABRIC" width="sm" required={!isOptionalField('reflectiveTapeBaseFabric')} error={errors[getErrorKey('reflectiveTapeBaseFabric')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.reflectiveTapeBaseFabric || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeBaseFabric', selectedValue)}
                             options={['Polyester', 'Cotton', 'FR (flame retardant)']}
@@ -3014,7 +3014,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             (!isOptionalField('reflectiveTapeQtyType') && !material.reflectiveTapeQtyType ? 'Required' : undefined)
                           }
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.reflectiveTapeQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Kgs (cns per pc)']}
@@ -3077,7 +3077,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('reflectiveTapeApproval')} error={errors[getErrorKey('reflectiveTapeApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.reflectiveTapeApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'reflectiveTapeApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -3125,7 +3125,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('frTrimsType')} error={errors[getErrorKey('frTrimsType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.frTrimsType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsType', selectedValue)}
                             options={['FR Thread', 'FR Elastic', 'FR Zippers', 'FR Interlining', 'FR Velcro', 'FR Reflective', 'FR Labels', 'FR Webbing']}
@@ -3134,7 +3134,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('frTrimsMaterial')} error={errors[getErrorKey('frTrimsMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.frTrimsMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsMaterial', selectedValue)}
                             options={['Aramid (Nomex/Kevlar)', 'Modacrylic', 'Treated Polyester', 'Treated Cotton', 'FR Nylon']}
@@ -3143,7 +3143,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COMPLIANCE" width="sm" required={!isOptionalField('frTrimsCompliance')} error={errors[getErrorKey('frTrimsCompliance')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.frTrimsCompliance || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsCompliance', selectedValue)}
                             options={['NFPA 2112', 'EN ISO 11612', 'BS 5852', 'NFPA 70E', 'EN 469']}
@@ -3152,7 +3152,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('frTrimsColour')} error={errors[getErrorKey('frTrimsColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.frTrimsColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsColour', selectedValue)}
                             options={[]}
@@ -3234,7 +3234,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                             (!isOptionalField('frTrimsQtyType') && !material.frTrimsQtyType ? 'Required' : undefined)
                           }
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.frTrimsQtyType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsQtyType', selectedValue)}
                             options={['Yardage (cns per pc)', 'Pieces']}
@@ -3297,7 +3297,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('frTrimsApproval')} error={errors[getErrorKey('frTrimsApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.frTrimsApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'frTrimsApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -3345,7 +3345,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('cordStopType')} error={errors[getErrorKey('cordStopType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cordStopType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cordStopType', selectedValue)}
                             options={['Single Hole', 'Double Hole', 'Barrel Lock', 'Toggle', 'Spring Loaded', 'Squeeze Release', 'Ball Lock']}
@@ -3354,7 +3354,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('cordStopMaterial')} error={errors[getErrorKey('cordStopMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cordStopMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cordStopMaterial', selectedValue)}
                             options={['Plastic (Acetal/POM)', 'Plastic (Nylon)', 'Plastic (ABS)', 'Metal (Zinc Alloy)', 'Metal (Brass)']}
@@ -3363,7 +3363,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="SIZE SPEC" width="sm" required={!isOptionalField('cordStopSize')} error={errors[getErrorKey('cordStopSize')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cordStopSize || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cordStopSize', selectedValue)}
                             options={['3mm', '4mm', '5mm', '6mm']}
@@ -3372,7 +3372,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('cordStopColour')} error={errors[getErrorKey('cordStopColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cordStopColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cordStopColour', selectedValue)}
                             options={['DTM', 'Black', 'Clear', 'Plating (metal)']}
@@ -3381,7 +3381,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="LOCKING MECHANISM" width="sm" required={!isOptionalField('cordStopLockingMechanism')} error={errors[getErrorKey('cordStopLockingMechanism')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cordStopLockingMechanism || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cordStopLockingMechanism', selectedValue)}
                             options={['Spring Tension (force to depress)', 'Grip Type']}
@@ -3479,7 +3479,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('cordStopApproval')} error={errors[getErrorKey('cordStopApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cordStopApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'cordStopApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -3528,7 +3528,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('ringsLoopsType')} error={errors[getErrorKey('ringsLoopsType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ringsLoopsType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsType', selectedValue)}
                             options={['D-Ring (Welded/Non-Welded)', 'O-Ring', 'Square Ring', 'Loop Fastener', 'Rectangular Ring']}
@@ -3537,7 +3537,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('ringsLoopsMaterial')} error={errors[getErrorKey('ringsLoopsMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ringsLoopsMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsMaterial', selectedValue)}
                             options={['Metal (Stainless Steel, Brass, Zinc Alloy)', 'Plastic (Acetal, Nylon)']}
@@ -3555,7 +3555,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="THICKNESS/GAUGE" width="sm" required={!isOptionalField('ringsLoopsThicknessGauge')} error={errors[getErrorKey('ringsLoopsThicknessGauge')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ringsLoopsThicknessGauge || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsThicknessGauge', selectedValue)}
                             options={['Wire Diameter (metal)', 'Material Gauge']}
@@ -3564,7 +3564,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="FINISH/PLATING" width="sm" required={!isOptionalField('ringsLoopsFinishPlating')} error={errors[getErrorKey('ringsLoopsFinishPlating')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ringsLoopsFinishPlating || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsFinishPlating', selectedValue)}
                             options={['Nickel', 'Black Oxide', 'Antique Brass', 'Matte (plastic)']}
@@ -3662,7 +3662,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('ringsLoopsApproval')} error={errors[getErrorKey('ringsLoopsApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.ringsLoopsApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'ringsLoopsApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -3710,7 +3710,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('pinBarbType')} error={errors[getErrorKey('pinBarbType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.pinBarbType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbType', selectedValue)}
                             options={['Safety Pin', 'Straight Pin', 'Tagging Barb (plastic fastener)', 'Loop Pin', 'Ball Head Pin']}
@@ -3719,7 +3719,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('pinBarbMaterial')} error={errors[getErrorKey('pinBarbMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.pinBarbMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbMaterial', selectedValue)}
                             options={['Plastic (Polypropylene)', 'Metal (Brass, Steel)', 'Stainless Steel']}
@@ -3737,7 +3737,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="COLOUR" width="sm" required={!isOptionalField('pinBarbColour')} error={errors[getErrorKey('pinBarbColour')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.pinBarbColour || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbColour', selectedValue)}
                             options={['Clear', 'Black', 'White', 'Plated (metal)']}
@@ -3746,7 +3746,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="HEAD TYPE" width="sm" required={!isOptionalField('pinBarbHeadType')} error={errors[getErrorKey('pinBarbHeadType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.pinBarbHeadType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbHeadType', selectedValue)}
                             options={['Pear Head', 'T-Bar', 'Smooth', 'Ball Head', 'Flat Head']}
@@ -3844,7 +3844,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('pinBarbApproval')} error={errors[getErrorKey('pinBarbApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.pinBarbApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'pinBarbApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}
@@ -3893,7 +3893,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                     <>
                       <div className="col-span-1 md:col-span-2 lg:col-span-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-3 gap-y-4">
                         <Field label="TYPE" width="sm" required={!isOptionalField('magneticClosureType')} error={errors[getErrorKey('magneticClosureType')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.magneticClosureType || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureType', selectedValue)}
                             options={['Sew-In Magnet (encased)', 'Clasp Magnet (metal body)', 'Snap Magnet', 'Hidden Magnet', 'Magnetic Button']}
@@ -3902,7 +3902,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="MATERIAL" width="sm" required={!isOptionalField('magneticClosureMaterial')} error={errors[getErrorKey('magneticClosureMaterial')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.magneticClosureMaterial || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureMaterial', selectedValue)}
                             options={['Neodymium (strongest)', 'Ferrite', 'Encasing (PVC)', 'Encasing (Stainless Steel)', 'Encasing (Fabric)']}
@@ -4009,7 +4009,7 @@ const TrimAccessoryFields = ({ material, materialIndex, handleChange, errors = {
                           />
                         </Field>
                         <Field label="APPROVAL" width="sm" required={!isOptionalField('magneticClosureApproval')} error={errors[getErrorKey('magneticClosureApproval')]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.magneticClosureApproval || ''}
                             onChange={(selectedValue) => handleChange(materialIndex, 'magneticClosureApproval', selectedValue)}
                             options={TRIMS_APPROVAL_OPTIONS}

@@ -1,7 +1,7 @@
 // AdvFilterHeatTransfer — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { HEAT_TRANSFER_TYPES, HEAT_TRANSFER_MATERIAL_BASE_OPTIONS, HEAT_TRANSFER_TESTING_REQUIREMENTS, HEAT_TRANSFER_APPROVAL_OPTIONS, HEAT_TRANSFER_INK_TYPE_OPTIONS, HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS, HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS, HEAT_TRANSFER_PEEL_TYPE_OPTIONS, HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS, HEAT_TRANSFER_STRETCH_OPTIONS } from '../../data/heatTransferData';
 
 const AdvFilterHeatTransfer = ({
@@ -53,7 +53,7 @@ const AdvFilterHeatTransfer = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               INK TYPE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.heatTransferInkType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferInkType', selectedValue);
@@ -82,7 +82,7 @@ const AdvFilterHeatTransfer = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FABRIC COMPATIBILITY
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.heatTransferFabricCompatibility || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferFabricCompatibility', selectedValue);
@@ -111,7 +111,7 @@ const AdvFilterHeatTransfer = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               APPLICATION SPEC
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.heatTransferApplicationSpec || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferApplicationSpec', selectedValue);
@@ -140,7 +140,7 @@ const AdvFilterHeatTransfer = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PEEL TYPE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.heatTransferPeelType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferPeelType', selectedValue);
@@ -169,7 +169,7 @@ const AdvFilterHeatTransfer = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FINISH / HAND FEEL
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.heatTransferFinishHandFeel || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferFinishHandFeel', selectedValue);
@@ -198,7 +198,7 @@ const AdvFilterHeatTransfer = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               STRETCH
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.heatTransferStretch || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferStretch', selectedValue);

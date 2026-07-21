@@ -6,7 +6,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const FoamLatex = ({
   material,
@@ -18,7 +18,7 @@ const FoamLatex = ({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
       {/* FOAM TYPE */}
       <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexType`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamLatexType || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexType', selectedValue)}
           options={['Latex Foam']}
@@ -29,7 +29,7 @@ const FoamLatex = ({
 
     {/* LATEX TYPE */}
     <Field label="LATEX TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexLatexType`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamLatexLatexType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexLatexType', selectedValue)}
         options={['Natural Latex (NR)', 'Synthetic Latex (SBR)', 'Blended (NR+SBR)']}
@@ -40,7 +40,7 @@ const FoamLatex = ({
 
     {/* NATURAL CONTENT */}
     <Field label="NATURAL CONTENT" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexNaturalContent`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamLatexNaturalContent || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexNaturalContent', selectedValue)}
         options={['100% Natural', '95% Natural', '85% Natural', 'Blended (varies)']}
@@ -51,7 +51,7 @@ const FoamLatex = ({
 
     {/* PROCESS */}
     <Field label="PROCESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexProcess`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamLatexProcess || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexProcess', selectedValue)}
         options={['Dunlop Process', 'Talalay Process']}
@@ -62,7 +62,7 @@ const FoamLatex = ({
 
     {/* SUBTYPE */}
     <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexSubtype`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamLatexSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexSubtype', selectedValue)}
         options={['Virgin', 'Organic Certified']}
@@ -73,7 +73,7 @@ const FoamLatex = ({
 
     {/* COLOUR */}
     <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexColour`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamLatexColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexColour', selectedValue)}
         options={['Natural (cream/off-white)', 'White (bleached/synthetic)']}
@@ -225,23 +225,10 @@ const FoamLatex = ({
         </div>
       </Field>
 
-      {/* SURPLUS % */}
-      <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexSurplus`]}>
-        <PercentInput
-          value={material.foamLatexSurplus || ''}
-          onChange={(e) => {
-            const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-            handleRawMaterialChange(actualIndex, 'foamLatexSurplus', numericValue);
-          }}
-          placeholder="e.g., 2-5"
-          error={Boolean(errors[`rawMaterial_${actualIndex}_foamLatexSurplus`])}
-        />
-      </Field>
-
       {/* WASTAGE % */}
       <Field label="WASTAGE %" width="sm">
         <div className="relative">
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamLatexWastage || ''}
             onChange={(selectedValue) => {
               const predefinedOptions = ['Luxury Mattress', 'Organic Bedding', 'Premium Pillows'];
@@ -282,7 +269,7 @@ const FoamLatex = ({
 
       {/* APPROVAL */}
       <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamLatexApproval`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamLatexApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexApproval', selectedValue)}
           options={MATERIAL_APPROVAL_OPTIONS}
@@ -329,7 +316,7 @@ const FoamLatex = ({
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
           <Field label="ILD / IFD (FIRMNESS)" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexIld || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexIld', selectedValue)}
               options={['ILD rating (e.g., 14-19 Soft, 20-28 Medium, 29-36 Firm, 37+ Extra Firm)']}
@@ -337,7 +324,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="RESILIENCE" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexResilience || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexResilience', selectedValue)}
               options={['Resilience % (typically 60-75% for latex)']}
@@ -345,7 +332,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="COMPRESSION SET" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexCompressionSet || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexCompressionSet', selectedValue)}
               options={['Compression Set % (<3% for quality latex)']}
@@ -353,7 +340,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="PINCORE PATTERN" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexPincorePattern || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexPincorePattern', selectedValue)}
               options={['Standard Pincore', 'Zoned (different firmness zones)', 'Solid']}
@@ -361,7 +348,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="ZONE CONFIGURATION" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexZoneConfiguration || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexZoneConfiguration', selectedValue)}
               options={['Single Zone', '3-Zone', '5-Zone', '7-Zone (varying firmness)']}
@@ -369,7 +356,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="BREATHABILITY" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexBreathability || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexBreathability', selectedValue)}
               options={['Excellent (natural pincore holes)']}
@@ -377,7 +364,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="HYPOALLERGENIC" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexHypoallergenic || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexHypoallergenic', selectedValue)}
               options={['Naturally Hypoallergenic', 'Anti-Dust Mite']}
@@ -385,7 +372,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="ANTI-MICROBIAL" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexAntiMicrobial || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexAntiMicrobial', selectedValue)}
               options={['Naturally Anti-Microbial (latex property)']}
@@ -393,7 +380,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="FIRE RETARDANT" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexFireRetardant || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexFireRetardant', selectedValue)}
               options={['Natural (self-extinguishing)', 'FR Treated', 'Wrapped with FR Barrier']}
@@ -401,7 +388,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="CERTIFICATION" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexCertification || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexCertification', selectedValue)}
               options={['GOLS (Global Organic Latex Standard)', 'OEKO-TEX', 'Eco-Institut', 'GOTS (if organic cotton cover)']}
@@ -409,7 +396,7 @@ const FoamLatex = ({
             />
           </Field>
           <Field label="DENSITY" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamLatexDensity || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamLatexDensity', selectedValue)}
               options={['60 kg/m³', '65 kg/m³', '70 kg/m³', '75 kg/m³', '85 kg/m³']}

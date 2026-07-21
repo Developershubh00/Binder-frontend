@@ -1,7 +1,7 @@
 // CategoryCareComposition — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { CARE_COMPOSITION_TYPES, CARE_COMPOSITION_MATERIALS, CARE_COMPOSITION_TESTING_REQUIREMENTS, CARE_COMPOSITION_APPROVAL_OPTIONS, CARE_COMPOSITION_PRINT_TYPE_OPTIONS, CARE_COMPOSITION_INK_TYPE_OPTIONS, CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS, CARE_COMPOSITION_PERMANENCE_OPTIONS, CARE_COMPOSITION_LANGUAGE_OPTIONS } from '../../data/careCompositionData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryCareComposition = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.careCompositionType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryCareComposition = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.careCompositionMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionMaterial', selectedValue);
@@ -118,7 +118,7 @@ const CategoryCareComposition = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="Length"
                                 />
-                                <SearchableDropdown
+                                <TenantDropdown
                                   value={material.careCompositionSizeUnit || ''}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'careCompositionSizeUnit', selectedValue)}
                                   options={UNIT_OPTIONS_WITH_PCS}
@@ -235,7 +235,7 @@ const CategoryCareComposition = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.careCompositionApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionApproval', selectedValue);

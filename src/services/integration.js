@@ -363,12 +363,26 @@ export const updateTenantUserLimit = async (tenantId, userLimit, plan) => {
 export const uploadTenantLogo = async (tenantId, logoFile) => {
   const formData = new FormData();
   formData.append('logo', logoFile);
-  
+
   const response = await apiRequest(`auth/tenants/${tenantId}/upload-logo/`, {
     method: 'POST',
     body: formData,
   });
-  
+
+  return await response.json();
+};
+
+/**
+ * Persist a company logo already uploaded to Vercel Blob (stores only the URL).
+ * @param {string} tenantId - Tenant UUID (user.tenant_details.id)
+ * @param {string} logoUrl  - Public Vercel Blob URL
+ */
+export const saveTenantLogoUrl = async (tenantId, logoUrl) => {
+  const response = await apiRequest(`auth/tenants/${tenantId}/logo-url/`, {
+    method: 'POST',
+    body: JSON.stringify({ logo_url: logoUrl }),
+  });
+
   return await response.json();
 };
 

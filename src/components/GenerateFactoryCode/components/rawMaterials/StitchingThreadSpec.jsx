@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const StitchingThreadSpec = ({
   material,
@@ -21,7 +21,7 @@ const StitchingThreadSpec = ({
                       {/* TYPE */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stitchingThreadType || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadType', value)}
                           options={['Spun Polyester', 'Cotton', 'Core Spun', 'Nylon/Polyamide', 'Textured', 'Bonded']}
@@ -34,7 +34,7 @@ const StitchingThreadSpec = ({
                       {/* FIBRE CONTENT */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">FIBRE CONTENT</label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stitchingThreadFibreContent || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadFibreContent', value)}
                           options={['100% Spun Poly', '100% Cotton', 'Poly/Cotton Core', '100% Nylon']}
@@ -47,7 +47,7 @@ const StitchingThreadSpec = ({
                       {/* COUNT/TICKET */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COUNT/TICKET</label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stitchingThreadCountTicket || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadCountTicket', value)}
                           options={['Ticket No. (T-70)', '40/2', '60/3', '120/2', 'Metric (Nm)']}
@@ -60,7 +60,7 @@ const StitchingThreadSpec = ({
                       {/* Use Type */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">Use Type</label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stitchingThreadUseType || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadUseType', value)}
                           options={['Main Seam', 'Overlock', 'Embroidery', 'Top Stitch', 'Buttonhole', 'Bartack']}
@@ -86,7 +86,7 @@ const StitchingThreadSpec = ({
                       {/* PLY */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PLY</label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stitchingThreadPly || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadPly', value)}
                           options={['2 Ply', '3 Ply', '4 Ply']}
@@ -100,7 +100,7 @@ const StitchingThreadSpec = ({
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.stitchingThreadColour || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadColour', value)}
                             options={['Pantone TPX/TCX', 'Shade Card Reference', 'DTM']}
@@ -153,7 +153,7 @@ const StitchingThreadSpec = ({
                         />
                       </div>
 
-                      {/* TESTING REQUIREMENTS - SearchableDropdown with text key (same as fiber) */}
+                      {/* TESTING REQUIREMENTS - TenantDropdown with text key (same as fiber) */}
                       <div className="flex flex-col col-span-1 md:col-span-2 lg:col-span-3">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TESTING REQUIREMENTS</label>
                         <div style={{ position: 'relative' }}>
@@ -215,7 +215,7 @@ const StitchingThreadSpec = ({
                               id={`stitching-thread-testing-wrapper-${actualIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value=""
                                 strictMode={false}
                                 onChange={(selectedValue) => {
@@ -322,7 +322,7 @@ const StitchingThreadSpec = ({
                       {/* UNIT - Yardage or Kgs */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">UNIT <span className="text-red-600">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stitchingThreadUnit || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadUnit', value)}
                           options={['Yardage', 'Kgs']}
@@ -330,25 +330,6 @@ const StitchingThreadSpec = ({
                           className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
                           style={{ padding: '10px 14px', height: '44px' }}
                         />
-                      </div>
-
-                      {/* SURPLUS % */}
-                      <div className="flex flex-col">
-                        <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input
-                            type="text"
-                            value={material.stitchingThreadSurplus || ''}
-                            onChange={(e) => {
-                              const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-                              handleRawMaterialChange(actualIndex, 'stitchingThreadSurplus', numericValue);
-                            }}
-                            className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-                            style={{ padding: '10px 32px 10px 14px', height: '44px', width: '100%' }}
-                            placeholder=""
-                          />
-                          <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-                        </div>
                       </div>
 
                       {/* WASTAGE % */}
@@ -373,7 +354,7 @@ const StitchingThreadSpec = ({
                       {/* APPROVAL */}
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stitchingThreadApproval || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadApproval', value)}
                           options={MATERIAL_APPROVAL_OPTIONS}
@@ -436,7 +417,7 @@ const StitchingThreadSpec = ({
                             {/* FINISH */}
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.stitchingThreadFinish || ''}
                                 onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadFinish', value)}
                                 options={['Bonded', 'Lubricated', 'Matte', 'Glossy', 'Mercerized', 'Soft']}
@@ -449,7 +430,7 @@ const StitchingThreadSpec = ({
                             {/* BRAND */}
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">BRAND</label>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.stitchingThreadBrand || ''}
                                 onChange={(value) => handleRawMaterialChange(actualIndex, 'stitchingThreadBrand', value)}
                                 options={['Coats', 'A&E', 'Gunold', 'Madeira', 'Unbranded', 'Others']}

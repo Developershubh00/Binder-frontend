@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { PRODUCT_SUBPRODUCT_DROPDOWN_OPTIONS } from '../../data/productSubproductData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -142,7 +142,7 @@ const Step0 = ({
                   const opts = n === 1 ? ['TOP PLACEMENT'] : n === 2 ? ['TOP PLACEMENT', 'BOTTOM PLACEMENT'] : null;
                   const errCls = errors[componentErrKey(skuIndex, subproductIndex, componentIndex, 'placement')] ? 'border-destructive' : '';
                   return opts ? (
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={component.placement || ''}
                       onChange={(value) => handleStep0ComponentChange(skuIndex, subproductIndex, componentIndex, 'placement', value)}
                       options={opts}
@@ -255,7 +255,7 @@ const Step0 = ({
               error={errors.buyerCode}
               required
             >
-              <SearchableDropdown
+              <TenantDropdown
                 value={formData.buyerCode || ''}
                 onChange={handleBuyerCodeChange}
                 options={buyerCodeOptions}
@@ -324,7 +324,7 @@ const Step0 = ({
                 required
                 width="md"
               >
-                <SearchableDropdown
+                <TenantDropdown
                   value={sku.product || ''}
                   onChange={(value) => handleProductChange(skuIndex, value)}
                   options={PRODUCT_SUBPRODUCT_DROPDOWN_OPTIONS}
@@ -494,7 +494,7 @@ const Step0 = ({
                         required
                         width="md"
                       >
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={subproduct.buyerSku || ''}
                           onChange={(value) => handleSubproductChange(skuIndex, subproductIndex, 'buyerSku', value)}
                           options={[]}
@@ -509,7 +509,7 @@ const Step0 = ({
                         required
                         width="md"
                       >
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={subproduct.subproduct || ''}
                           onChange={(value) => handleSubproductChange(skuIndex, subproductIndex, 'subproduct', value)}
                           options={PRODUCT_SUBPRODUCT_DROPDOWN_OPTIONS}

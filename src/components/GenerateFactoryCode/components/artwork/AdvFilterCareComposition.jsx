@@ -1,7 +1,7 @@
 // AdvFilterCareComposition — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { CARE_COMPOSITION_TYPES, CARE_COMPOSITION_MATERIALS, CARE_COMPOSITION_TESTING_REQUIREMENTS, CARE_COMPOSITION_APPROVAL_OPTIONS, CARE_COMPOSITION_PRINT_TYPE_OPTIONS, CARE_COMPOSITION_INK_TYPE_OPTIONS, CARE_COMPOSITION_MANUFACTURER_ID_OPTIONS, CARE_COMPOSITION_PERMANENCE_OPTIONS, CARE_COMPOSITION_LANGUAGE_OPTIONS } from '../../data/careCompositionData';
 
 const AdvFilterCareComposition = ({
@@ -53,7 +53,7 @@ const AdvFilterCareComposition = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRINT TYPE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.careCompositionPrintType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionPrintType', selectedValue);
@@ -82,7 +82,7 @@ const AdvFilterCareComposition = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               INK TYPE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.careCompositionInkType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionInkType', selectedValue);
@@ -111,7 +111,7 @@ const AdvFilterCareComposition = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               MANUFACTURER ID
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.careCompositionManufacturerId || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionManufacturerId', selectedValue);
@@ -140,7 +140,7 @@ const AdvFilterCareComposition = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PERMANENCE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.careCompositionPermanence || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionPermanence', selectedValue);
@@ -169,7 +169,7 @@ const AdvFilterCareComposition = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               LANGUAGE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.careCompositionLanguage || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'careCompositionLanguage', selectedValue);

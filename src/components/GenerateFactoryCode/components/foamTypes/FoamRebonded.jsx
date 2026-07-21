@@ -6,7 +6,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const FoamRebonded = ({
   material,
@@ -18,7 +18,7 @@ const FoamRebonded = ({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
     {/* FOAM TYPE */}
     <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedType`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamRebondedType || ''}
         onChange={(selectedValue) => {
           handleRawMaterialChange(actualIndex, 'foamRebondedType', selectedValue);
@@ -36,7 +36,7 @@ const FoamRebonded = ({
 
     {/* SUBTYPE */}
     <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedSubtype`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamRebondedSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedSubtype', selectedValue)}
         options={['Standard Rebond', 'High Density Rebond', 'Colored Chip']}
@@ -48,7 +48,7 @@ const FoamRebonded = ({
     {/* CHIP SOURCE - Conditional (only shows when Chip Foam is selected) */}
     {material.foamRebondedType && material.foamRebondedType.toLowerCase().includes('chip') && (
       <Field label="CHIP SOURCE" width="sm">
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamRebondedChipSource || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedChipSource', selectedValue)}
           options={['Mixed Foam Scrap', 'Memory Foam Chips', 'PU Chips', 'Colored Chips']}
@@ -60,7 +60,7 @@ const FoamRebonded = ({
     {/* CHIP SIZE - Conditional (only shows when Chip Foam is selected) */}
     {material.foamRebondedType && material.foamRebondedType.toLowerCase().includes('chip') && (
       <Field label="CHIP SIZE" width="sm">
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamRebondedChipSize || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedChipSize', selectedValue)}
           options={['Fine Chip', 'Medium Chip', 'Coarse Chip', 'Mixed']}
@@ -71,7 +71,7 @@ const FoamRebonded = ({
 
     {/* BONDING */}
     <Field label="BONDING" width="sm">
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamRebondedBonding || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedBonding', selectedValue)}
         options={['Adhesive Bonded', 'Steam Bonded']}
@@ -81,7 +81,7 @@ const FoamRebonded = ({
 
     {/* COLOUR */}
     <Field label="COLOUR" width="sm">
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamRebondedColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedColour', selectedValue)}
         options={['Multi-Color (typical)', 'Grey', 'Single Color (if sorted chips)']}
@@ -223,20 +223,10 @@ const FoamRebonded = ({
       </div>
     </Field>
 
-    {/* SURPLUS % */}
-    <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedSurplus`]}>
-      <PercentInput
-        value={material.foamRebondedSurplus || ''}
-        onChange={(e) => handleRawMaterialChange(actualIndex, 'foamRebondedSurplus', e.target.value)}
-        placeholder="e.g., 3-5"
-        error={Boolean(errors[`rawMaterial_${actualIndex}_foamRebondedSurplus`])}
-      />
-    </Field>
-
     {/* WASTAGE % */}
     <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedWastage`]}>
       <div className="relative">
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamRebondedWastage || ''}
           onChange={(selectedValue) => {
             const predefinedOptions = ['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging'];
@@ -259,7 +249,7 @@ const FoamRebonded = ({
 
     {/* APPROVAL */}
     <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedApproval`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamRebondedApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedApproval', selectedValue)}
         options={MATERIAL_APPROVAL_OPTIONS}
@@ -297,7 +287,7 @@ const FoamRebonded = ({
     <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
         <Field label="ILD / IFD (Firmness)" width="sm">
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamRebondedIld || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedIld', selectedValue)}
             options={['ILD rating (typically firm - 40, 50, 60+)']}
@@ -305,7 +295,7 @@ const FoamRebonded = ({
           />
         </Field>
         <Field label="COMPRESSION SET" width="sm">
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamRebondedCompressionSet || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedCompressionSet', selectedValue)}
             options={['Compression Set %']}
@@ -313,7 +303,7 @@ const FoamRebonded = ({
           />
         </Field>
         <Field label="FIRE RETARDANT" width="sm">
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamRebondedFireRetardant || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedFireRetardant', selectedValue)}
             options={['Standard', 'FR Treated']}
@@ -321,7 +311,7 @@ const FoamRebonded = ({
           />
         </Field>
         <Field label="CERTIFICATION" width="sm">
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamRebondedCertification || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedCertification', selectedValue)}
             options={['Recycled Content Certified', 'REACH Compliant']}
@@ -329,7 +319,7 @@ const FoamRebonded = ({
           />
         </Field>
         <Field label="DENSITY" width="sm">
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamRebondedDensity || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamRebondedDensity', selectedValue)}
             options={['80 kg/m³', '100 kg/m³', '120 kg/m³', '150 kg/m³', '180 kg/m³', '200 kg/m³']}

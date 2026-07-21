@@ -7,35 +7,35 @@ export const DYEING_TYPES = {
   // Synthetic Fabric Dyeing
   'JIGGER DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: true,
     shrinkageLength: true,
     variants: ['Polyester Fabric', 'Nylon Fabric', 'Acrylic Fabric', 'Synthetic Blends']
   },
   'JET DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: true,
     shrinkageLength: true,
     variants: ['Polyester Fabric', 'Nylon Fabric', 'Acrylic Fabric', 'Synthetic Blends', 'Polyester Tufted', 'Microfiber', 'Chenille Polyester']
   },
   'BEAM DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: true,
     shrinkageLength: true,
     variants: ['Polyester Fabric', 'Nylon Fabric', 'Acrylic Fabric', 'Synthetic Blends', 'Polyester Tufted', 'Microfiber', 'Chenille Polyester']
   },
   'PAD DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: true,
     shrinkageLength: true,
     variants: ['Polyester Fabric', 'Nylon Fabric', 'Acrylic Fabric', 'Synthetic Blends']
   },
   'WINCH DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: true,
     shrinkageLength: true,
     variants: ['Cotton Fabric', 'Linen Fabric', 'Silk Fabric', 'Wool Fabric', 'Natural Blends']
@@ -86,14 +86,14 @@ export const DYEING_TYPES = {
   // Yarn Dyeing
   'PACKAGE DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: false,
     shrinkageLength: false,
     variants: ['Polyester Yarn', 'Nylon Yarn', 'Acrylic Yarn', 'Viscose Yarn', 'Cotton Yarn', 'Linen Yarn', 'Silk Yarn', 'Wool Yarn', 'Soft Package', 'Hard Package', 'Cheese Dyeing', 'Precision Winding']
   },
   'HANK DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: false,
     shrinkageLength: false,
     variants: ['Polyester Yarn', 'Nylon Yarn', 'Acrylic Yarn', 'Viscose Yarn', 'Cotton Yarn', 'Linen Yarn', 'Silk Yarn', 'Wool Yarn']
@@ -197,7 +197,7 @@ export const DYEING_TYPES = {
   // Natural Fabric Dyeing
   'COTTON DYEING': {
     colorRef: 'PANTONE/ARS/CSI/PMS',
-    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, TPG/TCX/COATED/UNCOATED',
+    referenceType: 'PANTONE CHIP/REF#/SWATCH/PHYSICAL SAMPLE, COATED/UNCOATED',
     shrinkageWidth: true,
     shrinkageLength: true,
     variants: ['Cotton Fabric', 'Linen Fabric', 'Silk Fabric', 'Wool Fabric', 'Natural Blends']

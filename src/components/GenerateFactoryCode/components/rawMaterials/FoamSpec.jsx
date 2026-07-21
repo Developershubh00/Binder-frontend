@@ -1,7 +1,7 @@
 // FoamSpec — extracted from Step2.jsx (BOM & WIP). Pure presentational; all
 // state lives in the GenerateFactoryCode orchestrator and arrives via props.
 import { Field } from '@/components/ui/field';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 // Foam table-type spec blocks (one file each)
 import FoamEva from '../foamTypes/FoamEva';
 import FoamPeEpe from '../foamTypes/FoamPeEpe';
@@ -29,7 +29,7 @@ const FoamSpec = ({
                   <div className="bg-card rounded-lg border border-border" style={{ padding: '1.25rem' }}>
                     {/* Table Selection Dropdown */}
                     <Field label="SELECT FOAM TYPE" required width="sm" style={{ marginBottom: '1.5rem' }} error={errors[`rawMaterial_${actualIndex}_foamTableType`]}>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.foamTableType || ''}
                         onChange={(selectedValue) => {
                           handleRawMaterialChange(actualIndex, 'foamTableType', selectedValue);

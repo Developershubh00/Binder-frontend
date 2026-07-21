@@ -1,7 +1,7 @@
 // CategoryFlammabilitySafety — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { FLAMMABILITY_SAFETY_TYPES, FLAMMABILITY_SAFETY_MATERIALS, FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS, FLAMMABILITY_SAFETY_APPROVAL_OPTIONS, FLAMMABILITY_SAFETY_REGULATION_OPTIONS, FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS, FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS, FLAMMABILITY_SAFETY_SYMBOL_OPTIONS, FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS, FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS } from '../../data/flammabilitySafetyData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryFlammabilitySafety = ({
                         {/* TYPE - Dropdown with Others option */}
                       <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.flammabilitySafetyType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryFlammabilitySafety = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.flammabilitySafetyMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyMaterial', selectedValue);
@@ -118,7 +118,7 @@ const CategoryFlammabilitySafety = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.flammabilitySafetySizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -238,7 +238,7 @@ const CategoryFlammabilitySafety = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.flammabilitySafetyApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyApproval', selectedValue);

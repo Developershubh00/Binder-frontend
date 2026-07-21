@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getPackagingDescriptionSyntax } from '../../utils/materialDescription';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import PackagingMaterialTypeFields from '../PackagingMaterialTypeFields';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +27,8 @@ const Step5 = ({
   errors,
   renderHeaderAction,
   handlePackagingChange,
+  handlePackQtyChange,
+  handleExtraPackQtyChange,
   handlePackagingMaterialChange,
   addPackagingMaterial,
   removePackagingMaterial,
@@ -108,6 +110,118 @@ const Step5 = ({
 
   const ipcOptionsWithImages = getIpcOptionsWithImages();
   const allIpcValues = ipcOptionsWithImages.map((o) => o.value);
+  // "Merged" only makes sense across 2+ IPCs — with a single IPC, offer Standalone only.
+  const shippingOptions = allIpcValues.length > 1 ? ['Merged', 'Standalone'] : ['Standalone'];
+
+  // ---- PO-quantity ledger helpers ------------------------------------------
+  // Each IPC (SKU or subproduct) carries the poQty asked at IPC-spec creation.
+  // Per pack we allocate a "qty to pack from this pack" via pack.packQty[ipc];
+  // the balance vs poQty is derived by summing allocations across ALL packs.
+  const toNum = (v) => {
+    const n = parseFloat(String(v ?? '').trim());
+    return Number.isFinite(n) ? n : 0;
+  };
+  const getIpcImage = (ipc) => ipcOptionsWithImages.find((o) => o.value === ipc)?.imagePreview || null;
+  const getIpcPoQty = (ipcValue) => {
+    const isSub = /\/SP-?\d+$/i.test(ipcValue);
+    const baseIpc = ipcValue.replace(/\/SP-?\d+$/i, '');
+    const spNum = isSub ? parseInt(ipcValue.replace(/.*\/SP-?(\d+)$/i, '$1'), 10) : 0;
+    for (const sku of (formData.skus || [])) {
+      const skuBase = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
+      if (skuBase !== baseIpc) continue;
+      if (!isSub) return toNum(sku.poQty);
+      const sub = sku.subproducts?.[spNum - 1];
+      return sub ? toNum(sub.poQty) : 0;
+    }
+    return 0;
+  };
+  const getPackQtyMap = (pack) =>
+    pack && typeof pack.packQty === 'object' && pack.packQty ? pack.packQty : {};
+  // All packs that participate in the allocation: main pack + every extra pack.
+  const allPacks = [formData.packaging || {}, ...extraPacks];
+  // Total already packed for an IPC across every pack.
+  const getAllocatedForIpc = (ipc) =>
+    allPacks.reduce((sum, p) => sum + toNum(getPackQtyMap(p)[ipc]), 0);
+  // Total packed EXCLUDING one pack — the cap available to that pack's input.
+  const getAllocatedExcluding = (ipc, excludePack) =>
+    allPacks.reduce((sum, p) => (p === excludePack ? sum : sum + toNum(getPackQtyMap(p)[ipc])), 0);
+
+  // Per-IPC reconciliation across the whole PO (drives the leftover panel).
+  const reconRows = allIpcValues.map((ipc) => {
+    const po = getIpcPoQty(ipc);
+    const packed = getAllocatedForIpc(ipc);
+    return { ipc, po, packed, balance: po - packed };
+  });
+  const totalPo = reconRows.reduce((s, r) => s + r.po, 0);
+  const totalPacked = reconRows.reduce((s, r) => s + r.packed, 0);
+  const totalBalance = reconRows.reduce((s, r) => s + Math.max(0, r.balance), 0);
+  const hasOverPack = reconRows.some((r) => r.balance < 0);
+  const allNil = reconRows.length > 0 && reconRows.every((r) => r.balance === 0);
+
+  // Small reusable quantity-allocation table for a single pack.
+  const renderPackQtyTable = (packSelection, pack, onQtyChange) => {
+    if (!packSelection || packSelection.length === 0) return null;
+    return (
+      <div className="mt-5 rounded-xl border border-gray-200 bg-white overflow-hidden">
+        <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+          <span className="text-sm font-bold text-gray-800">QUANTITY TO PACK</span>
+          <span className="text-xs text-gray-500">Enter how much of each IPC ships in this pack</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-600">
+                <th className="text-left font-semibold px-4 py-2.5">IMAGE</th>
+                <th className="text-left font-semibold px-4 py-2.5">IPC</th>
+                <th className="text-right font-semibold px-4 py-2.5">PO QTY</th>
+                <th className="text-right font-semibold px-4 py-2.5">AVAILABLE</th>
+                <th className="text-left font-semibold px-4 py-2.5">QTY TO PACK</th>
+              </tr>
+            </thead>
+            <tbody>
+              {packSelection.map((ipc) => {
+                const po = getIpcPoQty(ipc);
+                const usedElsewhere = getAllocatedExcluding(ipc, pack);
+                const available = po - usedElsewhere; // cap for THIS pack
+                const thisVal = getPackQtyMap(pack)[ipc] ?? '';
+                const over = toNum(thisVal) > available;
+                const img = getIpcImage(ipc);
+                return (
+                  <tr key={ipc} className="border-b border-gray-100 last:border-b-0">
+                    <td className="px-4 py-2.5">
+                      <div className="w-10 h-10 rounded-md border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+                        {img ? <img src={img} alt="" className="w-full h-full object-cover" /> : (
+                          <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" strokeWidth="1.5" /></svg>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-2.5 font-medium text-gray-800 whitespace-nowrap">{ipc}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-900">{po || '—'}</td>
+                    <td className={cn('px-4 py-2.5 text-right font-medium', available < 0 ? 'text-red-600' : 'text-gray-700')}>{available}</td>
+                    <td className="px-4 py-2.5">
+                      <input
+                        type="number"
+                        min={0}
+                        value={thisVal}
+                        onChange={(e) => onQtyChange(ipc, e.target.value)}
+                        placeholder="0"
+                        className={cn(
+                          'border-2 rounded-lg text-sm bg-white text-gray-900 focus:outline-none focus:border-indigo-500 w-[110px]',
+                          over ? 'border-red-500' : 'border-gray-200'
+                        )}
+                        style={{ padding: '8px 12px', height: '38px' }}
+                      />
+                      {over && <div className="text-red-600 text-xs mt-1">Exceeds available ({available})</div>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
 
   // Leftover IPCs after main and previous extra packs (for clone blocks)
   const getLeftover = (afterExtraIndex) => {
@@ -149,6 +263,16 @@ const Step5 = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [ipcDropdownOpen, extraMergedOpenIndex, extraStandaloneOpenIndex]);
 
+  // With a single IPC, "Merged" is invalid — if a stale 'Merged' is present
+  // (e.g. an IPC was removed after the fact), fall back to Standalone. This
+  // also re-derives MASTER PACK → STANDARD via handlePackagingChange.
+  useEffect(() => {
+    if (allIpcValues.length <= 1 && (formData.packaging?.toBeShipped || '').toLowerCase() === 'merged') {
+      handlePackagingChange('toBeShipped', 'Standalone');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allIpcValues.length, formData.packaging?.toBeShipped]);
+
   return (
 <div className="w-full">
       {/* Header with proper spacing */}
@@ -168,12 +292,12 @@ const Step5 = ({
           {/* TO BE SHIPPED */}
           <div className="flex flex-col" style={{ width: '150px' }}>
             <label className={`text-sm font-semibold mb-2 ${errors?.packaging_toBeShipped ? 'text-red-600' : 'text-gray-700'}`}>TO BE SHIPPED <span className="text-red-500">*</span></label>
-            <SearchableDropdown
+            <TenantDropdown
               value={formData.packaging.toBeShipped || ''}
               onChange={(selectedValue) => handlePackagingChange('toBeShipped', selectedValue || '')}
-              options={['Merged', 'Standalone']}
+              options={shippingOptions}
               placeholder="Select or type"
-              strictMode={false}
+              strictMode={allIpcValues.length <= 1}
               className={cn(
                 'border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none',
                 errors?.packaging_toBeShipped ? 'border-red-600' : 'border-[#e5e7eb]'
@@ -313,18 +437,17 @@ const Step5 = ({
             {errors?.packaging_productSelection && <span className="text-red-600 text-xs mt-1">{errors.packaging_productSelection}</span>}
           </div>
 
-          {/* MASTER PACK */}
+          {/* MASTER PACK — auto-derived from TO BE SHIPPED (Merged→ASSORTED, Standalone→STANDARD) */}
           <div className="flex flex-col">
             <label className={`text-sm font-semibold mb-2 ${errors?.packaging_type ? 'text-red-600' : 'text-gray-700'}`}>MASTER PACK <span className="text-red-500">*</span></label>
-            <select
-              value={formData.packaging.type}
-              onChange={(e) => handlePackagingChange('type', e.target.value)}
-              className={`border-2 rounded-lg text-sm transition-all bg-white text-gray-900 focus:border-indigo-500 focus:outline-none ${errors?.packaging_type ? 'border-red-600' : 'border-[#e5e7eb]'}`}
+            <div
+              title="Auto-set from “To be shipped”: Merged → ASSORTED, Standalone → STANDARD"
+              className={`border-2 rounded-lg text-sm bg-gray-100 text-gray-900 flex items-center font-medium ${errors?.packaging_type ? 'border-red-600' : 'border-gray-200'}`}
               style={{ padding: '10px 14px', width: '200px', height: '44px' }}
             >
-              <option value="STANDARD">STANDARD</option>
-              <option value="ASSORTED">ASSORTED</option>
-            </select>
+              {formData.packaging.type || '—'}
+            </div>
+            <span className="text-[11px] text-gray-400 mt-1">Auto-set from “To be shipped”</span>
             {errors?.packaging_type && <span className="text-red-600 text-xs mt-1">{errors.packaging_type}</span>}
           </div>
 
@@ -349,7 +472,80 @@ const Step5 = ({
           </div>
 
       </div>
+        {/* MAIN PACK — how much of each selected IPC ships in this pack */}
+        {renderPackQtyTable(mainProductSelection, formData.packaging || {}, handlePackQtyChange)}
         </div>
+
+      {/* PO RECONCILIATION / LEFTOVER — every IPC counts down to Nil against its PO qty.
+          Persists with the draft, so reopening shows the remaining balance to pack. */}
+      {reconRows.length > 0 && (
+        <div
+          className={cn(
+            'rounded-xl border-2 overflow-hidden',
+            allNil ? 'border-green-200 bg-green-50/40' : hasOverPack ? 'border-red-200 bg-red-50/40' : 'border-amber-200 bg-amber-50/40'
+          )}
+          style={{ marginBottom: '24px' }}
+        >
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/70">
+            <div>
+              <h3 className="text-sm font-bold text-gray-800">PO RECONCILIATION — LEFTOVER</h3>
+              <p className="text-xs text-gray-500 mt-0.5">Every IPC must count down to Nil before the PO is fully packed</p>
+            </div>
+            <div className="text-right">
+              {allNil ? (
+                <span className="text-green-700 font-bold text-sm">✓ Fully packed (Nil)</span>
+              ) : hasOverPack ? (
+                <span className="text-red-700 font-bold text-sm">Over-packed — reduce quantities</span>
+              ) : (
+                <span className="text-amber-700 font-bold text-sm">{totalBalance} pcs pending</span>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-white/60 border-b border-gray-200 text-gray-600">
+                  <th className="text-left font-semibold px-6 py-2.5">IPC</th>
+                  <th className="text-right font-semibold px-6 py-2.5">PO QTY</th>
+                  <th className="text-right font-semibold px-6 py-2.5">PACKED</th>
+                  <th className="text-right font-semibold px-6 py-2.5">BALANCE</th>
+                  <th className="text-left font-semibold px-6 py-2.5">STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reconRows.map((r) => (
+                  <tr key={r.ipc} className="border-b border-gray-100 last:border-b-0">
+                    <td className="px-6 py-2.5 font-medium text-gray-800 whitespace-nowrap">{r.ipc}</td>
+                    <td className="px-6 py-2.5 text-right text-gray-900">{r.po || '—'}</td>
+                    <td className="px-6 py-2.5 text-right text-gray-900">{r.packed}</td>
+                    <td className={cn('px-6 py-2.5 text-right font-bold', r.balance < 0 ? 'text-red-600' : r.balance === 0 ? 'text-green-600' : 'text-amber-600')}>
+                      {r.balance === 0 ? 'Nil' : r.balance}
+                    </td>
+                    <td className="px-6 py-2.5">
+                      {r.balance < 0
+                        ? <span className="text-red-600 text-xs font-semibold">Over by {Math.abs(r.balance)}</span>
+                        : r.balance === 0
+                          ? <span className="text-green-600 text-xs font-semibold">Complete</span>
+                          : <span className="text-amber-600 text-xs font-semibold">Pending</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-white/70 border-t-2 border-gray-200 font-bold text-gray-800">
+                  <td className="px-6 py-2.5">TOTAL</td>
+                  <td className="px-6 py-2.5 text-right">{totalPo}</td>
+                  <td className="px-6 py-2.5 text-right">{totalPacked}</td>
+                  <td className={cn('px-6 py-2.5 text-right', totalBalance === 0 && !hasOverPack ? 'text-green-600' : 'text-amber-600')}>
+                    {totalBalance === 0 && !hasOverPack ? 'Nil' : totalBalance}
+                  </td>
+                  <td className="px-6 py-2.5"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Packaging Materials (one block: materials + Add Material inside) */}
       <div className="bg-white rounded-xl border-2 border-gray-200" style={{ padding: '24px', marginBottom: '24px' }}>
@@ -383,7 +579,7 @@ const Step5 = ({
                 <label className="text-sm font-bold text-gray-800 mb-2">
                   PACKAGING MATERIAL TYPE <span className="text-red-600">*</span>
                 </label>
-                <SearchableDropdown
+                <TenantDropdown
                   value={material.packagingMaterialType || ''}
                   onChange={(selectedValue) => handlePackagingMaterialChange(materialIndex, 'packagingMaterialType', selectedValue)}
                   options={PACKAGING_MATERIAL_TYPE_OPTIONS}
@@ -508,12 +704,12 @@ const Step5 = ({
                   <div className="flex flex-wrap items-start gap-4">
                     <div className="flex flex-col" style={{ width: '220px' }}>
                       <label className="text-sm font-semibold text-gray-700 mb-2">TO BE SHIPPED <span className="text-red-500">*</span></label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={pack.toBeShipped || formData.packaging?.toBeShipped || ''}
                         onChange={(v) => handleExtraPackChange(extraIndex, 'toBeShipped', v || '')}
-                        options={['Merged', 'Standalone']}
+                        options={leftoverOptions.length > 1 ? ['Merged', 'Standalone'] : ['Standalone']}
                         placeholder="Select or type"
-                        strictMode={false}
+                        strictMode={leftoverOptions.length <= 1}
                         className={cn('border-2 rounded-lg text-sm bg-white border-gray-200')}
                         style={{ padding: '10px 14px', height: '44px' }}
                       />
@@ -630,15 +826,14 @@ const Step5 = ({
                     </div>
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">MASTER PACK</label>
-                      <select
-                        value={pack.type || 'STANDARD'}
-                        onChange={(e) => handleExtraPackChange(extraIndex, 'type', e.target.value)}
-                        className="border-2 rounded-lg text-sm bg-white text-gray-900"
+                      <div
+                        title="Auto-set from “To be shipped”: Merged → ASSORTED, Standalone → STANDARD"
+                        className="border-2 rounded-lg text-sm bg-gray-100 text-gray-900 border-gray-200 flex items-center font-medium"
                         style={{ padding: '10px 14px', width: '200px', height: '44px' }}
                       >
-                        <option value="STANDARD">STANDARD</option>
-                        <option value="ASSORTED">ASSORTED</option>
-                      </select>
+                        {pack.type || 'STANDARD'}
+                      </div>
+                      <span className="text-[11px] text-gray-400 mt-1">Auto-set from “To be shipped”</span>
                     </div>
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">CASEPACK QTY</label>
@@ -652,6 +847,8 @@ const Step5 = ({
                       />
                     </div>
                   </div>
+                  {/* EXTRA PACK — how much of each selected IPC ships in this pack */}
+                  {renderPackQtyTable(packSelection, pack, (ipc, value) => handleExtraPackQtyChange(extraIndex, ipc, value))}
                 </div>
                 <div className="bg-white rounded-xl border-2 border-gray-200 overflow-visible" style={{ padding: '24px', marginBottom: '24px' }}>
                   <h3 className="text-sm font-bold text-gray-800 mb-4">Packaging Materials</h3>
@@ -667,7 +864,7 @@ const Step5 = ({
                         <label className="text-sm font-bold text-gray-800 mb-2">
                           PACKAGING MATERIAL TYPE <span className="text-red-600">*</span>
                         </label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.packagingMaterialType || ''}
                           onChange={(selectedValue) => handleExtraPackMaterialChange(extraIndex, materialIndex, 'packagingMaterialType', selectedValue)}
                           options={PACKAGING_MATERIAL_TYPE_OPTIONS}

@@ -1,7 +1,7 @@
 // CategoryLabelsBrand — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { LABELS_BRAND_TYPES, LABELS_BRAND_MATERIALS, LABELS_BRAND_ATTACHMENT_OPTIONS, LABELS_BRAND_TESTING_REQUIREMENTS, LABELS_BRAND_APPROVAL_OPTIONS } from '../../data/labelsBrandData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryLabelsBrand = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.labelsBrandType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'labelsBrandType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryLabelsBrand = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.labelsBrandMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'labelsBrandMaterial', selectedValue);
@@ -113,7 +113,7 @@ const CategoryLabelsBrand = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <SearchableDropdown
+                                <TenantDropdown
                                   value={material.labelsBrandSizeUnit || ''}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'labelsBrandSizeUnit', selectedValue)}
                                   options={UNIT_OPTIONS_WITH_PCS}
@@ -159,7 +159,7 @@ const CategoryLabelsBrand = ({
                         {/* ATTACHMENT - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ATTACHMENT <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.labelsBrandAttachment || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'labelsBrandAttachment', selectedValue);
@@ -256,7 +256,7 @@ const CategoryLabelsBrand = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.labelsBrandApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'labelsBrandApproval', selectedValue);

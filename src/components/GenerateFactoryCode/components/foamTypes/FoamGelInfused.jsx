@@ -6,7 +6,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const FoamGelInfused = ({
   material,
@@ -18,7 +18,7 @@ const FoamGelInfused = ({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
       {/* FOAM TYPE */}
       <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedType`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamGelInfusedType || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedType', selectedValue)}
           options={['Gel-Infused Foam']}
@@ -29,7 +29,7 @@ const FoamGelInfused = ({
 
     {/* BASE FOAM */}
     <Field label="BASE FOAM" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedBaseFoam`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamGelInfusedBaseFoam || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedBaseFoam', selectedValue)}
         options={['Memory Foam', 'PU Foam', 'HR Foam', 'Latex']}
@@ -40,7 +40,7 @@ const FoamGelInfused = ({
 
     {/* GEL TYPE */}
     <Field label="GEL TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedGelType`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamGelInfusedGelType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedGelType', selectedValue)}
         options={['Gel Beads', 'Gel Swirl', 'Gel Layer', 'Gel Particles', 'Phase Change Material (PCM)']}
@@ -51,7 +51,7 @@ const FoamGelInfused = ({
 
     {/* GEL CONTENT */}
     <Field label="GEL CONTENT" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedGelContent`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamGelInfusedGelContent || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedGelContent', selectedValue)}
         options={['Gel content % or concentration']}
@@ -62,7 +62,7 @@ const FoamGelInfused = ({
 
     {/* SUBTYPE */}
     <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedSubtype`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamGelInfusedSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedSubtype', selectedValue)}
         options={['Virgin', 'Blended']}
@@ -73,7 +73,7 @@ const FoamGelInfused = ({
 
     {/* COLOUR */}
     <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedColour`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamGelInfusedColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedColour', selectedValue)}
         options={['Blue (common for gel)', 'White', 'Grey', 'Multi-color (swirl)']}
@@ -231,20 +231,10 @@ const FoamGelInfused = ({
         </div>
       </Field>
 
-      {/* SURPLUS % */}
-      <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedSurplus`]}>
-        <PercentInput
-          value={material.foamGelInfusedSurplus || ''}
-          onChange={(e) => handleRawMaterialChange(actualIndex, 'foamGelInfusedSurplus', e.target.value)}
-          placeholder="e.g., 3-5"
-          error={Boolean(errors[`rawMaterial_${actualIndex}_foamGelInfusedSurplus`])}
-        />
-      </Field>
-
       {/* WASTAGE % */}
       <Field label="WASTAGE %" width="sm">
         <div className="relative">
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamGelInfusedWastage || ''}
             onChange={(selectedValue) => {
               const predefinedOptions = ['Cooling Mattress Topper', 'Premium Pillows', 'Hot Sleeper Products'];
@@ -286,7 +276,7 @@ const FoamGelInfused = ({
 
       {/* APPROVAL */}
       <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamGelInfusedApproval`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamGelInfusedApproval || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedApproval', selectedValue)}
           options={MATERIAL_APPROVAL_OPTIONS}
@@ -335,7 +325,7 @@ const FoamGelInfused = ({
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
           <Field label="DENSITY" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedDensity || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedDensity', selectedValue)}
               options={['50 kg/m³', '60 kg/m³', '70 kg/m³', 'Base foam density + gel']}
@@ -343,7 +333,7 @@ const FoamGelInfused = ({
             />
           </Field>
           <Field label="ILD / IFD (FIRMNESS)" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedIld || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedIld', selectedValue)}
               options={['ILD rating based on base foam']}
@@ -351,7 +341,7 @@ const FoamGelInfused = ({
             />
           </Field>
           <Field label="TEMPERATURE REGULATION" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedTemperatureRegulation || ''}
               onChange={(selectedValue) =>
                 handleRawMaterialChange(actualIndex, 'foamGelInfusedTemperatureRegulation', selectedValue)
@@ -361,7 +351,7 @@ const FoamGelInfused = ({
             />
           </Field>
           <Field label="RESPONSE TIME" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedResponseTime || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedResponseTime', selectedValue)}
               options={['If memory foam base - response time specification']}
@@ -369,7 +359,7 @@ const FoamGelInfused = ({
             />
           </Field>
           <Field label="BREATHABILITY" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedBreathability || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedBreathability', selectedValue)}
               options={['Standard', 'Enhanced (ventilated)', 'Open Cell']}
@@ -377,7 +367,7 @@ const FoamGelInfused = ({
             />
           </Field>
           <Field label="FIRE RETARDANT" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedFireRetardant || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedFireRetardant', selectedValue)}
               options={['FR Treated (CFR 1633, TB 117)']}
@@ -385,7 +375,7 @@ const FoamGelInfused = ({
             />
           </Field>
           <Field label="COOLING EFFECT" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedCoolingEffect || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedCoolingEffect', selectedValue)}
               options={['Standard Cooling', 'Advanced Cooling', 'Phase Change (PCM)']}
@@ -393,7 +383,7 @@ const FoamGelInfused = ({
             />
           </Field>
           <Field label="CERTIFICATION" width="sm">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamGelInfusedCertification || ''}
               onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamGelInfusedCertification', selectedValue)}
               options={['CertiPUR-US', 'OEKO-TEX', 'Greenguard']}

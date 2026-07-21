@@ -1,7 +1,7 @@
 // CategoryHeatTransfer — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { HEAT_TRANSFER_TYPES, HEAT_TRANSFER_MATERIAL_BASE_OPTIONS, HEAT_TRANSFER_TESTING_REQUIREMENTS, HEAT_TRANSFER_APPROVAL_OPTIONS, HEAT_TRANSFER_INK_TYPE_OPTIONS, HEAT_TRANSFER_FABRIC_COMPATIBILITY_OPTIONS, HEAT_TRANSFER_APPLICATION_SPEC_OPTIONS, HEAT_TRANSFER_PEEL_TYPE_OPTIONS, HEAT_TRANSFER_FINISH_HAND_FEEL_OPTIONS, HEAT_TRANSFER_STRETCH_OPTIONS } from '../../data/heatTransferData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryHeatTransfer = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.heatTransferType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferType', selectedValue);
@@ -45,7 +45,7 @@ const CategoryHeatTransfer = ({
                         {/* MATERIAL BASE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL BASE</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.heatTransferMaterialBase || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferMaterialBase', selectedValue);
@@ -90,7 +90,7 @@ const CategoryHeatTransfer = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.heatTransferSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'heatTransferSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -203,7 +203,7 @@ const CategoryHeatTransfer = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.heatTransferApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'heatTransferApproval', selectedValue);

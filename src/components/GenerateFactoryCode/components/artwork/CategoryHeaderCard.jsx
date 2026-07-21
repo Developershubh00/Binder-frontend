@@ -1,7 +1,7 @@
 // CategoryHeaderCard — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { HEADER_CARDS_TYPES, HEADER_CARDS_MATERIALS, HEADER_CARDS_TESTING_REQUIREMENTS, HEADER_CARDS_APPROVAL_OPTIONS, HEADER_CARDS_FUNCTION_OPTIONS, HEADER_CARDS_CONTENT_OPTIONS, HEADER_CARDS_PRINTING_OPTIONS, HEADER_CARDS_FINISH_OPTIONS, HEADER_CARDS_STIFFNESS_OPTIONS, HEADER_CARDS_ACID_FREE_OPTIONS, HEADER_CARDS_BRANDING_OPTIONS } from '../../data/headerCardsData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryHeaderCard = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.headerCardType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'headerCardType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryHeaderCard = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.headerCardMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'headerCardMaterial', selectedValue);
@@ -124,7 +124,7 @@ const CategoryHeaderCard = ({
                               placeholder="GUSSET"
                             />
                             <div style={{ width: '120px', flexShrink: 0 }}>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.headerCardSizeUnit || ''}
                                 onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'headerCardSizeUnit', selectedValue)}
                                 options={UNIT_OPTIONS_WITH_PCS}
@@ -256,7 +256,7 @@ const CategoryHeaderCard = ({
                         {/* APPROVAL */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.headerCardApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'headerCardApproval', selectedValue);

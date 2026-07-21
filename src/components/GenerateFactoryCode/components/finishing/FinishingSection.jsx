@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import MultiSelectDropdown from '../artwork/MultiSelectDropdown';
 import { FINISHING_PROCESSES, FINISHING_TYPE_MAP } from '../../data/finishingData';
 
@@ -104,7 +104,7 @@ const FinishingSection = ({ formData, handleWorkOrderChange }) => {
                 </div>
                 <div className="flex flex-wrap items-start gap-4">
                   <Field label="FINISHING PROCESS" required width="md">
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={g.process || ''}
                       onChange={(v) => updateGroup(gi, 'process', v)}
                       options={PROCESS_OPTIONS}

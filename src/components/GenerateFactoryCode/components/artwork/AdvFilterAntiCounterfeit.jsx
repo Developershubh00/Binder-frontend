@@ -1,7 +1,7 @@
 // AdvFilterAntiCounterfeit — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { ANTI_COUNTERFEIT_TYPES, ANTI_COUNTERFEIT_MATERIALS, ANTI_COUNTERFEIT_SECURITY_FEATURES, ANTI_COUNTERFEIT_HOLOGRAM_TYPES, ANTI_COUNTERFEIT_NUMBERING_OPTIONS, ANTI_COUNTERFEIT_TESTING_REQUIREMENTS, ANTI_COUNTERFEIT_APPROVAL_OPTIONS, ANTI_COUNTERFEIT_VERIFICATION_OPTIONS, ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS, ANTI_COUNTERFEIT_APPLICATION_OPTIONS, ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS, ANTI_COUNTERFEIT_DATABASE_OPTIONS, ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS } from '../../data/antiCounterfeitData';
 
 const AdvFilterAntiCounterfeit = ({
@@ -53,7 +53,7 @@ const AdvFilterAntiCounterfeit = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               VERIFICATION
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.verification || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'verification', selectedValue);
@@ -82,7 +82,7 @@ const AdvFilterAntiCounterfeit = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               QR/CODE CONTENT
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.qrCodeContent || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'qrCodeContent', selectedValue);
@@ -111,7 +111,7 @@ const AdvFilterAntiCounterfeit = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               APPLICATION
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.antiCounterfeitApplication || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'antiCounterfeitApplication', selectedValue);
@@ -140,7 +140,7 @@ const AdvFilterAntiCounterfeit = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               TAMPER EVIDENCE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.tamperEvidence || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'tamperEvidence', selectedValue);
@@ -169,7 +169,7 @@ const AdvFilterAntiCounterfeit = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               DATABASE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.antiCounterfeitDatabase || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'antiCounterfeitDatabase', selectedValue);
@@ -198,7 +198,7 @@ const AdvFilterAntiCounterfeit = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               GUMMING QUALITY
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.gummingQuality || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'gummingQuality', selectedValue);

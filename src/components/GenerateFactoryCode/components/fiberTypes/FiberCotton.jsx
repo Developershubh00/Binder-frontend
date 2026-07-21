@@ -1,19 +1,28 @@
 // FiberCotton — extracted from FiberSpec.jsx (Step 2). Pure presentational.
 import { Button } from '@/components/ui/button';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
+import { computeSqMeter, formatCalc, useFiberKgsAutoFill } from '@/utils/fiberSizeCalc';
 
 const FiberCotton = ({
   material,
   actualIndex,
   handleRawMaterialChange,
-}) => (
+}) => {
+  const sqMeterStr = formatCalc(computeSqMeter(material.fiberLength, material.fiberWidth), 4);
+  const kgsStr = useFiberKgsAutoFill({
+    material,
+    actualIndex,
+    onChange: handleRawMaterialChange,
+    targetField: 'fiberQty',
+  });
+  return (
   <>
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     {/* FIBER TYPE */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">FIBER TYPE</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberFiberType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberFiberType', selectedValue)}
         options={['Cotton']}
@@ -26,7 +35,7 @@ const FiberCotton = ({
     {/* SUBTYPE */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">SUBTYPE</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberSubtype', selectedValue)}
         options={['Virgin Cotton', 'Recycled Cotton', 'Organic Cotton', 'Ginned Cotton Waste']}
@@ -39,7 +48,7 @@ const FiberCotton = ({
     {/* FORM */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">FORM</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberForm || ''}
         onChange={(selectedValue) => {
           handleRawMaterialChange(actualIndex, 'fiberForm', selectedValue);
@@ -63,7 +72,7 @@ const FiberCotton = ({
     {/* GRADE */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">GRADE</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberCottonGrade || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonGrade', selectedValue)}
         options={['Premium Grade', 'Standard Grade', 'Economy Grade', 'Noil (short fibers)']}
@@ -76,7 +85,7 @@ const FiberCotton = ({
     {/* COLOUR */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberColour', selectedValue)}
         options={['Natural (off-white)', 'Bleached White', 'Unbleached/Ecru']}
@@ -148,7 +157,7 @@ const FiberCotton = ({
             id={`fiber-testing-wrapper-cotton-${actualIndex}`}
             style={{ flex: 1, minWidth: '200px' }}
           >
-                        <SearchableDropdown
+                        <TenantDropdown
               value=""
               strictMode={false}
               onChange={(selectedValue) => {
@@ -297,6 +306,21 @@ const FiberCotton = ({
                 placeholder="Enter width"
               />
             </div>
+
+            {/* SQ. METER (auto: LENGTH × WIDTH / 10000) */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">SQ. METER</label>
+              <input
+                type="text"
+                value={sqMeterStr}
+                readOnly
+                tabIndex={-1}
+                className="border-2 rounded-lg text-sm bg-gray-50 text-gray-700 border-[#e5e7eb] cursor-not-allowed focus:outline-none"
+                style={{ padding: '10px 14px', height: '44px' }}
+                placeholder="L × W / 10000"
+                title="Auto-calculated: LENGTH (CM) × WIDTH (CM) / 10000"
+              />
+            </div>
           </div>
 
           {/* QTY section with YARDAGE (CNS) and KGS (CNS) - nested under SIZE SPEC */}
@@ -315,42 +339,28 @@ const FiberCotton = ({
                   placeholder="Enter YARDAGE (CNS)"
                 />
               </div>
-              {/* KGS (CNS) */}
+              {/* KGS (CNS) — auto: GSM × (L × W / 10000) / 1000 */}
               <div className="flex flex-col">
                 <label className="text-sm font-semibold text-gray-700 mb-2">KGS (CNS)</label>
                 <input
                   type="text"
-                  value={material.fiberQty || ''}
-                  onChange={(e) => handleRawMaterialChange(actualIndex, 'fiberQty', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  value={kgsStr}
+                  readOnly
+                  tabIndex={-1}
+                  className="border-2 rounded-lg text-sm bg-gray-50 text-gray-700 border-[#e5e7eb] cursor-not-allowed focus:outline-none"
                   style={{ padding: '10px 14px', height: '44px', width: '200px' }}
-                  placeholder="Enter KGS (CNS)"
+                  placeholder="Auto (GSM × m² / 1000)"
+                  title="Auto-calculated: GSM × SQ.METER / 1000"
                 />
+                <span className="text-xs text-gray-500 mt-1">
+                  Auto = GSM × (L × W ÷ 10000) ÷ 1000{kgsStr ? ` = ${kgsStr} kg` : ''}
+                </span>
               </div>
             </div>
           </div>
         </div>
       </>
     )}
-
-    {/* SURPLUS % */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <input
-          type="text"
-          value={material.fiberSurplus || ''}
-          onChange={(e) => {
-            const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-            handleRawMaterialChange(actualIndex, 'fiberSurplus', numericValue);
-          }}
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-          style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
-          placeholder="3-5%"
-        />
-        <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-      </div>
-    </div>
 
     {/* WASTAGE % */}
     <div className="flex flex-col">
@@ -374,7 +384,7 @@ const FiberCotton = ({
     {/* APPROVAL */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
         options={MATERIAL_APPROVAL_OPTIONS}
@@ -435,7 +445,7 @@ const FiberCotton = ({
             {/* STAPLE LENGTH */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">STAPLE LENGTH</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberCottonStapleLength || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonStapleLength', selectedValue)}
                 options={['Short Staple (<25mm)', 'Medium (25-30mm)', 'Long Staple (>30mm)']}
@@ -448,7 +458,7 @@ const FiberCotton = ({
             {/* PROCESSING */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">PROCESSING</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberCottonProcessing || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonProcessing', selectedValue)}
                 options={['Carded', 'Combed', 'Garneted (recycled)']}
@@ -461,7 +471,7 @@ const FiberCotton = ({
             {/* BONDING */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">BONDING</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberCottonBonding || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonBonding', selectedValue)}
                 options={['Non-Bonded (needle punch)', 'Thermal Bonded', 'Resin Bonded']}
@@ -474,7 +484,7 @@ const FiberCotton = ({
             {/* NEEDLE PUNCHED */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">NEEDLE PUNCHED</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberCottonNeedlePunched || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonNeedlePunched', selectedValue)}
                 options={['Light Needle Punch', 'Medium', 'Heavy']}
@@ -487,7 +497,7 @@ const FiberCotton = ({
             {/* FIRE RETARDANT */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">FIRE RETARDANT</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberCottonFireRetardant || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonFireRetardant', selectedValue)}
                 options={['Standard', 'FR Treated']}
@@ -500,7 +510,7 @@ const FiberCotton = ({
             {/* DUST/TRASH CONTENT */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">DUST/TRASH CONTENT</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberCottonDustTrashContent || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonDustTrashContent', selectedValue)}
                 options={['Low (<1%)', 'Medium (1-2%)', 'Standard (<3%)']}
@@ -513,7 +523,7 @@ const FiberCotton = ({
             {/* ORGANIC CERTIFIED */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">ORGANIC CERTIFIED</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberCottonOrganicCertified || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberCottonOrganicCertified', selectedValue)}
                 options={['Standard', 'GOTS Certified', 'OCS (Organic Content Standard)']}
@@ -528,6 +538,7 @@ const FiberCotton = ({
     </div>
   </div>
   </>
-);
+  );
+};
 
 export default FiberCotton;

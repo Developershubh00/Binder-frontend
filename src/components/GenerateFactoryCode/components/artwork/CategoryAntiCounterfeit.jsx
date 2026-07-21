@@ -1,7 +1,7 @@
 // CategoryAntiCounterfeit — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { ANTI_COUNTERFEIT_TYPES, ANTI_COUNTERFEIT_MATERIALS, ANTI_COUNTERFEIT_SECURITY_FEATURES, ANTI_COUNTERFEIT_HOLOGRAM_TYPES, ANTI_COUNTERFEIT_NUMBERING_OPTIONS, ANTI_COUNTERFEIT_TESTING_REQUIREMENTS, ANTI_COUNTERFEIT_APPROVAL_OPTIONS, ANTI_COUNTERFEIT_VERIFICATION_OPTIONS, ANTI_COUNTERFEIT_QR_CODE_CONTENT_OPTIONS, ANTI_COUNTERFEIT_APPLICATION_OPTIONS, ANTI_COUNTERFEIT_TAMPER_EVIDENCE_OPTIONS, ANTI_COUNTERFEIT_DATABASE_OPTIONS, ANTI_COUNTERFEIT_GUMMING_QUALITY_OPTIONS } from '../../data/antiCounterfeitData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryAntiCounterfeit = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.antiCounterfeitType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'antiCounterfeitType', selectedValue);
@@ -45,7 +45,7 @@ const CategoryAntiCounterfeit = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.antiCounterfeitMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'antiCounterfeitMaterial', selectedValue);
@@ -116,7 +116,7 @@ const CategoryAntiCounterfeit = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.antiCounterfeitSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'antiCounterfeitSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -137,7 +137,7 @@ const CategoryAntiCounterfeit = ({
                             {/* SECURITY FEATURE - Dropdown with Others option */}
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>SECURITY <span className="text-red-500">*</span></label>
-                                                        <SearchableDropdown
+                                                        <TenantDropdown
                             value={material.securityFeature || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'securityFeature', selectedValue);
@@ -165,7 +165,7 @@ const CategoryAntiCounterfeit = ({
                             {/* HOLOGRAM TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>HOLOGRAM TYPE <span className="text-red-500">*</span></label>
-                                                        <SearchableDropdown
+                                                        <TenantDropdown
                             value={material.hologramType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hologramType', selectedValue);
@@ -193,7 +193,7 @@ const CategoryAntiCounterfeit = ({
                             {/* NUMBERING - Dropdown with Others option */}
                         <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>NUMBERING <span className="text-red-500">*</span></label>
-                                                        <SearchableDropdown
+                                                        <TenantDropdown
                             value={material.numbering || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'numbering', selectedValue);
@@ -316,7 +316,7 @@ const CategoryAntiCounterfeit = ({
                             {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                        <SearchableDropdown
+                                                        <TenantDropdown
                             value={material.antiCounterfeitApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'antiCounterfeitApproval', selectedValue);

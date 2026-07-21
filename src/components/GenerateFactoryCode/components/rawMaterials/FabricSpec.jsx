@@ -16,7 +16,7 @@ import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import {
   getTextileFabricFiberTypes,
@@ -48,7 +48,7 @@ const FabricSpec = ({
                 <div className="flex flex-wrap items-start" style={{ gap: '16px 12px', marginBottom: '1rem' }}>
                   {/* Fiber Type */}
                   <Field label="FIBER TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricFiberType`]}>
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={material.fabricFiberType || ''}
                       onChange={(selectedFiberType) => {
                         handleRawMaterialChange(actualIndex, 'fabricFiberType', selectedFiberType);
@@ -66,7 +66,7 @@ const FabricSpec = ({
 
                   {/* Fabric Name */}
                   <Field label="FABRIC NAME" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricName`]}>
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={material.fabricName || ''}
                       onChange={(selectedFabricName) => {
                         handleRawMaterialChange(actualIndex, 'fabricName', selectedFabricName);
@@ -78,8 +78,8 @@ const FabricSpec = ({
                           handleRawMaterialChange(actualIndex, 'fabricApproval', []);
                         }
                       }}
-                      options={material.fabricFiberType ? mergeOptions(getTextileFabricNames(material.fabricFiberType), 'Fabric', 'fabricName', material.fabricFiberType) : []}
-                      onCustomValue={(val) => addCustomOption('Fabric', 'fabricName', material.fabricFiberType, val)}
+                      options={material.fabricFiberType ? mergeOptions(getTextileFabricNames(material.fabricFiberType), 'Fabric', 'fabricName', '') : []}
+                      onCustomValue={(val) => addCustomOption('Fabric', 'fabricName', '', val)}
                       placeholder={material.fabricFiberType ? 'Select or type Fabric Name' : 'Select Fiber Type First'}
                       disabled={!material.fabricFiberType}
                       className={errors[`rawMaterial_${actualIndex}_fabricName`] ? 'border-red-600' : ''}
@@ -88,13 +88,13 @@ const FabricSpec = ({
 
                   {/* Composition */}
                   <Field label="COMPOSITION" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricComposition`]}>
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={material.fabricComposition || ''}
                       onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricComposition', value)}
                       options={material.fabricFiberType && material.fabricName
-                        ? mergeOptions(getFabricCompositionOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'fabricComposition', `${material.fabricFiberType}|${material.fabricName}`)
+                        ? mergeOptions(getFabricCompositionOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'fabricComposition', '')
                         : []}
-                      onCustomValue={(val) => addCustomOption('Fabric', 'fabricComposition', `${material.fabricFiberType}|${material.fabricName}`, val)}
+                      onCustomValue={(val) => addCustomOption('Fabric', 'fabricComposition', '', val)}
                       placeholder={material.fabricFiberType && material.fabricName ? "Select or type Composition" : "Select Fabric First"}
                       disabled={!material.fabricFiberType || !material.fabricName}
                       className={errors[`rawMaterial_${actualIndex}_fabricComposition`] ? 'border-red-600' : ''}
@@ -109,16 +109,6 @@ const FabricSpec = ({
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'gsm', e.target.value)}
                       placeholder="e.g., 90"
                       aria-invalid={!!errors[`rawMaterial_${actualIndex}_gsm`]}
-                    />
-                  </Field>
-
-                  {/* Surplus */}
-                  <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricSurplus`]}>
-                    <PercentInput
-                        value={material.fabricSurplus || ''}
-                      onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricSurplus', e.target.value)}
-                      placeholder="e.g., 5"
-                      error={!!errors[`rawMaterial_${actualIndex}_fabricSurplus`]}
                     />
                   </Field>
 
@@ -187,13 +177,13 @@ const FabricSpec = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                       {/* Construction Type - Searchable dropdown */}
                       <Field label="CONSTRUCTION TYPE" width="sm">
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.constructionType || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'constructionType', value)}
                           options={material.fabricFiberType && material.fabricName
-                            ? mergeOptions(getFabricConstructionTypeOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'constructionType', `${material.fabricFiberType}|${material.fabricName}`)
+                            ? mergeOptions(getFabricConstructionTypeOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'constructionType', '')
                             : []}
-                          onCustomValue={(val) => addCustomOption('Fabric', 'constructionType', `${material.fabricFiberType}|${material.fabricName}`, val)}
+                          onCustomValue={(val) => addCustomOption('Fabric', 'constructionType', '', val)}
                           placeholder={material.fabricFiberType && material.fabricName ? "Select or type Construction Type" : "Select Fabric First"}
                           disabled={!material.fabricFiberType || !material.fabricName}
                         />
@@ -201,13 +191,13 @@ const FabricSpec = ({
 
                       {/* Weave/Knit Type - Searchable dropdown */}
                       <Field label="WEAVE/KNIT TYPE" width="sm">
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.weaveKnitType || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'weaveKnitType', value)}
                           options={material.fabricFiberType && material.fabricName
-                            ? mergeOptions(getFabricWeaveKnitTypeOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'weaveKnitType', `${material.fabricFiberType}|${material.fabricName}`)
+                            ? mergeOptions(getFabricWeaveKnitTypeOptions(material.fabricFiberType, material.fabricName), 'Fabric', 'weaveKnitType', '')
                             : []}
-                          onCustomValue={(val) => addCustomOption('Fabric', 'weaveKnitType', `${material.fabricFiberType}|${material.fabricName}`, val)}
+                          onCustomValue={(val) => addCustomOption('Fabric', 'weaveKnitType', '', val)}
                           placeholder={material.fabricFiberType && material.fabricName ? "Select or type Weave/Knit Type" : "Select Fabric First"}
                           disabled={!material.fabricFiberType || !material.fabricName}
                         />
@@ -215,7 +205,7 @@ const FabricSpec = ({
 
                       {/* Machine Type */}
                       <Field label="MACHINE TYPE" width="sm">
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.fabricMachineType || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricMachineType', value)}
                           options={['Powerloom', 'Handloom', 'Circular Knitting', 'Flatbed Knitting', 'Warp Knitting', 'Others']}
@@ -225,7 +215,7 @@ const FabricSpec = ({
 
                       {/* Fiber Category - Searchable dropdown */}
                       <Field label="FIBER CATEGORY" width="sm">
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.fabricFiberCategory || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricFiberCategory', value)}
                           options={FIBER_CATEGORIES}
@@ -235,7 +225,7 @@ const FabricSpec = ({
 
                       {/* Origin - Searchable dropdown */}
                       <Field label="ORIGIN" width="sm">
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.fabricOrigin || ''}
                           onChange={(value) => handleRawMaterialChange(actualIndex, 'fabricOrigin', value)}
                           options={ORIGINS}

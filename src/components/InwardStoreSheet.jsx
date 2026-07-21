@@ -6,6 +6,7 @@ import {
   generateInwardStoreSheetCodes,
   getVpoHistory,
   getVpoDetail,
+  getFactoryCodesByIpo,
 } from "../services/integration";
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
@@ -242,17 +243,10 @@ const InwardStoreSheet = ({ onBack }) => {
     const loadIPCs = async () => {
       try {
         // Scope IPCs to the chosen IPO (endpoint supports ?ipo=); otherwise the
-        // dropdown would list every factory code across all IPOs.
-        const resp = await fetch(
-          `${import.meta.env.VITE_API_URL || "https://binder-backend-0szj.onrender.com/api/"}ims/factory-codes/?ipo=${encodeURIComponent(selectedIpo)}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-        const data = await resp.json();
+        // dropdown would list every factory code across all IPOs. Goes through the
+        // shared apiRequest client (Bearer + transparent 401 refresh, honors
+        // "remember me") instead of a hand-rolled fetch that read the token directly.
+        const data = await getFactoryCodesByIpo(selectedIpo);
         const results = data?.results || data || [];
         setIpcList(Array.isArray(results) ? results : []);
       } catch {

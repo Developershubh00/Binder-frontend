@@ -2,19 +2,28 @@
 import { Button } from '@/components/ui/button';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
+import { computeSqMeter, formatCalc, useFiberKgsAutoFill } from '@/utils/fiberSizeCalc';
 
 const FiberMicrofiber = ({
   material,
   actualIndex,
   handleRawMaterialChange,
-}) => (
+}) => {
+  const sqMeterStr = formatCalc(computeSqMeter(material.fiberLength, material.fiberWidth), 4);
+  const kgsStr = useFiberKgsAutoFill({
+    material,
+    actualIndex,
+    onChange: handleRawMaterialChange,
+    targetField: 'fiberQty',
+  });
+  return (
   <>
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     {/* FIBER TYPE */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">FIBER TYPE</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberFiberType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberFiberType', selectedValue)}
         options={['Microfiber Polyester']}
@@ -27,7 +36,7 @@ const FiberMicrofiber = ({
     {/* SUBTYPE */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">SUBTYPE</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberSubtype', selectedValue)}
         options={['Standard Microfiber', 'Micro-Gel', 'Micro-Cluster', 'Micro-Denier Ball']}
@@ -40,7 +49,7 @@ const FiberMicrofiber = ({
     {/* FORM */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">FORM</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberForm || ''}
         onChange={(selectedValue) => {
           handleRawMaterialChange(actualIndex, 'fiberForm', selectedValue);
@@ -64,7 +73,7 @@ const FiberMicrofiber = ({
     {/* DENIER */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">DENIER</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberDenier || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDenier', selectedValue)}
         options={['0.7D (Ultra-Micro)', '0.9D', '1.0D', '1.2D']}
@@ -77,7 +86,7 @@ const FiberMicrofiber = ({
     {/* SILICONIZED */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">SILICONIZED</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberSiliconized || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberSiliconized', selectedValue)}
         options={['Siliconized (standard for microfiber)', 'Super Siliconized']}
@@ -90,7 +99,7 @@ const FiberMicrofiber = ({
     {/* COLOUR */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">COLOUR</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberColour', selectedValue)}
         options={['Optical White', 'Super White']}
@@ -162,7 +171,7 @@ const FiberMicrofiber = ({
             id={`fiber-testing-wrapper-microfiber-${actualIndex}`}
             style={{ flex: 1, minWidth: '200px' }}
           >
-                        <SearchableDropdown
+                        <TenantDropdown
               value=""
               strictMode={false}
               onChange={(selectedValue) => {
@@ -313,8 +322,22 @@ const FiberMicrofiber = ({
                 />
               </div>
 
+            {/* SQ. METER (auto: LENGTH × WIDTH / 10000) */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">SQ. METER</label>
+              <input
+                type="text"
+                value={sqMeterStr}
+                readOnly
+                tabIndex={-1}
+                className="border-2 rounded-lg text-sm bg-gray-50 text-gray-700 border-[#e5e7eb] cursor-not-allowed focus:outline-none"
+                style={{ padding: '10px 14px', height: '44px', width: '200px' }}
+                placeholder="L × W / 10000"
+                title="Auto-calculated: LENGTH (CM) × WIDTH (CM) / 10000"
+              />
+            </div>
           </div>
-          
+
           {/* QTY with WIDTH (CM) and KGS (CNS) */}
           <div className="flex flex-col" style={{ marginTop: '16px' }}>
             <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
@@ -334,37 +357,23 @@ const FiberMicrofiber = ({
                 <label className="text-sm font-semibold text-gray-700 mb-2">KGS (CNS)</label>
                 <input
                   type="text"
-                  value={material.fiberQty || ''}
-                  onChange={(e) => handleRawMaterialChange(actualIndex, 'fiberQty', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  value={kgsStr}
+                  readOnly
+                  tabIndex={-1}
+                  className="border-2 rounded-lg text-sm bg-gray-50 text-gray-700 border-[#e5e7eb] cursor-not-allowed focus:outline-none"
                   style={{ padding: '10px 14px', height: '44px', width: '200px' }}
-                  placeholder="Enter KGS"
+                  placeholder="Auto (GSM × m² / 1000)"
+                  title="Auto-calculated: GSM × SQ.METER / 1000"
                 />
+                <span className="text-xs text-gray-500 mt-1">
+                  Auto = GSM × (L × W ÷ 10000) ÷ 1000{kgsStr ? ` = ${kgsStr} kg` : ''}
+                </span>
               </div>
             </div>
           </div>
         </div>
       </>
     )}
-
-    {/* SURPLUS % */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <input
-          type="text"
-          value={material.fiberSurplus || ''}
-          onChange={(e) => {
-            const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-            handleRawMaterialChange(actualIndex, 'fiberSurplus', numericValue);
-          }}
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-          style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
-          placeholder="2-3%"
-        />
-        <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-      </div>
-    </div>
 
     {/* WASTAGE % */}
     <div className="flex flex-col">
@@ -388,7 +397,7 @@ const FiberMicrofiber = ({
     {/* APPROVAL */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
         options={MATERIAL_APPROVAL_OPTIONS}
@@ -449,7 +458,7 @@ const FiberMicrofiber = ({
             {/* FIBER LENGTH */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">FIBER LENGTH</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberFiberLength || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberFiberLength', selectedValue)}
                 options={['32mm', '51mm', '64mm']}
@@ -462,7 +471,7 @@ const FiberMicrofiber = ({
             {/* STRUCTURE */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">STRUCTURE</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberStructure || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberStructure', selectedValue)}
                 options={['Solid', 'Hollow (for extra loft)']}
@@ -475,7 +484,7 @@ const FiberMicrofiber = ({
             {/* CLUSTER TYPE */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">CLUSTER TYPE</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberClusterType || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberClusterType', selectedValue)}
                 options={['Standard Cluster', 'Premium Gel-Cluster', 'Down-Like Cluster']}
@@ -488,7 +497,7 @@ const FiberMicrofiber = ({
             {/* CLUSTER SIZE */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">CLUSTER SIZE</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberClusterSize || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberClusterSize', selectedValue)}
                 options={['Small (marble size)', 'Medium (golf ball)', 'Large (tennis ball)']}
@@ -501,7 +510,7 @@ const FiberMicrofiber = ({
             {/* ANTI-MICROBIAL */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">ANTI-MICROBIAL</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberAntiMicrobial || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberAntiMicrobial', selectedValue)}
                 options={['Standard', 'Anti-Microbial', 'Anti-Bacterial', 'Anti-Allergen']}
@@ -514,7 +523,7 @@ const FiberMicrofiber = ({
             {/* HYPOALLERGENIC */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">HYPOALLERGENIC</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberHypoallergenic || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberHypoallergenic', selectedValue)}
                 options={['Standard', 'Certified Hypoallergenic']}
@@ -527,7 +536,7 @@ const FiberMicrofiber = ({
             {/* LOFT / FILL POWER */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">LOFT / FILL POWER</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberLoftFillPower || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberLoftFillPower', selectedValue)}
                 options={['Medium Loft', 'High Loft', 'Ultra-High Loft']}
@@ -540,7 +549,7 @@ const FiberMicrofiber = ({
             {/* HAND FEEL */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">HAND FEEL</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberHandFeel || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberHandFeel', selectedValue)}
                 options={['Soft', 'Ultra-Soft', 'Down-Like']}
@@ -553,7 +562,7 @@ const FiberMicrofiber = ({
             {/* CERTIFICATION */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberMicrofiberCertification || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberMicrofiberCertification', selectedValue)}
                 options={['OEKO-TEX', 'Downpass Alternative', 'CertiPUR (if foam combo)']}
@@ -577,6 +586,7 @@ const FiberMicrofiber = ({
     </div>
   </div>
   </>
-);
+  );
+};
 
 export default FiberMicrofiber;

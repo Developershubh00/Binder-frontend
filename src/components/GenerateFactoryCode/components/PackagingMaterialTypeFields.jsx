@@ -1,4 +1,4 @@
-import SearchableDropdown from './SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import UnitDropdown from './UnitDropdown';
 import { PACKAGING_APPROVAL_OPTIONS } from '../data/approvalOptions';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
@@ -108,7 +108,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cartonBoxType || ''}
                           onChange={(selectedValue) => onChange('cartonBoxType', selectedValue)}
                           options={['Die-Cut', 'FOL (Full Overlap)', 'HSC (Half Slotted)', 'Inner Carton', 'Master Carton', 'RSC (Regular Slotted Container)', 'Telescope']}
@@ -119,7 +119,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cartonBoxNoOfPlys || ''}
                           onChange={(selectedValue) => onChange('cartonBoxNoOfPlys', selectedValue)}
                           options={CARTON_PLY_OPTIONS}
@@ -130,7 +130,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">BOARD GRADE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cartonBoxBoardGrade || ''}
                           onChange={(selectedValue) => onChange('cartonBoxBoardGrade', selectedValue)}
                           options={['Duplex', 'Kraft (Brown)', 'Test Liner', 'Virgin Kraft', 'White Top']}
@@ -141,7 +141,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">JOINT TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cartonBoxJointType || ''}
                           onChange={(selectedValue) => onChange('cartonBoxJointType', selectedValue)}
                           options={['Glued/Binded', 'Staple/Stitched', 'Taped']}
@@ -164,7 +164,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">STIFFENER REQUIRED <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cartonBoxStiffenerRequired || ''}
                           onChange={(selectedValue) => onChange('cartonBoxStiffenerRequired', selectedValue)}
                           options={['YES', 'NO']}
@@ -176,7 +176,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       {material.cartonBoxStiffenerRequired === 'YES' && (
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2"># OF PLYS <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.cartonBoxStiffenerNoOfPlys || ''}
                             onChange={(selectedValue) => onChange('cartonBoxStiffenerNoOfPlys', selectedValue)}
                             options={CARTON_PLY_OPTIONS}
@@ -375,7 +375,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               id={`carton-box-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value=""
                                 strictMode={false}
                                 onChange={(selectedValue) => {
@@ -474,7 +474,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cornerProtectorType || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorType', selectedValue)}
                           options={['Edge Guard', 'L-Shape', 'U-Shape', 'Wrap-Around']}
@@ -485,7 +485,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cornerProtectorMaterial || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorMaterial', selectedValue)}
                           options={['Cardboard', 'Corrugated Board', 'Foam (EPE/EVA)', 'Plastic (PP/PE)', 'Wood']}
@@ -550,7 +550,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LOAD CAPACITY <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cornerProtectorLoadCapacity || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorLoadCapacity', selectedValue)}
                           options={['Heavy (>25kg)', 'Light (<10kg)', 'Medium (10-25kg)']}
@@ -561,7 +561,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.cornerProtectorColor || ''}
                           onChange={(selectedValue) => onChange('cornerProtectorColor', selectedValue)}
                           options={['Black', 'Brown (Kraft)', 'Custom', 'White']}
@@ -590,7 +590,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.edgeProtectorType || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorType', selectedValue)}
                           options={['Flat Strip', 'L-Board', 'U-Channel', 'V-Board', 'Wrap-Around']}
@@ -601,7 +601,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.edgeProtectorMaterial || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorMaterial', selectedValue)}
                           options={['Corrugated', 'Laminated Board', 'Metal (Aluminum)', 'Plastic', 'Solid Board']}
@@ -612,7 +612,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">WING SIZE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.edgeProtectorWingSize || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorWingSize', selectedValue)}
                           options={['30x30mm', '35x35mm', '40x40mm', '50x35mm (unequal)', '50x50mm']}
@@ -623,7 +623,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.edgeProtectorThickness || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorThickness', selectedValue)}
                           options={['2mm', '3mm', '4mm', '5mm', '6mm']}
@@ -634,7 +634,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">LENGTH <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.edgeProtectorLength || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorLength', selectedValue)}
                           options={['1200mm (48")', '2400mm', '600mm (24")', '900mm (36")', 'Custom']}
@@ -645,7 +645,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">PLY/LAYERS <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.edgeProtectorPlyLayers || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorPlyLayers', selectedValue)}
                           options={['Multi-Ply (laminated)', 'Single Ply']}
@@ -656,7 +656,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.edgeProtectorColor || ''}
                           onChange={(selectedValue) => onChange('edgeProtectorColor', selectedValue)}
                           options={['Brown', 'Custom Print', 'White']}
@@ -684,7 +684,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamInsertType || ''}
                           onChange={(selectedValue) => onChange('foamInsertType', selectedValue)}
                           options={['Convoluted (Egg Crate)', 'Corner Block', 'Custom Molded', 'Die-Cut Insert', 'Sheet']}
@@ -695,7 +695,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamInsertMaterial || ''}
                           onChange={(selectedValue) => onChange('foamInsertMaterial', selectedValue)}
                           options={['EPE (Polyethylene)', 'EPS (Styrofoam)', 'EVA', 'PU (Polyurethane)', 'XPE (Cross-linked PE)']}
@@ -706,7 +706,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">DENSITY <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamInsertDensity || ''}
                           onChange={(selectedValue) => onChange('foamInsertDensity', selectedValue)}
                           options={['18 kg/m³', '20 kg/m³', '25 kg/m³', '30 kg/m³', '35 kg/m³', '45 kg/m³']}
@@ -717,7 +717,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">THICKNESS <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamInsertThickness || ''}
                           onChange={(selectedValue) => onChange('foamInsertThickness', selectedValue)}
                           options={['10mm', '15mm', '20mm', '25mm', '30mm', '5mm', '50mm']}
@@ -785,7 +785,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamInsertColor || ''}
                           onChange={(selectedValue) => onChange('foamInsertColor', selectedValue)}
                           options={['Black', 'Blue', 'Custom', 'Pink (Anti-Static)', 'White']}
@@ -814,7 +814,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_palletStrapType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.palletStrapType || ''}
                           onChange={(selectedValue) => onChange('palletStrapType', selectedValue)}
                           options={['Composite (Woven)', 'PET Strapping', 'PP Strapping', 'Steel Strapping']}
@@ -825,7 +825,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_palletStrapApplication`] ? 'text-red-600' : 'text-gray-700'}`}>APPLICATION <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.palletStrapApplication || ''}
                           onChange={(selectedValue) => onChange('palletStrapApplication', selectedValue)}
                           options={['Automatic Machine', 'Manual (Hand Tool)', 'Semi-Auto']}
@@ -836,7 +836,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_palletStrapWidth`] ? 'text-red-600' : 'text-gray-700'}`}>WIDTH <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.palletStrapWidth || ''}
                           onChange={(selectedValue) => onChange('palletStrapWidth', selectedValue)}
                           options={['12mm', '15mm', '16mm', '19mm', '25mm', '32mm', '9mm']}
@@ -847,7 +847,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_palletStrapSealType`] ? 'text-red-600' : 'text-gray-700'}`}>SEAL TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.palletStrapSealType || ''}
                           onChange={(selectedValue) => onChange('palletStrapSealType', selectedValue)}
                           options={['Buckle', 'Friction Weld', 'Heat Seal', 'Metal Seals']}
@@ -858,7 +858,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_palletStrapSealSize`] ? 'text-red-600' : 'text-gray-700'}`}>SEAL SIZE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.palletStrapSealSize || ''}
                           onChange={(selectedValue) => onChange('palletStrapSealSize', selectedValue)}
                           options={['12mm', '13mm', '15mm', '16mm', '19mm']}
@@ -869,7 +869,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_palletStrapColor`] ? 'text-red-600' : 'text-gray-700'}`}>COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.palletStrapColor || ''}
                           onChange={(selectedValue) => onChange('palletStrapColor', selectedValue)}
                           options={['Black', 'Blue', 'Custom', 'Green', 'White', 'Yellow']}
@@ -898,7 +898,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagBalePackagingType`] ? 'text-red-600' : 'text-gray-700'}`}>PACKAGING TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagBalePackagingType || ''}
                           onChange={(selectedValue) => onChange('polybagBalePackagingType', selectedValue)}
                           options={['STANDARD', 'INNER~CASEAPACK', 'PC']}
@@ -921,7 +921,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagBaleType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagBaleType || ''}
                           onChange={(selectedValue) => onChange('polybagBaleType', selectedValue)}
                           options={['Bale Wrap (for shipping bales)', 'Pallet Wrap', 'Polysheet (Flat)', 'Shrink Film', 'Stretch Film']}
@@ -932,7 +932,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagBaleMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagBaleMaterial || ''}
                           onChange={(selectedValue) => onChange('polybagBaleMaterial', selectedValue)}
                           options={['HDPE', 'LDPE', 'LLDPE (Stretch)', 'PVC (Shrink)', 'Recycled PE']}
@@ -973,7 +973,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagBaleColour`] ? 'text-red-600' : 'text-gray-700'}`}>COLOUR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagBaleColour || ''}
                           onChange={(selectedValue) => onChange('polybagBaleColour', selectedValue)}
                           options={['Black', 'Clear/Transparent', 'Tinted (Blue)', 'Tinted (Green)', 'White']}
@@ -1044,7 +1044,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               id={`polybag-bale-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value=""
                                 strictMode={false}
                                 onChange={(selectedValue) => {
@@ -1161,7 +1161,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagPolybagFlapPackagingType`] ? 'text-red-600' : 'text-gray-700'}`}>PACKAGING TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagPolybagFlapPackagingType || ''}
                           onChange={(selectedValue) => onChange('polybagPolybagFlapPackagingType', selectedValue)}
                           options={['STANDARD', 'INNER~CASEAPACK', 'PC']}
@@ -1184,7 +1184,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagPolybagFlapType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagPolybagFlapType || ''}
                           onChange={(selectedValue) => onChange('polybagPolybagFlapType', selectedValue)}
                           options={['Drawstring Bag', 'Flat Bag (Open Top)', 'Gusseted Bag', 'Wicketed Bag', 'Zip Lock Bag']}
@@ -1195,7 +1195,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagPolybagFlapMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagPolybagFlapMaterial || ''}
                           onChange={(selectedValue) => onChange('polybagPolybagFlapMaterial', selectedValue)}
                           options={['Biodegradable', 'CPP', 'HDPE (High Density)', 'LDPE (Low Density Polyethylene)', 'PP (Polypropylene)', 'Recycled PE']}
@@ -1251,7 +1251,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_polybagPolybagFlapFlapRequired`] ? 'text-red-600' : 'text-gray-700'}`}>FLAP REQUIRED <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.polybagPolybagFlapFlapRequired || ''}
                           onChange={(selectedValue) => onChange('polybagPolybagFlapFlapRequired', selectedValue)}
                           options={['YES', 'NO']}
@@ -1336,7 +1336,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               id={`polybag-polybag-flap-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value=""
                                 strictMode={false}
                                 onChange={(selectedValue) => {
@@ -1453,7 +1453,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.silicaGelDesiccantType || ''}
                           onChange={(selectedValue) => onChange('silicaGelDesiccantType', selectedValue)}
                           options={['Activated Carbon', 'Calcium Chloride', 'Clay (Montmorillonite)', 'Molecular Sieve', 'Silica Gel']}
@@ -1464,7 +1464,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantForm`] ? 'text-red-600' : 'text-gray-700'}`}>FORM <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.silicaGelDesiccantForm || ''}
                           onChange={(selectedValue) => onChange('silicaGelDesiccantForm', selectedValue)}
                           options={['Canisters', 'Poles/Hanging', 'Sachets/Packets', 'Sheets', 'Strips']}
@@ -1476,7 +1476,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantUnitSize`] ? 'text-red-600' : 'text-gray-700'}`}>UNIT SIZE <span className="text-red-500">*</span></label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.silicaGelDesiccantUnitSize || ''}
                             onChange={(selectedValue) => onChange('silicaGelDesiccantUnitSize', selectedValue)}
                             options={['1g', '10g', '100g', '2g', '200g', '25g', '5g', '50g', '500g']}
@@ -1490,7 +1490,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_silicaGelDesiccantColor`] ? 'text-red-600' : 'text-gray-700'}`}>COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.silicaGelDesiccantColor || ''}
                           onChange={(selectedValue) => onChange('silicaGelDesiccantColor', selectedValue)}
                           options={['Blue', 'Orange (indicating)', 'White']}
@@ -1564,7 +1564,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_stretchWrapType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stretchWrapType || ''}
                           onChange={(selectedValue) => onChange('stretchWrapType', selectedValue)}
                           options={['Hand Wrap', 'Machine Wrap', 'Pre-Stretch', 'Bundling Film', 'Colored/Tinted']}
@@ -1575,7 +1575,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_stretchWrapMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stretchWrapMaterial || ''}
                           onChange={(selectedValue) => onChange('stretchWrapMaterial', selectedValue)}
                           options={['LLDPE (Linear Low)', 'LDPE', 'Cast Film', 'Blown Film']}
@@ -1587,7 +1587,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_stretchWrapWidth`] ? 'text-red-600' : 'text-gray-700'}`}>WIDTH <span className="text-red-500">*</span></label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.stretchWrapWidth || ''}
                             onChange={(selectedValue) => onChange('stretchWrapWidth', selectedValue)}
                             options={['100mm', '450mm', '500mm', '600mm', '750mm']}
@@ -1601,7 +1601,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_stretchWrapThicknessGauge`] ? 'text-red-600' : 'text-gray-700'}`}>THICKNESS/GAUGE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stretchWrapThicknessGauge || ''}
                           onChange={(selectedValue) => onChange('stretchWrapThicknessGauge', selectedValue)}
                           options={['17 micron', '20 micron', '23 micron', '25 micron', '30 micron']}
@@ -1612,7 +1612,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_stretchWrapCling`] ? 'text-red-600' : 'text-gray-700'}`}>CLING <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stretchWrapCling || ''}
                           onChange={(selectedValue) => onChange('stretchWrapCling', selectedValue)}
                           options={['One-Side Cling', 'Two-Side Cling']}
@@ -1623,7 +1623,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_stretchWrapColor`] ? 'text-red-600' : 'text-gray-700'}`}>COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.stretchWrapColor || ''}
                           onChange={(selectedValue) => onChange('stretchWrapColor', selectedValue)}
                           options={['Clear', 'Black', 'Blue', 'Green', 'White Opaque']}
@@ -1652,7 +1652,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.voidFillType || ''}
                           onChange={(selectedValue) => onChange('voidFillType', selectedValue)}
                           options={['Air Pillows', 'Paper Fill (Kraft)', 'Packing Peanuts', 'Bubble Wrap', 'Tissue/Newsprint']}
@@ -1663,7 +1663,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.voidFillMaterial || ''}
                           onChange={(selectedValue) => onChange('voidFillMaterial', selectedValue)}
                           options={['HDPE (Air Pillows)', 'Kraft Paper', 'EPS (Peanuts)', 'PE (Bubble)', 'Recycled Paper']}
@@ -1678,7 +1678,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           <div className="flex flex-col">
                             <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillPillowSize`] ? 'text-red-600' : 'text-gray-700'}`}>PILLOW SIZE <span className="text-red-500">*</span></label>
                             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.voidFillPillowSize || ''}
                                 onChange={(selectedValue) => onChange('voidFillPillowSize', selectedValue)}
                                 options={['100x200mm', '200x200mm', '200x400mm']}
@@ -1692,7 +1692,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           </div>
                           <div className="flex flex-col">
                             <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillFillPercent`] ? 'text-red-600' : 'text-gray-700'}`}>FILL % <span className="text-red-500">*</span></label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.voidFillFillPercent || ''}
                               onChange={(selectedValue) => onChange('voidFillFillPercent', selectedValue)}
                               options={['80%', '90%', 'Full Inflation']}
@@ -1708,7 +1708,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                         <>
                           <div className="flex flex-col">
                             <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillBubbleSize`] ? 'text-red-600' : 'text-gray-700'}`}>BUBBLE SIZE <span className="text-red-500">*</span></label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.voidFillBubbleSize || ''}
                               onChange={(selectedValue) => onChange('voidFillBubbleSize', selectedValue)}
                               options={['10mm (Small)', '25mm (Medium)', '30mm (Large)']}
@@ -1719,7 +1719,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           </div>
                           <div className="flex flex-col">
                             <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillLayer`] ? 'text-red-600' : 'text-gray-700'}`}>LAYER <span className="text-red-500">*</span></label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.voidFillLayer || ''}
                               onChange={(selectedValue) => onChange('voidFillLayer', selectedValue)}
                               options={['Single', 'Double Layer']}
@@ -1733,7 +1733,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       {/* Paper Type and Paper Weight - always visible */}
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillPaperType`] ? 'text-red-600' : 'text-gray-700'}`}>PAPER TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.voidFillPaperType || ''}
                           onChange={(selectedValue) => onChange('voidFillPaperType', selectedValue)}
                           options={['Kraft', 'Newsprint', 'Tissue', 'Honeycomb']}
@@ -1744,7 +1744,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillPaperWeight`] ? 'text-red-600' : 'text-gray-700'}`}>PAPER WEIGHT <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.voidFillPaperWeight || ''}
                           onChange={(selectedValue) => onChange('voidFillPaperWeight', selectedValue)}
                           options={['30gsm', '40gsm', '50gsm', '70gsm']}
@@ -1755,7 +1755,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_voidFillColor`] ? 'text-red-600' : 'text-gray-700'}`}>COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.voidFillColor || ''}
                           onChange={(selectedValue) => onChange('voidFillColor', selectedValue)}
                           options={['Clear', 'White', 'Kraft Brown', 'Pink (Anti-Static)']}
@@ -1790,7 +1790,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_dividerType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.dividerType || ''}
                           onChange={(selectedValue) => onChange('dividerType', selectedValue)}
                           options={['Cell Divider (Grid)', 'Partition (Single)', 'Z-Fold', 'Layer Pad', 'Custom']}
@@ -1801,7 +1801,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_dividerMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.dividerMaterial || ''}
                           onChange={(selectedValue) => onChange('dividerMaterial', selectedValue)}
                           options={['Corrugated Board (B/C/E Flute)', 'Solid Board', 'Chipboard', 'Plastic (PP)']}
@@ -1812,7 +1812,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_dividerCellConfiguration`] ? 'text-red-600' : 'text-gray-700'}`}>CELL CONFIGURATION <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.dividerCellConfiguration || ''}
                           onChange={(selectedValue) => onChange('dividerCellConfiguration', selectedValue)}
                           options={['6-cell (2x3)', '8-cell (2x4)', '12-cell (3x4)', '24-cell (4x6)', 'Custom']}
@@ -1887,7 +1887,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_dividerBoardThickness`] ? 'text-red-600' : 'text-gray-700'}`}>BOARD THICKNESS <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.dividerBoardThickness || ''}
                           onChange={(selectedValue) => onChange('dividerBoardThickness', selectedValue)}
                           options={['2mm', '3mm (E-Flute)', '4mm (B-Flute)', '5mm (C-Flute)']}
@@ -1898,7 +1898,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_dividerSlotDepth`] ? 'text-red-600' : 'text-gray-700'}`}>SLOT DEPTH <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.dividerSlotDepth || ''}
                           onChange={(selectedValue) => onChange('dividerSlotDepth', selectedValue)}
                           options={['50%', '60%', '70% of divider height']}
@@ -1909,7 +1909,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_dividerColor`] ? 'text-red-600' : 'text-gray-700'}`}>COLOR <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.dividerColor || ''}
                           onChange={(selectedValue) => onChange('dividerColor', selectedValue)}
                           options={['Brown (Kraft)', 'White', 'Printed']}
@@ -1940,7 +1940,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_tapeType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.tapeType || ''}
                           onChange={(selectedValue) => onChange('tapeType', selectedValue)}
                           options={['BOPP Tape (Clear/Brown)', 'Printed Tape', 'Paper Tape (Kraft)', 'Masking Tape', 'Strapping Tape', 'Double-Sided']}
@@ -1951,7 +1951,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_tapeMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.tapeMaterial || ''}
                           onChange={(selectedValue) => onChange('tapeMaterial', selectedValue)}
                           options={['BOPP (Biaxially Oriented Polypropylene)', 'PVC', 'Paper (Kraft)', 'Cloth/Duct', 'Filament/Strapping']}
@@ -2013,7 +2013,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_tapeGummingQuality`] ? 'text-red-600' : 'text-gray-700'}`}>GUMMING QUALITY <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.tapeGummingQuality || ''}
                           onChange={(selectedValue) => onChange('tapeGummingQuality', selectedValue)}
                           options={['Strong', 'Standard']}
@@ -2024,7 +2024,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_tapeApplication`] ? 'text-red-600' : 'text-gray-700'}`}>APPLICATION <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.tapeApplication || ''}
                           onChange={(selectedValue) => onChange('tapeApplication', selectedValue)}
                           options={['6 WAYS', '6 WAYS +ROUND ABOUT', '6 WAYS Xtwice', '6 WAYS XTWICE + ROUND ABOUT', '6 WAYS +TOP & BOTTOM TWICE', '6 WAYS +TOP & BOTTOM TWICE + ROUND ABOUT']}
@@ -2095,7 +2095,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                               id={`tape-testing-wrapper-${safeIndex}`}
                               style={{ flex: 1, minWidth: '200px' }}
                             >
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value=""
                                 strictMode={false}
                                 onChange={(selectedValue) => {
@@ -2193,7 +2193,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                     <>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkType`] ? 'text-red-600' : 'text-gray-700'}`}>TYPE <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.shippingMarkType || ''}
                           onChange={(selectedValue) => onChange('shippingMarkType', selectedValue)}
                           options={SHIPPING_MARK_TYPE_OPTIONS}
@@ -2205,7 +2205,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkMaterial`] ? 'text-red-600' : 'text-gray-700'}`}>MATERIAL <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.shippingMarkMaterial || ''}
                           onChange={(selectedValue) => onChange('shippingMarkMaterial', selectedValue)}
                           options={SHIPPING_MARK_MATERIAL_OPTIONS}
@@ -2335,7 +2335,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className={`text-sm font-semibold mb-2 ${errors?.[`${errorKeyPrefix}_shippingMarkQtyUnit`] ? 'text-red-600' : 'text-gray-700'}`}>QTY UNIT <span className="text-red-500">*</span></label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.shippingMarkQtyUnit || ''}
                           onChange={(selectedValue) => onChange('shippingMarkQtyUnit', selectedValue)}
                           options={['Pieces', 'Rolls']}
@@ -2362,7 +2362,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                       </div>
                       <div className="flex flex-col">
                         <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.shippingMarkApproval || ''}
                           onChange={(selectedValue) => onChange('shippingMarkApproval', selectedValue)}
                           options={PACKAGING_APPROVAL_OPTIONS}
@@ -2583,7 +2583,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   {material.packagingMaterialType === 'SHIPPING MARK' ? null : material.packagingMaterialType === 'CARTON BOX' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.cartonBoxApproval || ''}
                         onChange={(selectedValue) => onChange('cartonBoxApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2593,7 +2593,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'CORNER PROTECTORS' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.cornerProtectorApproval || ''}
                         onChange={(selectedValue) => onChange('cornerProtectorApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2603,7 +2603,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'EDGE PROTECTORS' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.edgeProtectorApproval || ''}
                         onChange={(selectedValue) => onChange('edgeProtectorApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2613,7 +2613,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'FOAM INSERT' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.foamInsertApproval || ''}
                         onChange={(selectedValue) => onChange('foamInsertApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2623,7 +2623,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'PALLET STRAP' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.palletStrapApproval || ''}
                         onChange={(selectedValue) => onChange('palletStrapApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2633,7 +2633,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'POLYBAG~Bale' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.polybagBaleApproval || ''}
                         onChange={(selectedValue) => onChange('polybagBaleApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2643,7 +2643,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'POLYBAG~POLYBAG-FLAP' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.polybagPolybagFlapApproval || ''}
                         onChange={(selectedValue) => onChange('polybagPolybagFlapApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2653,7 +2653,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'SILICA GEL DESICCANT' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.silicaGelDesiccantApproval || ''}
                         onChange={(selectedValue) => onChange('silicaGelDesiccantApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2663,7 +2663,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'SHRINK TAPE' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.stretchWrapApproval || ''}
                         onChange={(selectedValue) => onChange('stretchWrapApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2673,7 +2673,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'TAPE' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.tapeApproval || ''}
                         onChange={(selectedValue) => onChange('tapeApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2683,7 +2683,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'VOID~FILL' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.voidFillApproval || ''}
                         onChange={(selectedValue) => onChange('voidFillApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2693,7 +2693,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : material.packagingMaterialType === 'DIVIDER' ? (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.dividerApproval || ''}
                         onChange={(selectedValue) => onChange('dividerApproval', selectedValue)}
                         options={PACKAGING_APPROVAL_OPTIONS}
@@ -2703,7 +2703,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                   ) : (
                   <div className="flex flex-col">
                     <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL AGAINST</label>
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={material.approvalAgainst || ''}
                       onChange={(selectedValue) => onChange('approvalAgainst', selectedValue)}
                       options={PACKAGING_APPROVAL_OPTIONS}
@@ -2763,7 +2763,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">QUALITY</label>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.shippingMarkQuality || ''}
                                 onChange={(selectedValue) => onChange('shippingMarkQuality', selectedValue)}
                                 options={SHIPPING_MARK_QUALITY_OPTIONS}
@@ -2775,7 +2775,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             </div>
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">BARCODE STANDARD</label>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.shippingMarkBarcodeStandard || ''}
                                 onChange={(selectedValue) => onChange('shippingMarkBarcodeStandard', selectedValue)}
                                 options={SHIPPING_MARK_BARCODE_OPTIONS}
@@ -2787,7 +2787,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             </div>
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">PRINT METHOD</label>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.shippingMarkPrintMethod || ''}
                                 onChange={(selectedValue) => onChange('shippingMarkPrintMethod', selectedValue)}
                                 options={SHIPPING_MARK_PRINT_METHOD_OPTIONS}
@@ -2799,7 +2799,7 @@ const PackagingMaterialTypeFields = ({ material, onChange, errorKeyPrefix, error
                             </div>
                             <div className="flex flex-col">
                               <label className="text-sm font-semibold text-gray-700 mb-2">GUMMING QUALITY</label>
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.shippingMarkGummingQuality || ''}
                                 onChange={(selectedValue) => onChange('shippingMarkGummingQuality', selectedValue)}
                                 options={SHIPPING_MARK_GUMMING_OPTIONS}

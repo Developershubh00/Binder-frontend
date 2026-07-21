@@ -17,7 +17,6 @@ export const FABRIC_SCHEMA = {
     'fabricName', 
     'fabricComposition',
     'gsm',
-    'fabricSurplus',
     'fabricWastage',
     'fabricTestingRequirements',
     'fabricApproval',
@@ -43,7 +42,6 @@ export const YARN_BASE_SCHEMA = {
     'yarnDoublingOptions',
     'yarnPlyOptions',
     'windingOptions',
-    'surplus',
     'wastage',
     'testingRequirements',
     'approval',
@@ -71,7 +69,6 @@ export const STITCHING_THREAD_SCHEMA = {
     'stitchingThreadTestingRequirements',
     'stitchingThreadQty',
     'stitchingThreadUnit',
-    'stitchingThreadSurplus',
     'stitchingThreadWastage',
     'stitchingThreadApproval',
     'stitchingThreadRemarks'
@@ -323,19 +320,19 @@ Object.entries(TRIM_ACCESSORY_AUTO_PREFIX).forEach(([trimType, prefix]) => {
 // ==================== FOAM SCHEMAS ====================
 export const FOAM_SCHEMAS = {
   'EVA-foam': {
-    required: ['foamType', 'foamSubtype', 'foamVaContent', 'foamColour', 'foamThickness', 'foamShape', 'foamSheetPcs', 'foamGsm', 'foamLengthCm', 'foamWidthCm', 'foamKgsCns', 'foamYardageCns', 'foamTestingRequirements', 'foamSurplus', 'foamWastage', 'foamApproval', 'foamRemarks'],
+    required: ['foamType', 'foamSubtype', 'foamVaContent', 'foamColour', 'foamThickness', 'foamShape', 'foamSheetPcs', 'foamGsm', 'foamLengthCm', 'foamWidthCm', 'foamKgsCns', 'foamYardageCns', 'foamTestingRequirements', 'foamWastage', 'foamApproval', 'foamRemarks'],
     advanced: ['foamShoreHardness', 'foamCellStructure', 'foamCompressionSet', 'foamTensileStrength', 'foamElongation', 'foamWaterResistance', 'foamUvResistance', 'foamFireRetardant', 'foamSurfaceTexture', 'foamAntiSlip', 'foamInterlocking', 'foamCertification', 'foamDensity']
   },
   'pe-epe': {
-    required: ['foamPeEpeType', 'foamPeEpeSubtype', 'foamPeEpeColour', 'foamPeEpeThickness', 'foamPeEpeShape', 'foamPeEpeSheetPcs', 'foamPeEpeGsm', 'foamPeEpeLengthCm', 'foamPeEpeWidthCm', 'foamPeEpeKgsCns', 'foamPeEpeYardageCns', 'foamPeEpeTestingRequirements', 'foamPeEpeSurplus', 'foamPeEpeWastage', 'foamPeEpeApproval', 'foamPeEpeRemarks'],
+    required: ['foamPeEpeType', 'foamPeEpeSubtype', 'foamPeEpeColour', 'foamPeEpeThickness', 'foamPeEpeShape', 'foamPeEpeSheetPcs', 'foamPeEpeGsm', 'foamPeEpeLengthCm', 'foamPeEpeWidthCm', 'foamPeEpeKgsCns', 'foamPeEpeYardageCns', 'foamPeEpeTestingRequirements', 'foamPeEpeWastage', 'foamPeEpeApproval', 'foamPeEpeRemarks'],
     advanced: ['foamPeEpeCellStructure', 'foamPeEpeLamination', 'foamPeEpeCrossLinked', 'foamPeEpeAntiStatic', 'foamPeEpeWaterResistance', 'foamPeEpeCushioning', 'foamPeEpeFireRetardant', 'foamPeEpeThermalInsulation', 'foamPeEpeCertification', 'foamPeEpeDensity']
   },
   'pu-foam': {
-    required: ['foamPuType', 'foamPuSubtype', 'foamPuGrade', 'foamPuColour', 'foamPuThickness', 'foamPuShape', 'foamPuSheetPcs', 'foamPuGsm', 'foamPuLengthCm', 'foamPuWidthCm', 'foamPuKgsCns', 'foamPuYardageCns', 'foamPuTestingRequirements', 'foamPuSurplus', 'foamPuWastage', 'foamPuApproval', 'foamPuRemarks'],
+    required: ['foamPuType', 'foamPuSubtype', 'foamPuGrade', 'foamPuColour', 'foamPuThickness', 'foamPuShape', 'foamPuSheetPcs', 'foamPuGsm', 'foamPuLengthCm', 'foamPuWidthCm', 'foamPuKgsCns', 'foamPuYardageCns', 'foamPuTestingRequirements', 'foamPuWastage', 'foamPuApproval', 'foamPuRemarks'],
     advanced: ['foamPuIld', 'foamPuSupportFactor', 'foamPuResilience', 'foamPuCellStructure', 'foamPuCompressionSet', 'foamPuTensileStrength', 'foamPuElongation', 'foamPuFireRetardant', 'foamPuAntiMicrobial', 'foamPuDensity', 'foamPuCertification']
   },
   'rebonded-foam': {
-    required: ['foamRebondedType', 'foamRebondedSubtype', 'foamRebondedBonding', 'foamRebondedColour', 'foamRebondedThickness', 'foamRebondedShape', 'foamRebondedSheetPcs', 'foamRebondedGsm', 'foamRebondedLengthCm', 'foamRebondedWidthCm', 'foamRebondedKgsCns', 'foamRebondedYardageCns', 'foamRebondedTestingRequirements', 'foamRebondedSurplus', 'foamRebondedWastage', 'foamRebondedApproval', 'foamRebondedRemarks'],
+    required: ['foamRebondedType', 'foamRebondedSubtype', 'foamRebondedBonding', 'foamRebondedColour', 'foamRebondedThickness', 'foamRebondedShape', 'foamRebondedSheetPcs', 'foamRebondedGsm', 'foamRebondedLengthCm', 'foamRebondedWidthCm', 'foamRebondedKgsCns', 'foamRebondedYardageCns', 'foamRebondedTestingRequirements', 'foamRebondedWastage', 'foamRebondedApproval', 'foamRebondedRemarks'],
     advanced: ['foamRebondedIld', 'foamRebondedCompressionSet', 'foamRebondedFireRetardant', 'foamRebondedCertification', 'foamRebondedDensity'],
     conditional: {
       'foamRebondedChipSource': { when: 'foamRebondedType', contains: 'chip' },
@@ -343,19 +340,19 @@ export const FOAM_SCHEMAS = {
     }
   },
   'gel-infused-foam': {
-    required: ['foamGelInfusedType', 'foamGelInfusedBaseFoam', 'foamGelInfusedGelType', 'foamGelInfusedGelContent', 'foamGelInfusedSubtype', 'foamGelInfusedColour', 'foamGelInfusedThickness', 'foamGelInfusedShape', 'foamGelInfusedSheetPcs', 'foamGelInfusedGsm', 'foamGelInfusedLengthCm', 'foamGelInfusedWidthCm', 'foamGelInfusedKgsCns', 'foamGelInfusedYardageCns', 'foamGelInfusedTestingRequirements', 'foamGelInfusedSurplus', 'foamGelInfusedWastage', 'foamGelInfusedApproval', 'foamGelInfusedRemarks'],
+    required: ['foamGelInfusedType', 'foamGelInfusedBaseFoam', 'foamGelInfusedGelType', 'foamGelInfusedGelContent', 'foamGelInfusedSubtype', 'foamGelInfusedColour', 'foamGelInfusedThickness', 'foamGelInfusedShape', 'foamGelInfusedSheetPcs', 'foamGelInfusedGsm', 'foamGelInfusedLengthCm', 'foamGelInfusedWidthCm', 'foamGelInfusedKgsCns', 'foamGelInfusedYardageCns', 'foamGelInfusedTestingRequirements', 'foamGelInfusedWastage', 'foamGelInfusedApproval', 'foamGelInfusedRemarks'],
     advanced: ['foamGelInfusedDensity', 'foamGelInfusedIld', 'foamGelInfusedTemperatureRegulation', 'foamGelInfusedResponseTime', 'foamGelInfusedBreathability', 'foamGelInfusedFireRetardant', 'foamGelInfusedCoolingEffect', 'foamGelInfusedCertification']
   },
   'latex-foam': {
-    required: ['foamLatexType', 'foamLatexLatexType', 'foamLatexNaturalContent', 'foamLatexProcess', 'foamLatexSubtype', 'foamLatexColour', 'foamLatexThickness', 'foamLatexShape', 'foamLatexSheetPcs', 'foamLatexGsm', 'foamLatexLengthCm', 'foamLatexWidthCm', 'foamLatexKgsCns', 'foamLatexYardageCns', 'foamLatexTestingRequirements', 'foamLatexSurplus', 'foamLatexWastage', 'foamLatexApproval', 'foamLatexRemarks'],
+    required: ['foamLatexType', 'foamLatexLatexType', 'foamLatexNaturalContent', 'foamLatexProcess', 'foamLatexSubtype', 'foamLatexColour', 'foamLatexThickness', 'foamLatexShape', 'foamLatexSheetPcs', 'foamLatexGsm', 'foamLatexLengthCm', 'foamLatexWidthCm', 'foamLatexKgsCns', 'foamLatexYardageCns', 'foamLatexTestingRequirements', 'foamLatexWastage', 'foamLatexApproval', 'foamLatexRemarks'],
     advanced: ['foamLatexIld', 'foamLatexResilience', 'foamLatexCompressionSet', 'foamLatexPincorePattern', 'foamLatexZoneConfiguration', 'foamLatexBreathability', 'foamLatexHypoallergenic', 'foamLatexAntiMicrobial', 'foamLatexFireRetardant', 'foamLatexCertification', 'foamLatexDensity']
   },
   'memory-foam': {
-    required: ['foamMemoryType', 'foamMemorySubtype', 'foamMemoryGrade', 'foamMemoryColour', 'foamMemoryThickness', 'foamMemoryShape', 'foamMemorySheetPcs', 'foamMemoryGsm', 'foamMemoryLengthCm', 'foamMemoryWidthCm', 'foamMemoryKgsCns', 'foamMemoryYardageCns', 'foamMemoryTestingRequirements', 'foamMemorySurplus', 'foamMemoryWastage', 'foamMemoryApproval', 'foamMemoryRemarks'],
+    required: ['foamMemoryType', 'foamMemorySubtype', 'foamMemoryGrade', 'foamMemoryColour', 'foamMemoryThickness', 'foamMemoryShape', 'foamMemorySheetPcs', 'foamMemoryGsm', 'foamMemoryLengthCm', 'foamMemoryWidthCm', 'foamMemoryKgsCns', 'foamMemoryYardageCns', 'foamMemoryTestingRequirements', 'foamMemoryWastage', 'foamMemoryApproval', 'foamMemoryRemarks'],
     advanced: ['foamMemoryIld', 'foamMemoryResponseTime', 'foamMemoryTemperatureSensitivity', 'foamMemoryActivationTemperature', 'foamMemoryCompressionSet', 'foamMemoryResilience', 'foamMemoryBreathability', 'foamMemoryInfusion', 'foamMemoryCoolingTechnology', 'foamMemoryFireRetardant', 'foamMemoryVocEmissions', 'foamMemoryDensity', 'foamMemoryCertification']
   },
   'HR-foam': {
-    required: ['foamHrType', 'foamHrSubtype', 'foamHrGrade', 'foamHrColour', 'foamHrThickness', 'foamHrShape', 'foamHrSheetPcs', 'foamHrGsm', 'foamHrLengthCm', 'foamHrWidthCm', 'foamHrKgsCns', 'foamHrYardageCns', 'foamHrTestingRequirements', 'foamHrSurplus', 'foamHrWastage', 'foamHrApproval', 'foamHrRemarks'],
+    required: ['foamHrType', 'foamHrSubtype', 'foamHrGrade', 'foamHrColour', 'foamHrThickness', 'foamHrShape', 'foamHrSheetPcs', 'foamHrGsm', 'foamHrLengthCm', 'foamHrWidthCm', 'foamHrKgsCns', 'foamHrYardageCns', 'foamHrTestingRequirements', 'foamHrWastage', 'foamHrApproval', 'foamHrRemarks'],
     advanced: []
   }
 };
@@ -363,7 +360,7 @@ export const FOAM_SCHEMAS = {
 // ==================== FIBER SCHEMAS ====================
 export const FIBER_SCHEMAS = {
   'Polyester-Fills': {
-    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberDenier', 'fiberSiliconized', 'fiberConjugateCrimp', 'fiberColour', 'fiberTestingRequirements', 'fiberSurplus', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
+    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberDenier', 'fiberSiliconized', 'fiberConjugateCrimp', 'fiberColour', 'fiberTestingRequirements', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
     advanced: ['fiberFiberLength', 'fiberStructure', 'fiberThermalBonded', 'fiberAntiMicrobial', 'fiberFireRetardant', 'fiberCertification', 'fiberLoftFillPower'],
     conditional: {
       'fiberQty': { when: 'fiberForm', equals: 'Loose Fiber' },
@@ -375,7 +372,7 @@ export const FIBER_SCHEMAS = {
     }
   },
   'Down-Feather': {
-    required: ['fiberFiberType', 'fiberBirdType', 'fiberForm', 'fiberOrigin', 'fiberDownPercentage', 'fiberColour', 'fiberDownProofRequired', 'fiberTestingRequirements', 'fiberSurplus', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
+    required: ['fiberFiberType', 'fiberBirdType', 'fiberForm', 'fiberOrigin', 'fiberDownPercentage', 'fiberColour', 'fiberDownProofRequired', 'fiberTestingRequirements', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
     advanced: ['fiberFillPower', 'fiberProcessing', 'fiberOxygenNumber', 'fiberTurbidity', 'fiberOdor', 'fiberAntiMicrobial', 'fiberTraceability', 'fiberClusterSize', 'fiberCertification'],
     conditional: {
       'fiberQty': { when: 'fiberForm', equals: 'Loose Fiber' },
@@ -387,7 +384,7 @@ export const FIBER_SCHEMAS = {
     }
   },
   'Wool-Natural': {
-    required: ['fiberFiberType', 'fiberWoolType', 'fiberSubtype', 'fiberForm', 'fiberMicron', 'fiberColour', 'fiberTestingRequirements', 'fiberSurplus', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
+    required: ['fiberFiberType', 'fiberWoolType', 'fiberSubtype', 'fiberForm', 'fiberMicron', 'fiberColour', 'fiberTestingRequirements', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
     advanced: ['fiberProcessing', 'fiberLanolinContent', 'fiberTemperatureRegulating', 'fiberMoistureWicking', 'fiberFireRetardant', 'fiberMulesingFree', 'fiberOrganicCertified'],
     conditional: {
       'fiberQty': { when: 'fiberForm', equals: 'Loose Fiber' },
@@ -399,7 +396,7 @@ export const FIBER_SCHEMAS = {
     }
   },
   'Specialty-Fills': {
-    required: ['fiberFiberType', 'fiberForm', 'fiberTestingRequirements', 'fiberSurplus', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
+    required: ['fiberFiberType', 'fiberForm', 'fiberTestingRequirements', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
     advanced: ['fiberBlending', 'fiberEcoCertification', 'fiberBiodegradable'],
     conditional: {
       'fiberKapokSource': { when: 'fiberFiberType', equals: 'Kapok' },
@@ -420,7 +417,7 @@ export const FIBER_SCHEMAS = {
     }
   },
   'Microfiber-Fill': {
-    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberDenier', 'fiberSiliconized', 'fiberColour', 'fiberTestingRequirements', 'fiberSurplus', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
+    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberDenier', 'fiberSiliconized', 'fiberColour', 'fiberTestingRequirements', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
     advanced: ['fiberMicrofiberFiberLength', 'fiberMicrofiberStructure', 'fiberMicrofiberClusterType', 'fiberMicrofiberClusterSize', 'fiberMicrofiberAntiMicrobial', 'fiberMicrofiberHypoallergenic', 'fiberMicrofiberLoftFillPower', 'fiberMicrofiberHandFeel', 'fiberMicrofiberCertification'],
     conditional: {
       'fiberQty': { when: 'fiberForm', equals: 'Loose Fiber' },
@@ -431,7 +428,7 @@ export const FIBER_SCHEMAS = {
     }
   },
   'Down-Alternative': {
-    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberDownAlternativeConstruction', 'fiberDenier', 'fiberSiliconized', 'fiberTestingRequirements', 'fiberSurplus', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
+    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberDownAlternativeConstruction', 'fiberDenier', 'fiberSiliconized', 'fiberTestingRequirements', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
     advanced: ['fiberDownAlternativeLoftRating', 'fiberDownAlternativeFillPowerEquivalent', 'fiberDownAlternativeWarmthToWeight', 'fiberDownAlternativeWaterResistance', 'fiberDownAlternativeQuickDry', 'fiberDownAlternativeHypoallergenic', 'fiberDownAlternativeAntiMicrobial', 'fiberDownAlternativeVeganCrueltyFree', 'fiberDownAlternativeCertification', 'fiberDownAlternativeMachineWashable'],
     conditional: {
       'fiberQty': { when: 'fiberForm', equals: 'Loose Fill' },
@@ -442,7 +439,7 @@ export const FIBER_SCHEMAS = {
     }
   },
   'Cotton-Fill': {
-    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberCottonGrade', 'fiberColour', 'fiberTestingRequirements', 'fiberSurplus', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
+    required: ['fiberFiberType', 'fiberSubtype', 'fiberForm', 'fiberCottonGrade', 'fiberColour', 'fiberTestingRequirements', 'fiberWastage', 'fiberApproval', 'fiberRemarks'],
     advanced: ['fiberCottonStapleLength', 'fiberCottonProcessing', 'fiberCottonBonding', 'fiberCottonNeedlePunched', 'fiberCottonFireRetardant', 'fiberCottonDustTrashContent'],
     conditional: {
       'fiberQty': { when: 'fiberForm', equals: 'Loose Fiber' },

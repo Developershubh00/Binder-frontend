@@ -1,7 +1,7 @@
 // AdvFilterFlammabilitySafety — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { FLAMMABILITY_SAFETY_TYPES, FLAMMABILITY_SAFETY_MATERIALS, FLAMMABILITY_SAFETY_TESTING_REQUIREMENTS, FLAMMABILITY_SAFETY_APPROVAL_OPTIONS, FLAMMABILITY_SAFETY_REGULATION_OPTIONS, FLAMMABILITY_SAFETY_FONT_SIZE_OPTIONS, FLAMMABILITY_SAFETY_PERMANENCE_OPTIONS, FLAMMABILITY_SAFETY_SYMBOL_OPTIONS, FLAMMABILITY_SAFETY_INK_DURABILITY_OPTIONS, FLAMMABILITY_SAFETY_CERTIFICATION_ID_OPTIONS } from '../../data/flammabilitySafetyData';
 
 const AdvFilterFlammabilitySafety = ({
@@ -53,7 +53,7 @@ const AdvFilterFlammabilitySafety = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               REGULATION
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.flammabilitySafetyRegulation || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyRegulation', selectedValue);
@@ -82,7 +82,7 @@ const AdvFilterFlammabilitySafety = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FONT SIZE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.flammabilitySafetyFontSize || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyFontSize', selectedValue);
@@ -111,7 +111,7 @@ const AdvFilterFlammabilitySafety = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PERMANENCE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.flammabilitySafetyPermanence || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyPermanence', selectedValue);
@@ -140,7 +140,7 @@ const AdvFilterFlammabilitySafety = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               SYMBOL
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.flammabilitySafetySymbol || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetySymbol', selectedValue);
@@ -169,7 +169,7 @@ const AdvFilterFlammabilitySafety = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               INK DURABILITY
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.flammabilitySafetyInkDurability || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyInkDurability', selectedValue);
@@ -198,7 +198,7 @@ const AdvFilterFlammabilitySafety = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               CERTIFICATION ID
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.flammabilitySafetyCertificationId || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'flammabilitySafetyCertificationId', selectedValue);

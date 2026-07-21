@@ -8,7 +8,7 @@ import { TestingRequirementsInput } from '@/components/ui/testing-requirements-i
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { getFiberTypes, getYarnTypes, getYarnDetails, getYarnCompositionOptions, getYarnCountRangeOptions, getYarnDoublingOptions, getYarnPlyOptions, getYarnSpinningMethodOptions, getYarnWindingOptions } from '../../utils/yarnHelpers';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { FIBER_CATEGORIES, ORIGINS } from '../../data/advancedFilterData';
 import { YARN_TESTING_REQUIREMENT_OPTIONS } from './specConstants';
 
@@ -26,7 +26,7 @@ const YarnSpec = ({
                 <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
                   {/* Fiber Type Dropdown */}
                   <Field label="FIBER TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_fiberType`]}>
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={material.fiberType || ''}
                       onChange={(selectedFiberType) => {
                         handleRawMaterialChange(actualIndex, 'fiberType', selectedFiberType);
@@ -46,7 +46,7 @@ const YarnSpec = ({
                   
                   {/* Yarn Type Dropdown */}
                   <Field label="YARN TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnType`]}>
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={material.yarnType || ''}
                       onChange={(selectedYarnType) => {
                         handleRawMaterialChange(actualIndex, 'yarnType', selectedYarnType);
@@ -61,8 +61,8 @@ const YarnSpec = ({
                           handleRawMaterialChange(actualIndex, 'windingOptions', '');
                         }
                       }}
-                      options={material.fiberType ? mergeOptions(getYarnTypes(material.fiberType), 'Yarn', 'yarnType', material.fiberType) : []}
-                      onCustomValue={(val) => addCustomOption('Yarn', 'yarnType', material.fiberType, val)}
+                      options={material.fiberType ? mergeOptions(getYarnTypes(material.fiberType), 'Yarn', 'yarnType', '') : []}
+                      onCustomValue={(val) => addCustomOption('Yarn', 'yarnType', '', val)}
                       placeholder={material.fiberType ? 'Select or type Yarn Type' : 'Select Fiber Type First'}
                       disabled={!material.fiberType}
                       error={Boolean(errors[`rawMaterial_${actualIndex}_yarnType`])}
@@ -83,7 +83,7 @@ const YarnSpec = ({
                       {/* Input Fields Row */}
                       <div className="flex flex-wrap items-start" style={{ gap: '16px 12px' }}>
                         <Field label="COMPOSITION" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnComposition`]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.yarnComposition || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnComposition', value)}
                             options={material.fiberType && material.yarnType 
@@ -96,7 +96,7 @@ const YarnSpec = ({
                         </Field>
                         
                         <Field label="COUNT RANGE" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnCountRange`]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.yarnCountRange || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnCountRange', value)}
                             options={material.fiberType && material.yarnType 
@@ -109,7 +109,7 @@ const YarnSpec = ({
                         </Field>
                         
                         <Field label="DOUBLING OPTIONS" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnDoublingOptions`]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.yarnDoublingOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnDoublingOptions', value)}
                             options={material.fiberType && material.yarnType 
@@ -122,7 +122,7 @@ const YarnSpec = ({
                         </Field>
                         
                         <Field label="PLY OPTIONS" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnPlyOptions`]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.yarnPlyOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnPlyOptions', value)}
                             options={material.fiberType && material.yarnType 
@@ -145,7 +145,7 @@ const YarnSpec = ({
                         </Field>
                         
                         <Field label="WINDING OPTIONS" required width="sm" error={errors[`rawMaterial_${actualIndex}_windingOptions`]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.windingOptions || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'windingOptions', value)}
                             options={material.fiberType && material.yarnType 
@@ -158,7 +158,7 @@ const YarnSpec = ({
                         </Field>
 
                         <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_yarnColour`]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.yarnColour || ''}
                             onChange={(value) => handleRawMaterialChange(actualIndex, 'yarnColour', value)}
                             options={mergeOptions(
@@ -168,15 +168,6 @@ const YarnSpec = ({
                             onCustomValue={(val) => addCustomOption('Yarn', 'yarnColour', '', val)}
                             placeholder="Select or type Colour"
                             className={errors[`rawMaterial_${actualIndex}_yarnColour`] ? 'border-red-600' : ''}
-                          />
-                        </Field>
-
-                        <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_surplus`]}>
-                          <PercentInput
-                              value={material.surplus || ''}
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'surplus', e.target.value)}
-                            placeholder="e.g., 5"
-                            error={!!errors[`rawMaterial_${actualIndex}_surplus`]}
                           />
                         </Field>
                         
@@ -240,7 +231,7 @@ const YarnSpec = ({
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                             {/* Spinning Type - Searchable dropdown */}
                             <Field label="SPINNING TYPE" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.spinningType || material.spinningMethod || ''}
                                 onChange={(value) => {
                                   handleRawMaterialChange(actualIndex, 'spinningType', value);
@@ -256,7 +247,7 @@ const YarnSpec = ({
                             
                             {/* Fiber Category - Searchable dropdown */}
                             <Field label="FIBER CATEGORY" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.fiberCategory || ''}
                                 onChange={(value) => handleRawMaterialChange(actualIndex, 'fiberCategory', value)}
                                 options={FIBER_CATEGORIES}
@@ -266,7 +257,7 @@ const YarnSpec = ({
                             
                             {/* Origin - Searchable dropdown */}
                             <Field label="ORIGIN" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.origin || ''}
                                 onChange={(value) => handleRawMaterialChange(actualIndex, 'origin', value)}
                                 options={ORIGINS}

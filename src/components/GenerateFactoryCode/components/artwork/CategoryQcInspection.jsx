@@ -1,7 +1,7 @@
 // CategoryQcInspection — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { QC_INSPECTION_TYPES, QC_INSPECTION_MATERIALS, QC_INSPECTION_CONTENT, QC_INSPECTION_CODING_SYSTEM, QC_INSPECTION_GUMMING_QUALITY, QC_INSPECTION_TESTING_REQUIREMENTS, QC_INSPECTION_APPROVAL_OPTIONS } from '../../data/qcInspectionData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryQcInspection = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.qcInspectionType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'qcInspectionType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryQcInspection = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.qcInspectionMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'qcInspectionMaterial', selectedValue);
@@ -113,7 +113,7 @@ const CategoryQcInspection = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.qcInspectionSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'qcInspectionSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -130,7 +130,7 @@ const CategoryQcInspection = ({
                         {/* CONTENT - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CONTENT <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.qcInspectionContent || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'qcInspectionContent', selectedValue);
@@ -158,7 +158,7 @@ const CategoryQcInspection = ({
                         {/* CODING SYSTEM - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CODING SYSTEM <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.qcInspectionCodingSystem || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'qcInspectionCodingSystem', selectedValue);
@@ -186,7 +186,7 @@ const CategoryQcInspection = ({
                         {/* GUMMING QUALITY - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>GUMMING QU. <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.qcInspectionGummingQuality || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'qcInspectionGummingQuality', selectedValue);
@@ -314,7 +314,7 @@ const CategoryQcInspection = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.qcInspectionApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'qcInspectionApproval', selectedValue);

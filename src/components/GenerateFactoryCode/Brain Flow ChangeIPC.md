@@ -118,6 +118,140 @@ longer hint at position:
 > Format per change: **What / Why / Touch points / Status**. Keep §1–§4 updated
 > when a change lands so the baseline never drifts.
 
+### Change 23 — AUTOSAVE (the real reliability fix) + first split of the 6k-line file — ✅ DONE
+Vikram hit the same loss again (artwork: only Front Panel filled, other 3 components empty)
+and asked for the correct product answer: **autosave**, so nothing depends on the user
+clicking Save.
+
+**Read-only prod-DB diagnosis (CHD/702A/PO-36, draft 0.75 MB — NOT the size cap):** the
+persistence machinery is **healthy** — data that got saved is intact:
+- IPC-1 artwork: **Front Panel = fully saved** (19 keys incl. images); Fiber Padding =
+  category only; **Front Interlining / Back Panel = never saved (absent in draft AND the
+  `artwork` section store).** Not recoverable.
+- Same shape as the sewing case: whatever the user filled but didn't get persisted before a
+  reload is simply **not in the DB**. No table/schema corruption; the endpoint works (other
+  components/IPCs saved perfectly). The gap was **manual-save timing + silent failures**.
+
+**Fix — debounced autosave.** `GenerateFactoryCode.jsx`: every `formData` change persists the
+full draft ~2.5 s after typing settles (`autosaveTimerRef` debounce). `hasLoadedRef` (armed
+1.2 s after the initial load) stops the load's own setFormData echoing back. Non-destructive
+(writes the lossless in-memory draft); the manual Save buttons stay; a failed autosave raises
+the **loud banner** (Change 22). During continuous typing the timer keeps resetting, so it
+only fires on a pause — not per keystroke. Combined with Change 22's **section-overlay
+rehydrate net**, cut/sew/artwork now survive both "forgot to save" and "big draft PUT lost".
+
+**First refactor step (Vikram: split the 6k-line file).** Moved the 177 lines of **pure**
+module-level payload/image helpers (`compressImage`, the packaging-stiffener normalisers,
+`packagingToBackendShape`, `mergeArtworkWithUrls`, `normalizeFactoryCodePayloadStiffenerPlys`)
+into **`utils/factoryCodePayloadHelpers.js`**. Zero behaviour change (pure functions, extracted
+programmatically to avoid transcription risk); main file 6190 → ~6013 lines. Remaining planned
+parts (bigger, do next with care): (2) a `useFactoryCodePersistence` hook (load + save +
+autosave + section store), (3) the step-save handlers, (4) the inline render screens
+(`renderIPCSelectorScreen` etc.).
+
+**Touch points:** `GenerateFactoryCode.jsx` (autosave effect + `hasLoadedRef`/`autosaveTimerRef`
++ arm-after-load); NEW `utils/factoryCodePayloadHelpers.js`.
+**Verified:** `npm run build` green; changed files lint-clean (only pre-existing legacy-unused
+warnings). Autosave needs a live confirm (edit a field → ~3 s → "Saved" → reload → data stays).
+
+### Change 22 — Cut/Sew spec: one card per work order + Cut/Sew persistence resilience — ✅ DONE
+Two things Vikram hit while testing Change 21 live.
+
+**(1) Each cutting/sewing WO is its own titled card (was: merged in one material card).**
+`SpecSection.jsx` now renders **one card per work order** — title `{component} · {typeCode}`
+(e.g. *Back Panel · SEWING #1*), flow step + BOM remark subtitle, material line, then the
+single-WO form. `WorkOrdersSection` gained `hideHeader` + `hideSectionTitle` (the caller
+owns the heading, so no double "WORK ORDER" row). Generic → applies to Cutting **and**
+Sewing. Verified in the harness (`flowharness.html?view=spec`).
+
+**(2) Cut/Sew data vanished after reopen — diagnosed + hardened.**
+Symptom: filled Sewing spec showed empty on reload though "Saved". **Root cause (from a
+READ-ONLY prod-DB inspection of IPO CHD/702A/PO-36):** the sewing sizes were **never in the
+DB** for the affected IPC — empty in **both** the draft **and** the `cutsew` section
+(draft only 0.75 MB, so NOT the Change-19 size cap; a save simply never captured them).
+IPC-2 on the same IPO had sewing 6/6 saved fine, and cut/sew sizes live on the *same* WO
+objects, so the pipeline is sound — the edit just didn't get persisted. **Old data is not
+recoverable** (nowhere in the DB); it must be re-entered. Two hardening changes so it
+can't silently happen again:
+- **Section-store rehydrate net** — new `utils/sectionOverlay.js`
+  (`overlayCutSewSlice` / `applyCutSewSections`). On load, after the draft/committed merge,
+  overlay Cut/Sew sizes + clubs from the (smaller, more reliable) `cutsew` section store
+  onto `rawMaterials`, **fill-empty-only** (never overwrites newer draft values; matches by
+  componentName + type + occurrence). Best-effort/guarded. Now the big fragile draft losing
+  a save doesn't lose cut/sew data if the small section PUT survived (the Change-19 class).
+  Wired into the load `Promise.all` (`getFactoryCodeSections`) + both setFormData branches.
+- **Loud save-failure banner** — a fixed, top-center red **"Your changes were NOT saved to
+  the server"** alert (Retry / Dismiss) whenever `serverSaveState === 'error'`, replacing the
+  easy-to-miss breadcrumb text. `saveErrorDismissed` state; auto-resets when a save succeeds.
+
+**Touch points:** `components/cutting/SpecSection.jsx` (per-WO cards); `components/workOrders/
+WorkOrdersSection.jsx` (`hideHeader`/`hideSectionTitle`); NEW `utils/sectionOverlay.js`;
+`GenerateFactoryCode.jsx` (import + sections fetch + overlay in both load branches; loud
+banner + dismiss state). **No backend change** (the DB touch was read-only inspection only).
+
+**Verified:** `npm run build` green; eslint clean on the changed files (only the known
+pre-existing legacy-unused-handler errors remain). Overlay unit-test deferred (Vikram: later).
+
+> Follow-up worth doing: the real failure mode was "edits made but never persisted." A
+> stronger guard = autosave-on-navigate / an unsaved-changes prompt when leaving Cut/Sew.
+> Not done yet (would touch the shared nav path); the loud banner + section net cover the
+> silent-loss case for now.
+
+### Change 21 — Work-order FLOW identity (unique ID + sequence), surfaced end-to-end — ✅ DONE
+**What:** A component-material's `workOrders` array is an ordered **process flow**
+(e.g. DYEING → CUTTING → QUILTING → CUTTING → SEWING). Made that flow **explicit and
+each work order uniquely identifiable** so a repeated type (two CUTTING steps) is never
+ambiguous:
+1. **BOM & WO** (`WorkOrdersSection.jsx`): a **FLOW strip** at the top of WORK ORDERS
+   renders the ordered chain `1 DYEING → 2 CUTTING #1 → 3 QUILTING → 4 CUTTING #2 →
+   5 SEWING`; each work-order header gets an **identity badge** (`CUTTING #1`) + "Flow
+   step N of M".
+2. **Cut & Sew spec** (`SpecSection.jsx`): both cuttings now render as **distinct
+   labeled blocks** — each shows its true flow step/occurrence (CUTTING #1 · Step 2 of
+   5 vs CUTTING #2 · Step 4 of 5) + its BOM remark, each with its own size fields. A
+   caption warns when a component has >1 work order of the type. (Fixes the "one merged
+   section for two different-size cuttings" problem.)
+3. **Clubbing / Process** (`ProcessSection.jsx`): each component/club row shows its
+   `woType` work-order identities (CUTTING #1, CUTTING #2) so clubbing is done with the
+   work-order view in mind.
+
+**Why (Vikram):** "when selecting work orders it is dedicated with flows like unique
+identification … 2 cutting work orders (prior/post quilting) … in the cutting spec it
+shows 1 section though both cuttings have different sizes … flow will not break (can't
+cut before dyeing) … the 2 cuttings must also show for clubbing."
+
+**How — derive, don't store (zero DB risk):** new `components/workOrders/workOrderFlow.js`
+→ `buildFlowMeta(workOrders)` derives per-WO `{ step, total, type, occurrence,
+occurrenceTotal, repeats, code:'WO-2', typeCode:'CUTTING #1', label, remark }` purely
+from array position — no schema/payload change, no backfill, always in sync with the
+flow. `WorkOrdersSection` gained an optional **`flowMeta` prop**: in BOM it derives from
+the full list; in the Cut/Sew reuse `SpecSection` derives from the **original** material
+and slices the meta to the filtered CUTTING/SEWING WOs, so each block keeps its TRUE
+flow step instead of renumbering 1..n.
+
+**Flow integrity:** array order (= the process flow) is preserved everywhere and only
+displayed, never auto-reordered; `SpecSection`'s `woIdx` already lists matching WOs in
+ascending flow order. No panel/behaviour removed — all additive.
+
+**Touch points:**
+- NEW `components/workOrders/workOrderFlow.js` (`buildFlowMeta`, `flowChain`).
+- `components/workOrders/WorkOrdersSection.jsx` — import; arrow → block body computing
+  `flow`; `flowMeta` prop; FLOW strip (BOM only); header identity badge + step + (reuse)
+  remark subtitle.
+- `components/cutting/SpecSection.jsx` — derive full-material meta, pass sliced
+  `flowMeta`, multi-WO caption.
+- `components/cutting/ProcessSection.jsx` — `woIdentitiesOf(name)`; identities rendered
+  under each single + club row.
+
+**Verified:** `npm run build` green; `eslint` on all 4 files clean (no `no-undef`).
+
+> Follow-ups (not done, low value / higher risk): (a) **reorder controls** (move
+> up/down) if users need to correct flow order in place — needs a `moveWorkOrder`
+> orchestrator handler; today order is set by add/remove sequence. (b) **stored** WO ids
+> for cross-session-stable references — derived is sufficient for identity today.
+> (c) **WO-level clubbing** (club specific cutting WOs across components) — clubbing
+> stays per-component per Change 10; the WO identities are now surfaced there for context.
+
 ### Change 1 — Move COMPONENT + ASSIGN PLACEMENT to Product Spec — ✅ DONE
 **What:** On the **Product Spec page (Step0)**, each SKU *and* each subproduct now
 has a **Components** list — rows of **COMPONENT** + **ASSIGN PLACEMENT**
@@ -650,6 +784,34 @@ re-entered. Nothing was corrupted; the draft simply predates it.
 > Follow-up worth doing: the draft only grows. Base64 images are the bulk of it — the
 > "trim + rehydrate" work in §Still open #1 is now a **reliability** issue, not just
 > latency. 64 MB buys headroom, not a cure.
+
+### Change 20 — Strip dead surplus keys from the data model — ✅ DONE
+Follow-up to Change 19 (full cleanliness). Removed the now-unused material-prefixed
+surplus keys from the two scaffold sources (`GenerateFactoryCode.jsx` inline + multi-line
+raw-material scaffolds, and `utils/initializers.js`): `fabricSurplus`, `fiberSurplus`,
+the 8 `foam*Surplus`, `stitchingThreadSurplus` (21 initializers removed).
+- **Kept** the generic `surplus` key everywhere — it is live: trims (`TrimAccessoryFields`),
+  packaging (`PackagingMaterialTypeFields`), artwork (`Step4`), the consumption breakdown,
+  and backend hydration (`hydrateFromCommitted`/`wizardPayload`) all read/write it.
+- **Left `ConsumptionSheet.jsx` untouched** — its surplus/wastage breakdown lists still
+  name the prefixed keys, but they read defensively (absent → skipped), so a missing key
+  is harmless; touching it would be consumption-math surgery, out of scope.
+- **Build green.**
+
+### Change 19 — SURPLUS % removed from all raw materials — ✅ DONE
+Per Vikram: remove the mandatory **SURPLUS %** field from every raw-material type in the
+IPC Spec (Factory Code only — IMS StockSheet untouched).
+- **UI:** deleted the SURPLUS % block from 18 spec components — `FabricSpec`, `YarnSpec`,
+  `StitchingThreadSpec`, all 8 `foamTypes/*` (Eva, PeEpe, Pu, Rebonded, GelInfused,
+  Latex, Memory, Hr), and all 7 `fiberTypes/*` (Specialty, Microfiber, DownFeather,
+  Polyester, Wool, Cotton, DownAlt). WASTAGE % and every other field left intact.
+- **Validation:** removed the surplus key from each raw-material schema `required` list in
+  `src/utils/validationSchemas.js` — `fabricSurplus`, `surplus` (yarn),
+  `stitchingThreadSurplus`, the 8 `foam*Surplus`, and `fiberSurplus` (×7). Deliberately
+  **kept** `surplus` on the ZIPPER trim schema and `foamInsertSurplus` on packaging —
+  those are not raw materials.
+- Data initializers (`surplus: ''`, etc.) left as harmless empty strings; ConsumptionSheet
+  reads surplus defensively (missing → 0). **Build green.**
 
 ### Change 18 — Starting / Completion dates: drop the mandatory check — ✅ DONE
 Follow-up to Change 17: after the date inputs were removed, saving still failed because

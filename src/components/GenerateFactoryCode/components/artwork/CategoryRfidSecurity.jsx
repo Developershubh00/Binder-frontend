@@ -1,7 +1,7 @@
 // CategoryRfidSecurity — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { RFID_TYPES, RFID_FORM_FACTORS, RFID_CHIP_MODELS, RFID_TESTING_REQUIREMENTS } from '../../data/rfidSecurityData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryRfidSecurity = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.rfidType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'rfidType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryRfidSecurity = ({
                         {/* FORM FACTOR - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FORM FACTOR <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.rfidFormFactor || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'rfidFormFactor', selectedValue);
@@ -95,7 +95,7 @@ const CategoryRfidSecurity = ({
                         {/* CHIP MODEL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CHIP MODEL <span className="text-red-500">*</span></label>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.rfidChipModel || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'rfidChipModel', selectedValue);
@@ -141,7 +141,7 @@ const CategoryRfidSecurity = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                <SearchableDropdown
+                                <TenantDropdown
                                   value={material.rfidSizeUnit || ''}
                                   onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'rfidSizeUnit', selectedValue)}
                                   options={UNIT_OPTIONS_WITH_PCS}

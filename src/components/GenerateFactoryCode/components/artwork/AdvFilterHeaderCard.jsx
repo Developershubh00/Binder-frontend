@@ -1,7 +1,7 @@
 // AdvFilterHeaderCard — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { HEADER_CARDS_TYPES, HEADER_CARDS_MATERIALS, HEADER_CARDS_TESTING_REQUIREMENTS, HEADER_CARDS_APPROVAL_OPTIONS, HEADER_CARDS_FUNCTION_OPTIONS, HEADER_CARDS_CONTENT_OPTIONS, HEADER_CARDS_PRINTING_OPTIONS, HEADER_CARDS_FINISH_OPTIONS, HEADER_CARDS_STIFFNESS_OPTIONS, HEADER_CARDS_ACID_FREE_OPTIONS, HEADER_CARDS_BRANDING_OPTIONS } from '../../data/headerCardsData';
 
 const AdvFilterHeaderCard = ({
@@ -45,7 +45,7 @@ const AdvFilterHeaderCard = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">FUNCTION</label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.headerCardFunction || ''}
                               onChange={(selectedValue) => {
                                 handleArtworkMaterialChange(actualIndex, 'headerCardFunction', selectedValue);
@@ -61,7 +61,7 @@ const AdvFilterHeaderCard = ({
                           </div>
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">CONTENT</label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.headerCardContent || ''}
                               onChange={(selectedValue) => {
                                 handleArtworkMaterialChange(actualIndex, 'headerCardContent', selectedValue);
@@ -77,7 +77,7 @@ const AdvFilterHeaderCard = ({
                           </div>
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">PRINTING</label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.headerCardPrinting || ''}
                               onChange={(selectedValue) => {
                                 handleArtworkMaterialChange(actualIndex, 'headerCardPrinting', selectedValue);
@@ -93,7 +93,7 @@ const AdvFilterHeaderCard = ({
                           </div>
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">FINISH</label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.headerCardFinish || ''}
                               onChange={(selectedValue) => {
                                 handleArtworkMaterialChange(actualIndex, 'headerCardFinish', selectedValue);
@@ -109,7 +109,7 @@ const AdvFilterHeaderCard = ({
                           </div>
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">STIFFNESS</label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.headerCardStiffness || ''}
                               onChange={(selectedValue) => {
                                 handleArtworkMaterialChange(actualIndex, 'headerCardStiffness', selectedValue);
@@ -125,7 +125,7 @@ const AdvFilterHeaderCard = ({
                           </div>
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">ACID-FREE</label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.headerCardAcidFree || ''}
                               onChange={(selectedValue) => {
                                 handleArtworkMaterialChange(actualIndex, 'headerCardAcidFree', selectedValue);
@@ -141,7 +141,7 @@ const AdvFilterHeaderCard = ({
                           </div>
                           <div className="flex flex-col">
                             <label className="text-sm font-semibold text-gray-700 mb-2">BRANDING</label>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.headerCardBranding || ''}
                               onChange={(selectedValue) => {
                                 handleArtworkMaterialChange(actualIndex, 'headerCardBranding', selectedValue);

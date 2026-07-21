@@ -1,7 +1,7 @@
 // CategoryInsertCards — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { INSERT_CARDS_TYPES, INSERT_CARDS_MATERIALS, INSERT_CARDS_TESTING_REQUIREMENTS, INSERT_CARDS_APPROVAL_OPTIONS, INSERT_CARDS_FUNCTION_OPTIONS, INSERT_CARDS_CONTENT_OPTIONS, INSERT_CARDS_PRINTING_OPTIONS, INSERT_CARDS_FINISH_OPTIONS, INSERT_CARDS_STIFFNESS_OPTIONS, INSERT_CARDS_ACID_FREE_OPTIONS, INSERT_CARDS_BRANDING_OPTIONS } from '../../data/insertCardsData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryInsertCards = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.insertCardsType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryInsertCards = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.insertCardsMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsMaterial', selectedValue);
@@ -116,7 +116,7 @@ const CategoryInsertCards = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.insertCardsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'insertCardsSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -234,7 +234,7 @@ const CategoryInsertCards = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.insertCardsApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsApproval', selectedValue);

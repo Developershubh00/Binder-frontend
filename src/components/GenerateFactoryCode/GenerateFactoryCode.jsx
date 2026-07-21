@@ -15,190 +15,20 @@ import { FormCard } from '@/components/ui/form-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection } from '../../services/integration';
+import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection, getFactoryCodeSections } from '../../services/integration';
+import { applyCutSewSections } from './utils/sectionOverlay';
+import { enumerateProcessRows } from './utils/processRows';
+// Pure default/scaffold builders (blank per-IPC stepData + packaging defaults).
+import { getInitialStepData, getDefaultPackagingMaterial, getDefaultExtraPack } from './data/stepDataDefaults';
+// Pure raw-material row builder (common shape + per-type default fields).
+import { buildRawMaterialScaffold } from './data/rawMaterialScaffold';
 import { replaceFilesWithBlobUrls, uploadToBlob } from '../../services/blobUpload';
 import { scrollToFirstError } from '@/utils/scrollToFirstError';
 import { hydrateSkusFromFactoryCodes, mergeDraftOverCommitted } from './utils/hydrateFromCommitted';
 import { useLoading } from '../../context/LoadingContext';
 import { buildWizardPayload as buildWizardPayloadUtil, cleanArtworkFilesForWizard, cleanPackagingFilesForWizard } from './utils/wizardPayload';
-
-// ─── IMAGE COMPRESSION UTILITY ───────────────────────────────────────────────
-// Compresses image to maxKB. Quality never drops below (1 - maxQualityDrop).
-// e.g. maxKB=100, maxQualityDrop=0.2 → min quality = 80%, target size = 100KB
-const compressImage = (file, maxKB = 100, maxQualityDrop = 0.2) => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let { width, height } = img;
-        // Scale down if larger than 1200px on any side
-        const MAX_DIM = 1200;
-        if (width > MAX_DIM || height > MAX_DIM) {
-          const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
-          width = Math.round(width * ratio);
-          height = Math.round(height * ratio);
-        }
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-
-        const minQuality = 1 - maxQualityDrop; // e.g. 0.8
-        let quality = 0.95;
-
-        const tryCompress = () => {
-          const dataUrl = canvas.toDataURL('image/jpeg', quality);
-          const sizeKB = (dataUrl.length * 3) / 4 / 1024;
-
-          if (sizeKB <= maxKB || quality <= minQuality) {
-            // Convert dataUrl → File
-            const arr = dataUrl.split(',');
-            const mime = arr[0].match(/:(.*?);/)[1];
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8arr = new Uint8Array(n);
-            while (n--) u8arr[n] = bstr.charCodeAt(n);
-            const newName = file.name.replace(/\.[^.]+$/, '.jpg');
-            resolve(new File([u8arr], newName, { type: mime }));
-          } else {
-            quality = Math.max(minQuality, +(quality - 0.05).toFixed(2));
-            tryCompress();
-          }
-        };
-        tryCompress();
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-};
-// ─────────────────────────────────────────────────────────────────────────────
-
-const STIFFENER_PLY_FIELD = 'cartonBoxStiffenerNoOfPlys';
-const STIFFENER_PLY_API_FIELD = 'carton_box_stiffener_no_of_plys';
-
-const normalizePackagingMaterialStiffenerPlys = (material) => {
-  if (!material || typeof material !== 'object' || Array.isArray(material)) return material;
-  const normalized = { ...material };
-  const value = normalized[STIFFENER_PLY_FIELD] ?? normalized[STIFFENER_PLY_API_FIELD];
-  if (value === undefined || value === null) return normalized;
-
-  normalized[STIFFENER_PLY_FIELD] = value;
-  if (String(value).trim() !== '') {
-    normalized[STIFFENER_PLY_API_FIELD] = value;
-  } else if (Object.prototype.hasOwnProperty.call(normalized, STIFFENER_PLY_API_FIELD)) {
-    delete normalized[STIFFENER_PLY_API_FIELD];
-  }
-
-  return normalized;
-};
-
-const normalizePackagingBlockStiffenerPlys = (packaging) => {
-  if (!packaging || typeof packaging !== 'object' || Array.isArray(packaging)) return packaging;
-
-  const normalizeMaterials = (materials) =>
-    Array.isArray(materials)
-      ? materials.map((material) => normalizePackagingMaterialStiffenerPlys(material))
-      : materials;
-
-  return {
-    ...packaging,
-    materials: normalizeMaterials(packaging.materials),
-    extraPacks: Array.isArray(packaging.extraPacks)
-      ? packaging.extraPacks.map((pack) =>
-          pack && typeof pack === 'object' && !Array.isArray(pack)
-            ? { ...pack, materials: normalizeMaterials(pack.materials) }
-            : pack
-        )
-      : packaging.extraPacks,
-  };
-};
-
-/** Map frontend packaging (camelCase) to backend Packaging API fields (snake_case). */
-const packagingToBackendShape = (packaging) => {
-  if (!packaging || typeof packaging !== 'object' || Array.isArray(packaging)) return packaging;
-  const ps = packaging.productSelection ?? packaging.product_selection;
-  const product_selection = Array.isArray(ps) ? ps.join(',') : (ps != null ? String(ps) : '');
-  return {
-    product_selection,
-    packaging_type: packaging.type ?? packaging.packaging_type ?? 'STANDARD',
-    casepack_qty: packaging.casepackQty ?? packaging.casepack_qty ?? null,
-    assorted_sku_link: packaging.assortedSkuLink ?? packaging.assorted_sku_link ?? '',
-    materials: packaging.materials ?? [],
-  };
-};
-
-/**
- * Merge blob URLs from the uploaded payload back into the in-memory
- * artwork-materials array by index. Any key whose in-memory value is a
- * `File` (or is missing) is replaced with the string URL returned by
- * `replaceFilesWithBlobUrls`. Non-file fields and already-string URLs are
- * left alone.
- *
- * This keeps the on-screen "UPLOADED" badge and the per-IPO draft consistent
- * with what the backend actually stores after a successful wizard commit.
- */
-const mergeArtworkWithUrls = (memMaterials, uploadedMaterials) => {
-  if (!Array.isArray(memMaterials)) return memMaterials;
-  if (!Array.isArray(uploadedMaterials) || uploadedMaterials.length === 0) {
-    return memMaterials;
-  }
-  return memMaterials.map((mem, idx) => {
-    const uploaded = uploadedMaterials[idx];
-    if (!mem || typeof mem !== 'object') return mem;
-    if (!uploaded || typeof uploaded !== 'object') return mem;
-    const merged = { ...mem };
-    for (const [key, uploadedValue] of Object.entries(uploaded)) {
-      const current = merged[key];
-      // Only overwrite when the uploaded value is a string (URL) and the
-      // current value is either missing or a File. Never clobber a
-      // user-edited string with a stale upload.
-      const isUploadedUrl = typeof uploadedValue === 'string' && uploadedValue;
-      if (!isUploadedUrl) continue;
-      const currentIsFile = typeof File !== 'undefined' && current instanceof File;
-      const currentIsMissing = current == null || current === '';
-      if (currentIsFile || currentIsMissing) {
-        merged[key] = uploadedValue;
-      }
-    }
-    return merged;
-  });
-};
-
-const normalizeFactoryCodePayloadStiffenerPlys = (payload) => {
-  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
-
-  const normalizeStepData = (stepData) => {
-    if (!stepData || typeof stepData !== 'object' || Array.isArray(stepData)) return stepData;
-    return {
-      ...stepData,
-      packaging: normalizePackagingBlockStiffenerPlys(stepData.packaging),
-    };
-  };
-
-  return {
-    ...payload,
-    packaging: normalizePackagingBlockStiffenerPlys(payload.packaging),
-    skus: Array.isArray(payload.skus)
-      ? payload.skus.map((sku) =>
-          sku && typeof sku === 'object' && !Array.isArray(sku)
-            ? {
-                ...sku,
-                stepData: normalizeStepData(sku.stepData),
-                subproducts: Array.isArray(sku.subproducts)
-                  ? sku.subproducts.map((sub) =>
-                      sub && typeof sub === 'object' && !Array.isArray(sub)
-                        ? { ...sub, stepData: normalizeStepData(sub.stepData) }
-                        : sub
-                    )
-                  : sku.subproducts,
-              }
-            : sku
-        )
-      : payload.skus,
-  };
-};
+import { MaterialOptionsProvider } from './utils/useMaterialOptions';
+import { compressImage, normalizePackagingBlockStiffenerPlys, packagingToBackendShape, mergeArtworkWithUrls, normalizeFactoryCodePayloadStiffenerPlys } from './utils/factoryCodePayloadHelpers';
 
 const GenerateFactoryCode = ({
   onBack,
@@ -248,6 +78,13 @@ const GenerateFactoryCode = ({
   // process, so users must SEE whether each Save actually reached the DB (not just
   // this device). 'idle' | 'saving' | 'saved' | 'error' | 'local' (no IPO yet).
   const [serverSaveState, setServerSaveState] = useState('idle');
+  // A failed server save is dangerous for weeks-long work, so it gets a loud, fixed
+  // banner (not just the small breadcrumb text). Dismissable, but re-shows on the next
+  // failure. Cleared automatically whenever a save succeeds / is retrying.
+  const [saveErrorDismissed, setSaveErrorDismissed] = useState(false);
+  useEffect(() => {
+    if (serverSaveState !== 'error') setSaveErrorDismissed(false);
+  }, [serverSaveState]);
   const [step4SaveStatus, setStep4SaveStatus] = useState('idle'); // 'idle' | 'success' | 'error'
   const [showSaveMessage, setShowSaveMessage] = useState(false); // Show "save first" message
   const [saveMessage, setSaveMessage] = useState(''); // Message to display
@@ -261,6 +98,10 @@ const GenerateFactoryCode = ({
     messages: [],
     errors: null
   });
+  // Packaging PO-balance still pending at Generate time — confirmation popup.
+  const [pendingPackPopup, setPendingPackPopup] = useState({ open: false, balance: 0 });
+  // Set true when the user acknowledges the pending popup so the re-run proceeds.
+  const pendingAckRef = useRef(false);
   const [formData, setFormData] = useState({
     // Internal Purchase Order fields (if provided)
     orderType: initialFormData.orderType || '',
@@ -386,6 +227,7 @@ const GenerateFactoryCode = ({
           qtyToBePacked: 'AS_PER_PO',
           customQty: '',
           productSelection: [],
+          packQty: {},
           isAssortedPack: false,
           assortedSkuLink: '',
           artworkAndPackaging: '',
@@ -607,6 +449,23 @@ const GenerateFactoryCode = ({
   const [errors, setErrors] = useState({});
   const latestFormDataRef = useRef(formData);
   latestFormDataRef.current = formData;
+  // Autosave plumbing: `hasLoadedRef` is armed shortly AFTER the initial draft load so
+  // the load's own setFormData never echoes straight back to the server; `autosaveTimerRef`
+  // holds the debounce timer.
+  const hasLoadedRef = useRef(false);
+  const autosaveTimerRef = useRef(null);
+  // Monotonic token guarding draft saves against a last-write-wins race: the draft
+  // PUT is preceded by async base64 encoding, so an older, slower save could land
+  // AFTER a newer one and overwrite fresh data with stale (backend is full-replace).
+  // Each save takes a token at start and only PUTs if no newer save has begun.
+  const saveSeqRef = useRef(0);
+  // Signature of the last Cut/Sew slice mirrored to the section store on autosave —
+  // skip redundant PUTs when nothing cut/sew-related changed.
+  const lastCutsewSigRef = useRef('');
+  // Always points at the latest "flush the pending debounced save now" fn, so the
+  // unmount/navigation effects (whose closures would otherwise be stale) can persist
+  // edits made inside the 2.5s autosave window before the user leaves (Problem 2).
+  const flushPendingSaveRef = useRef(null);
 
 
   const fileToBase64 = (file) => {
@@ -651,6 +510,9 @@ const GenerateFactoryCode = ({
   };
 
   const saveToLocalStorage = async (data) => {
+    // Claim the latest save token. If a newer save starts while we await the base64
+    // encoding below, we skip our PUT so stale data can't overwrite fresher data.
+    const mySaveSeq = ++saveSeqRef.current;
     let normalizedPayload = null;
     try {
       const cloned = JSON.parse(JSON.stringify(data, (key, value) => {
@@ -719,6 +581,9 @@ const GenerateFactoryCode = ({
         setServerSaveState('local');
         return;
       }
+      // A newer save started while we were encoding — its payload is fresher, so
+      // drop this stale one rather than let it land last and overwrite fresh data.
+      if (mySaveSeq !== saveSeqRef.current) return;
       // Persist to the DB (Postgres) and reflect the real outcome so a failed
       // server save never masquerades as "Saved". Fire-and-forget for the UI
       // thread, but the status updates when it resolves.
@@ -734,14 +599,52 @@ const GenerateFactoryCode = ({
 
   const saveCurrentFormState = () => saveToLocalStorage(latestFormDataRef.current);
 
+  // AUTOSAVE — the IPC Spec is a weeks-long, multi-component/multi-IPC process and users
+  // routinely move on without clicking Save; anything only in memory is lost on reload.
+  // So every edit is persisted to the DB draft ~2.5s after typing settles (debounced).
+  // Non-destructive: it writes the FULL in-memory formData (the lossless draft), so no data
+  // depends on a manual Save. The manual Save buttons still work; a failed autosave raises
+  // the same loud banner. `hasLoadedRef` gates out the initial load's own setFormData.
+  useEffect(() => {
+    if (!hasLoadedRef.current) return;
+    const ipoId = initialFormData?.ipoId || formData?.ipoId;
+    if (!ipoId) return; // pre-IPO scratchpad: can't sync until the IPO exists
+    clearTimeout(autosaveTimerRef.current);
+    autosaveTimerRef.current = setTimeout(() => {
+      autosaveTimerRef.current = null; // fired → no longer pending (see flushPendingSave)
+      saveCurrentFormState();
+      // Also mirror the Cut/Sew slice into the reliable per-section store on autosave —
+      // NOT only on an explicit Cut & Sew "Save" click. The sewing/cutting SPEC (SPI,
+      // thread type, approval, sizes…) lives only here + the fragile draft, so if the
+      // user navigates away without clicking Save and the draft PUT is lost, this is
+      // what lets the overlay restore it on reload (Problem 2). Guarded to when there
+      // IS cut/sew data and it actually changed, to avoid pointless PUTs.
+      try {
+        const slice = buildCutSewSlice(getSelectedSkuStepData());
+        if (slice.workOrderSpecs.length) {
+          const sig = `${String(selectedSku)}|${JSON.stringify(slice)}`;
+          if (sig !== lastCutsewSigRef.current) {
+            lastCutsewSigRef.current = sig;
+            persistSection('cutsew', slice);
+          }
+        }
+      } catch (e) { console.warn('cutsew autosave mirror failed', e); }
+    }, 2500);
+    return () => clearTimeout(autosaveTimerRef.current);
+  }, [formData]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Mirror a step's slice into the per-section DB store (IPO Management). Additive
   // and guarded: never blocks the draft save; no-op before the IPO exists. This is
   // what makes the section store the DB source of truth going forward (§Change 7);
   // the draft still holds everything until the trim/rehydrate cutover is verified.
   const persistSection = (section, slice) => {
     const skuKey = selectedSku != null ? String(selectedSku) : '';
-    if (!formData.ipoId || !skuKey) return;
-    saveFactoryCodeSection(formData.ipoId, skuKey, section, slice)
+    // Use the same IPO-id resolution as the draft/autosave. `formData.ipoId` can be
+    // nulled when a loaded draft's payload lacks it, which would silently disable the
+    // section backup — the exact store meant to survive a lost draft (Problem 2).
+    const ipoId = initialFormData?.ipoId || formData?.ipoId;
+    if (!ipoId || !skuKey) return;
+    saveFactoryCodeSection(ipoId, skuKey, section, slice)
       .catch((e) => console.warn(`Section '${section}' save failed`, e));
   };
 
@@ -822,7 +725,7 @@ const GenerateFactoryCode = ({
       // dropped when serializing File objects.
       _mark('setup');
       const ipoId = initialFormData?.ipoId || null;
-      const [draftRes, committedRes] = await Promise.all([
+      const [draftRes, committedRes, sectionsRes] = await Promise.all([
         getFactoryCodeDraft(ipoId).catch((e) => {
           console.warn('Failed to load draft', e);
           return null;
@@ -833,8 +736,17 @@ const GenerateFactoryCode = ({
               return null;
             })
           : Promise.resolve(null),
+        // Per-section store (smaller, more reliable than the big draft). Used to
+        // overlay Cut/Sew sizes + clubs back if the draft lost them (see sectionOverlay).
+        ipoId
+          ? getFactoryCodeSections(ipoId).catch((e) => {
+              console.warn('Failed to load section store', e);
+              return null;
+            })
+          : Promise.resolve(null),
       ]);
       _mark('api_parallel');
+      const cutSewSections = Array.isArray(sectionsRes?.sections) ? sectionsRes.sections : [];
 
       if (cancelled) return;
 
@@ -860,6 +772,9 @@ const GenerateFactoryCode = ({
           data.skus = mergeDraftOverCommitted(data.skus || [], committedSkus);
           _mark('merge_committed');
         }
+        // Overlay Cut/Sew sizes + clubs from the (more reliable) section store so a
+        // draft that lost them still reloads with the data. Fill-empty only.
+        try { applyCutSewSections(data.skus, cutSewSections); } catch (e) { console.warn('cutsew overlay failed', e); }
         setFormData((prev) => ({ ...prev, ...data }));
         _mark('setFormData');
         console.log('[IPC Spec perf]', {
@@ -876,6 +791,7 @@ const GenerateFactoryCode = ({
       // No usable draft — fall back to committed rows (cross-device /
       // cross-user scenario) before trying the stale localStorage cache.
       if (committedSkus.length) {
+        try { applyCutSewSections(committedSkus, cutSewSections); } catch (e) { console.warn('cutsew overlay failed', e); }
         setFormData((prev) => ({ ...prev, skus: committedSkus }));
         _mark('setFormData');
         console.log('[IPC Spec perf]', {
@@ -892,6 +808,9 @@ const GenerateFactoryCode = ({
       // nor committed rows exist, start from the default empty form.
     })().finally(() => {
       hideLoading();
+      // Arm autosave a moment after the load settles so the load's own setFormData
+      // doesn't immediately echo back to the server. From here, real user edits autosave.
+      setTimeout(() => { hasLoadedRef.current = true; }, 1200);
     });
     return () => { cancelled = true; };
   }, []);
@@ -1081,171 +1000,6 @@ const GenerateFactoryCode = ({
   };
 
   // Helper to get initial step data for a new SKU
-  const getInitialStepData = () => ({
-    products: [{
-      name: '',
-      components: [{
-        srNo: 1,
-        productComforter: '',
-        placement: '',
-        unit: '',
-        gsm: '',
-        wastage: '',
-        cuttingSize: { length: '', width: '' },
-        sewSize: { cns: '', length: '', width: '', netCns: '' },
-      }],
-    }],
-    rawMaterials: [],
-    consumptionMaterials: [],
-    artworkMaterials: [{
-      srNo: 1,
-      materialDescription: '',
-      unit: '',
-      placement: '',
-      workOrder: '',
-      wastage: '',
-      forField: '',
-      packagingWorkOrder: '',
-      width: '',
-      size: '',
-      gsm: '',
-      artworkCategory: '',
-      specificType: '',
-      material: '',
-      sizeArtworkId: '',
-      foldType: '',
-      colours: '',
-      finishing: '',
-      testingRequirement: '',
-      lengthQuantity: '',
-      surplus: '',
-      approval: '',
-      remarks: '',
-      careSymbols: '',
-      countryOfOrigin: '',
-      manufacturerId: '',
-      language: '',
-      permanence: '',
-      sizeShape: '',
-      attachment: '',
-      content: '',
-      symbol: '',
-      certificationId: '',
-      formFactor: '',
-      chipFrequency: '',
-      coding: '',
-      adhesive: '',
-      security: '',
-      contentMandates: '',
-      fillingMaterials: '',
-      newUsedStatus: '',
-      registrationLicenses: '',
-      lawLabelType: '',
-      lawLabelMaterial: '',
-      hangTagType: '',
-      hangTagMaterial: '',
-      priceTicketType: '',
-      priceTicketMaterial: '',
-      heatTransferType: '',
-      heatTransferMaterialBase: '',
-      upcType: '',
-      upcMaterial: '',
-      sizeLabelType: '',
-      sizeLabelMaterial: '',
-      antiCounterfeitType: '',
-      antiCounterfeitMaterial: '',
-      qcLabelType: '',
-      qcLabelMaterial: '',
-      bellyBandType: '',
-      bellyBandMaterial: '',
-      closureFinish: '',
-      sealShape: '',
-      fastening: '',
-      preStringing: '',
-      application: '',
-      barcodeType: '',
-      applicationSpec: '',
-      finishHandFeel: '',
-      quality: '',
-      sizeCode: '',
-      securityFeature: '',
-      verification: '',
-      removal: '',
-      traceability: '',
-      closure: '',
-      durability: '',
-      inkType: '',
-      printQuality: '',
-      sizeFold: '',
-      referenceImage: null
-    }],
-    packaging: {
-      toBeShipped: '',
-      type: 'STANDARD',
-      casepackQty: '',
-      qtyToBePacked: 'AS_PER_PO',
-      customQty: '',
-      productSelection: [],
-      isAssortedPack: false,
-      assortedSkuLink: '',
-      artworkAndPackaging: '',
-      extraPacks: [],
-      materials: [{
-        srNo: 1,
-        product: '',
-        components: '',
-        materialDescription: '',
-        netConsumptionPerPc: '',
-        unit: '',
-        casepack: '',
-        placement: '',
-        size: {
-          width: '',
-          length: '',
-          height: '',
-          unit: '',
-        },
-        workOrders: [
-          { workOrder: 'Packaging', wastage: '', for: '' },
-          { workOrder: '', wastage: '', for: '' },
-        ],
-        totalNetConsumption: '',
-        totalWastage: '',
-        calculatedUnit: '',
-        overage: '',
-        grossConsumption: '',
-        packagingMaterialType: '',
-        cartonBoxStiffenerNoOfPlys: '',
-        noOfPlys: '',
-        jointType: '',
-        burstingStrength: '',
-        surplus: '',
-        surplusForSection: '',
-        approvalAgainst: '',
-        remarks: '',
-        guage: '',
-        printingRef: null,
-        gummingQuality: '',
-        punchHoles: '',
-        flapSize: '',
-        guageGsm: '',
-        rollWidth: '',
-        rollWidthUnit: '',
-        tapeWidth: '',
-        tapeWidthUnit: ''
-      }],
-    },
-    ipcSavedState: {
-      cut: false,
-      raw: false,
-      artwork: false,
-    },
-    rawSavedComponents: [],
-    // Cut & Sew Section-2 (process): clubbing like IPO Master CNS. Per kind, a list
-    // of clubs (groups of >=2 components processed together); anything not in a club
-    // is SINGLE (isolation). Namespaced so Cutting and Sewing stay independent.
-    processAssignments: { cutting: { clubs: [] }, sewing: { clubs: [] } },
-  });
 
   const addSku = () => {
     setStep0Saved(false); // Adding SKU invalidates saved state
@@ -1996,21 +1750,22 @@ const GenerateFactoryCode = ({
   };
 
   // ---- Cut & Sew Section-2 (process) — clubbing (like IPO Master CNS) ------
-  // Per process `kind` ('cutting' | 'sewing'), components default to SINGLE
-  // (isolation, processed separately). Selecting >=2 and clubbing groups them into
-  // a "Club N" (processed together). Stored as
-  // stepData.processAssignments[kind] = { clubs: [{ id, label, components: [] }] }.
-  const clubComponents = (kind, componentNames) => {
-    if (!componentNames || componentNames.length < 2) return;
+  // Per process `kind` ('cutting' | 'sewing'), each WORK ORDER row (e.g.
+  // "Front Panel · CUTTING #1" — see utils/processRows) defaults to SINGLE
+  // (isolation, processed separately). Clubbing >=2 rows groups them into a
+  // "Club N" (processed together). `rowKeys` are the per-work-order identities.
+  // Stored as stepData.processAssignments[kind] = { clubs: [{ id, label, components: [] }] }.
+  const clubComponents = (kind, rowKeys) => {
+    if (!rowKeys || rowKeys.length < 2) return;
     setStep1Saved(false);
     updateSelectedSkuStepData((stepData) => {
       const pa = stepData.processAssignments || {};
       const existing = Array.isArray(pa[kind]?.clubs) ? pa[kind].clubs : [];
-      // Drop these components from any existing club, then add the new group.
+      // Drop these rows from any existing club, then add the new group.
       const kept = existing
-        .map((c) => ({ ...c, components: c.components.filter((n) => !componentNames.includes(n)) }))
+        .map((c) => ({ ...c, components: c.components.filter((n) => !rowKeys.includes(n)) }))
         .filter((c) => c.components.length >= 2);
-      kept.push({ id: [...componentNames].sort().join('|'), components: [...componentNames] });
+      kept.push({ id: [...rowKeys].sort().join('|'), components: [...rowKeys] });
       // Naming convention used downstream (inward/outward): "Club N <kind>".
       const clubs = kept.map((c, i) => ({ ...c, label: `Club ${i + 1} ${kind}` }));
       return withUpdatedIpcSavedState({ ...stepData, processAssignments: { ...pa, [kind]: { clubs } } }, { cut: false });
@@ -2026,12 +1781,28 @@ const GenerateFactoryCode = ({
       return withUpdatedIpcSavedState({ ...stepData, processAssignments: { ...pa, [kind]: { clubs } } }, { cut: false });
     });
   };
-  // Carry the grouping forward when moving to the next stage: clubbed components
-  // go together, singles go alone. Copies `fromKind`'s clubs onto `toKind`.
+  // Carry the grouping forward when moving to the next stage. Clubs now group
+  // per-work-order ROWS (e.g. "Front Panel · CUTTING #1"), so a cutting row key does
+  // not exist among the sewing rows. Translate by COMPONENT: rows that were clubbed
+  // in `fromKind` bring ALL of their component's `toKind` rows into one club (clubbed
+  // components stay grouped; singles stay alone). Re-labelled/re-ided for `toKind`.
+  const WO_OF_KIND = { cutting: 'CUTTING', sewing: 'SEWING' };
   const propagateClubs = (fromKind, toKind) => {
     updateSelectedSkuStepData((stepData) => {
       const pa = stepData.processAssignments || {};
-      const clubs = (pa[fromKind]?.clubs || []).map((c) => ({ ...c, components: [...c.components] }));
+      const rms = stepData.rawMaterials || [];
+      const fromRows = enumerateProcessRows(rms, WO_OF_KIND[fromKind]);
+      const toRows = enumerateProcessRows(rms, WO_OF_KIND[toKind]);
+      const nameOfFromKey = new Map(fromRows.map((r) => [r.key, r.name]));
+      const toKeysByName = toRows.reduce((acc, r) => { (acc[r.name] = acc[r.name] || []).push(r.key); return acc; }, {});
+      const clubs = (pa[fromKind]?.clubs || [])
+        .map((c) => {
+          const names = [...new Set(c.components.map((k) => nameOfFromKey.get(k)).filter(Boolean))];
+          const components = names.flatMap((n) => toKeysByName[n] || []);
+          return { components };
+        })
+        .filter((c) => c.components.length >= 2)
+        .map((c, i) => ({ id: [...c.components].sort().join('|'), components: c.components, label: `Club ${i + 1} ${toKind}` }));
       return { ...stepData, processAssignments: { ...pa, [toKind]: { clubs } } };
     });
   };
@@ -2085,17 +1856,17 @@ const GenerateFactoryCode = ({
           ...material,
           materialType: value,
           // Clear Fabric fields
-          fabricFiberType: '', fabricName: '', fabricComposition: '', gsm: '', fabricSurplus: '', fabricApproval: [], fabricRemarks: '', showFabricAdvancedFilter: false, constructionType: '', weaveKnitType: '', fabricMachineType: '', fabricTestingRequirements: [], fabricFiberCategory: '', fabricOrigin: '', fabricCertifications: '',
+          fabricFiberType: '', fabricName: '', fabricComposition: '', gsm: '', fabricApproval: [], fabricRemarks: '', showFabricAdvancedFilter: false, constructionType: '', weaveKnitType: '', fabricMachineType: '', fabricTestingRequirements: [], fabricFiberCategory: '', fabricOrigin: '', fabricCertifications: '',
           // Clear Yarn fields
           fiberType: '', yarnType: '', spinningMethod: '', yarnComposition: '', yarnCountRange: '', yarnDoublingOptions: '', yarnPlyOptions: '', yarnColour: '', windingOptions: '', surplus: '', approval: [], remarks: '', showAdvancedFilter: false, spinningType: '', testingRequirements: [], fiberCategory: '', origin: '', certifications: '',
           // Clear Trim & Accessory fields (all trim/accessory specific fields will be cleared)
           trimAccessory: '',
           // Clear Fiber fields
-          fiberTableType: '', fiberFiberType: '', fiberSubtype: '', fiberForm: '', fiberDenier: '', fiberSiliconized: '', fiberConjugateCrimp: '', fiberColour: '', fiberBirdType: '', fiberDownPercentage: '', fiberDownProofRequired: '', fiberWoolType: '', fiberMicron: '', fiberTestingRequirements: [], fiberQty: '', fiberGsm: '', fiberLength: '', fiberWidth: '', fiberQtyType: '', fiberQtyValue: '', fiberSurplus: '', fiberWastage: '', fiberApproval: '', fiberRemarks: '', showFiberAdvancedSpec: false, fiberFiberLength: '', fiberStructure: '', fiberThermalBonded: '', fiberAntiMicrobial: '', fiberFireRetardant: '', fiberCertification: '', fiberLoftFillPower: '', fiberFillPower: '', fiberProcessing: '', fiberOxygenNumber: '', fiberTurbidity: '', fiberOdor: '', fiberTraceability: '', fiberClusterSize: '', fiberLanolinContent: '', fiberTemperatureRegulating: '', fiberMoistureWicking: '', fiberMulesingFree: '', fiberOrganicCertified: '',fiberKapokSource: '', fiberKapokProperties: '', fiberBambooType: '', fiberBambooProperties: '', fiberSilkFlossType: '', fiberSilkFlossGrade: '', fiberRecycledSource: '', fiberRecycledCertification: '', fiberTencelType: '', fiberBlending: '', fiberEcoCertification: '', fiberBiodegradable: '',fiberMicrofiberFiberLength: '', fiberMicrofiberStructure: '', fiberMicrofiberClusterType: '', fiberMicrofiberClusterSize: '', fiberMicrofiberAntiMicrobial: '', fiberMicrofiberHypoallergenic: '', fiberMicrofiberLoftFillPower: '', fiberMicrofiberHandFeel: '', fiberMicrofiberCertification: '',fiberDownAlternativeConstruction: '', fiberDownAlternativeLoftRating: '', fiberDownAlternativeFillPowerEquivalent: '', fiberDownAlternativeWarmthToWeight: '', fiberDownAlternativeWaterResistance: '', fiberDownAlternativeQuickDry: '', fiberDownAlternativeHypoallergenic: '', fiberDownAlternativeAntiMicrobial: '', fiberDownAlternativeVeganCrueltyFree: '', fiberDownAlternativeCertification: '', fiberDownAlternativeMachineWashable: '',
+          fiberTableType: '', fiberFiberType: '', fiberSubtype: '', fiberForm: '', fiberDenier: '', fiberSiliconized: '', fiberConjugateCrimp: '', fiberColour: '', fiberBirdType: '', fiberDownPercentage: '', fiberDownProofRequired: '', fiberWoolType: '', fiberMicron: '', fiberTestingRequirements: [], fiberQty: '', fiberGsm: '', fiberLength: '', fiberWidth: '', fiberQtyType: '', fiberQtyValue: '', fiberWastage: '', fiberApproval: '', fiberRemarks: '', showFiberAdvancedSpec: false, fiberFiberLength: '', fiberStructure: '', fiberThermalBonded: '', fiberAntiMicrobial: '', fiberFireRetardant: '', fiberCertification: '', fiberLoftFillPower: '', fiberFillPower: '', fiberProcessing: '', fiberOxygenNumber: '', fiberTurbidity: '', fiberOdor: '', fiberTraceability: '', fiberClusterSize: '', fiberLanolinContent: '', fiberTemperatureRegulating: '', fiberMoistureWicking: '', fiberMulesingFree: '', fiberOrganicCertified: '',fiberKapokSource: '', fiberKapokProperties: '', fiberBambooType: '', fiberBambooProperties: '', fiberSilkFlossType: '', fiberSilkFlossGrade: '', fiberRecycledSource: '', fiberRecycledCertification: '', fiberTencelType: '', fiberBlending: '', fiberEcoCertification: '', fiberBiodegradable: '',fiberMicrofiberFiberLength: '', fiberMicrofiberStructure: '', fiberMicrofiberClusterType: '', fiberMicrofiberClusterSize: '', fiberMicrofiberAntiMicrobial: '', fiberMicrofiberHypoallergenic: '', fiberMicrofiberLoftFillPower: '', fiberMicrofiberHandFeel: '', fiberMicrofiberCertification: '',fiberDownAlternativeConstruction: '', fiberDownAlternativeLoftRating: '', fiberDownAlternativeFillPowerEquivalent: '', fiberDownAlternativeWarmthToWeight: '', fiberDownAlternativeWaterResistance: '', fiberDownAlternativeQuickDry: '', fiberDownAlternativeHypoallergenic: '', fiberDownAlternativeAntiMicrobial: '', fiberDownAlternativeVeganCrueltyFree: '', fiberDownAlternativeCertification: '', fiberDownAlternativeMachineWashable: '',
           fiberCottonGrade: '', fiberCottonStapleLength: '', fiberCottonProcessing: '', fiberCottonBonding: '', fiberCottonNeedlePunched: '', fiberCottonFireRetardant: '', fiberCottonDustTrashContent: '', fiberCottonOrganicCertified: '',
           // Clear Foam fields
                     // Clear Foam fields
-                    foamTableType: '', foamType: '', foamSubtype: '', foamVaContent: '', foamColour: '', foamThickness: '', foamShape: '', foamShapeRefImage: null, foamSheetPcs: '', foamGsm: '', foamLengthCm: '', foamWidthCm: '', foamKgsCns: '', foamYardageCns: '', foamTestingRequirements: [], foamTestingRequirementsFile: null, foamSurplus: '', foamWastage: '', foamApproval: '', foamRemarks: '', showFoamAdvancedSpec: false, foamShoreHardness: '', foamCellStructure: '', foamCompressionSet: '', foamTensileStrength: '', foamElongation: '', foamWaterResistance: '', foamUvResistance: '', foamFireRetardant: '', foamSurfaceTexture: '', foamAntiSlip: '', foamInterlocking: '', foamCertification: '', foamDensity: '', foamHrType: '', foamHrSubtype: '', foamHrGrade: '', foamHrColour: '', foamHrThickness: '', foamHrShape: '', foamHrShapeRefImage: null, foamHrSheetPcs: '', foamHrGsm: '', foamHrLengthCm: '', foamHrWidthCm: '', foamHrKgsCns: '', foamHrYardageCns: '', foamHrTestingRequirements: [], foamHrSurplus: '', foamHrWastage: '', foamHrApproval: '', foamHrRemarks: '', showFoamHrAdvancedSpec: false, foamHrIld: '', foamHrSupportFactor: '', foamHrResilience: '', foamHrCompressionSet: '', foamHrTensileStrength: '', foamHrElongation: '', foamHrFatigueResistance: '', foamHrFireRetardant: '', foamHrCertification: '', foamHrDensity: '', foamPeEpeType: '', foamPeEpeSubtype: '', foamPeEpeColour: '', foamPeEpeThickness: '', foamPeEpeShape: '', foamPeEpeShapeRefImage: null, foamPeEpeSheetPcs: '', foamPeEpeGsm: '', foamPeEpeLengthCm: '', foamPeEpeWidthCm: '', foamPeEpeKgsCns: '', foamPeEpeYardageCns: '', foamPeEpeTestingRequirements: [], foamPeEpeTestingRequirementsFile: null, foamPeEpeSurplus: '', foamPeEpeWastage: '', foamPeEpeApproval: '', foamPeEpeRemarks: '', showFoamPeEpeAdvancedSpec: false, foamPeEpeCellStructure: '', foamPeEpeLamination: '', foamPeEpeCrossLinked: '', foamPeEpeAntiStatic: '', foamPeEpeWaterResistance: '', foamPeEpeCushioning: '', foamPeEpeFireRetardant: '', foamPeEpeThermalInsulation: '', foamPeEpeCertification: '', foamPeEpeDensity: '', foamPuType: '', foamPuSubtype: '', foamPuGrade: '', foamPuColour: '', foamPuThickness: '', foamPuShape: '', foamPuShapeRefImage: null, foamPuSheetPcs: '', foamPuGsm: '', foamPuLengthCm: '', foamPuWidthCm: '', foamPuKgsCns: '', foamPuYardageCns: '', foamPuTestingRequirements: [], foamPuTestingRequirementsFile: null, foamPuSurplus: '', foamPuWastage: '', foamPuApproval: '', foamPuRemarks: '', showFoamPuAdvancedSpec: false, foamPuIld: '', foamPuSupportFactor: '', foamPuResilience: '', foamPuCellStructure: '', foamPuCompressionSet: '', foamPuTensileStrength: '', foamPuElongation: '', foamPuFireRetardant: '', foamPuAntiMicrobial: '', foamPuDensity: '', foamPuCertification: '', foamRebondedType: '', foamRebondedSubtype: '', foamRebondedChipSource: '', foamRebondedChipSize: '', foamRebondedBonding: '', foamRebondedColour: '', foamRebondedThickness: '', foamRebondedShape: '', foamRebondedShapeRefImage: null, foamRebondedSheetPcs: '', foamRebondedGsm: '', foamRebondedLengthCm: '', foamRebondedWidthCm: '', foamRebondedKgsCns: '', foamRebondedYardageCns: '', foamRebondedTestingRequirements: [], foamRebondedTestingRequirementsFile: null, foamRebondedSurplus: '', foamRebondedWastage: '', foamRebondedApproval: '', foamRebondedRemarks: '', showFoamRebondedAdvancedSpec: false, foamRebondedIld: '', foamRebondedCompressionSet: '', foamRebondedFireRetardant: '', foamRebondedCertification: '', foamRebondedDensity: '', foamGelInfusedType: '', foamGelInfusedBaseFoam: '', foamGelInfusedGelType: '', foamGelInfusedGelContent: '', foamGelInfusedSubtype: '', foamGelInfusedColour: '', foamGelInfusedThickness: '', foamGelInfusedShape: '', foamGelInfusedShapeRefImage: null, foamGelInfusedSheetPcs: '', foamGelInfusedGsm: '', foamGelInfusedLengthCm: '', foamGelInfusedWidthCm: '', foamGelInfusedKgsCns: '', foamGelInfusedYardageCns: '', foamGelInfusedTestingRequirements: [], foamGelInfusedTestingRequirementsFile: null, foamGelInfusedSurplus: '', foamGelInfusedWastage: '', foamGelInfusedApproval: '', foamGelInfusedRemarks: '', showFoamGelInfusedAdvancedSpec: false, foamGelInfusedDensity: '', foamGelInfusedIld: '', foamGelInfusedTemperatureRegulation: '', foamGelInfusedResponseTime: '', foamGelInfusedBreathability: '', foamGelInfusedFireRetardant: '', foamGelInfusedCoolingEffect: '', foamGelInfusedCertification: '', foamLatexType: '', foamLatexLatexType: '', foamLatexNaturalContent: '', foamLatexProcess: '', foamLatexSubtype: '', foamLatexColour: '', foamLatexThickness: '', foamLatexShape: '', foamLatexShapeRefImage: null, foamLatexSheetPcs: '', foamLatexGsm: '', foamLatexLengthCm: '', foamLatexWidthCm: '', foamLatexKgsCns: '', foamLatexYardageCns: '', foamLatexTestingRequirements: [], foamLatexTestingRequirementsFile: null, foamLatexSurplus: '', foamLatexWastage: '', foamLatexApproval: '', foamLatexRemarks: '', showFoamLatexAdvancedSpec: false, foamLatexIld: '', foamLatexResilience: '', foamLatexCompressionSet: '', foamLatexPincorePattern: '', foamLatexZoneConfiguration: '', foamLatexBreathability: '', foamLatexHypoallergenic: '', foamLatexAntiMicrobial: '', foamLatexFireRetardant: '', foamLatexDensity: '', foamLatexCertification: '', foamMemoryType: '', foamMemorySubtype: '', foamMemoryGrade: '', foamMemoryColour: '', foamMemoryThickness: '', foamMemoryShape: '', foamMemoryShapeRefImage: null, foamMemorySheetPcs: '', foamMemoryGsm: '', foamMemoryLengthCm: '', foamMemoryWidthCm: '', foamMemoryKgsCns: '', foamMemoryYardageCns: '', foamMemoryTestingRequirements: [], foamMemoryTestingRequirementsFile: null, foamMemorySurplus: '', foamMemoryWastage: '', foamMemoryApproval: '', foamMemoryRemarks: '', showFoamMemoryAdvancedSpec: false, foamMemoryIld: '', foamMemoryResponseTime: '', foamMemoryTemperatureSensitivity: '', foamMemoryActivationTemperature: '', foamMemoryCompressionSet: '', foamMemoryResilience: '', foamMemoryBreathability: '', foamMemoryInfusion: '', foamMemoryCoolingTechnology: '', foamMemoryFireRetardant: '', foamMemoryVocEmissions: '', foamMemoryDensity: '', foamMemoryCertification: '',
+                    foamTableType: '', foamType: '', foamSubtype: '', foamVaContent: '', foamColour: '', foamThickness: '', foamShape: '', foamShapeRefImage: null, foamSheetPcs: '', foamGsm: '', foamLengthCm: '', foamWidthCm: '', foamKgsCns: '', foamYardageCns: '', foamTestingRequirements: [], foamTestingRequirementsFile: null, foamWastage: '', foamApproval: '', foamRemarks: '', showFoamAdvancedSpec: false, foamShoreHardness: '', foamCellStructure: '', foamCompressionSet: '', foamTensileStrength: '', foamElongation: '', foamWaterResistance: '', foamUvResistance: '', foamFireRetardant: '', foamSurfaceTexture: '', foamAntiSlip: '', foamInterlocking: '', foamCertification: '', foamDensity: '', foamHrType: '', foamHrSubtype: '', foamHrGrade: '', foamHrColour: '', foamHrThickness: '', foamHrShape: '', foamHrShapeRefImage: null, foamHrSheetPcs: '', foamHrGsm: '', foamHrLengthCm: '', foamHrWidthCm: '', foamHrKgsCns: '', foamHrYardageCns: '', foamHrTestingRequirements: [], foamHrWastage: '', foamHrApproval: '', foamHrRemarks: '', showFoamHrAdvancedSpec: false, foamHrIld: '', foamHrSupportFactor: '', foamHrResilience: '', foamHrCompressionSet: '', foamHrTensileStrength: '', foamHrElongation: '', foamHrFatigueResistance: '', foamHrFireRetardant: '', foamHrCertification: '', foamHrDensity: '', foamPeEpeType: '', foamPeEpeSubtype: '', foamPeEpeColour: '', foamPeEpeThickness: '', foamPeEpeShape: '', foamPeEpeShapeRefImage: null, foamPeEpeSheetPcs: '', foamPeEpeGsm: '', foamPeEpeLengthCm: '', foamPeEpeWidthCm: '', foamPeEpeKgsCns: '', foamPeEpeYardageCns: '', foamPeEpeTestingRequirements: [], foamPeEpeTestingRequirementsFile: null, foamPeEpeWastage: '', foamPeEpeApproval: '', foamPeEpeRemarks: '', showFoamPeEpeAdvancedSpec: false, foamPeEpeCellStructure: '', foamPeEpeLamination: '', foamPeEpeCrossLinked: '', foamPeEpeAntiStatic: '', foamPeEpeWaterResistance: '', foamPeEpeCushioning: '', foamPeEpeFireRetardant: '', foamPeEpeThermalInsulation: '', foamPeEpeCertification: '', foamPeEpeDensity: '', foamPuType: '', foamPuSubtype: '', foamPuGrade: '', foamPuColour: '', foamPuThickness: '', foamPuShape: '', foamPuShapeRefImage: null, foamPuSheetPcs: '', foamPuGsm: '', foamPuLengthCm: '', foamPuWidthCm: '', foamPuKgsCns: '', foamPuYardageCns: '', foamPuTestingRequirements: [], foamPuTestingRequirementsFile: null, foamPuWastage: '', foamPuApproval: '', foamPuRemarks: '', showFoamPuAdvancedSpec: false, foamPuIld: '', foamPuSupportFactor: '', foamPuResilience: '', foamPuCellStructure: '', foamPuCompressionSet: '', foamPuTensileStrength: '', foamPuElongation: '', foamPuFireRetardant: '', foamPuAntiMicrobial: '', foamPuDensity: '', foamPuCertification: '', foamRebondedType: '', foamRebondedSubtype: '', foamRebondedChipSource: '', foamRebondedChipSize: '', foamRebondedBonding: '', foamRebondedColour: '', foamRebondedThickness: '', foamRebondedShape: '', foamRebondedShapeRefImage: null, foamRebondedSheetPcs: '', foamRebondedGsm: '', foamRebondedLengthCm: '', foamRebondedWidthCm: '', foamRebondedKgsCns: '', foamRebondedYardageCns: '', foamRebondedTestingRequirements: [], foamRebondedTestingRequirementsFile: null, foamRebondedWastage: '', foamRebondedApproval: '', foamRebondedRemarks: '', showFoamRebondedAdvancedSpec: false, foamRebondedIld: '', foamRebondedCompressionSet: '', foamRebondedFireRetardant: '', foamRebondedCertification: '', foamRebondedDensity: '', foamGelInfusedType: '', foamGelInfusedBaseFoam: '', foamGelInfusedGelType: '', foamGelInfusedGelContent: '', foamGelInfusedSubtype: '', foamGelInfusedColour: '', foamGelInfusedThickness: '', foamGelInfusedShape: '', foamGelInfusedShapeRefImage: null, foamGelInfusedSheetPcs: '', foamGelInfusedGsm: '', foamGelInfusedLengthCm: '', foamGelInfusedWidthCm: '', foamGelInfusedKgsCns: '', foamGelInfusedYardageCns: '', foamGelInfusedTestingRequirements: [], foamGelInfusedTestingRequirementsFile: null, foamGelInfusedWastage: '', foamGelInfusedApproval: '', foamGelInfusedRemarks: '', showFoamGelInfusedAdvancedSpec: false, foamGelInfusedDensity: '', foamGelInfusedIld: '', foamGelInfusedTemperatureRegulation: '', foamGelInfusedResponseTime: '', foamGelInfusedBreathability: '', foamGelInfusedFireRetardant: '', foamGelInfusedCoolingEffect: '', foamGelInfusedCertification: '', foamLatexType: '', foamLatexLatexType: '', foamLatexNaturalContent: '', foamLatexProcess: '', foamLatexSubtype: '', foamLatexColour: '', foamLatexThickness: '', foamLatexShape: '', foamLatexShapeRefImage: null, foamLatexSheetPcs: '', foamLatexGsm: '', foamLatexLengthCm: '', foamLatexWidthCm: '', foamLatexKgsCns: '', foamLatexYardageCns: '', foamLatexTestingRequirements: [], foamLatexTestingRequirementsFile: null, foamLatexWastage: '', foamLatexApproval: '', foamLatexRemarks: '', showFoamLatexAdvancedSpec: false, foamLatexIld: '', foamLatexResilience: '', foamLatexCompressionSet: '', foamLatexPincorePattern: '', foamLatexZoneConfiguration: '', foamLatexBreathability: '', foamLatexHypoallergenic: '', foamLatexAntiMicrobial: '', foamLatexFireRetardant: '', foamLatexDensity: '', foamLatexCertification: '', foamMemoryType: '', foamMemorySubtype: '', foamMemoryGrade: '', foamMemoryColour: '', foamMemoryThickness: '', foamMemoryShape: '', foamMemoryShapeRefImage: null, foamMemorySheetPcs: '', foamMemoryGsm: '', foamMemoryLengthCm: '', foamMemoryWidthCm: '', foamMemoryKgsCns: '', foamMemoryYardageCns: '', foamMemoryTestingRequirements: [], foamMemoryTestingRequirementsFile: null, foamMemoryWastage: '', foamMemoryApproval: '', foamMemoryRemarks: '', showFoamMemoryAdvancedSpec: false, foamMemoryIld: '', foamMemoryResponseTime: '', foamMemoryTemperatureSensitivity: '', foamMemoryActivationTemperature: '', foamMemoryCompressionSet: '', foamMemoryResilience: '', foamMemoryBreathability: '', foamMemoryInfusion: '', foamMemoryCoolingTechnology: '', foamMemoryFireRetardant: '', foamMemoryVocEmissions: '', foamMemoryDensity: '', foamMemoryCertification: '',
                     // All trim/accessory specific fields should be cleared here - this matches the clearing logic in handleConsumptionMaterialChange
           // For now, we'll initialize them as empty, and they'll be properly initialized when trimAccessory is selected
         };
@@ -2190,7 +1961,15 @@ const GenerateFactoryCode = ({
     }
   };
 
-  const handleWorkOrderChange = (materialIndex, workOrderIndex, field, value) => {
+  // `origin` distinguishes WHERE the edit came from:
+  //   'bom'    → BOM & WO step (default): editing a work order legitimately
+  //              un-saves the BOM & WO ("raw") state for that component.
+  //   'cutsew' → Cut & Sew Spec step: the SAME work orders are edited here (sizes,
+  //              SPI, thread, approval, finishing…), but that must NOT un-save BOM &
+  //              WO — only the Cut/Sew ("cut") state. Sharing this handler without
+  //              the flag was wrongly flipping BOM & WO to "unsaved" (Problem 1).
+  const handleWorkOrderChange = (materialIndex, workOrderIndex, field, value, options = {}) => {
+    const { origin = 'bom' } = options;
     const stepDataBefore = getSelectedSkuStepData();
     const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
     updateSelectedSkuStepData((stepData) => {
@@ -2200,9 +1979,11 @@ const GenerateFactoryCode = ({
         workOrders: updatedRawMaterials[materialIndex].workOrders.map((wo, idx) => {
           if (idx === workOrderIndex) {
             let updatedWO = { ...wo, [field]: value };
-            
-            // Clear conditional fields when work order type changes
-            if (field === 'workOrder') {
+
+            // Clear conditional fields when work order type changes. Guard on an ACTUAL
+            // change — re-selecting the SAME type used to wipe all filled cut/sew spec
+            // (SPI, thread, sizes…) because this rebuild drops them (latent Problem 2).
+            if (field === 'workOrder' && value !== wo.workOrder) {
               updatedWO = {
                 workOrder: value,
                 isRequired: '',
@@ -2384,6 +2165,15 @@ const GenerateFactoryCode = ({
           return wo;
         })
       };
+      // Cut & Sew Spec edits share these work orders but belong to the "cut" state,
+      // NOT "raw" — leave BOM & WO's saved flag + saved-components list untouched.
+      if (origin === 'cutsew') {
+        return withUpdatedIpcSavedState(
+          { ...stepData, rawMaterials: updatedRawMaterials },
+          { cut: false }
+        );
+      }
+
       const nextRawSavedComponents = componentName
         ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
         : getNormalizedRawSavedComponents(stepData);
@@ -2397,14 +2187,14 @@ const GenerateFactoryCode = ({
         { raw: false }
       );
     });
-    if (componentName) {
+    if (origin !== 'cutsew' && componentName) {
       setStep2SavedComponents(prev => {
         const next = new Set(prev);
         next.delete(componentName);
         return next;
       });
     }
-    
+
     // Clear current field error, or all work-order errors when the work-order type changes.
     const errorKey = `rawMaterial_${materialIndex}_workOrder_${workOrderIndex}_${field}`;
     const workOrderErrorPrefix = `rawMaterial_${materialIndex}_workOrder_${workOrderIndex}_`;
@@ -2576,472 +2366,7 @@ const GenerateFactoryCode = ({
         });
       }
       
-      const baseMaterial = {
-        productIndex,
-        componentIndex,
-        productName,
-        componentName: componentName || '', // Use the provided component name
-        srNo: (stepData.rawMaterials || []).length + 1,
-        materialDescription: '',
-        netConsumption: '',
-        unit: '',
-        materialType: materialType,
-        qualityVerification: '',
-        workOrders: [{
-          workOrder: '',
-          isRequired: '',
-          wastage: '',
-          forField: '',
-          approvalAgainst: '',
-          remarks: '',
-          design: '',
-          imageRef: null,
-          qualityVerification: '',
-          machineType: '',
-          reed: '',
-          pick: '',
-          warp: false,
-          weft: false,
-          ratioWarp: '',
-          ratioWeft: '',
-          ratioWeightWarp: '',
-          ratioWeightWeft: '',
-          pileHeight: '',
-          tpi: '',
-          quiltingType: '',
-          printingType: '',
-          wales: false,
-          courses: false,
-          ratioWales: '',
-          ratioCourses: '',
-          ratioWeightWales: '',
-          ratioWeightCourses: '',
-          receivedColorReference: '',
-          referenceType: '',
-          dyeingReference: '',
-          shrinkageWidth: false,
-          shrinkageLength: false,
-          shrinkageWidthPercent: '',
-          shrinkageLengthPercent: '',
-          ratioWidth: '',
-          ratioLength: '',
-          forSection: '',
-          cutType: '',
-          cutSize: '',
-          dyeingType: '',
-          shrinkage: '',
-          width: '',
-          length: '',
-          weavingType: '',
-          warpWeft: '',
-          ratio: '',
-        }],
-      };
-
-      // Add fields based on material type
-      if (materialType === 'Yarn') {
-        Object.assign(baseMaterial, {
-          fiberType: '',
-          yarnType: '',
-          spinningMethod: '',
-          yarnComposition: '',
-          yarnCountRange: '',
-          yarnDoublingOptions: '',
-          yarnPlyOptions: '',
-          surplus: '',
-          approval: [],
-          remarks: '',
-          showAdvancedFilter: false,
-          spinningType: '',
-          testingRequirements: [],
-          fiberCategory: '',
-          origin: '',
-          certifications: '',
-        });
-      } else if (materialType === 'Fabric') {
-        Object.assign(baseMaterial, {
-          fabricFiberType: '',
-          fabricName: '',
-          fabricComposition: '',
-          gsm: '',
-          fabricSurplus: '',
-          fabricApproval: [],
-          fabricRemarks: '',
-          showFabricAdvancedFilter: false,
-          constructionType: '',
-          weaveKnitType: '',
-          fabricMachineType: '',
-          fabricTestingRequirements: [],
-          fabricFiberCategory: '',
-          fabricOrigin: '',
-          fabricCertifications: '',
-        });
-      } else if (materialType === 'Trim & Accessory') {
-        // Initialize all trim/accessory fields (similar to addConsumptionMaterial)
-        Object.assign(baseMaterial, {
-          trimAccessory: '',
-          // All trim/accessory fields will be initialized here
-          // We'll add the same fields as in addConsumptionMaterial for trim/accessory
-        });
-        // Import all trim fields from addConsumptionMaterial initialization
-        // For now, we'll initialize them as empty, and handleRawMaterialChange will manage them
-      } else if (materialType === 'Fiber') {
-        Object.assign(baseMaterial, {
-          fiberTableType: '',
-          fiberFiberType: '',
-          fiberSubtype: '',
-          fiberBirdType: '',
-          fiberDownPercentage: '',
-          fiberDownProofRequired: '',
-          fiberForm: '',
-          fiberDenier: '',
-          fiberSiliconized: '',
-          fiberConjugateCrimp: '',
-          fiberColour: '',
-          fiberTestingRequirements: [],
-          fiberQty: '',
-          fiberGsm: '',
-          fiberLength: '',
-          fiberWidth: '',
-          fiberQtyType: '',
-          fiberQtyValue: '',
-          fiberSurplus: '',
-          fiberWastage: '',
-          fiberApproval: '',
-          fiberRemarks: '',
-          showFiberAdvancedSpec: false,
-          // Polyester-Fills Advanced Spec
-          fiberFiberLength: '',
-          fiberStructure: '',
-          fiberThermalBonded: '',
-          fiberAntiMicrobial: '',
-          fiberFireRetardant: '',
-          fiberCertification: '',
-          fiberLoftFillPower: '',
-          // Down-Feather Advanced Spec
-          fiberFillPower: '',
-          fiberProcessing: '',
-          fiberOxygenNumber: '',
-          fiberTurbidity: '',
-          fiberOdor: '',
-          fiberTraceability: '',
-          fiberClusterSize: '',
-          // Wool-Natural fields
-          fiberWoolType: '',
-          fiberMicron: '',
-          // Wool-Natural Advanced Spec
-          fiberLanolinContent: '',
-          fiberTemperatureRegulating: '',
-          fiberMoistureWicking: '',
-          fiberMulesingFree: '',
-          fiberOrganicCertified: '',
-
-          // Specialty-Fills fields
-          fiberKapokSource: '',
-          fiberKapokProperties: '',
-          fiberBambooType: '',
-          fiberBambooProperties: '',
-          fiberSilkFlossType: '',
-          fiberSilkFlossGrade: '',
-          fiberRecycledSource: '',
-          fiberRecycledCertification: '',
-          fiberTencelType: '',
-          // Specialty-Fills Advanced Spec
-          fiberBlending: '',
-          fiberEcoCertification: '',
-          fiberBiodegradable: '',
-
-          // Microfiber-Fill Advanced Spec fields
-          fiberMicrofiberFiberLength: '',
-          fiberMicrofiberStructure: '',
-          fiberMicrofiberClusterType: '',
-          fiberMicrofiberClusterSize: '',
-          fiberMicrofiberAntiMicrobial: '',
-          fiberMicrofiberHypoallergenic: '',
-          fiberMicrofiberLoftFillPower: '',
-          fiberMicrofiberHandFeel: '',
-          fiberMicrofiberCertification: '',
-
-          // Down-Alternative fields
-          fiberDownAlternativeConstruction: '',
-          fiberDownAlternativeLoftRating: '',
-          fiberDownAlternativeFillPowerEquivalent: '',
-          fiberDownAlternativeWarmthToWeight: '',
-          fiberDownAlternativeWaterResistance: '',
-          fiberDownAlternativeQuickDry: '',
-          fiberDownAlternativeHypoallergenic: '',
-          fiberDownAlternativeAntiMicrobial: '',
-          fiberDownAlternativeVeganCrueltyFree: '',
-          fiberDownAlternativeCertification: '',
-          fiberDownAlternativeMachineWashable: '',
-
-          // Cotton-Fill fields
-          fiberCottonGrade: '',
-          fiberCottonStapleLength: '',
-          fiberCottonProcessing: '',
-          fiberCottonBonding: '',
-          fiberCottonNeedlePunched: '',
-          fiberCottonFireRetardant: '',
-          fiberCottonDustTrashContent: '',
-          fiberCottonOrganicCertified: '',
-        });
-      } else if (materialType === 'Foam') {
-        Object.assign(baseMaterial, {
-          foamTableType: '',
-          foamType: '',
-          foamSubtype: '',
-          foamVaContent: '',
-          foamColour: '',
-          foamThickness: '',
-          foamShape: '',
-          foamShapeRefImage: null,
-          foamSheetPcs: '',
-          foamGsm: '',
-          foamLengthCm: '',
-          foamWidthCm: '',
-          foamKgsCns: '',
-          foamYardageCns: '',
-          foamTestingRequirements: [],
-          foamTestingRequirementsFile: null,
-          foamSurplus: '',
-          foamWastage: '',
-          foamApproval: '',
-          foamRemarks: '',
-          showFoamAdvancedSpec: false,
-          foamShoreHardness: '',
-          foamCellStructure: '',
-          foamCompressionSet: '',
-          foamTensileStrength: '',
-          foamElongation: '',
-          foamWaterResistance: '',
-          foamUvResistance: '',
-          foamFireRetardant: '',
-          foamSurfaceTexture: '',
-          foamAntiSlip: '',
-          foamInterlocking: '',
-          foamCertification: '',
-          foamDensity: '',
-          // HR-foam fields
-          foamHrType: '',
-          foamHrSubtype: '',
-          foamHrGrade: '',
-          foamHrColour: '',
-          foamHrThickness: '',
-          foamHrShape: '',
-          foamHrShapeRefImage: null,
-          foamHrSheetPcs: '',
-          foamHrGsm: '',
-          foamHrLengthCm: '',
-          foamHrWidthCm: '',
-          foamHrKgsCns: '',
-          foamHrYardageCns: '',
-          foamHrTestingRequirements: [],
-          foamHrSurplus: '',
-          foamHrWastage: '',
-          foamHrApproval: '',
-          foamHrRemarks: '',
-          showFoamHrAdvancedSpec: false,
-          foamHrIld: '',
-          foamHrSupportFactor: '',
-          foamHrResilience: '',
-          foamHrCompressionSet: '',
-          foamHrTensileStrength: '',
-          foamHrElongation: '',
-          foamHrFatigueResistance: '',
-          foamHrFireRetardant: '',
-          foamHrCertification: '',
-          foamHrDensity: '',
-          // pe-epe fields
-          foamPeEpeType: '',
-          foamPeEpeSubtype: '',
-          foamPeEpeColour: '',
-          foamPeEpeThickness: '',
-          foamPeEpeShape: '',
-          foamPeEpeShapeRefImage: null,
-          foamPeEpeSheetPcs: '',
-          foamPeEpeGsm: '',
-          foamPeEpeLengthCm: '',
-          foamPeEpeWidthCm: '',
-          foamPeEpeKgsCns: '',
-          foamPeEpeYardageCns: '',
-          foamPeEpeTestingRequirements: [],
-          foamPeEpeTestingRequirementsFile: null,
-          foamPeEpeSurplus: '',
-          foamPeEpeWastage: '',
-          foamPeEpeApproval: '',
-          foamPeEpeRemarks: '',
-          showFoamPeEpeAdvancedSpec: false,
-          foamPeEpeCellStructure: '',
-          foamPeEpeLamination: '',
-          foamPeEpeCrossLinked: '',
-          foamPeEpeAntiStatic: '',
-          foamPeEpeWaterResistance: '',
-          foamPeEpeCushioning: '',
-          foamPeEpeFireRetardant: '',
-          foamPeEpeThermalInsulation: '',
-          foamPeEpeCertification: '',
-          foamPeEpeDensity: '',
-          // pu-foam fields
-          foamPuType: '',
-          foamPuSubtype: '',
-          foamPuGrade: '',
-          foamPuColour: '',
-          foamPuThickness: '',
-          foamPuShape: '',
-          foamPuShapeRefImage: null,
-          foamPuSheetPcs: '',
-          foamPuGsm: '',
-          foamPuLengthCm: '',
-          foamPuWidthCm: '',
-          foamPuKgsCns: '',
-          foamPuYardageCns: '',
-          foamPuTestingRequirements: [],
-          foamPuTestingRequirementsFile: null,
-          foamPuSurplus: '',
-          foamPuWastage: '',
-          foamPuApproval: '',
-          foamPuRemarks: '',
-          showFoamPuAdvancedSpec: false,
-          foamPuIld: '',
-          foamPuSupportFactor: '',
-          foamPuResilience: '',
-          foamPuCellStructure: '',
-          foamPuCompressionSet: '',
-          foamPuTensileStrength: '',
-          foamPuElongation: '',
-          foamPuFireRetardant: '',
-          foamPuAntiMicrobial: '',
-          foamPuDensity: '',
-          foamPuCertification: '',
-                    // rebonded-foam fields
-                    foamRebondedType: '',
-                    foamRebondedSubtype: '',
-                    foamRebondedChipSource: '',
-                    foamRebondedChipSize: '',
-                    foamRebondedBonding: '',
-                    foamRebondedColour: '',
-                    foamRebondedThickness: '',
-                    foamRebondedShape: '',
-                    foamRebondedShapeRefImage: null,
-                    foamRebondedSheetPcs: '',
-                    foamRebondedGsm: '',
-                    foamRebondedLengthCm: '',
-                    foamRebondedWidthCm: '',
-                    foamRebondedKgsCns: '',
-                    foamRebondedYardageCns: '',
-                    foamRebondedTestingRequirements: [],
-                    foamRebondedTestingRequirementsFile: null,
-                    foamRebondedSurplus: '',
-                    foamRebondedWastage: '',
-                    foamRebondedApproval: '',
-                    foamRebondedRemarks: '',
-                    showFoamRebondedAdvancedSpec: false,
-                    foamRebondedIld: '',
-                    foamRebondedCompressionSet: '',
-                    foamRebondedFireRetardant: '',
-                    foamRebondedCertification: '',
-                    foamRebondedDensity: '',
-                    // gel-infused-foam fields
-                    foamGelInfusedType: '',
-                    foamGelInfusedBaseFoam: '',
-                    foamGelInfusedGelType: '',
-                    foamGelInfusedGelContent: '',
-                    foamGelInfusedSubtype: '',
-                    foamGelInfusedColour: '',
-                    foamGelInfusedThickness: '',
-                    foamGelInfusedShape: '',
-                    foamGelInfusedShapeRefImage: null,
-                    foamGelInfusedSheetPcs: '',
-                    foamGelInfusedGsm: '',
-                    foamGelInfusedLengthCm: '',
-                    foamGelInfusedWidthCm: '',
-                    foamGelInfusedKgsCns: '',
-                    foamGelInfusedYardageCns: '',
-                    foamGelInfusedTestingRequirements: [],
-                    foamGelInfusedTestingRequirementsFile: null,
-                    foamGelInfusedSurplus: '',
-                    foamGelInfusedWastage: '',
-                    foamGelInfusedApproval: '',
-                    foamGelInfusedRemarks: '',
-                    showFoamGelInfusedAdvancedSpec: false,
-                    foamGelInfusedDensity: '',
-                    foamGelInfusedIld: '',
-                    foamGelInfusedTemperatureRegulation: '',
-                    foamGelInfusedResponseTime: '',
-                    foamGelInfusedBreathability: '',
-                    foamGelInfusedFireRetardant: '',
-                    foamGelInfusedCoolingEffect: '',
-                    foamGelInfusedCertification: '',
-                    // latex-foam fields
-          foamLatexType: '',
-          foamLatexLatexType: '',
-          foamLatexNaturalContent: '',
-          foamLatexProcess: '',
-          foamLatexSubtype: '',
-          foamLatexColour: '',
-          foamLatexThickness: '',
-          foamLatexShape: '',
-          foamLatexShapeRefImage: null,
-          foamLatexSheetPcs: '',
-          foamLatexGsm: '',
-          foamLatexLengthCm: '',
-          foamLatexWidthCm: '',
-          foamLatexKgsCns: '',
-          foamLatexYardageCns: '',
-          foamLatexTestingRequirements: [],
-          foamLatexTestingRequirementsFile: null,
-          foamLatexSurplus: '',
-          foamLatexWastage: '',
-          foamLatexApproval: '',
-          foamLatexRemarks: '',
-          showFoamLatexAdvancedSpec: false,
-          foamLatexIld: '',
-          foamLatexResilience: '',
-          foamLatexCompressionSet: '',
-          foamLatexPincorePattern: '',
-          foamLatexZoneConfiguration: '',
-          foamLatexBreathability: '',
-          foamLatexHypoallergenic: '',
-          foamLatexAntiMicrobial: '',
-          foamLatexFireRetardant: '',
-          foamLatexDensity: '',
-          foamLatexCertification: '',
-          // memory-foam fields
-          foamMemoryType: '',
-          foamMemorySubtype: '',
-          foamMemoryGrade: '',
-          foamMemoryColour: '',
-          foamMemoryThickness: '',
-          foamMemoryShape: '',
-          foamMemoryShapeRefImage: null,
-          foamMemorySheetPcs: '',
-          foamMemoryGsm: '',
-          foamMemoryLengthCm: '',
-          foamMemoryWidthCm: '',
-          foamMemoryKgsCns: '',
-          foamMemoryYardageCns: '',
-          foamMemoryTestingRequirements: [],
-          foamMemoryTestingRequirementsFile: null,
-          foamMemorySurplus: '',
-          foamMemoryWastage: '',
-          foamMemoryApproval: '',
-          foamMemoryRemarks: '',
-          showFoamMemoryAdvancedSpec: false,
-          foamMemoryIld: '',
-          foamMemoryResponseTime: '',
-          foamMemoryTemperatureSensitivity: '',
-          foamMemoryActivationTemperature: '',
-          foamMemoryCompressionSet: '',
-          foamMemoryResilience: '',
-          foamMemoryBreathability: '',
-          foamMemoryInfusion: '',
-          foamMemoryCoolingTechnology: '',
-          foamMemoryFireRetardant: '',
-          foamMemoryVocEmissions: '',
-          foamMemoryDensity: '',
-          foamMemoryCertification: '',
-        });
-      }
+      const baseMaterial = buildRawMaterialScaffold({ materialType, componentName, productIndex, componentIndex, productName, existingCount: (stepData.rawMaterials || []).length });
 
       return {
         ...withUpdatedIpcSavedState(stepData, { raw: false }),
@@ -3165,6 +2490,32 @@ const GenerateFactoryCode = ({
     persistSection('packaging', { packaging: getSelectedSkuStepData()?.packaging || {} });
   };
 
+  // Reconcile the selected SKU's packaging plan (main pack + extra packs)
+  // against every order IPC's poQty. Returns per-IPC packed/balance plus the
+  // roll-ups the pending-confirmation popup and over-pack guard rely on.
+  const getPackagingReconciliation = () => {
+    const packaging = getSelectedSkuStepData()?.packaging || {};
+    const extraPacks = Array.isArray(packaging.extraPacks) ? packaging.extraPacks : [];
+    const allPacks = [packaging, ...extraPacks];
+    const toNum = (v) => { const n = parseFloat(String(v ?? '').trim()); return Number.isFinite(n) ? n : 0; };
+    const getPackQtyMap = (p) => (p && typeof p.packQty === 'object' && p.packQty) ? p.packQty : {};
+    const rows = [];
+    (formData.skus || []).forEach((sku) => {
+      const baseIpc = sku.ipcCode?.replace(/\/SP-?\d+$/i, '') || sku.ipcCode || '';
+      if (baseIpc) rows.push({ ipc: baseIpc, po: toNum(sku.poQty) });
+      (sku.subproducts || []).forEach((sub, idx) => rows.push({ ipc: `${baseIpc}/SP-${idx + 1}`, po: toNum(sub.poQty) }));
+    });
+    let totalBalance = 0, overBy = 0, hasOver = false;
+    rows.forEach((r) => {
+      r.packed = allPacks.reduce((s, p) => s + toNum(getPackQtyMap(p)[r.ipc]), 0);
+      r.balance = r.po - r.packed;
+      if (r.balance < 0) { hasOver = true; overBy += -r.balance; }
+      totalBalance += Math.max(0, r.balance);
+    });
+    const allNil = rows.length > 0 && rows.every((r) => r.balance === 0);
+    return { rows, totalBalance, overBy, hasOver, allNil };
+  };
+
   // Combined "Save" for the final (packaging) step. Validates + saves the
   // packaging slice, then runs the full Generate-Factory-Code pass so a single
   // click both persists the section and writes every IPC (all SKUs +
@@ -3181,6 +2532,22 @@ const GenerateFactoryCode = ({
       showValidationErrorsPopup(validation.errors);
       return;
     }
+    // Quantity guards on the PO ledger (separate from the binary leftover check):
+    //  - block over-packing (an IPC exceeding its PO qty);
+    //  - if a balance is still pending, confirm once before committing — the
+    //    entries are already autosaved, so the user can also just come back later.
+    const recon = getPackagingReconciliation();
+    if (recon.hasOver) {
+      setStep4SaveStatus('error');
+      setTimeout(() => setStep4SaveStatus('idle'), 3000);
+      showValidationErrorsPopup({ packaging_overpack: `Over-packed by ${recon.overBy} pcs. Reduce QTY TO PACK so no IPC exceeds its PO quantity.` });
+      return;
+    }
+    if (recon.totalBalance > 0 && !pendingAckRef.current) {
+      setPendingPackPopup({ open: true, balance: recon.totalBalance });
+      return;
+    }
+    pendingAckRef.current = false;
     setStep4Saved(true);
     setStep4SaveStatus('success');
     setShowSaveMessage(false);
@@ -3416,6 +2783,12 @@ const GenerateFactoryCode = ({
 
   // Compact Cut/Sew slice for the per-section store (Phase B): process
   // assignments + the cut/sew spec fields carried on CUTTING/SEWING work orders.
+  // The `cutsew` slice is the DURABLE, reliable backup of every Cut/Sew/Finishing
+  // spec field (the big draft is fragile — a large PUT can be lost). It MUST carry
+  // the full spec, not just sizes: the sewing spec (SPI / thread type / approval /
+  // wastage) and the quality-inspection flag live ONLY here + the draft, so when the
+  // draft is lost they were vanishing on reload (Problem 2). Keep this in sync with
+  // CUT_SEW_SPEC_KEYS in utils/sectionOverlay.js — the overlay restores these fields.
   const buildCutSewSlice = (stepData) => ({
     processAssignments: stepData?.processAssignments || { cutting: {}, sewing: {} },
     workOrderSpecs: (stepData?.rawMaterials || []).flatMap((m) =>
@@ -3427,6 +2800,10 @@ const GenerateFactoryCode = ({
           receivedUnit: wo.receivedUnit || '', processUnit: wo.processUnit || '', dispatchUnit: wo.dispatchUnit || '',
           cutLength: wo.cutLength || '', cutWidth: wo.cutWidth || '', cutUnit: wo.cutUnit || '', cutWastage: wo.cutWastage || '',
           sewLength: wo.sewLength || '', sewWidth: wo.sewWidth || '', sewUnit: wo.sewUnit || '', sewWastage: wo.sewWastage || '',
+          // Sewing / cutting spec fields (were draft-only → lost when the draft dropped).
+          spi: wo.spi || '', threadType: wo.threadType || '', sewingMachineType: wo.sewingMachineType || '',
+          cutType: wo.cutType || '', approval: wo.approval || '', wastage: wo.wastage || '',
+          qualityVerification: wo.qualityVerification || '',
           finishingProcess: wo.finishingProcess || '', finishingTypes: wo.finishingTypes || [], finishingGroups: wo.finishingGroups || [], remarks: wo.remarks || '',
         }))
     ),
@@ -3447,6 +2824,34 @@ const GenerateFactoryCode = ({
     // Mirror the Cut/Sew/Finishing slice into the per-section DB store.
     persistSection('cutsew', buildCutSewSlice(getSelectedSkuStepData()));
   };
+
+  // Immediately persist a pending debounced save (draft + cutsew mirror) — invoked when
+  // the user navigates away or the wizard unmounts, so Cut/Sew edits made inside the 2.5s
+  // autosave window still reach the DB. The green "Saved" is only a local signature flip;
+  // without this flush, leaving before the debounce fires lost the sewing spec (Problem 2).
+  // Reassigned every render so the unmount/nav effects always call the latest closure.
+  flushPendingSaveRef.current = () => {
+    if (!autosaveTimerRef.current) return; // nothing pending → already persisted
+    clearTimeout(autosaveTimerRef.current);
+    autosaveTimerRef.current = null;
+    if (!hasLoadedRef.current) return;
+    const ipoId = initialFormData?.ipoId || formData?.ipoId;
+    if (!ipoId) return;
+    saveCurrentFormState(); // full lossless draft (all SKUs)
+    try {
+      const slice = buildCutSewSlice(getSelectedSkuStepData());
+      if (slice.workOrderSpecs.length) {
+        lastCutsewSigRef.current = `${String(selectedSku)}|${JSON.stringify(slice)}`;
+        persistSection('cutsew', slice);
+      }
+    } catch (e) { console.warn('cutsew flush failed', e); }
+  };
+
+  // Flush pending edits the moment the user leaves a step/IPC or closes the wizard,
+  // instead of waiting out the 2.5s debounce (which was dropping the last Cut/Sew edits
+  // on reopen — Problem 2). The cleanup fires on unmount AND on any nav change.
+  useEffect(() => () => { flushPendingSaveRef.current?.(); }, []);
+  useEffect(() => () => { flushPendingSaveRef.current?.(); }, [currentStep, flowPhase, selectedSku]);
 
   const validateStep3 = () => {
     const newErrors = {};
@@ -3933,6 +3338,15 @@ const GenerateFactoryCode = ({
   };
 
   // Packaging Configuration Change Handler
+  // Master pack is DERIVED from "To be shipped": Merged → ASSORTED, Standalone → STANDARD.
+  // Returns null for unknown/custom values so we leave the existing type untouched.
+  const deriveMasterPack = (toBeShipped) => {
+    const v = String(toBeShipped || '').trim().toLowerCase();
+    if (v === 'merged') return 'ASSORTED';
+    if (v === 'standalone') return 'STANDARD';
+    return null;
+  };
+
   const handlePackagingChange = (field, value) => {
     setStep4Saved(false);
     setStep4SaveStatus('idle');
@@ -3943,6 +3357,8 @@ const GenerateFactoryCode = ({
         [field]: value,
         // Reset custom qty related fields when type changes
         ...(field === 'qtyToBePacked' && value !== 'CUSTOM_QTY' ? { customQty: '', isAssortedPack: false } : {}),
+        // Auto-link master pack to the shipping mode (Merged→ASSORTED, Standalone→STANDARD)
+        ...(field === 'toBeShipped' && deriveMasterPack(value) ? { type: deriveMasterPack(value) } : {}),
       }
     }));
     
@@ -3954,6 +3370,35 @@ const GenerateFactoryCode = ({
         return newErrors;
       });
     }
+  };
+
+  // Per-IPC "qty to pack from this pack" for the MAIN pack. Stored as
+  // packaging.packQty = { [ipcCode]: qtyString }; balance vs poQty is derived in Step5.
+  const handlePackQtyChange = (ipc, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
+    updateSelectedSkuStepData((stepData) => ({
+      ...stepData,
+      packaging: {
+        ...stepData.packaging,
+        packQty: { ...(stepData.packaging?.packQty || {}), [ipc]: value },
+      },
+    }));
+  };
+
+  // Same, for an EXTRA pack: extraPacks[extraIndex].packQty = { [ipcCode]: qtyString }.
+  const handleExtraPackQtyChange = (extraIndex, ipc, value) => {
+    setStep4Saved(false);
+    setStep4SaveStatus('idle');
+    updateSelectedSkuStepData((stepData) => {
+      const extraPacks = [...(stepData.packaging.extraPacks || [])];
+      if (!extraPacks[extraIndex]) return stepData;
+      extraPacks[extraIndex] = {
+        ...extraPacks[extraIndex],
+        packQty: { ...(extraPacks[extraIndex].packQty || {}), [ipc]: value },
+      };
+      return { ...stepData, packaging: { ...stepData.packaging, extraPacks } };
+    });
   };
 
   // Packaging Material Change Handler
@@ -4192,55 +3637,6 @@ const GenerateFactoryCode = ({
   };
 
   // Default material object for packaging / extra packs
-  const getDefaultPackagingMaterial = () => ({
-    srNo: 1,
-    product: '',
-    components: '',
-    materialDescription: '',
-    netConsumptionPerPc: '',
-    unit: '',
-    casepack: '',
-    placement: '',
-    size: { width: '', length: '', height: '', unit: '' },
-    workOrders: [
-      { workOrder: 'Packaging', wastage: '', for: '' },
-      { workOrder: '', wastage: '', for: '' },
-    ],
-    totalNetConsumption: '',
-    totalWastage: '',
-    calculatedUnit: '',
-    overage: '',
-    grossConsumption: '',
-    packagingMaterialType: '',
-    cartonBoxStiffenerNoOfPlys: '',
-    noOfPlys: '',
-    jointType: '',
-    burstingStrength: '',
-    surplus: '',
-    surplusForSection: '',
-    approvalAgainst: '',
-    remarks: '',
-    guage: '',
-    printingRef: null,
-    gummingQuality: '',
-    punchHoles: '',
-    flapSize: '',
-    guageGsm: '',
-    rollWidth: '',
-    rollWidthUnit: '',
-    tapeWidth: '',
-    tapeWidthUnit: '',
-    polybagBalePolybagCount: '',
-    polybagBaleAssdQtyByIpc: {},
-  });
-
-  const getDefaultExtraPack = () => ({
-    toBeShipped: '',
-    productSelection: [],
-    type: 'STANDARD',
-    casepackQty: '',
-    materials: [getDefaultPackagingMaterial()],
-  });
 
   const addExtraPack = () => {
     setStep4Saved(false);
@@ -4265,7 +3661,12 @@ const GenerateFactoryCode = ({
     updateSelectedSkuStepData((stepData) => {
       const extraPacks = [...(stepData.packaging.extraPacks || [])];
       if (!extraPacks[extraIndex]) return stepData;
-      extraPacks[extraIndex] = { ...extraPacks[extraIndex], [field]: value };
+      const derivedType = field === 'toBeShipped' ? deriveMasterPack(value) : null;
+      extraPacks[extraIndex] = {
+        ...extraPacks[extraIndex],
+        [field]: value,
+        ...(derivedType ? { type: derivedType } : {}),
+      };
       return {
         ...stepData,
         packaging: { ...stepData.packaging, extraPacks },
@@ -4379,7 +3780,8 @@ const GenerateFactoryCode = ({
     }
   };
 
-  const removeWorkOrder = (materialIndex, workOrderIndex) => {
+  const removeWorkOrder = (materialIndex, workOrderIndex, options = {}) => {
+    const { origin = 'bom' } = options;
     const stepDataBefore = getSelectedSkuStepData();
     const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
     updateSelectedSkuStepData((stepData) => {
@@ -4389,6 +3791,13 @@ const GenerateFactoryCode = ({
           ...updatedRawMaterials[materialIndex],
           workOrders: updatedRawMaterials[materialIndex].workOrders.filter((_, idx) => idx !== workOrderIndex)
         };
+      }
+      // From Cut & Sew Spec: don't un-save BOM & WO (see handleWorkOrderChange).
+      if (origin === 'cutsew') {
+        return withUpdatedIpcSavedState(
+          { ...stepData, rawMaterials: updatedRawMaterials },
+          { cut: false }
+        );
       }
       const nextRawSavedComponents = componentName
         ? getNormalizedRawSavedComponents(stepData).filter((name) => name !== componentName)
@@ -4402,7 +3811,7 @@ const GenerateFactoryCode = ({
         { raw: false }
       );
     });
-    if (componentName) {
+    if (origin !== 'cutsew' && componentName) {
       setStep2SavedComponents(prev => {
         const next = new Set(prev);
         next.delete(componentName);
@@ -4410,6 +3819,13 @@ const GenerateFactoryCode = ({
       });
     }
   };
+
+  // Cut & Sew Spec (Step1) reuses the BOM work-order handlers, but its edits belong
+  // to the "cut" state — these wrappers keep BOM & WO's saved state intact (Problem 1).
+  const handleCutSewWorkOrderChange = (materialIndex, workOrderIndex, field, value) =>
+    handleWorkOrderChange(materialIndex, workOrderIndex, field, value, { origin: 'cutsew' });
+  const removeCutSewWorkOrder = (materialIndex, workOrderIndex) =>
+    removeWorkOrder(materialIndex, workOrderIndex, { origin: 'cutsew' });
 
   const removeComponent = (productIndex, componentIndex) => {
     setStep1Saved(false); // Removing component invalidates saved state
@@ -5317,6 +4733,8 @@ const GenerateFactoryCode = ({
             errors={errors}
             renderHeaderAction={renderStepCloseButton()}
             handlePackagingChange={handlePackagingChange}
+            handlePackQtyChange={handlePackQtyChange}
+            handleExtraPackQtyChange={handleExtraPackQtyChange}
             handlePackagingMaterialChange={handlePackagingMaterialChange}
             addPackagingMaterial={addPackagingMaterial}
             removePackagingMaterial={removePackagingMaterial}
@@ -5371,8 +4789,8 @@ const GenerateFactoryCode = ({
               <Step1
                 formData={mergedFormData}
                 errors={errors}
-                handleWorkOrderChange={handleWorkOrderChange}
-                removeWorkOrder={removeWorkOrder}
+                handleWorkOrderChange={handleCutSewWorkOrderChange}
+                removeWorkOrder={removeCutSewWorkOrder}
                 clubComponents={clubComponents}
                 unclubClub={unclubClub}
                 propagateClubs={propagateClubs}
@@ -5450,6 +4868,7 @@ const GenerateFactoryCode = ({
   }, [showHighlight]);
 
   return (
+    <MaterialOptionsProvider>
     <>
     <style>{`
       input[type="number"]::-webkit-inner-spin-button,
@@ -5579,6 +4998,43 @@ const GenerateFactoryCode = ({
             </span>
           )}
         </div>
+
+        {/* LOUD, unmissable banner when a server save fails — weeks-long work must never
+            silently live only on this device. Persists (fixed, top-center) until Retry
+            succeeds or the user explicitly dismisses it. */}
+        {serverSaveState === 'error' && !saveErrorDismissed && (
+          <div
+            role="alert"
+            className="fixed left-1/2 top-4 z-[100] -translate-x-1/2 w-[min(680px,92vw)] rounded-xl border-2 border-red-500 bg-red-50 shadow-2xl"
+            style={{ padding: '14px 18px' }}
+          >
+            <div className="flex items-start gap-3">
+              <span className="text-2xl leading-none">⚠️</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-red-700">Your changes were NOT saved to the server.</p>
+                <p className="text-xs text-red-600" style={{ marginTop: '2px' }}>
+                  The last save didn’t reach the database — if you close or reload now, this work will be lost. Click Retry until it turns green, or copy your latest entries as a backup.
+                </p>
+                <div className="flex items-center gap-2" style={{ marginTop: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => saveCurrentFormState()}
+                    className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+                  >
+                    Retry save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSaveErrorDismissed(true)}
+                    className="rounded-md border border-red-400 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6">
           {/* <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-1">
@@ -6114,8 +5570,52 @@ const GenerateFactoryCode = ({
         }}
         messages={validationErrorsPopup.messages}
       />
+
+      {/* Pending PO-balance confirmation before Generate */}
+      <Dialog
+        open={pendingPackPopup.open}
+        onOpenChange={(open) => { if (!open) setPendingPackPopup({ open: false, balance: 0 }); }}
+      >
+        <DialogContent className="max-w-md" showCloseButton={true}>
+          <DialogHeader>
+            <DialogTitle className="text-lg flex items-center gap-2">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-lg">!</span>
+              Quantity still pending
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-gray-700 space-y-3" style={{ paddingTop: '4px' }}>
+            <p>
+              <span className="font-bold text-amber-700">{pendingPackPopup.balance} pcs</span> of this PO are not yet
+              packed. Your quantities are <span className="font-semibold">saved automatically</span> — you can reopen
+              packaging anytime and pack the balance later.
+            </p>
+            <p className="text-gray-500">Generate the factory code now with the pending balance, or go back and pack more?</p>
+          </div>
+          <div className="flex justify-end gap-3" style={{ paddingTop: '12px' }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPendingPackPopup({ open: false, balance: 0 })}
+            >
+              Go back &amp; pack more
+            </Button>
+            <Button
+              type="button"
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => {
+                setPendingPackPopup({ open: false, balance: 0 });
+                pendingAckRef.current = true;
+                handleSaveAndGenerate();
+              }}
+            >
+              Save &amp; generate anyway
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
     </>
+    </MaterialOptionsProvider>
   );
 };
 

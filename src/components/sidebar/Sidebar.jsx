@@ -72,6 +72,7 @@ const Sidebar = ({
   showEmailLine,
   user,
   handleLogout,
+  loggingOut = false,
 }) => {
   const collapsed = isSidebarCollapsed;
 
@@ -264,9 +265,32 @@ const Sidebar = ({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full cursor-pointer rounded-md border border-[#e2e3e8] px-3 py-2 text-left text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+                disabled={loggingOut}
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-[#e2e3e8] px-3 py-2 text-center text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Logout
+                {loggingOut && (
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"
+                    />
+                  </svg>
+                )}
+                {loggingOut ? "Signing out…" : "Logout"}
               </button>
             </MotionDiv>
           )}

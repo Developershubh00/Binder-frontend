@@ -13,6 +13,21 @@ export const useAuth = () => {
   return context;
 };
 
+// Clear per-session "Add later" dismissals for the logo prompt so a fresh
+// login re-prompts (until a logo actually exists).
+const clearLogoPromptDismissals = () => {
+  try {
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith('logoPromptDismissed:')) {
+        sessionStorage.removeItem(key);
+      }
+    }
+  } catch {
+    /* sessionStorage unavailable — nothing to clear */
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.login(credentials);
 
       if (response.token) {
+        clearLogoPromptDismissals();
         setUser(response.user);
         setIsAuthenticated(true);
         return { success: true, user: response.user };
@@ -88,6 +104,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       // Clear storage and state regardless of API call success
       authService.clearTokens();
+      clearLogoPromptDismissals();
       setUser(null);
       setIsAuthenticated(false);
     }

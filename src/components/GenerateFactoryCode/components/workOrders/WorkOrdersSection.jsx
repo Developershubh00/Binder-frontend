@@ -2,7 +2,7 @@
 // Extracted from Step2.jsx (BOM & WIP). Pure presentational; state lives in the
 // GenerateFactoryCode orchestrator and arrives via props.
 import QualityVerificationToggle from '../QualityVerificationToggle';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { BRAIDING_APPROVAL_OPTIONS, getBraidingVariants, getBraidingDesigns, getBraidingPatternType, getBraidingStrandCount, getBraidingWidthDiameter } from '../../data/braidingData';
 import { Button } from '@/components/ui/button';
 import { CARPET_APPROVAL_OPTIONS, KNOT_TYPE_OPTIONS, getCarpetVariants, getCarpetDesigns } from '../../data/carpetData';
@@ -23,6 +23,7 @@ import { TUFTING_APPROVAL_OPTIONS, getTuftingDesigns, getTuftingVariants, getTuf
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import { WEAVING_APPROVAL_OPTIONS, getWeavingVariants, getWeavingDesigns, getWeavingReedRange, getWeavingPickRange, getAllWeavingMachineTypes } from '../../data/weavingData';
 import { isSimpleRequirementWorkOrder } from './workOrderHelpers';
+import { buildFlowMeta } from './workOrderFlow';
 
 // Some rows carry the literal strings "null"/"undefined" (from earlier data
 // round-trips); never render those as a field value.
@@ -47,19 +48,69 @@ const WorkOrdersSection = ({
   sizeLabel = 'CUT SIZE',
   unitsReadOnly = false,
   hideAdd = false,
-}) => (
+  // Cut/Sew reuse can render each work order in its own titled card (the caller owns
+  // the heading: "Back Panel · CUTTING #1"), so the internal WORK ORDER header row and
+  // the "WORK ORDERS" section title are suppressed to avoid a double heading.
+  hideHeader = false,
+  hideSectionTitle = false,
+  // Flow identity for the rendered work orders. In BOM this is derived from the full
+  // list here; in the Cut/Sew reuse the caller passes the ORIGINAL material's meta,
+  // sliced to the filtered work orders, so each block keeps its TRUE flow step /
+  // occurrence (e.g. "CUTTING #2 · Step 4 of 5") instead of renumbering 1..n.
+  flowMeta = null,
+}) => {
+  const flow = flowMeta || buildFlowMeta(material?.workOrders || []);
+  return (
   <>
-            <div style={{ marginTop: '20px' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <h3 className="text-sm font-bold text-gray-800">WORK ORDERS</h3>
-              </div>
-              
+            <div style={{ marginTop: hideSectionTitle ? '0' : '20px' }}>
+              {!hideSectionTitle && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h3 className="text-sm font-bold text-gray-800">WORK ORDERS</h3>
+                </div>
+              )}
+
+              {/* FLOW strip — the ordered process chain (BOM & WO only). Makes the
+                  sequence explicit so it is never silently broken, and disambiguates
+                  a repeated type (CUTTING #1 vs CUTTING #2). */}
+              {!restrictType && (material.workOrders?.length || 0) > 1 && (
+                <div className="flex items-center flex-wrap gap-1.5 rounded-lg bg-muted/50 border border-border" style={{ padding: '8px 10px', marginBottom: '14px' }}>
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground" style={{ marginRight: '4px' }}>Flow</span>
+                  {flow.map((m, i) => (
+                    <span key={i} className="flex items-center gap-1.5">
+                      <span className="flex items-center gap-1 rounded-md bg-background border border-border" style={{ padding: '3px 8px' }}>
+                        <span className="text-[11px] font-bold text-primary">{m.step}</span>
+                        <span className="text-[11px] font-medium text-foreground/80">{m.typeCode || '—'}</span>
+                      </span>
+                      {i < flow.length - 1 && <span className="text-muted-foreground text-xs">→</span>}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {material.workOrders && material.workOrders.map((workOrder, woIndex) => (
                 <div key={woIndex} id={`workorder-${materialIndex + 1}-${woIndex}`} data-work-order-index={woIndex} data-material-index={materialIndex} className="bg-white rounded-lg border border-gray-200" style={{ padding: '16px', marginBottom: '12px' }}>
+                  {!hideHeader && (
                   <div className="flex items-center justify-between" style={{ marginBottom: '12px' }}>
-                    <h4 className="text-sm font-semibold text-gray-700">
-                      WORK ORDER {woIndex + 1}
-                    </h4>
+                    <div className="flex items-center flex-wrap gap-2 min-w-0">
+                      <h4 className="text-sm font-semibold text-gray-700">
+                        WORK ORDER {(flow[woIndex]?.step) || woIndex + 1}
+                      </h4>
+                      {/* Unique flow identity — tells CUTTING #1 (Step 2) from CUTTING #2
+                          (Step 4) so the two cuttings never merge downstream. */}
+                      {flow[woIndex]?.type && (
+                        <span className="rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-wide" style={{ padding: '2px 8px' }}>
+                          {flow[woIndex].typeCode}
+                        </span>
+                      )}
+                      {(flow[woIndex]?.total || 0) > 1 && (
+                        <span className="text-[11px] text-muted-foreground">Flow step {flow[woIndex].step} of {flow[woIndex].total}</span>
+                      )}
+                      {/* In the Cut/Sew reuse show the BOM remark (the user's own naming,
+                          e.g. "Cutting Prior Quilting") so each block is unmistakable. */}
+                      {restrictType && flow[woIndex]?.remark && (
+                        <span className="text-[11px] italic text-muted-foreground truncate">“{flow[woIndex].remark}”</span>
+                      )}
+                    </div>
                     {material.workOrders.length > 1 && (
                       <Button
                         type="button"
@@ -95,7 +146,8 @@ const WorkOrdersSection = ({
                       </Button>
                     )}
                   </div>
-                  
+                  )}
+
                   {/* Work Order Fields */}
                   <div className="flex flex-wrap items-start gap-6">
                     <Field
@@ -108,7 +160,7 @@ const WorkOrdersSection = ({
                       {restrictType ? (
                         <div className="h-11 w-full rounded-md border border-input bg-muted/50 px-3 text-sm flex items-center font-medium text-foreground/80">{workOrder.workOrder}</div>
                       ) : (
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={workOrder.workOrder || ''}
                           onChange={(selectedValue) => {
                             handleWorkOrderChange(actualIndex, woIndex, 'workOrder', selectedValue);
@@ -157,7 +209,7 @@ const WorkOrdersSection = ({
                         {unitsReadOnly ? (
                           <div className="h-11 w-full rounded-md border border-input bg-muted/50 px-3 text-sm flex items-center text-muted-foreground">{workOrder[fld] || 'Fetched'}</div>
                         ) : (
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={workOrder[fld] || ''}
                             onChange={(v) => handleWorkOrderChange(actualIndex, woIndex, fld, v)}
                             options={WORK_ORDER_UNIT_OPTIONS}
@@ -180,7 +232,7 @@ const WorkOrdersSection = ({
                         <Input type="number" value={workOrder[`${sizePrefix}Width`] || ''} onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, `${sizePrefix}Width`, e.target.value)} placeholder="W" />
                       </Field>
                       <Field label="UNIT" width="sm">
-                        <SearchableDropdown value={workOrder[`${sizePrefix}Unit`] || ''} onChange={(v) => handleWorkOrderChange(actualIndex, woIndex, `${sizePrefix}Unit`, v)} options={WORK_ORDER_UNIT_OPTIONS} placeholder="Select unit" strictMode={true} />
+                        <TenantDropdown value={workOrder[`${sizePrefix}Unit`] || ''} onChange={(v) => handleWorkOrderChange(actualIndex, woIndex, `${sizePrefix}Unit`, v)} options={WORK_ORDER_UNIT_OPTIONS} placeholder="Select unit" strictMode={true} />
                       </Field>
                       <Field label="WASTAGE %" width="sm">
                         <Input type="number" value={workOrder[`${sizePrefix}Wastage`] || ''} onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, `${sizePrefix}Wastage`, e.target.value)} placeholder="%" />
@@ -232,7 +284,7 @@ const WorkOrdersSection = ({
                           width="sm"
                           error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_machineType`]}
                         >
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={workOrder.machineType || ''}
                             onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'machineType', selectedValue)}
                             options={
@@ -300,7 +352,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={BRAIDING_APPROVAL_OPTIONS}
@@ -477,7 +529,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={KNITTING_APPROVAL_OPTIONS}
@@ -544,7 +596,7 @@ const WorkOrdersSection = ({
                                       : undefined
                                   }
                                 >
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.knittingDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'knittingDesign', selectedValue)
@@ -564,7 +616,7 @@ const WorkOrdersSection = ({
                                       : undefined
                                   }
                                 >
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.knittingVariant || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'knittingVariant', selectedValue)
@@ -617,7 +669,7 @@ const WorkOrdersSection = ({
 
                               <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px 12px' }}>
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)
@@ -629,7 +681,7 @@ const WorkOrdersSection = ({
                                 </Field>
 
                                 <Field label="DESIGN" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.braidingDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'braidingDesign', selectedValue)
@@ -668,7 +720,7 @@ const WorkOrdersSection = ({
                         <>
                           {/* QUILTING TYPE */}
                           <Field label="QUILTING TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_quiltingType`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.quiltingType || ''}
                               onChange={(selectedValue) =>
                                 handleWorkOrderChange(actualIndex, woIndex, 'quiltingType', selectedValue)
@@ -755,7 +807,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               className={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`] ? 'border-red-600' : ''}
@@ -782,7 +834,7 @@ const WorkOrdersSection = ({
                         <>
                           {/* PRINTING TYPE */}
                           <Field label="PRINTING TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_printingType`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.printingType || ''}
                               onChange={(selectedValue) =>
                                 handleWorkOrderChange(actualIndex, woIndex, 'printingType', selectedValue)
@@ -848,7 +900,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={PRINTING_APPROVAL_OPTIONS}
@@ -892,7 +944,7 @@ const WorkOrdersSection = ({
                             helper={workOrder.sewingMachineType ? getSewingThreadType(workOrder.sewingMachineType) : undefined}
                             error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_threadType`]}
                           >
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.threadType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'threadType', selectedValue)}
                               options={SEWING_THREAD_TYPE_OPTIONS}
@@ -920,7 +972,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={SEWING_APPROVAL_OPTIONS}
@@ -947,7 +999,7 @@ const WorkOrdersSection = ({
                         <>
                           {/* TYPE */}
                           <Field label="TYPE" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeType`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.fringeType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeType', selectedValue)}
                               options={['Cut Fringe', 'Chainette', 'Tassel (individual)', 'Ball Fringe', 'Brush Fringe', 'Bullion', 'Loop Fringe']}
@@ -958,7 +1010,7 @@ const WorkOrdersSection = ({
 
                           {/* ATTACHMENT METHOD */}
                           <Field label="ATTACHMENT METHOD" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeAttachmentMethod`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.fringeAttachmentMethod || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeAttachmentMethod', selectedValue)}
                               options={['Self-Knotted (through-fabric)', 'Sewn header/tape', 'Lace/cord tied', 'Slip-stitch attached', 'Glued/bonded']}
@@ -970,7 +1022,7 @@ const WorkOrdersSection = ({
                           {/* MATERIAL - hidden for Self-Knotted */}
                           {workOrder.fringeAttachmentMethod !== 'Self-Knotted (through-fabric)' && (
                           <Field label="MATERIAL" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeMaterial`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.fringeMaterial || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeMaterial', selectedValue)}
                               options={['Rayon (shiny)', 'Polyester', 'Cotton', 'Silk', 'Metallic', 'Wool', 'Jute']}
@@ -982,7 +1034,7 @@ const WorkOrdersSection = ({
 
                           {/* DROP LENGTH */}
                           <Field label="DROP LENGTH" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dropLength`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.dropLength || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'dropLength', selectedValue)}
                               options={['2cm', '5cm', '10cm', '15cm', '20cm']}
@@ -994,7 +1046,7 @@ const WorkOrdersSection = ({
                           {/* TAPE/HEADER WIDTH - hidden for Self-Knotted */}
                           {workOrder.fringeAttachmentMethod !== 'Self-Knotted (through-fabric)' && (
                           <Field label="TAPE/HEADER WIDTH" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_tapeHeaderWidth`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.tapeHeaderWidth || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'tapeHeaderWidth', selectedValue)}
                               options={['10mm', '15mm', '20mm']}
@@ -1007,7 +1059,7 @@ const WorkOrdersSection = ({
                           {/* COLOUR */}
                           <Field label="COLOUR" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeColour`]}>
                             <div className="flex items-center gap-2">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={workOrder.fringeColour || ''}
                                 onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeColour', selectedValue)}
                                 options={['DTM', 'Multi-Coloured', 'Iridescent', 'Ombre']}
@@ -1092,7 +1144,7 @@ const WorkOrdersSection = ({
 
                           {/* QTY - Type Selection (PCS/LENGTH) */}
                           <Field label="QTY" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeQtyType`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.fringeQtyType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeQtyType', selectedValue)}
                               options={['PCS', 'LENGTH']}
@@ -1181,7 +1233,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="md" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_fringeApproval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.fringeApproval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'fringeApproval', selectedValue)}
                               options={MATERIAL_APPROVAL_OPTIONS}
@@ -1237,7 +1289,7 @@ const WorkOrdersSection = ({
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: '16px 12px' }}>
                                   <Field label="FINISH" width="md">
-                                    <SearchableDropdown
+                                    <TenantDropdown
                                       value={workOrder.fringeFinish || ''}
                                       onChange={(selectedValue) =>
                                         handleWorkOrderChange(actualIndex, woIndex, 'fringeFinish', selectedValue)
@@ -1248,7 +1300,7 @@ const WorkOrdersSection = ({
                                   </Field>
 
                                   <Field label="CONSTRUCTION" width="md">
-                                    <SearchableDropdown
+                                    <TenantDropdown
                                       value={workOrder.fringeConstruction || ''}
                                       onChange={(selectedValue) =>
                                         handleWorkOrderChange(actualIndex, woIndex, 'fringeConstruction', selectedValue)
@@ -1270,7 +1322,7 @@ const WorkOrdersSection = ({
                         <>
                           {/* DYEING TYPE */}
                           <Field label="DYEING TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_dyeingType`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.dyeingType || ''}
                               onChange={(selectedValue) => {
                                 const selectedType = selectedValue;
@@ -1292,7 +1344,7 @@ const WorkOrdersSection = ({
 
                           {/* COLOR REF */}
                           <Field label="COLOR REF" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_colorRef`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.colorRef || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'colorRef', selectedValue)}
                               options={workOrder.dyeingType ? getDyeingColorRefOptions(workOrder.dyeingType) : []}
@@ -1304,7 +1356,7 @@ const WorkOrdersSection = ({
 
                           {/* REFERENCE TYPE */}
                           <Field label="REFERENCE TYPE" required width="lg" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_referenceType`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.referenceType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'referenceType', selectedValue)}
                               options={workOrder.dyeingType ? getDyeingReferenceTypeOptions(workOrder.dyeingType) : []}
@@ -1372,7 +1424,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={DYEING_APPROVAL_OPTIONS}
@@ -1515,7 +1567,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={WEAVING_APPROVAL_OPTIONS}
@@ -1607,7 +1659,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={TUFTING_APPROVAL_OPTIONS}
@@ -1667,7 +1719,7 @@ const WorkOrdersSection = ({
 
                           {/* KNOT TYPE */}
                           <Field label="KNOT TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_knotType`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.knotType || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'knotType', selectedValue)}
                               options={KNOT_TYPE_OPTIONS}
@@ -1689,7 +1741,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={CARPET_APPROVAL_OPTIONS}
@@ -1769,7 +1821,7 @@ const WorkOrdersSection = ({
 
                               <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px 12px' }}>
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)
@@ -1781,7 +1833,7 @@ const WorkOrdersSection = ({
                                 </Field>
 
                                 <Field label="DESIGN" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.carpetDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'carpetDesign', selectedValue)
@@ -1802,7 +1854,7 @@ const WorkOrdersSection = ({
                         <>
                           {/* VARIANTS - Dropdown */}
                           <Field label="VARIANTS" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_variants`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.variants || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)}
                               options={workOrder.machineType ? getCuttingVariants(workOrder.machineType) : []}
@@ -1814,7 +1866,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={CUTTING_APPROVAL_OPTIONS}
@@ -1873,7 +1925,7 @@ const WorkOrdersSection = ({
 
                               <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px 12px' }}>
                                 <Field label="CUT TYPE" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.cutType || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'cutType', selectedValue)
@@ -1894,7 +1946,7 @@ const WorkOrdersSection = ({
                                 </Field>
 
                                 <Field label="NESTING" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.nesting || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'nesting', selectedValue)
@@ -1935,7 +1987,7 @@ const WorkOrdersSection = ({
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={workOrder.approval || ''}
                               onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'approval', selectedValue)}
                               options={EMBROIDERY_APPROVAL_OPTIONS}
@@ -1994,7 +2046,7 @@ const WorkOrdersSection = ({
 
                               <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px 12px' }}>
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)
@@ -2006,7 +2058,7 @@ const WorkOrdersSection = ({
                                 </Field>
 
                                 <Field label="DESIGN" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.embroideryDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'embroideryDesign', selectedValue)
@@ -2111,7 +2163,7 @@ const WorkOrdersSection = ({
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                                 {/* VARIANTS */}
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)
@@ -2124,7 +2176,7 @@ const WorkOrdersSection = ({
 
                                 {/* DESIGN */}
                                 <Field label="DESIGN" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.printingDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'printingDesign', selectedValue)
@@ -2231,7 +2283,7 @@ const WorkOrdersSection = ({
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                                 {/* VARIANTS */}
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)
@@ -2244,7 +2296,7 @@ const WorkOrdersSection = ({
 
                                 {/* DESIGN */}
                                 <Field label="DESIGN" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.quiltingDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'quiltingDesign', selectedValue)
@@ -2313,7 +2365,7 @@ const WorkOrdersSection = ({
 
                               <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px 12px' }}>
                                 <Field label="MACHINE TYPE" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.sewingMachineType || ''}
                                     onChange={(selectedValue) => {
                                       const selectedType = selectedValue;
@@ -2348,7 +2400,7 @@ const WorkOrdersSection = ({
                                 </Field>
 
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)
@@ -2411,7 +2463,7 @@ const WorkOrdersSection = ({
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                                 {/* VARIANTS */}
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)}
                                     options={workOrder.machineType ? getWeavingVariants(workOrder.machineType) : []}
@@ -2422,7 +2474,7 @@ const WorkOrdersSection = ({
 
                                 {/* DESIGN */}
                                 <Field label="DESIGN" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.weavingDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'weavingDesign', selectedValue)
@@ -2500,7 +2552,7 @@ const WorkOrdersSection = ({
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                                 {/* DESIGN */}
                                 <Field label="DESIGN" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.tuftingDesign || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'tuftingDesign', selectedValue)
@@ -2513,7 +2565,7 @@ const WorkOrdersSection = ({
 
                                 {/* VARIANTS */}
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) => handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)}
                                     options={workOrder.machineType ? getTuftingVariants(workOrder.machineType) : []}
@@ -2597,7 +2649,7 @@ const WorkOrdersSection = ({
 
                               <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px 12px' }}>
                                 <Field label="VARIANTS" width="sm">
-                                  <SearchableDropdown
+                                  <TenantDropdown
                                     value={workOrder.variants || ''}
                                     onChange={(selectedValue) =>
                                       handleWorkOrderChange(actualIndex, woIndex, 'variants', selectedValue)
@@ -2660,6 +2712,7 @@ const WorkOrdersSection = ({
               )}
             </div>
   </>
-);
+  );
+};
 
 export default WorkOrdersSection;

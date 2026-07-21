@@ -1,7 +1,7 @@
 // CategoryTagsSpecial — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { TAGS_SPECIAL_LABELS_TYPES, TAGS_SPECIAL_LABELS_MATERIALS, TAGS_SPECIAL_LABELS_ATTACHMENT_OPTIONS, TAGS_SPECIAL_LABELS_FINISHING_OPTIONS, TAGS_SPECIAL_LABELS_TESTING_REQUIREMENTS, TAGS_SPECIAL_LABELS_APPROVAL_OPTIONS } from '../../data/tagsSpecialLabelsData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryTagsSpecial = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.tagsSpecialLabelsType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryTagsSpecial = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.tagsSpecialLabelsMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsMaterial', selectedValue);
@@ -103,7 +103,7 @@ const CategoryTagsSpecial = ({
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="HEIGHT"
                             />
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.tagsSpecialLabelsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -120,7 +120,7 @@ const CategoryTagsSpecial = ({
                         {/* ATTACHMENT - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>ATTACHMENT</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.tagsSpecialLabelsAttachment || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsAttachment', selectedValue);
@@ -147,7 +147,7 @@ const CategoryTagsSpecial = ({
                         {/* FINISHING - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>FINISHING <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.tagsSpecialLabelsFinishing || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsFinishing', selectedValue);
@@ -290,7 +290,7 @@ const CategoryTagsSpecial = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.tagsSpecialLabelsApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'tagsSpecialLabelsApproval', selectedValue);

@@ -6,7 +6,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const FoamEva = ({
   material,
@@ -20,7 +20,7 @@ const FoamEva = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
                       {/* FOAM TYPE */}
                       <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamType`]}>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamType || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamType', selectedValue)}
                           options={mergeOptions(['EVA Foam (Ethylene Vinyl Acetate)'], 'Foam', 'foamType')}
@@ -32,11 +32,11 @@ const FoamEva = ({
 
                       {/* SUBTYPE */}
                       <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamSubtype`]}>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamSubtype || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamSubtype', selectedValue)}
-                          options={mergeOptions(['Virgin EVA', 'Recycled EVA', 'Blended'], 'Foam', 'foamSubtype', material.foamType || '')}
-                          onCustomValue={(val) => addCustomOption('Foam', 'foamSubtype', material.foamType || '', val)}
+                          options={mergeOptions(['Virgin EVA', 'Recycled EVA', 'Blended'], 'Foam', 'foamSubtype', '')}
+                          onCustomValue={(val) => addCustomOption('Foam', 'foamSubtype', '', val)}
                           placeholder="Select or type"
                           className={errors[`rawMaterial_${actualIndex}_foamSubtype`] ? 'border-red-600' : ''}
                         />
@@ -44,7 +44,7 @@ const FoamEva = ({
 
                       {/* VA CONTENT */}
                       <Field label="VA CONTENT" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamVaContent`]}>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamVaContent || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamVaContent', selectedValue)}
                           options={['18%', '25%', '28%', '33%']}
@@ -55,7 +55,7 @@ const FoamEva = ({
 
                       {/* COLOUR */}
                       <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamColour`]}>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamColour || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamColour', selectedValue)}
                           options={['Black', 'White', 'Grey', 'Red', 'Blue', 'Green', 'Custom']}
@@ -66,7 +66,7 @@ const FoamEva = ({
 
                       {/* THICKNESS */}
                       <Field label="THICKNESS" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamThickness`]}>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.foamThickness || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamThickness', selectedValue)}
                           options={['2mm', '3mm', '5mm', '10mm', '15mm', '20mm', '25mm']}
@@ -205,20 +205,10 @@ const FoamEva = ({
                           </div>
                         </Field>
 
-                        {/* SURPLUS % */}
-                        <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamSurplus`]}>
-                          <PercentInput
-                            value={material.foamSurplus || ''}
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamSurplus', e.target.value)}
-                            placeholder="e.g., 3-5"
-                            error={Boolean(errors[`rawMaterial_${actualIndex}_foamSurplus`])}
-                          />
-                        </Field>
-
                         {/* WASTAGE % */}
                         <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamWastage`]}>
                           <div className="relative">
-                            <SearchableDropdown
+                            <TenantDropdown
                               value={material.foamWastage || ''}
                               onChange={(selectedValue) => {
                                 const predefinedOptions = ['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'];
@@ -241,7 +231,7 @@ const FoamEva = ({
 
                         {/* APPROVAL */}
                         <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamApproval`]}>
-                          <SearchableDropdown
+                          <TenantDropdown
                             value={material.foamApproval || ''}
                             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamApproval', selectedValue)}
                             options={MATERIAL_APPROVAL_OPTIONS}
@@ -279,7 +269,7 @@ const FoamEva = ({
                         <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }} className="col-span-1 md:col-span-2 lg:col-span-5">
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
                             <Field label="SHORE HARDNESS" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamShoreHardness || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamShoreHardness', selectedValue)}
                                 options={['25A Soft', '35A Medium', '45A Firm', '55A+ Hard']}
@@ -287,7 +277,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="CELL STRUCTURE" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamCellStructure || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCellStructure', selectedValue)}
                                 options={['Closed Cell']}
@@ -295,7 +285,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="COMPRESSION SET" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamCompressionSet || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCompressionSet', selectedValue)}
                                 options={['Compression Set %']}
@@ -303,7 +293,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="TENSILE STRENGTH" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamTensileStrength || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamTensileStrength', selectedValue)}
                                 options={['Tensile Strength (MPa)']}
@@ -311,7 +301,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="ELONGATION" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamElongation || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamElongation', selectedValue)}
                                 options={['Elongation at Break (%)']}
@@ -319,7 +309,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="WATER RESISTANCE" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamWaterResistance || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamWaterResistance', selectedValue)}
                                 options={['Excellent']}
@@ -327,7 +317,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="UV RESISTANCE" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamUvResistance || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamUvResistance', selectedValue)}
                                 options={['Standard', 'UV Stabilized']}
@@ -335,7 +325,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="FIRE RETARDANT" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamFireRetardant || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamFireRetardant', selectedValue)}
                                 options={['Standard', 'FR Treated']}
@@ -343,7 +333,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="SURFACE TEXTURE" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamSurfaceTexture || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamSurfaceTexture', selectedValue)}
                                 options={['Smooth', 'Textured (anti-slip)', 'Fabric Laminated', 'Leather-Look']}
@@ -351,7 +341,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="ANTI-SLIP" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamAntiSlip || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamAntiSlip', selectedValue)}
                                 options={['Standard', 'Anti-Slip Surface Treatment']}
@@ -359,7 +349,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="INTERLOCKING" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamInterlocking || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamInterlocking', selectedValue)}
                                 options={['None', 'Interlocking Edges (puzzle pattern)']}
@@ -367,7 +357,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="CERTIFICATION" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamCertification || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamCertification', selectedValue)}
                                 options={['REACH Compliant', 'Phthalate-Free', 'OEKO-TEX']}
@@ -375,7 +365,7 @@ const FoamEva = ({
                               />
                             </Field>
                             <Field label="DENSITY" width="sm">
-                              <SearchableDropdown
+                              <TenantDropdown
                                 value={material.foamDensity || ''}
                                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamDensity', selectedValue)}
                                 options={['30 kg/m³', '45 kg/m³', '60 kg/m³', '90 kg/m³', '120 kg/m³']}

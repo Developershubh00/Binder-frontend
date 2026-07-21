@@ -217,6 +217,38 @@ const getDyeingShrinkageWidth = (rm) => {
   return 0;
 };
 
+// Pull shrinkageLengthPercent from the fabric material's DYEING work order.
+// Returns 0 when no DYEING work order exists. Mirrors getDyeingShrinkageWidth.
+const getDyeingShrinkageLength = (rm) => {
+  for (const wo of rm?.workOrders || []) {
+    if (!wo) continue;
+    const woType = String(wo.workOrder || wo.work_order || '').toUpperCase();
+    if (woType !== 'DYEING') continue;
+    const psd = wo.processSpecificData || wo.process_specific_data || {};
+    const raw =
+      (psd && psd.shrinkageLengthPercent) ??
+      wo.shrinkageLengthPercent ??
+      null;
+    if (raw === null || raw === undefined || raw === '') return 0;
+    const n = parseFloat(String(raw).replace('%', '').trim());
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
+};
+
+// Length-side gross wastage: compound of all wastage/surplus PLUS the DYEING
+// shrinkage-length % (extra fabric length needed to compensate for post-dyeing
+// shrinkage). extractAllWastages ignores shrinkage (key has no "wastage"/"surplus"),
+// so it must be added explicitly — mirrors how shrinkage width already feeds
+// gross_wastage_width via getDyeingShrinkageWidth.
+const derivedGrossWastageLengthPct = (rm) => {
+  const wastages = extractAllWastages(rm);
+  const shrinkLen = getDyeingShrinkageLength(rm);
+  if (shrinkLen > 0) wastages.push(shrinkLen);
+  if (!wastages.length) return 0;
+  return (compoundFactor(wastages) - 1) * 100;
+};
+
 // Stitching Thread stores Net CNS/Unit in a different shape than generic yarn.
 // Mirror ConsumptionSheet.getStitchingThreadNetCnsAndUnit so those values
 // still populate the Yarn subtab correctly.
@@ -363,7 +395,7 @@ const buildFiberRowsFromDerived = (formData) => {
         // No Gross Wastage Weight is captured on the form — Gross Weight equals
         // Net Weight by spec.
         gross_weight_cns_pc_grams: fiberNetWeightGrams,
-        gross_wastage_length: derivedGrossWastagePct(rm),
+        gross_wastage_length: derivedGrossWastageLengthPct(rm),
         gross_wastage_width: getDyeingShrinkageWidth(rm),
         gsm,
         denier,
@@ -412,7 +444,7 @@ const buildFoamRowsFromDerived = (formData) => {
         // No Gross Wastage Weight is captured on the form — Gross Weight equals
         // Net Weight by spec.
         gross_weight_cns_pc_grams: foamNetWeightGrams,
-        gross_wastage_length: derivedGrossWastagePct(rm),
+        gross_wastage_length: derivedGrossWastageLengthPct(rm),
         gross_wastage_width: getDyeingShrinkageWidth(rm),
         gsm,
         unit: rm.unit || rm.consumptionUnit || '',
@@ -485,7 +517,7 @@ const buildTrimRowsFromDerived = (formData) => {
         net_width_cns_pc: netWidthOut,
         net_weight_cns_pc_grams: trimNetWeightGrams,
         gross_weight_cns_pc_grams: trimNetWeightGrams,
-        gross_wastage_length: derivedGrossWastagePct(m),
+        gross_wastage_length: derivedGrossWastageLengthPct(m),
         gross_wastage_width: getDyeingShrinkageWidth(m),
         gsm,
         unit,
@@ -503,7 +535,8 @@ const buildTrimRowsFromDerived = (formData) => {
 //   net_length_cns_pc    → component.cuttingSize.length
 //   net_width_cns_pc     → component.cuttingSize.width
 //   gross_wastage_pc     → compound of all wastage/surplus values on the artwork row
-//   gross_wastage_length → compound wastage from the matching component's RM
+//   gross_wastage_length → compound wastage from the matching component's RM,
+//                           compounded with that RM's DYEING shrinkage length
 //   gross_wastage_width  → DYEING shrinkageWidthPercent on that RM (0 if none)
 //   unit                 → artwork material's `unit` field
 // Map each artwork category to the field-name prefix the Artwork & Labelling
@@ -606,7 +639,7 @@ const buildArtworkRowsFromDerived = (formData) => {
         const rmComp = String(rm?.componentName || rm?.component_name || '').trim();
         return rmComp.toLowerCase() === componentName.toLowerCase();
       });
-      const grossWastageLength = matchingRm ? derivedGrossWastagePct(matchingRm) : 0;
+      const grossWastageLength = matchingRm ? derivedGrossWastageLengthPct(matchingRm) : 0;
       const grossWastageWidth = matchingRm ? getDyeingShrinkageWidth(matchingRm) : 0;
 
       // Per-PC wastage from the artwork form (compound of all wastage/surplus
@@ -654,7 +687,8 @@ const buildArtworkRowsFromDerived = (formData) => {
 //   overage_qty_pcs   → SKU poQty × (1 + overagePercentage/100)
 //   net_length_cns_pc → component cuttingSize.length (Cut & Sew Spec)
 //   net_width_cns_pc  → component cuttingSize.width  (Cut & Sew Spec)
-//   gross_wastage_length → compound of all wastage/surplus values on the RM
+//   gross_wastage_length → compound of all wastage/surplus values on the RM,
+//                           compounded with the DYEING shrinkage length %
 //   gross_wastage_width  → DYEING work order shrinkageWidthPercent (0 if none)
 // Gross Length/Width CNS/PC, Gross Width CNS, Gross Length Qty, Balance Gross
 // Width Wastage %, etc. are already derived inside FABRIC_COLUMNS renderers
@@ -694,7 +728,7 @@ const buildFabricRowsFromDerived = (formData) => {
         overage_qty: overage,
         net_length_cns_pc: Number.isFinite(netLength) ? netLength : null,
         net_width_cns_pc: Number.isFinite(netWidth) ? netWidth : null,
-        gross_wastage_length: derivedGrossWastagePct(rm),
+        gross_wastage_length: derivedGrossWastageLengthPct(rm),
         gross_wastage_width: getDyeingShrinkageWidth(rm),
         unit: rm.unit || rm.consumptionUnit || '',
       });
@@ -917,6 +951,57 @@ const ManualNumberCell = ({ rowId, field, ctx, invalid }) => {
   );
 };
 
+// Fuel-pump / odometer style entry for base-unit measurements (Yardage / Width).
+// The cell always shows 0.00 and digits fill in from the RIGHT — each keystroke
+// shifts the value one place left, exactly like a fuel-pump display. Digits are
+// read as hundredths of a metre, so the operator keys the raw CENTIMETRE
+// measurement and it reflects in metres (2 dp):
+//   type 6 -> 0.06 · type 0 -> 0.60 (= 60 CM = 600 MM) · type 5 -> 6.05
+// The stored value is the metre number as a string, blanked when zero so an
+// untouched cell still saves as null. Any non-digit the user types is ignored
+// because we rebuild the value from just the digits on every change (this also
+// gives free right-shift on Backspace: 0.60 -> 0.6 -> digits "06" -> 0.06).
+// To switch to millimetre precision, change DP from 2 to 3 (and the divisor).
+const YARDAGE_DP = 2;
+const YARDAGE_SCALE = 10 ** YARDAGE_DP; // 100 -> value = units / 100
+const YardageCell = ({ rowId, field, ctx, invalid }) => {
+  const stored = ctx?.manualInputs?.[rowId]?.[field];
+  const units = Math.round((toNum(stored) || 0) * YARDAGE_SCALE); // integer "cents"
+  const display = (units / YARDAGE_SCALE).toFixed(YARDAGE_DP);
+
+  const handleChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 9); // cap length
+    const nextUnits = digits ? parseInt(digits, 10) : 0;
+    // Zero clears the cell so Save sends null, not 0.
+    ctx?.setManualInput?.(
+      rowId,
+      field,
+      nextUnits === 0 ? '' : (nextUnits / YARDAGE_SCALE).toFixed(YARDAGE_DP),
+    );
+  };
+
+  // Keep the caret pinned to the far right so entry always shifts in from there.
+  const caretToEnd = (e) => {
+    const el = e.target;
+    requestAnimationFrame(() => {
+      try { el.setSelectionRange(el.value.length, el.value.length); } catch { /* noop */ }
+    });
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={display}
+      onChange={handleChange}
+      onFocus={caretToEnd}
+      onClick={caretToEnd}
+      style={numberInputStyle(invalid)}
+      title={invalid ? 'Purchase Width must be greater than Gross Width CNS' : undefined}
+    />
+  );
+};
+
 // Small "(i)" info button rendered next to a column header. Shows the column's
 // `info` note (e.g. base-unit conversion guidance) on hover/click.
 const HeaderInfo = ({ text }) => {
@@ -1043,24 +1128,24 @@ const FABRIC_COLUMNS = [
   // derived value renders read-only. The manual entry flows into Gross Length/
   // Width below and carries forward to the Purchase section on Save.
   { key: 'net_length_cns_pc', header: 'Net Length CNS/PC', align: 'right',
-    info: 'Base Unit Yardage: enter the value in MM; it is reflected in Meter. E.g. 60 CM → enter 600 MM → reflects as 0.6 Meter. Editable only when empty.',
+    info: 'Base Unit Yardage: keyed fuel-pump style — the cell shows 0.00 and digits fill in from the right. Enter the CM measurement; it reflects in Meter. E.g. 60 CM → key 6,0 → 0.60 Meter (= 600 MM). Editable only when empty.',
     render: (r, ctx) => {
       const derived = toNum(r.net_length_cns_pc);
       if (Number.isFinite(derived)) return formatNumber(derived);
       if (ctx?.isClub) return formatNumber(effectiveFabricNetLength(r, ctx));
-      return <ManualNumberCell rowId={r.id} field="net_length_cns_pc" ctx={ctx} />;
+      return <YardageCell rowId={r.id} field="net_length_cns_pc" ctx={ctx} />;
     } },
   { key: 'gross_wastage_length', header: 'Gross Length Wastage', align: 'right',
     render: (r) => formatNumber(r.gross_wastage_length, { decimals: 2, suffix: '%' }) },
   { key: 'gross_length_cns_pc', header: 'Gross Length CNS/PC', align: 'right',
     render: (r, ctx) => formatNumber(fabricGrossLengthPc(r, ctx)) },
   { key: 'net_width_cns_pc', header: 'Net Width CNS/PC', align: 'right',
-    info: 'Base Unit Width: enter the value in MM; it is reflected in Meter. E.g. 660 MM → reflects as 0.66 Meter. Editable only when empty.',
+    info: 'Base Unit Width: keyed fuel-pump style — the cell shows 0.00 and digits fill in from the right. Enter the CM measurement; it reflects in Meter. E.g. 66 CM → key 6,6 → 0.66 Meter (= 660 MM). Editable only when empty.',
     render: (r, ctx) => {
       const derived = toNum(r.net_width_cns_pc);
       if (Number.isFinite(derived)) return formatNumber(derived);
       if (ctx?.isClub) return formatNumber(effectiveFabricNetWidth(r, ctx));
-      return <ManualNumberCell rowId={r.id} field="net_width_cns_pc" ctx={ctx} />;
+      return <YardageCell rowId={r.id} field="net_width_cns_pc" ctx={ctx} />;
     } },
   { key: 'gross_wastage_width', header: 'Gross Width Wastage', align: 'right',
     render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },

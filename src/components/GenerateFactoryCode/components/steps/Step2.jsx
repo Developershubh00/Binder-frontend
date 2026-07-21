@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { isAutoDescriptionType, getMaterialDescriptionSyntax } from '../../utils/materialDescription';
 import { useMaterialOptions } from '../../utils/useMaterialOptions';
 import { UNIT_OPTIONS, UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
@@ -275,7 +275,7 @@ const Step2 = ({
           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ display: 'block', marginBottom: '8px' }}>
                     COMPONENT
                   </label>
-          <SearchableDropdown
+          <TenantDropdown
             value={selectedComponent || ''}
             onChange={(selectedValue) => {
               setSelectedComponent(selectedValue || '');
@@ -301,7 +301,7 @@ const Step2 = ({
             <div style={{ textAlign: 'center', padding: '40px' }}>
               <p style={{ marginBottom: '20px', color: '#6b7280' }}>Add raw materials for this component</p>
               <div style={{ maxWidth: '300px', margin: '0 auto' }}>
-                <SearchableDropdown
+                <TenantDropdown
                   options={['Fabric', 'Yarn', 'Trim & Accessory', 'Foam', 'Fiber']}
                   onChange={(selectedType) => {
                     if (selectedType) {
@@ -410,7 +410,7 @@ const Step2 = ({
                   width="sm"
                   error={errors[`rawMaterial_${actualIndex}_materialType`]}
                 >
-                  <SearchableDropdown
+                  <TenantDropdown
                     value={material.materialType || ''}
                     onChange={(selectedMaterialType) => {
                       handleRawMaterialChange(actualIndex, 'materialType', selectedMaterialType);
@@ -431,7 +431,7 @@ const Step2 = ({
                     <label className="text-sm font-semibold text-gray-700 mb-2">
                       SUB-MATERIAL
                     </label>
-                    <SearchableDropdown
+                    <TenantDropdown
                       value={material.subMaterial || ''}
                       onChange={(selectedSubMaterial) => {
                         handleRawMaterialChange(actualIndex, 'subMaterial', selectedSubMaterial);
@@ -532,7 +532,7 @@ const Step2 = ({
                   width="sm"
                   error={errors[`rawMaterial_${actualIndex}_unit`]}
                 >
-                  <SearchableDropdown
+                  <TenantDropdown
                     value={material.unit || ''}
                     onChange={(selectedValue) => {
                       handleRawMaterialChange(actualIndex, 'unit', selectedValue);
@@ -609,7 +609,7 @@ const Step2 = ({
                         <label className="text-sm font-bold text-gray-800 mb-2">
                           TRIM/ACCESSORY <span className="text-red-600">*</span>
                         </label>
-                        <SearchableDropdown
+                        <TenantDropdown
                           value={material.trimAccessory || ''}
                           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'trimAccessory', selectedValue)}
                           options={['BUCKLES', 'BUTTONS', 'CABLE-TIES', 'CORD STOPS', 'FELT', 'HOOKS-EYES', 'INTERLINING(FUSING)', 'MAGNETIC CLOSURE', 'PIN-BARBS', 'REFLECTIVE TAPES', 'RINGS-LOOPS', 'RIVETS', 'SEAM TAPE', 'SHOULDER PADS', 'VELCRO', 'NIWAR-WEBBING', 'RIBBING', 'LACE', 'FIRE RETARDANT (FR) TRIMS', 'ZIPPERS']}
@@ -729,7 +729,7 @@ const Step2 = ({
                     minWidth: '200px'
                   }}
                 >
-                  <SearchableDropdown
+                  <TenantDropdown
                     options={['Fabric', 'Yarn', 'Trim & Accessory', 'Foam', 'Fiber']}
                     onChange={(selectedType) => {
                       if (selectedType) {

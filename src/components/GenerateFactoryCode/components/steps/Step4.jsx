@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getArtworkDescriptionSyntax } from '../../utils/materialDescription';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { ARTWORK_APPROVAL_OPTIONS } from '../../data/approvalOptions';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 // Step 4 artwork category + advanced-filter spec blocks (one file each)
@@ -108,7 +108,7 @@ const Step4 = ({
           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ display: 'block', marginBottom: '8px' }}>
             COMPONENT
           </label>
-          <SearchableDropdown
+          <TenantDropdown
             value={selectedComponent || ''}
             onChange={(val) => setSelectedComponent(val || '')}
             options={getComponentOptions()}
@@ -174,7 +174,7 @@ const Step4 = ({
               <div className="w-full" style={{ marginTop: 0 }}>
                 <div className="flex flex-col" style={{ width: '280px', marginBottom: '20px' }}>
                   <label className="text-sm font-bold text-gray-800 mb-2">ARTWORK CATEGORY</label>
-                  <SearchableDropdown
+                  <TenantDropdown
                     value={material.artworkCategory || ''}
                     onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'artworkCategory', selectedValue)}
                     options={['LABELS (BRAND/MAIN)', 'CARE & COMPOSITION', 'TAGS & SPECIAL LABELS', 'FLAMMABILITY / SAFETY LABELS', 'RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'INSERT CARDS', 'HEADER CARD', 'RIBBONS']}
@@ -215,7 +215,7 @@ const Step4 = ({
                     {!['RFID / SECURITY TAGS', 'LAW LABEL / CONTENTS TAG', 'HANG TAG SEALS / STRINGS', 'PRICE TICKET / BARCODE TAG', 'HEAT TRANSFER LABELS', 'UPC LABEL / BARCODE STICKER', 'SIZE LABELS (INDIVIDUAL)', 'ANTI-COUNTERFEIT & HOLOGRAMS', 'QC / INSPECTION LABELS', 'BELLY BAND / WRAPPER', 'CARE & COMPOSITION', 'FLAMMABILITY / SAFETY LABELS', 'INSERT CARDS', 'HEADER CARD', 'LABELS (BRAND/MAIN)', 'RIBBONS', 'TAGS & SPECIAL LABELS'].includes(material.artworkCategory) && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">TYPE</label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.specificType || ''}
                         onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'specificType', selectedValue)}
                         options={
@@ -548,7 +548,7 @@ const Step4 = ({
                     {material.artworkCategory !== 'ANTI-COUNTERFEIT & HOLOGRAMS' && material.artworkCategory !== 'BELLY BAND / WRAPPER' && material.artworkCategory !== 'CARE & COMPOSITION' && material.artworkCategory !== 'FLAMMABILITY / SAFETY LABELS' && material.artworkCategory !== 'HANG TAG SEALS / STRINGS' && material.artworkCategory !== 'HEAT TRANSFER LABELS' && material.artworkCategory !== 'INSERT CARDS' && material.artworkCategory !== 'HEADER CARD' && material.artworkCategory !== 'LABELS (BRAND/MAIN)' && material.artworkCategory !== 'LAW LABEL / CONTENTS TAG' && material.artworkCategory !== 'PRICE TICKET / BARCODE TAG' && material.artworkCategory !== 'QC / INSPECTION LABELS' && material.artworkCategory !== 'RFID / SECURITY TAGS' && material.artworkCategory !== 'RIBBONS' && material.artworkCategory !== 'SIZE LABELS (INDIVIDUAL)' && material.artworkCategory !== 'TAGS & SPECIAL LABELS' && material.artworkCategory !== 'UPC LABEL / BARCODE STICKER' && (
                     <div className="flex flex-col">
                       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-                  <SearchableDropdown
+                  <TenantDropdown
                         value={material.approval || ''}
                         onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'approval', selectedValue)}
                         options={ARTWORK_APPROVAL_OPTIONS}

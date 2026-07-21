@@ -1,6 +1,6 @@
 // FiberSpec — extracted from Step2.jsx (BOM & WIP). Pure presentational; all
 // state lives in the GenerateFactoryCode orchestrator and arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 // Fiber table-type spec blocks (one file each)
 import FiberPolyester from '../fiberTypes/FiberPolyester';
 import FiberDownFeather from '../fiberTypes/FiberDownFeather';
@@ -30,7 +30,7 @@ const FiberSpec = ({
                       <label className="text-sm font-semibold text-gray-700 mb-2">
                         SELECT FIBER TABLE <span className="text-red-600">*</span>
                       </label>
-                      <SearchableDropdown
+                      <TenantDropdown
                         value={material.fiberTableType || ''}
                         onChange={(selectedValue) => {
                           handleRawMaterialChange(actualIndex, 'fiberTableType', selectedValue);

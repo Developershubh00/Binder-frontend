@@ -1,7 +1,7 @@
 // CategoryUpcBarcode — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { UPC_BARCODE_TYPES, UPC_BARCODE_MATERIALS, UPC_BARCODE_TESTING_REQUIREMENTS, UPC_BARCODE_APPROVAL_OPTIONS } from '../../data/upcBarcodeData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryUpcBarcode = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.upcBarcodeType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'upcBarcodeType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryUpcBarcode = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.upcBarcodeMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'upcBarcodeMaterial', selectedValue);
@@ -103,7 +103,7 @@ const CategoryUpcBarcode = ({
                               style={{ padding: '10px 14px', height: '44px' }}
                               placeholder="HEIGHT"
                             />
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.upcBarcodeSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'upcBarcodeSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -226,7 +226,7 @@ const CategoryUpcBarcode = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.upcBarcodeApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'upcBarcodeApproval', selectedValue);

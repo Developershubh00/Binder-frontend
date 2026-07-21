@@ -1,7 +1,7 @@
 // CategoryBellyBand — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { BELLY_BAND_TYPES, BELLY_BAND_MATERIALS, BELLY_BAND_CLOSURE_OPTIONS, BELLY_BAND_TESTING_REQUIREMENTS, BELLY_BAND_APPROVAL_OPTIONS, BELLY_BAND_PRODUCT_FIT_OPTIONS, BELLY_BAND_PRINTING_OPTIONS, BELLY_BAND_FOLD_LINES_OPTIONS, BELLY_BAND_DURABILITY_OPTIONS, BELLY_BAND_CONTENT_OPTIONS, BELLY_BAND_COLOURS_OPTIONS, BELLY_BAND_FINISH_OPTIONS, BELLY_BAND_DIE_CUT_OPTIONS, BELLY_BAND_GUMMING_QUALITY_OPTIONS } from '../../data/bellyBandData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryBellyBand = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.bellyBandType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryBellyBand = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.bellyBandMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandMaterial', selectedValue);
@@ -118,7 +118,7 @@ const CategoryBellyBand = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.bellyBandSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'bellyBandSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -137,7 +137,7 @@ const CategoryBellyBand = ({
                         {/* CLOSURE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>CLOSURE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.bellyBandClosure || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandClosure', selectedValue);
@@ -266,7 +266,7 @@ const CategoryBellyBand = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.bellyBandApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandApproval', selectedValue);

@@ -842,6 +842,18 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
       woValues.forEach((v, i) => {
         add(woValues.length > 1 ? `${woLabel} #${i + 1}` : woLabel, v);
       });
+      // DYEING shrinkage (width + length) is extra fabric needed to compensate for
+      // post-dyeing shrinkage — count it like wastage so it compounds into Gross CNS.
+      // extractAllWastages skips it (the key contains no "wastage"/"surplus").
+      const psd = wo.processSpecificData || wo.process_specific_data || {};
+      const shrinkageWidth = wo.shrinkageWidthPercent ?? psd.shrinkageWidthPercent;
+      const shrinkageLength = wo.shrinkageLengthPercent ?? psd.shrinkageLengthPercent;
+      if (shrinkageWidth !== undefined && shrinkageWidth !== null && shrinkageWidth !== '') {
+        add('Shrinkage width', shrinkageWidth);
+      }
+      if (shrinkageLength !== undefined && shrinkageLength !== null && shrinkageLength !== '') {
+        add('Shrinkage length', shrinkageLength);
+      }
     });
 
     return breakdown;

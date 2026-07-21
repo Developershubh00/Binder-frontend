@@ -2,19 +2,28 @@
 import { Button } from '@/components/ui/button';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
+import { computeSqMeter, formatCalc, useFiberKgsAutoFill } from '@/utils/fiberSizeCalc';
 
 const FiberDownAlt = ({
   material,
   actualIndex,
   handleRawMaterialChange,
-}) => (
+}) => {
+  const sqMeterStr = formatCalc(computeSqMeter(material.fiberLength, material.fiberWidth), 4);
+  const kgsStr = useFiberKgsAutoFill({
+    material,
+    actualIndex,
+    onChange: handleRawMaterialChange,
+    targetField: 'fiberQty',
+  });
+  return (
   <>
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     {/* FIBER TYPE */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">FIBER TYPE</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberFiberType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberFiberType', selectedValue)}
         options={['Down Alternative (Synthetic)']}
@@ -27,7 +36,7 @@ const FiberDownAlt = ({
     {/* SUBTYPE */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">SUBTYPE</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberSubtype', selectedValue)}
         options={['Micro-Gel Fiber', 'PrimaLoft', 'Thinsulate', '3M Featherless', 'Generic Down Alt']}
@@ -40,7 +49,7 @@ const FiberDownAlt = ({
     {/* FORM */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">FORM</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberForm || ''}
         onChange={(selectedValue) => {
           handleRawMaterialChange(actualIndex, 'fiberForm', selectedValue);
@@ -64,7 +73,7 @@ const FiberDownAlt = ({
     {/* CONSTRUCTION */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">CONSTRUCTION</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberDownAlternativeConstruction || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeConstruction', selectedValue)}
         options={['Single Cluster', 'Dual Cluster', 'Layered Cluster']}
@@ -77,7 +86,7 @@ const FiberDownAlt = ({
     {/* DENIER */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">DENIER</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberDenier || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDenier', selectedValue)}
         options={['0.7D - 1.5D (fine for down-like feel)']}
@@ -90,7 +99,7 @@ const FiberDownAlt = ({
     {/* SILICONIZED */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">SILICONIZED</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberSiliconized || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberSiliconized', selectedValue)}
         options={['Siliconized', 'Gel-Coated', 'Slick Finish']}
@@ -162,7 +171,7 @@ const FiberDownAlt = ({
             id={`fiber-testing-wrapper-downalt-${actualIndex}`}
             style={{ flex: 1, minWidth: '200px' }}
           >
-                        <SearchableDropdown
+                        <TenantDropdown
               value=""
               strictMode={false}
               onChange={(selectedValue) => {
@@ -313,8 +322,23 @@ const FiberDownAlt = ({
                 placeholder="Enter width"
               />
             </div>
+
+            {/* SQ. METER (auto: LENGTH × WIDTH / 10000) */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">SQ. METER</label>
+              <input
+                type="text"
+                value={sqMeterStr}
+                readOnly
+                tabIndex={-1}
+                className="border-2 rounded-lg text-sm bg-gray-50 text-gray-700 border-[#e5e7eb] cursor-not-allowed focus:outline-none"
+                style={{ padding: '10px 14px', height: '44px' }}
+                placeholder="L × W / 10000"
+                title="Auto-calculated: LENGTH (CM) × WIDTH (CM) / 10000"
+              />
+            </div>
           </div>
-          
+
           {/* QTY section with YARDAGE (CNS) and KGS (CNS) - nested under SIZE SPEC */}
           <div className="flex flex-col" style={{ marginTop: '16px' }}>
             <label className="text-sm font-semibold text-gray-700 mb-2">QTY</label>
@@ -332,42 +356,28 @@ const FiberDownAlt = ({
                 />
               </div>
               
-              {/* KGS (CNS) */}
+              {/* KGS (CNS) — auto: GSM × (L × W / 10000) / 1000 */}
               <div className="flex flex-col">
                 <label className="text-sm font-semibold text-gray-700 mb-2">KGS (CNS)</label>
                 <input
                   type="text"
-                  value={material.fiberQty || ''}
-                  onChange={(e) => handleRawMaterialChange(actualIndex, 'fiberQty', e.target.value)}
-                  className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
+                  value={kgsStr}
+                  readOnly
+                  tabIndex={-1}
+                  className="border-2 rounded-lg text-sm bg-gray-50 text-gray-700 border-[#e5e7eb] cursor-not-allowed focus:outline-none"
                   style={{ padding: '10px 14px', height: '44px', width: '200px' }}
-                  placeholder="Enter KGS (CNS)"
+                  placeholder="Auto (GSM × m² / 1000)"
+                  title="Auto-calculated: GSM × SQ.METER / 1000"
                 />
+                <span className="text-xs text-gray-500 mt-1">
+                  Auto = GSM × (L × W ÷ 10000) ÷ 1000{kgsStr ? ` = ${kgsStr} kg` : ''}
+                </span>
               </div>
             </div>
           </div>
         </div>
       </>
     )}
-
-    {/* SURPLUS % */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">SURPLUS %</label>
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <input
-          type="text"
-          value={material.fiberSurplus || ''}
-          onChange={(e) => {
-            const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-            handleRawMaterialChange(actualIndex, 'fiberSurplus', numericValue);
-          }}
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-          style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
-          placeholder="2-3%"
-        />
-        <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-      </div>
-    </div>
 
     {/* WASTAGE % */}
     <div className="flex flex-col">
@@ -391,7 +401,7 @@ const FiberDownAlt = ({
     {/* APPROVAL */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.fiberApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberApproval', selectedValue)}
         options={MATERIAL_APPROVAL_OPTIONS}
@@ -452,7 +462,7 @@ const FiberDownAlt = ({
             {/* LOFT RATING */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">LOFT RATING</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeLoftRating || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeLoftRating', selectedValue)}
                 options={['Low Loft', 'Medium Loft', 'High Loft', 'Down-Equivalent']}
@@ -465,7 +475,7 @@ const FiberDownAlt = ({
             {/* FILL POWER EQUIVALENT */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">FILL POWER EQUIVALENT</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeFillPowerEquivalent || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeFillPowerEquivalent', selectedValue)}
                 options={['Equivalent to 500 fill power down', 'Equivalent to 600 fill power down', 'Equivalent to 700 fill power down']}
@@ -478,7 +488,7 @@ const FiberDownAlt = ({
             {/* WARMTH-TO-WEIGHT */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">WARMTH-TO-WEIGHT</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeWarmthToWeight || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeWarmthToWeight', selectedValue)}
                 options={['Standard', 'High Warmth-to-Weight Ratio']}
@@ -491,7 +501,7 @@ const FiberDownAlt = ({
             {/* WATER RESISTANCE */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">WATER RESISTANCE</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeWaterResistance || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeWaterResistance', selectedValue)}
                 options={['Standard', 'Water Resistant (retains loft when wet)']}
@@ -504,7 +514,7 @@ const FiberDownAlt = ({
             {/* QUICK DRY */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">QUICK DRY</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeQuickDry || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeQuickDry', selectedValue)}
                 options={['Standard', 'Quick-Dry Technology']}
@@ -517,7 +527,7 @@ const FiberDownAlt = ({
             {/* HYPOALLERGENIC */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">HYPOALLERGENIC</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeHypoallergenic || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeHypoallergenic', selectedValue)}
                 options={['Standard Hypoallergenic', 'Certified']}
@@ -530,7 +540,7 @@ const FiberDownAlt = ({
             {/* ANTI-MICROBIAL */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">ANTI-MICROBIAL</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeAntiMicrobial || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeAntiMicrobial', selectedValue)}
                 options={['Standard', 'Treated']}
@@ -543,7 +553,7 @@ const FiberDownAlt = ({
             {/* VEGAN/CRUELTY-FREE */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">VEGAN/CRUELTY-FREE</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeVeganCrueltyFree || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeVeganCrueltyFree', selectedValue)}
                 options={['Certified Vegan', 'Cruelty-Free']}
@@ -556,7 +566,7 @@ const FiberDownAlt = ({
             {/* CERTIFICATION */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">CERTIFICATION</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeCertification || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeCertification', selectedValue)}
                 options={['OEKO-TEX', 'Bluesign', 'GRS (if recycled)']}
@@ -569,7 +579,7 @@ const FiberDownAlt = ({
             {/* MACHINE WASHABLE */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">MACHINE WASHABLE</label>
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.fiberDownAlternativeMachineWashable || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'fiberDownAlternativeMachineWashable', selectedValue)}
                 options={['Yes', 'Machine Washable & Dryable']}
@@ -593,6 +603,7 @@ const FiberDownAlt = ({
     </div>
   </div>
   </>
-);
+  );
+};
 
 export default FiberDownAlt;

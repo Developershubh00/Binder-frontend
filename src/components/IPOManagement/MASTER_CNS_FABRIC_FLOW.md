@@ -19,7 +19,7 @@ row grouping (left IPC# rowSpan block) and the trailing Club/Single badge column
 | 2 | **Component** | derived (`component`) | **new** — component the fabric maps to |
 | 3 | Overage QTY | derived (`overage_qty`) | |
 | 4 | Net Length CNS/PC | derived (`net_length_cns_pc`) | Cut & Sew cutting length |
-| 5 | Gross Length Wastage | derived (`gross_wastage_length` %) | |
+| 5 | Gross Length Wastage | derived (`gross_wastage_length` %) | wastage/surplus **compounded with DYEING shrinkage length** |
 | 6 | Gross Length CNS/PC | computed `grossLengthPc()` | Net Length × (1 + wastage%) |
 | 7 | Net Width CNS/PC | derived (`net_width_cns_pc`) | Cut & Sew cutting width |
 | 8 | Gross Width Wastage | derived (`gross_wastage_width` %) | DYEING shrinkage width |

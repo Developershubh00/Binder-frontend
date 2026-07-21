@@ -1,7 +1,7 @@
 // AdvFilterInsertCards — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { INSERT_CARDS_TYPES, INSERT_CARDS_MATERIALS, INSERT_CARDS_TESTING_REQUIREMENTS, INSERT_CARDS_APPROVAL_OPTIONS, INSERT_CARDS_FUNCTION_OPTIONS, INSERT_CARDS_CONTENT_OPTIONS, INSERT_CARDS_PRINTING_OPTIONS, INSERT_CARDS_FINISH_OPTIONS, INSERT_CARDS_STIFFNESS_OPTIONS, INSERT_CARDS_ACID_FREE_OPTIONS, INSERT_CARDS_BRANDING_OPTIONS } from '../../data/insertCardsData';
 
 const AdvFilterInsertCards = ({
@@ -53,7 +53,7 @@ const AdvFilterInsertCards = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FUNCTION
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.insertCardsFunction || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsFunction', selectedValue);
@@ -82,7 +82,7 @@ const AdvFilterInsertCards = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               CONTENT
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.insertCardsContent || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsContent', selectedValue);
@@ -111,7 +111,7 @@ const AdvFilterInsertCards = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRINTING
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.insertCardsPrinting || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsPrinting', selectedValue);
@@ -140,7 +140,7 @@ const AdvFilterInsertCards = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FINISH
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.insertCardsFinish || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsFinish', selectedValue);
@@ -169,7 +169,7 @@ const AdvFilterInsertCards = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               STIFFNESS
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.insertCardsStiffness || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsStiffness', selectedValue);
@@ -198,7 +198,7 @@ const AdvFilterInsertCards = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               ACID-FREE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.insertCardsAcidFree || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsAcidFree', selectedValue);
@@ -227,7 +227,7 @@ const AdvFilterInsertCards = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               BRANDING
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.insertCardsBranding || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'insertCardsBranding', selectedValue);

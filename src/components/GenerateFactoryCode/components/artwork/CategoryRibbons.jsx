@@ -1,7 +1,7 @@
 // CategoryRibbons — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { RIBBONS_TYPES, RIBBONS_MATERIALS, RIBBONS_TESTING_REQUIREMENTS } from '../../data/ribbonsData';
 import MultiSelectDropdown from './MultiSelectDropdown';
 import { ARTWORK_QTY_UNIT_OPTIONS } from './artworkConstants';
@@ -17,7 +17,7 @@ const CategoryRibbons = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.ribbonsType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'ribbonsType', selectedValue);
@@ -45,7 +45,7 @@ const CategoryRibbons = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.ribbonsMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'ribbonsMaterial', selectedValue);

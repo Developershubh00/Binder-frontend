@@ -10,6 +10,7 @@ import Sidebar from "../components/sidebar/Sidebar";
 import HoverPanel from "../components/sidebar/HoverPanel";
 import DashboardContent from "../components/dashboard/DashboardContent";
 import DeleteIpoDialog from "../components/dashboard/DeleteIpoDialog";
+import TenantLogoPrompt from "../components/TenantLogoPrompt";
 
 const resolveDashboardBasePath = (pathname) => {
   if (pathname.startsWith("/admin/dashboard")) return "/admin/dashboard";
@@ -243,6 +244,38 @@ const Dashboard = () => {
   };
   const companyDisplayName = getCompanyDisplayName();
   const companyLogo = user?.tenant_details?.logo || null;
+
+  // First-login prompt: nudge the tenant owner/master-admin to add a company
+  // logo when none exists yet. Dismissing ("Add later") hides it for this login
+  // session only; a fresh login re-prompts until a logo is set, after which it
+  // never shows again (hasLogo becomes true once the upload persists).
+  const [showLogoPrompt, setShowLogoPrompt] = useState(false);
+  const tenantId = user?.tenant_details?.id || null;
+  useEffect(() => {
+    if (!tenantId) return;
+    const isMasterAdmin =
+      user?.highest_role === "master_admin" || user?.role === "master_admin";
+    const hasLogo = Boolean(user?.tenant_details?.logo);
+    const dismissed =
+      sessionStorage.getItem(`logoPromptDismissed:${tenantId}`) === "1";
+    setShowLogoPrompt(isMasterAdmin && !hasLogo && !dismissed);
+  }, [
+    tenantId,
+    user?.tenant_details?.logo,
+    user?.highest_role,
+    user?.role,
+  ]);
+
+  const handleLogoLater = () => {
+    if (tenantId)
+      sessionStorage.setItem(`logoPromptDismissed:${tenantId}`, "1");
+    setShowLogoPrompt(false);
+  };
+  const handleLogoUploaded = () => {
+    // refreshUser() (inside the prompt) already updated tenant_details.logo,
+    // so the sidebar re-renders with the real logo on its own.
+    setShowLogoPrompt(false);
+  };
   const companyInitials =
     companyDisplayName
       .split(" ")
@@ -297,8 +330,19 @@ const Dashboard = () => {
     setCodeCreationView(next.codeCreationView);
   }, [location.pathname, dashboardBasePath]);
 
-  const handleLogout = () => {
-    logout();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const handleLogout = async () => {
+    if (loggingOut) return; // guard against double-clicks
+    setLoggingOut(true);
+    setShowProfileMenu(false);
+    try {
+      await logout();
+      // On success the auth state flips and the protected route redirects to
+      // /login, unmounting this page — the overlay stays up until then.
+    } catch {
+      // If logout somehow fails, drop the overlay so the user isn't stuck.
+      setLoggingOut(false);
+    }
   };
 
   useEffect(() => {
@@ -439,6 +483,7 @@ const Dashboard = () => {
           showEmailLine={showEmailLine}
           user={user}
           handleLogout={handleLogout}
+          loggingOut={loggingOut}
         />
 
         <main className="main-content bg-gray-100">
@@ -499,6 +544,44 @@ const Dashboard = () => {
         setSelectedIpoForDerivedCNS={setSelectedIpoForDerivedCNS}
         onReloadSidebarData={loadSidebarData}
       />
+      {showLogoPrompt && tenantId && (
+        <TenantLogoPrompt
+          tenantId={tenantId}
+          companyName={companyDisplayName}
+          onLater={handleLogoLater}
+          onUploaded={handleLogoUploaded}
+        />
+      )}
+      {loggingOut && (
+        <div
+          className="fixed inset-0 z-[2000] flex flex-col items-center justify-center gap-4 bg-white/80 backdrop-blur-sm"
+          style={{ fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif" }}
+          role="status"
+          aria-live="polite"
+        >
+          <svg
+            className="h-9 w-9 animate-spin text-primary"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"
+            />
+          </svg>
+          <p className="text-sm font-semibold text-gray-700">Signing out…</p>
+        </div>
+      )}
     </SidebarContext.Provider>
   );
 };

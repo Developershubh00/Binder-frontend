@@ -1,7 +1,7 @@
 // AdvFilterHangTagSeals — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { HANG_TAG_SEALS_TYPES, HANG_TAG_SEALS_MATERIALS, HANG_TAG_SEALS_TESTING_REQUIREMENTS, HANG_TAG_SEALS_APPROVAL_OPTIONS, HANG_TAG_SEALS_FASTENING_OPTIONS, HANG_TAG_SEALS_PRE_STRINGING_OPTIONS, HANG_TAG_SEALS_STRING_FINISH_OPTIONS, HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS, HANG_TAG_SEALS_COLOUR_OPTIONS, HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS } from '../../data/hangTagSealsData';
 
 const AdvFilterHangTagSeals = ({
@@ -53,7 +53,7 @@ const AdvFilterHangTagSeals = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FASTENING
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.hangTagSealsFastening || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsFastening', selectedValue);
@@ -82,7 +82,7 @@ const AdvFilterHangTagSeals = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRE-STRINGING
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.hangTagSealsPreStringing || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsPreStringing', selectedValue);
@@ -111,7 +111,7 @@ const AdvFilterHangTagSeals = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               STRING FINISH
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.hangTagSealsStringFinish || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsStringFinish', selectedValue);
@@ -140,7 +140,7 @@ const AdvFilterHangTagSeals = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               SEAL SHAPE
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.hangTagSealsSealShape || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsSealShape', selectedValue);
@@ -169,7 +169,7 @@ const AdvFilterHangTagSeals = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               COLOUR
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.hangTagSealsColour || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsColour', selectedValue);
@@ -198,7 +198,7 @@ const AdvFilterHangTagSeals = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               LOGO/BRANDING
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.hangTagSealsLogoBranding || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsLogoBranding', selectedValue);

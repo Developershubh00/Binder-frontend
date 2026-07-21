@@ -6,7 +6,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const FoamMemory = ({
   material,
@@ -18,7 +18,7 @@ const FoamMemory = ({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
       {/* FOAM TYPE */}
       <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryType`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamMemoryType || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryType', selectedValue)}
           options={['Memory Foam', 'Visco-Elastic Foam']}
@@ -29,7 +29,7 @@ const FoamMemory = ({
 
       {/* SUBTYPE */}
       <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemorySubtype`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamMemorySubtype || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemorySubtype', selectedValue)}
           options={['Virgin', 'Blended', 'Plant-Based (Bio-Foam)']}
@@ -40,7 +40,7 @@ const FoamMemory = ({
 
       {/* GRADE */}
       <Field label="GRADE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryGrade`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamMemoryGrade || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryGrade', selectedValue)}
           options={['Standard Memory', 'High Density Memory', 'Premium Memory']}
@@ -51,7 +51,7 @@ const FoamMemory = ({
 
       {/* COLOUR */}
       <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryColour`]}>
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamMemoryColour || ''}
           onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryColour', selectedValue)}
           options={['White', 'Grey', 'Blue', 'Green (plant-based)', 'Charcoal']}
@@ -202,20 +202,10 @@ const FoamMemory = ({
           </div>
         </Field>
 
-        {/* SURPLUS % */}
-        <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemorySurplus`]}>
-          <PercentInput
-            value={material.foamMemorySurplus || ''}
-            onChange={(e) => handleRawMaterialChange(actualIndex, 'foamMemorySurplus', e.target.value)}
-            placeholder="e.g., 3-5"
-            error={Boolean(errors[`rawMaterial_${actualIndex}_foamMemorySurplus`])}
-          />
-        </Field>
-
         {/* WASTAGE % */}
         <Field label="WASTAGE %" width="sm">
           <div className="relative">
-            <SearchableDropdown
+            <TenantDropdown
               value={material.foamMemoryWastage || ''}
               onChange={(selectedValue) => {
                 const predefinedOptions = ['Mattress Topper', 'Pillow Core', 'Mattress Layer', 'Cushion'];
@@ -256,7 +246,7 @@ const FoamMemory = ({
 
         {/* APPROVAL */}
         <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamMemoryApproval`]}>
-          <SearchableDropdown
+          <TenantDropdown
             value={material.foamMemoryApproval || ''}
             onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryApproval', selectedValue)}
             options={MATERIAL_APPROVAL_OPTIONS}
@@ -303,7 +293,7 @@ const FoamMemory = ({
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
             <Field label="ILD / IFD (FIRMNESS)" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryIld || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryIld', selectedValue)}
                 options={['ILD rating (e.g., 8 Ultra-Soft, 10-12 Soft, 14 Medium, 18+ Firm)']}
@@ -311,7 +301,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="RESPONSE TIME" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryResponseTime || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryResponseTime', selectedValue)}
                 options={['Recovery Time (Slow: 5-10 sec, Medium: 3-5 sec, Fast: 1-3 sec)']}
@@ -319,7 +309,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="TEMPERATURE SENSITIVITY" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryTemperatureSensitivity || ''}
                 onChange={(selectedValue) =>
                   handleRawMaterialChange(actualIndex, 'foamMemoryTemperatureSensitivity', selectedValue)
@@ -329,7 +319,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="ACTIVATION TEMPERATURE" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryActivationTemperature || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryActivationTemperature', selectedValue)}
                 options={['Temperature at which foam softens (e.g., 20-25°C, 25-30°C)']}
@@ -337,7 +327,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="COMPRESSION SET" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryCompressionSet || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryCompressionSet', selectedValue)}
                 options={['Compression Set % (<5% for quality memory foam)']}
@@ -345,7 +335,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="RESILIENCE" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryResilience || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryResilience', selectedValue)}
                 options={['Low Resilience (10-30%) - characteristic of memory foam']}
@@ -353,7 +343,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="BREATHABILITY" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryBreathability || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryBreathability', selectedValue)}
                 options={['Standard', 'Open Cell (breathable)', 'Ventilated (holes)']}
@@ -361,7 +351,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="INFUSION" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryInfusion || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryInfusion', selectedValue)}
                 options={['None', 'Gel-Infused', 'Copper-Infused', 'Charcoal-Infused', 'Green Tea', 'Lavender']}
@@ -369,7 +359,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="COOLING TECHNOLOGY" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryCoolingTechnology || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryCoolingTechnology', selectedValue)}
                 options={['Standard', 'Phase Change Material (PCM)', 'Gel Beads', 'Graphite']}
@@ -377,7 +367,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="FIRE RETARDANT" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryFireRetardant || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryFireRetardant', selectedValue)}
                 options={['FR Treated (CFR 1633, TB 117-2013, BS 5852)']}
@@ -385,7 +375,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="VOC EMISSIONS" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryVocEmissions || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryVocEmissions', selectedValue)}
                 options={['Low VOC', 'Ultra-Low VOC', 'CertiPUR-US Certified']}
@@ -393,7 +383,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="DENSITY" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryDensity || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryDensity', selectedValue)}
                 options={['40 kg/m³', '50 kg/m³', '60 kg/m³', '70 kg/m³', '80 kg/m³', '90 kg/m³']}
@@ -401,7 +391,7 @@ const FoamMemory = ({
               />
             </Field>
             <Field label="CERTIFICATION" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamMemoryCertification || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamMemoryCertification', selectedValue)}
                 options={['CertiPUR-US', 'OEKO-TEX', 'Greenguard Gold', 'REACH']}

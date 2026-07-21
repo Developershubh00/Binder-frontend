@@ -1,7 +1,7 @@
 // CategoryHangTagSeals — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { HANG_TAG_SEALS_TYPES, HANG_TAG_SEALS_MATERIALS, HANG_TAG_SEALS_TESTING_REQUIREMENTS, HANG_TAG_SEALS_APPROVAL_OPTIONS, HANG_TAG_SEALS_FASTENING_OPTIONS, HANG_TAG_SEALS_PRE_STRINGING_OPTIONS, HANG_TAG_SEALS_STRING_FINISH_OPTIONS, HANG_TAG_SEALS_SEAL_SHAPE_OPTIONS, HANG_TAG_SEALS_COLOUR_OPTIONS, HANG_TAG_SEALS_LOGO_BRANDING_OPTIONS } from '../../data/hangTagSealsData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryHangTagSeals = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.hangTagSealsType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsType', selectedValue);
@@ -46,7 +46,7 @@ const CategoryHangTagSeals = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.hangTagSealsMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsMaterial', selectedValue);
@@ -118,7 +118,7 @@ const CategoryHangTagSeals = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.hangTagSealsSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'hangTagSealsSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -235,7 +235,7 @@ const CategoryHangTagSeals = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL <span className="text-red-500">*</span></label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.hangTagSealsApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'hangTagSealsApproval', selectedValue);

@@ -1,7 +1,7 @@
 // CategoryPriceTicket — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { UNIT_OPTIONS_WITH_PCS } from '../../constants/unitOptions';
 import { PRICE_TICKET_TYPES, PRICE_TICKET_MATERIALS, PRICE_TICKET_TESTING_REQUIREMENTS, PRICE_TICKET_APPROVAL_OPTIONS } from '../../data/priceTicketData';
 import MultiSelectDropdown from './MultiSelectDropdown';
@@ -18,7 +18,7 @@ const CategoryPriceTicket = ({
                         {/* TYPE - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>TYPE</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.priceTicketType || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'priceTicketType', selectedValue);
@@ -45,7 +45,7 @@ const CategoryPriceTicket = ({
                         {/* MATERIAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>MATERIAL</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.priceTicketMaterial || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'priceTicketMaterial', selectedValue);
@@ -111,7 +111,7 @@ const CategoryPriceTicket = ({
                                   style={{ padding: '10px 14px', height: '44px', width: '140px' }}
                                   placeholder="HEIGHT"
                                 />
-                                                          <SearchableDropdown
+                                                          <TenantDropdown
                             value={material.priceTicketSizeUnit || ''}
                             onChange={(selectedValue) => handleArtworkMaterialChange(actualIndex, 'priceTicketSizeUnit', selectedValue)}
                             options={UNIT_OPTIONS_WITH_PCS}
@@ -209,7 +209,7 @@ const CategoryPriceTicket = ({
                         {/* APPROVAL - Dropdown with Others option */}
                         <div className="flex flex-col">
                           <label className="text-sm font-semibold text-gray-700 mb-2" style={{ whiteSpace: 'nowrap' }}>APPROVAL</label>
-                                                    <SearchableDropdown
+                                                    <TenantDropdown
                             value={material.priceTicketApproval || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'priceTicketApproval', selectedValue);

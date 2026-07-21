@@ -6,7 +6,7 @@ import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 
 const FoamPu = ({
   material,
@@ -18,7 +18,7 @@ const FoamPu = ({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5" style={{ gap: '16px 12px' }}>
     {/* FOAM TYPE */}
     <Field label="FOAM TYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuType`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPuType || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuType', selectedValue)}
         options={['PU Foam (Polyurethane)']}
@@ -29,7 +29,7 @@ const FoamPu = ({
 
     {/* SUBTYPE */}
     <Field label="SUBTYPE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuSubtype`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPuSubtype || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuSubtype', selectedValue)}
         options={['Virgin', 'Recycled/Rebonded', 'Blended']}
@@ -40,7 +40,7 @@ const FoamPu = ({
 
     {/* GRADE */}
     <Field label="GRADE" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuGrade`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPuGrade || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuGrade', selectedValue)}
         options={['Conventional PU', 'High Density (HD)', 'Super High Density (SHD)']}
@@ -51,7 +51,7 @@ const FoamPu = ({
 
     {/* COLOUR */}
     <Field label="COLOUR" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuColour`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPuColour || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuColour', selectedValue)}
         options={['White', 'Grey', 'Pink', 'Blue', 'Black', 'Charcoal', 'Custom']}
@@ -203,20 +203,10 @@ const FoamPu = ({
       </div>
     </Field>
 
-    {/* SURPLUS % */}
-    <Field label="SURPLUS %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuSurplus`]}>
-      <PercentInput
-        value={material.foamPuSurplus || ''}
-        onChange={(e) => handleRawMaterialChange(actualIndex, 'foamPuSurplus', e.target.value)}
-        placeholder="e.g., 3-5"
-        error={Boolean(errors[`rawMaterial_${actualIndex}_foamPuSurplus`])}
-      />
-    </Field>
-
     {/* WASTAGE % */}
     <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuWastage`]}>
       <div className="relative">
-        <SearchableDropdown
+        <TenantDropdown
           value={material.foamPuWastage || ''}
           onChange={(selectedValue) => {
             const predefinedOptions = ['Mattress Core', 'Cushion Insert', 'Topper', 'Packaging'];
@@ -239,7 +229,7 @@ const FoamPu = ({
 
     {/* APPROVAL */}
     <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamPuApproval`]}>
-      <SearchableDropdown
+      <TenantDropdown
         value={material.foamPuApproval || ''}
         onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuApproval', selectedValue)}
         options={MATERIAL_APPROVAL_OPTIONS}
@@ -276,7 +266,7 @@ const FoamPu = ({
     <div style={{ marginTop: '1.5rem', padding: '1.5rem', backgroundColor: 'var(--muted)', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '16px 12px' }}>
             <Field label="ILD / IFD (Firmness)" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuIld || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuIld', selectedValue)}
                 options={['ILD rating (e.g., 20 Soft, 30 Medium, 40 Firm, 50+ Extra Firm)']}
@@ -284,7 +274,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="SUPPORT FACTOR" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuSupportFactor || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuSupportFactor', selectedValue)}
                 options={['Support Factor ratio (e.g., 1.8, 2.0, 2.4, 2.6+)']}
@@ -292,7 +282,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="RESILIENCE" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuResilience || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuResilience', selectedValue)}
                 options={['Resilience % (Ball Rebound Test) - 30-50% typical']}
@@ -300,7 +290,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="CELL STRUCTURE" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuCellStructure || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuCellStructure', selectedValue)}
                 options={['Open Cell (breathable)', 'Closed Cell (water resistant)']}
@@ -308,7 +298,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="COMPRESSION SET" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuCompressionSet || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuCompressionSet', selectedValue)}
                 options={['Compression Set % (lower is better, <10% ideal)']}
@@ -316,7 +306,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="TENSILE STRENGTH" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuTensileStrength || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuTensileStrength', selectedValue)}
                 options={['Tensile Strength (kPa)']}
@@ -324,7 +314,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="ELONGATION" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuElongation || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuElongation', selectedValue)}
                 options={['Elongation at Break (%)']}
@@ -332,7 +322,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="FIRE RETARDANT" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuFireRetardant || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuFireRetardant', selectedValue)}
                 options={['Standard', 'FR Treated (CFR 1633, TB 117-2013, BS 5852, FMVSS 302)']}
@@ -340,7 +330,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="ANTI-MICROBIAL" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuAntiMicrobial || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuAntiMicrobial', selectedValue)}
                 options={['Standard', 'Anti-Microbial Treated', 'Anti-Bacterial']}
@@ -348,7 +338,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="DENSITY" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuDensity || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuDensity', selectedValue)}
                 options={['18 kg/m³', '20 kg/m³', '24 kg/m³', '28 kg/m³', '32 kg/m³', '40 kg/m³', '50 kg/m³']}
@@ -356,7 +346,7 @@ const FoamPu = ({
               />
             </Field>
             <Field label="CERTIFICATION" width="sm">
-              <SearchableDropdown
+              <TenantDropdown
                 value={material.foamPuCertification || ''}
                 onChange={(selectedValue) => handleRawMaterialChange(actualIndex, 'foamPuCertification', selectedValue)}
                 options={['CertiPUR-US', 'OEKO-TEX', 'Greenguard', 'REACH Compliant']}

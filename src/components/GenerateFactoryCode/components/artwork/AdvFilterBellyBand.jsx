@@ -1,7 +1,7 @@
 // AdvFilterBellyBand — extracted from Step4.jsx (PART-3 Artwork & Labeling). Pure
 // presentational; state lives in the GenerateFactoryCode orchestrator and
 // arrives via props.
-import SearchableDropdown from '../SearchableDropdown';
+import TenantDropdown from '@/components/ui/TenantDropdown';
 import { BELLY_BAND_TYPES, BELLY_BAND_MATERIALS, BELLY_BAND_CLOSURE_OPTIONS, BELLY_BAND_TESTING_REQUIREMENTS, BELLY_BAND_APPROVAL_OPTIONS, BELLY_BAND_PRODUCT_FIT_OPTIONS, BELLY_BAND_PRINTING_OPTIONS, BELLY_BAND_FOLD_LINES_OPTIONS, BELLY_BAND_DURABILITY_OPTIONS, BELLY_BAND_CONTENT_OPTIONS, BELLY_BAND_COLOURS_OPTIONS, BELLY_BAND_FINISH_OPTIONS, BELLY_BAND_DIE_CUT_OPTIONS, BELLY_BAND_GUMMING_QUALITY_OPTIONS } from '../../data/bellyBandData';
 
 const AdvFilterBellyBand = ({
@@ -53,7 +53,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRODUCT FIT
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandProductFit || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandProductFit', selectedValue);
@@ -82,7 +82,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               PRINTING
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandPrinting || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandPrinting', selectedValue);
@@ -111,7 +111,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FOLD LINES
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandFoldLines || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandFoldLines', selectedValue);
@@ -140,7 +140,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               DURABILITY
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandDurability || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandDurability', selectedValue);
@@ -169,7 +169,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               CONTENT
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandContent || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandContent', selectedValue);
@@ -198,7 +198,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               COLOURS
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandColours || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandColours', selectedValue);
@@ -227,7 +227,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               FINISH
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandFinish || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandFinish', selectedValue);
@@ -256,7 +256,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               DIE-CUT
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandDieCut || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandDieCut', selectedValue);
@@ -285,7 +285,7 @@ const AdvFilterBellyBand = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2">
                               GUMMING QUALITY
                             </label>
-                                                      <SearchableDropdown
+                                                      <TenantDropdown
                             value={material.bellyBandGummingQuality || ''}
                             onChange={(selectedValue) => {
                               handleArtworkMaterialChange(actualIndex, 'bellyBandGummingQuality', selectedValue);
