@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import BaseFormTemplate from "./BaseFormTemplate";
 import { formsConfig } from "./formConfig";
-import { getUQRRequirements } from "../../services/integration";
+import {
+  getUQRRequirements,
+  getIPOs,
+  getFactoryCodeDraft,
+  syncUQRRequirements,
+} from "../../services/integration";
 import { FORM_DISPLAY_NAME_BY_KEY } from "@/utils/uqrMappings";
+import { buildUqrRequirementsPayload } from "./uqrPrefill";
 
 // Shared Tailwind class strings — flat/clean theme matching UQRFormsPreview.
 const TH =
@@ -36,6 +42,8 @@ const UQRPendings = ({ open, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [active, setActive] = useState(null); // the requirement being filled
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -65,8 +73,48 @@ const UQRPendings = ({ open, onClose }) => {
       load();
     } else {
       setActive(null);
+      setSyncMsg("");
     }
   }, [open, load]);
+
+  // Backfill: requirements are normally created at "Generate Factory Code".
+  // For IPOs generated before this feature (or where the sync didn't run), scan
+  // every IPO's draft — the complete source that carries both IPCs and all the
+  // quality=Yes materials — and (re)sync its required UQR forms + prefill.
+  const handleSyncFromIpcs = useCallback(async () => {
+    setSyncing(true);
+    setSyncMsg("");
+    try {
+      const iposRes = await getIPOs({ page_size: 500 });
+      const ipos = iposRes?.results || iposRes?.data || iposRes || [];
+      let scanned = 0;
+      let created = 0;
+      for (const ipo of Array.isArray(ipos) ? ipos : []) {
+        try {
+          const draft = await getFactoryCodeDraft(ipo.id);
+          const payload = draft?.payload || draft;
+          if (!payload || !Array.isArray(payload.skus)) continue;
+          const reqPayload = buildUqrRequirementsPayload(payload);
+          const hasForms = reqPayload.ipcs.some((i) => (i.uqrForms || []).length);
+          if (reqPayload.code && hasForms) {
+            const res = await syncUQRRequirements(reqPayload);
+            scanned += 1;
+            created += res?.created || 0;
+          }
+        } catch {
+          // IPO without a draft (or a failed load) — skip it.
+        }
+      }
+      setSyncMsg(
+        `Synced ${scanned} IPO${scanned === 1 ? "" : "s"} · ${created} new pending form${created === 1 ? "" : "s"}.`,
+      );
+      await load();
+    } catch (err) {
+      setSyncMsg(err?.message || "Sync from IPCs failed.");
+    } finally {
+      setSyncing(false);
+    }
+  }, [load]);
 
   const activeConfig = active ? formsConfig[active.form_id] : null;
   const activeApiContext = useMemo(
@@ -80,11 +128,23 @@ const UQRPendings = ({ open, onClose }) => {
         : null,
     [active],
   );
+  // Header prefill: PO/IPC context + the material-spec snapshot captured at
+  // Generate time (materialType/description, certification, width, …).
   const activePrefill = useMemo(
     () =>
       active
-        ? { poNo: active.ipo_code, factoryPoCode: active.ipc_code, uin: active.ipc_code }
+        ? {
+            poNo: active.ipo_code,
+            factoryPoCode: active.ipc_code,
+            uin: active.ipc_code,
+            ...(active.prefill?.header || {}),
+          }
         : null,
+    [active],
+  );
+  // Table prefill: one row per IPC material that needs this UQR form.
+  const activeTableRows = useMemo(
+    () => (active?.prefill?.rows?.length ? active.prefill.rows : null),
     [active],
   );
 
@@ -118,14 +178,25 @@ const UQRPendings = ({ open, onClose }) => {
           </div>
           <div className="flex items-center gap-2">
             {!active && (
-              <button
-                type="button"
-                className={OUTLINE_BTN}
-                onClick={load}
-                disabled={loading}
-              >
-                Refresh
-              </button>
+              <>
+                <button
+                  type="button"
+                  className={OUTLINE_BTN}
+                  onClick={handleSyncFromIpcs}
+                  disabled={syncing || loading}
+                  title="Rebuild pending UQRs from every IPO's saved IPC data"
+                >
+                  {syncing ? "Syncing…" : "Sync from IPCs"}
+                </button>
+                <button
+                  type="button"
+                  className={OUTLINE_BTN}
+                  onClick={load}
+                  disabled={loading || syncing}
+                >
+                  Refresh
+                </button>
+              </>
             )}
             <button type="button" className={OUTLINE_BTN} onClick={onClose}>
               Close
@@ -165,6 +236,7 @@ const UQRPendings = ({ open, onClose }) => {
                   draftStorageKey={uqrLocalKey(active)}
                   apiContext={activeApiContext}
                   prefillValues={activePrefill}
+                  tablePrefill={activeTableRows}
                   onSubmitSuccess={handleSubmitSuccess}
                 />
               ) : (
@@ -175,10 +247,15 @@ const UQRPendings = ({ open, onClose }) => {
             </div>
           ) : (
             <div className="rounded-lg border border-[#e2e3e8] bg-card p-5 md:p-6">
-              <div className="mb-4 text-sm font-semibold text-foreground">
-                {loading
-                  ? "Loading…"
-                  : `${rows.length} pending UQR form${rows.length === 1 ? "" : "s"}`}
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <div className="text-sm font-semibold text-foreground">
+                  {loading
+                    ? "Loading…"
+                    : `${rows.length} pending UQR form${rows.length === 1 ? "" : "s"}`}
+                </div>
+                {syncMsg && (
+                  <div className="text-xs font-medium text-muted-foreground">{syncMsg}</div>
+                )}
               </div>
 
               {error && (

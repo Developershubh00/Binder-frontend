@@ -161,9 +161,18 @@ const BaseFormTemplate = ({
       ...buildPrefill(sections, readOnly),
       ...(readOnly ? {} : prefillValues || {}),
     };
-    const initialTableRows = tableConfig
-      ? [{ ...getEmptyRow(), ...(readOnly ? {} : tablePrefill || {}) }]
-      : [];
+    // tablePrefill may be a single row object (fills the first row) or an array
+    // of row objects (one prefilled table row each — e.g. one row per IPC
+    // material that needs this UQR form). Empty cells fall back to getEmptyRow().
+    const buildPrefilledRows = () => {
+      if (!tableConfig) return [];
+      if (readOnly) return [getEmptyRow()];
+      if (Array.isArray(tablePrefill) && tablePrefill.length > 0) {
+        return tablePrefill.map((row) => ({ ...getEmptyRow(), ...(row || {}) }));
+      }
+      return [{ ...getEmptyRow(), ...(tablePrefill || {}) }];
+    };
+    const initialTableRows = buildPrefilledRows();
     let cancelled = false;
 
     setFormData(initialFormState);

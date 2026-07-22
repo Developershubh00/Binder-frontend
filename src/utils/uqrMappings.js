@@ -189,12 +189,17 @@ export const mapRawMaterialToFormKey = (material = {}) => {
 export const mapArtworkCategoryToFormKey = (artworkCategory) =>
   ARTWORK_CATEGORY_TO_FORM_KEY[normalizeValue(artworkCategory)] || null;
 
-// Which UQR forms a single IPC's step data requires: every raw material or
-// artwork whose "quality inspected?" is Yes maps to its form key. Shared by the
-// Consumption Sheet's share payload and the Generate flow's requirements sync so
-// both compute the same set. Returns a sorted, de-duplicated array of form keys.
-export const collectRequiredUqrFormsForStepData = (stepData) => {
-  const formKeys = new Set();
+// Group an IPC's quality=Yes materials by the UQR form they map to.
+// Returns { [formKey]: material[] } — raw materials via mapRawMaterialToFormKey,
+// artworks via mapArtworkCategoryToFormKey. A material is included only when its
+// own "quality inspected?" (or any of its work orders') is Yes. This is what the
+// UQR requirements sync uses to build each form's prefill snapshot.
+export const collectRequiredMaterialsByFormKey = (stepData) => {
+  const byKey = {};
+  const add = (key, material) => {
+    if (!key) return;
+    (byKey[key] = byKey[key] || []).push(material);
+  };
   const sd = stepData || {};
 
   (sd.rawMaterials || []).forEach((material) => {
@@ -202,9 +207,7 @@ export const collectRequiredUqrFormsForStepData = (stepData) => {
     const hasWorkOrderQualityYes = Array.isArray(material?.workOrders)
       && material.workOrders.some((workOrder) => isQualityYes(workOrder?.qualityVerification));
     if (!hasMaterialQualityYes && !hasWorkOrderQualityYes) return;
-
-    const formKey = mapRawMaterialToFormKey(material);
-    if (formKey) formKeys.add(formKey);
+    add(mapRawMaterialToFormKey(material), material);
   });
 
   (sd.artworkMaterials || []).forEach((material) => {
@@ -212,36 +215,18 @@ export const collectRequiredUqrFormsForStepData = (stepData) => {
     const qualityValue =
       material?.qualityVerificationByCategory?.[artworkCategory] ?? material?.qualityVerification;
     if (!isQualityYes(qualityValue)) return;
-
-    const formKey = mapArtworkCategoryToFormKey(artworkCategory);
-    if (formKey) formKeys.add(formKey);
+    add(mapArtworkCategoryToFormKey(artworkCategory), material);
   });
 
-  return Array.from(formKeys).sort();
+  return byKey;
 };
 
-// Build the payload the UQR requirements-sync endpoint expects from the whole
-// wizard formData: one entry per IPC (and per subproduct) with its required UQR
-// form keys. Mirrors the IPC iteration in ConsumptionSheet.buildPurchaseSharePayload.
-export const buildUqrRequirementsPayload = (formData = {}) => {
-  const ipcs = [];
-  const addIpc = (ipcCode, stepData) => {
-    if (!ipcCode) return;
-    ipcs.push({ ipcCode, uqrForms: collectRequiredUqrFormsForStepData(stepData) });
-  };
+// Which UQR forms a single IPC's step data requires (sorted, de-duplicated form
+// keys). Shared by the Consumption Sheet's share payload and the requirements sync.
+export const collectRequiredUqrFormsForStepData = (stepData) =>
+  Object.keys(collectRequiredMaterialsByFormKey(stepData)).sort();
 
-  (formData.skus || []).forEach((sku, skuIndex) => {
-    const ipcCode = sku.ipcCode || `IPC-${skuIndex + 1}`;
-    addIpc(ipcCode, sku.stepData);
-    (sku.subproducts || []).forEach((subproduct, spIndex) => {
-      const spCode = `${(ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
-      addIpc(spCode, subproduct.stepData);
-    });
-  });
-
-  return {
-    code: formData.ipoCode || formData.buyerCode || '',
-    orderType: getOrderTypeLabel(formData.orderType || ''),
-    ipcs,
-  };
-};
+// NOTE: buildUqrRequirementsPayload (which also builds each form's prefill
+// snapshot from the wizard material data) now lives in
+// components/UQR_forms/uqrPrefill.js, so it can read the form field layout from
+// formConfig. It reuses collectRequiredMaterialsByFormKey + getOrderTypeLabel above.

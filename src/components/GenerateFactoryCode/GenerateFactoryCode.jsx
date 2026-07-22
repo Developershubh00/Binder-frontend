@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection, getFactoryCodeSections, syncUQRRequirements } from '../../services/integration';
-import { buildUqrRequirementsPayload } from '@/utils/uqrMappings';
+import { buildUqrRequirementsPayload } from '../UQR_forms/uqrPrefill';
 import { applyCutSewSections } from './utils/sectionOverlay';
 import { enumerateProcessRows } from './utils/processRows';
 // Pure default/scaffold builders (blank per-IPC stepData + packaging defaults).

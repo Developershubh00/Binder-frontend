@@ -8,6 +8,8 @@ import {
   getFactoryCodes,
   getFactoryCode,
   getFactoryCodesByIpo,
+  getFactoryCodeDraft,
+  getUQRRequirements,
 } from "../../services/integration";
 import { toOrderTypeApiValue } from "../../utils/orderType";
 import {
@@ -127,6 +129,9 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
   const [loadingIpcs, setLoadingIpcs] = useState(false);
   // "Pending UQRs" popup — the queue of required-but-unfilled UQR forms.
   const [showPendings, setShowPendings] = useState(false);
+  // Material-spec prefill snapshot ({header, rows}) for the picked IPC+form,
+  // captured at Generate time and stored on the UQR requirement.
+  const [reqPrefill, setReqPrefill] = useState(null);
 
   /* ---------------------------------------------------------------- *
    * IPOs for the selected section (mirrors StockSheet)
@@ -195,6 +200,29 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
           seen.add(label);
           unique.push(fc);
         }
+        // The committed factory-code table can be missing IPCs (e.g. an IPC that
+        // never persisted, or was overwritten). The per-IPO draft is the complete
+        // source, so merge in any IPC codes it lists that aren't already shown.
+        try {
+          const draft = await getFactoryCodeDraft(selectedIpoId);
+          const payload = draft?.payload || draft || {};
+          (payload.skus || []).forEach((sku) => {
+            const codes = [
+              sku?.ipcCode,
+              ...((sku?.subproducts || []).map((sp) => sp?.ipcCode)),
+            ];
+            codes.forEach((code) => {
+              if (!code || seen.has(code)) return;
+              seen.add(code);
+              unique.push({ id: code, ipc_code: code });
+            });
+          });
+        } catch {
+          // No draft (or load failed) — fall back to the committed list only.
+        }
+        unique.sort((a, b) =>
+          (a.ipc_code || "").localeCompare(b.ipc_code || ""),
+        );
         if (!cancelled) setIpcList(unique);
       } catch (error) {
         console.warn("UQR: failed to load factory codes:", error);
@@ -382,6 +410,34 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
     [selectedIpcRecord, ipcDetail],
   );
 
+  // Pull the material-spec prefill snapshot for the picked IPC + form. This is
+  // the ONLY reliable source for the spec fields — the committed factory-code
+  // APIs don't carry them; the snapshot was captured at Generate time.
+  useEffect(() => {
+    if (!hasFullContext || !materialFormKey) {
+      setReqPrefill(null);
+      return undefined;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getUQRRequirements({
+          orderType: selectedOrderType,
+          ipoCode: selectedIpoCode,
+          ipcCode: selectedIpcCode,
+          formId: materialFormKey,
+        });
+        const row = (data?.results || [])[0];
+        if (!cancelled) setReqPrefill(row?.prefill || null);
+      } catch {
+        if (!cancelled) setReqPrefill(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [hasFullContext, materialFormKey, selectedOrderType, selectedIpoCode, selectedIpcCode]);
+
   const materialPrefillValues = useMemo(() => {
     if (!materialFormKey) return null;
     const poNo =
@@ -403,17 +459,20 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
       "uid",
       "code",
     ]);
-    const values = {};
+    // Start from the material-spec snapshot (MATERIAL TYPE/DESCRIPTION, WIDTH,
+    // CERTIFICATION, …); PO/IPC context fields fill on top.
+    const values = { ...(reqPrefill?.header || {}) };
     if (poNo) values.poNo = poNo;
     if (factoryPoCode) values.factoryPoCode = factoryPoCode;
     if (uin) values.uin = uin;
     return Object.keys(values).length ? values : null;
-  }, [materialFormKey, selectedIpo, ipcSource, selectedIpoCode, selectedIpcCode]);
+  }, [materialFormKey, selectedIpo, ipcSource, selectedIpoCode, selectedIpcCode, reqPrefill]);
 
-  // USN (Unit Sequence #) ← a dedicated field if present, else the trailing sequence of
-  // the IPC code (e.g. ".../IPC-2" → "2"), else the SKU. Fills the first table row.
+  // Table prefill: prefer the snapshot's rows (one per IPC material that needs
+  // this form). Otherwise fall back to a single row seeded with the USN.
   const materialTablePrefill = useMemo(() => {
     if (!materialFormKey) return null;
+    if (reqPrefill?.rows?.length) return reqPrefill.rows;
     const dedicated = firstOf(ipcSource, [
       "usn",
       "unit_sequence",
@@ -425,7 +484,7 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
     const usn =
       dedicated || (sequenceMatch && sequenceMatch[1]) || firstOf(ipcSource, ["sku"]);
     return usn ? { usn } : null;
-  }, [materialFormKey, ipcSource]);
+  }, [materialFormKey, ipcSource, reqPrefill]);
 
   return (
     <div
