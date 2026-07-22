@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { getFiberTypes, getYarnTypes, getYarnDetails, getYarnCompositionOptions, getYarnCountRangeOptions, getYarnDoublingOptions, getYarnPlyOptions, getYarnSpinningMethodOptions, getYarnWindingOptions } from '../../utils/yarnHelpers';
@@ -170,16 +169,7 @@ const YarnSpec = ({
                             className={errors[`rawMaterial_${actualIndex}_yarnColour`] ? 'border-red-600' : ''}
                           />
                         </Field>
-                        
-                        <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_wastage`]}>
-                          <PercentInput
-                            value={material.wastage || ''}
-                            onChange={(e) => handleRawMaterialChange(actualIndex, 'wastage', e.target.value)}
-                            placeholder="e.g., 3"
-                            error={!!errors[`rawMaterial_${actualIndex}_wastage`]}
-                          />
-                        </Field>
-                        
+
                         <Field label="TESTING REQUIREMENTS" required width="lg" error={errors[`rawMaterial_${actualIndex}_testingRequirements`]}>
                           <TestingRequirementsInput
                             value={Array.isArray(material.testingRequirements) ? material.testingRequirements : (material.testingRequirements ? [String(material.testingRequirements).trim()] : [])}

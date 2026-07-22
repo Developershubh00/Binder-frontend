@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
@@ -228,49 +227,6 @@ const FoamGelInfused = ({
           >
             {material.foamGelInfusedTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
           </Button>
-        </div>
-      </Field>
-
-      {/* WASTAGE % */}
-      <Field label="WASTAGE %" width="sm">
-        <div className="relative">
-          <TenantDropdown
-            value={material.foamGelInfusedWastage || ''}
-            onChange={(selectedValue) => {
-              const predefinedOptions = ['Cooling Mattress Topper', 'Premium Pillows', 'Hot Sleeper Products'];
-              if (predefinedOptions.includes(selectedValue)) {
-                handleRawMaterialChange(actualIndex, 'foamGelInfusedWastage', selectedValue);
-              } else {
-                const numericValue = selectedValue.replace(/[^0-9.]/g, '');
-                handleRawMaterialChange(actualIndex, 'foamGelInfusedWastage', numericValue);
-              }
-            }}
-            options={['Cooling Mattress Topper', 'Premium Pillows', 'Hot Sleeper Products']}
-            placeholder="Select or type %"
-            className={
-              material.foamGelInfusedWastage &&
-              !['Cooling Mattress Topper', 'Premium Pillows', 'Hot Sleeper Products'].includes(material.foamGelInfusedWastage)
-                ? 'pr-10'
-                : ''
-            }
-          />
-          {material.foamGelInfusedWastage &&
-            !['Cooling Mattress Topper', 'Premium Pillows', 'Hot Sleeper Products'].includes(material.foamGelInfusedWastage) && (
-              <span
-                style={{
-                  position: 'absolute',
-                  right: '0.875rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--muted-foreground)',
-                  pointerEvents: 'none',
-                  userSelect: 'none',
-                  zIndex: 10,
-                }}
-              >
-                %
-              </span>
-            )}
         </div>
       </Field>
 

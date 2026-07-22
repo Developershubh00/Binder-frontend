@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TRIM_ACCESSORY_SCHEMAS } from '@/utils/validationSchemas';
-import { isQualityYes, mapArtworkCategoryToFormKey, mapRawMaterialToFormKey } from '@/utils/uqrMappings';
+import { collectRequiredUqrFormsForStepData } from '@/utils/uqrMappings';
 
 // Explicit column templates for the desktop CNS tables. Equal columns made the
 // (now longer, slash-joined) MATERIAL DESCRIPTION too narrow, so it overflowed
@@ -740,82 +740,11 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
 
 
 
-  // Known wastage/surplus keys on a raw material (Step-2): foam, fiber, fabric, trim&accessory, yarn categories + work orders.
-  // Explicit list so we never miss a category; extractAllWastages(m) still runs to catch any nested or future keys.
-  const RAW_MATERIAL_WASTAGE_SURPLUS_KEYS = [
-    'surplus', 'wastage',
-    'fabricSurplus', 'fabricWastage',
-    'foamSurplus', 'foamWastage', 'foamPeEpeSurplus', 'foamPeEpeWastage', 'foamPuSurplus', 'foamPuWastage',
-    'foamRebondedSurplus', 'foamRebondedWastage', 'foamGelInfusedSurplus', 'foamGelInfusedWastage',
-    'foamLatexSurplus', 'foamLatexWastage', 'foamMemorySurplus', 'foamMemoryWastage', 'foamHrSurplus', 'foamHrWastage',
-    'fiberSurplus', 'fiberWastage',
-    'stitchingThreadSurplus', 'stitchingThreadWastage',
-  ];
-
-  // Human-readable labels for raw material wastage/surplus keys (for trace/breakdown)
-  const RAW_MATERIAL_WASTAGE_LABELS = {
-    surplus: 'Surplus',
-    wastage: 'Wastage',
-    fabricSurplus: 'Fabric surplus',
-    fabricWastage: 'Fabric wastage',
-    foamSurplus: 'Foam surplus',
-    foamWastage: 'Foam wastage',
-    foamPeEpeSurplus: 'Foam PE/EPE surplus',
-    foamPeEpeWastage: 'Foam PE/EPE wastage',
-    foamPuSurplus: 'Foam PU surplus',
-    foamPuWastage: 'Foam PU wastage',
-    foamRebondedSurplus: 'Foam rebonded surplus',
-    foamRebondedWastage: 'Foam rebonded wastage',
-    foamGelInfusedSurplus: 'Foam gel infused surplus',
-    foamGelInfusedWastage: 'Foam gel infused wastage',
-    foamLatexSurplus: 'Foam latex surplus',
-    foamLatexWastage: 'Foam latex wastage',
-    foamMemorySurplus: 'Foam memory surplus',
-    foamMemoryWastage: 'Foam memory wastage',
-    foamHrSurplus: 'Foam HR surplus',
-    foamHrWastage: 'Foam HR wastage',
-    fiberSurplus: 'Fiber surplus',
-    fiberWastage: 'Fiber wastage',
-    stitchingThreadSurplus: 'Stitching thread surplus',
-    stitchingThreadWastage: 'Stitching thread wastage',
-  };
-
-  const formatWastageLabel = (key) => {
-    if (RAW_MATERIAL_WASTAGE_LABELS[key]) return RAW_MATERIAL_WASTAGE_LABELS[key];
-    return String(key)
-      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, (m) => m.toUpperCase());
-  };
-
-  const getTrimAccessoryWastageValues = (material) => {
-    if (!material || material.materialType !== 'Trim & Accessory') return [];
-    const trimType = material.trimAccessory?.toString().trim();
-    const schema = trimType ? TRIM_ACCESSORY_SCHEMAS?.[trimType] : null;
-    const keys = [
-      ...(schema?.required || []),
-      ...(schema?.advanced || []),
-      ...Object.keys(schema?.conditional || {})
-    ];
-    const values = [];
-    keys.forEach((key) => {
-      const keyLower = key.toLowerCase();
-      if (keyLower.includes('wastage') || keyLower.includes('surplus')) {
-        const value = material[key];
-        if (value !== undefined && value !== null && value !== '') values.push({ key, value });
-      }
-    });
-    // Also include generic surplus/wastage if present
-    if (material.surplus !== undefined && material.surplus !== null && material.surplus !== '') {
-      values.push({ key: 'surplus', value: material.surplus });
-    }
-    if (material.wastage !== undefined && material.wastage !== null && material.wastage !== '') {
-      values.push({ key: 'wastage', value: material.wastage });
-    }
-    return values;
-  };
-
-  // Returns [{ source: string, value: number }] for one raw material only: this material's surplus/wastage + this material's work orders' wastage. No component.
+  // Returns [{ source: string, value: number }] for one raw material: the wastage from
+  // its WORK ORDERS only (Dyeing, Cutting, Quilting, Sewing, ...). Material-level SURPLUS
+  // was removed product-wide (Change 19/20) and material-level wastage is intentionally
+  // NOT added here — so a raw material's Wastage / Gross Wastage always equals the
+  // work-order chips shown beneath its row, and no hidden field can inflate Gross CNS.
   const getRawMaterialWastageBreakdown = (material) => {
     const breakdown = [];
     const added = new Set();
@@ -827,33 +756,18 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
       if (num > 0) breakdown.push({ source, value: num });
     };
 
-    RAW_MATERIAL_WASTAGE_SURPLUS_KEYS.forEach((key) => {
-      if (material[key] !== undefined && material[key] !== null && material[key] !== '') {
-        add(RAW_MATERIAL_WASTAGE_LABELS[key] || key, material[key]);
-      }
-    });
-    getTrimAccessoryWastageValues(material).forEach(({ key, value }) => {
-      add(formatWastageLabel(key), value);
-    });
     (material.workOrders || []).forEach((wo, idx) => {
-      const woValues = [];
-      extractAllWastages(wo, woValues);
       const woLabel = wo.workOrder ? `Work order (${wo.workOrder})` : `Work order ${idx + 1}`;
-      woValues.forEach((v, i) => {
-        add(woValues.length > 1 ? `${woLabel} #${i + 1}` : woLabel, v);
-      });
-      // DYEING shrinkage (width + length) is extra fabric needed to compensate for
-      // post-dyeing shrinkage — count it like wastage so it compounds into Gross CNS.
-      // extractAllWastages skips it (the key contains no "wastage"/"surplus").
+      // This work order's own wastage %.
+      const woWastage = parseFloat(String(wo.wastage ?? '').replace('%', '')) || 0;
+      // DYEING (Formula 2): fabric must also cover post-dye LENGTH shrinkage, so it is
+      // ADDED to the dyeing wastage (e.g. 5% + 2% = 7%). WIDTH shrinkage is NOT counted.
+      // Only DYEING carries these keys, so a plain presence check scopes it correctly.
       const psd = wo.processSpecificData || wo.process_specific_data || {};
-      const shrinkageWidth = wo.shrinkageWidthPercent ?? psd.shrinkageWidthPercent;
-      const shrinkageLength = wo.shrinkageLengthPercent ?? psd.shrinkageLengthPercent;
-      if (shrinkageWidth !== undefined && shrinkageWidth !== null && shrinkageWidth !== '') {
-        add('Shrinkage width', shrinkageWidth);
-      }
-      if (shrinkageLength !== undefined && shrinkageLength !== null && shrinkageLength !== '') {
-        add('Shrinkage length', shrinkageLength);
-      }
+      const shrinkLength = parseFloat(String(wo.shrinkageLengthPercent ?? psd.shrinkageLengthPercent ?? '').replace('%', '')) || 0;
+      // One compounding step per work order (Formula 3 compounds these in sequence).
+      // Unique source per work order so two same-type WOs (e.g. CUTTING × 2) never dedupe.
+      add(`${woLabel} #${idx + 1}`, woWastage + shrinkLength);
     });
 
     return breakdown;
@@ -1034,32 +948,8 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
 
   const buildPurchaseSharePayload = () => {
     const ipcs = [];
-    const getUqrFormsForStepData = (stepData) => {
-      const formKeys = new Set();
-      const sd = stepData || {};
-
-      (sd.rawMaterials || []).forEach((material) => {
-        const hasMaterialQualityYes = isQualityYes(material?.qualityVerification);
-        const hasWorkOrderQualityYes = Array.isArray(material?.workOrders)
-          && material.workOrders.some((workOrder) => isQualityYes(workOrder?.qualityVerification));
-        if (!hasMaterialQualityYes && !hasWorkOrderQualityYes) return;
-
-        const formKey = mapRawMaterialToFormKey(material);
-        if (formKey) formKeys.add(formKey);
-      });
-
-      (sd.artworkMaterials || []).forEach((material) => {
-        const artworkCategory = material?.artworkCategory;
-        const qualityValue =
-          material?.qualityVerificationByCategory?.[artworkCategory] ?? material?.qualityVerification;
-        if (!isQualityYes(qualityValue)) return;
-
-        const formKey = mapArtworkCategoryToFormKey(artworkCategory);
-        if (formKey) formKeys.add(formKey);
-      });
-
-      return Array.from(formKeys).sort();
-    };
+    const getUqrFormsForStepData = (stepData) =>
+      collectRequiredUqrFormsForStepData(stepData);
 
     const addIpc = (ipcCode, stepData) => {
       if (!ipcCode) return;

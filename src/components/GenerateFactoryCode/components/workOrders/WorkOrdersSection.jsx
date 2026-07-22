@@ -234,9 +234,8 @@ const WorkOrdersSection = ({
                       <Field label="UNIT" width="sm">
                         <TenantDropdown value={workOrder[`${sizePrefix}Unit`] || ''} onChange={(v) => handleWorkOrderChange(actualIndex, woIndex, `${sizePrefix}Unit`, v)} options={WORK_ORDER_UNIT_OPTIONS} placeholder="Select unit" strictMode={true} />
                       </Field>
-                      <Field label="WASTAGE %" width="sm">
-                        <Input type="number" value={workOrder[`${sizePrefix}Wastage`] || ''} onChange={(e) => handleWorkOrderChange(actualIndex, woIndex, `${sizePrefix}Wastage`, e.target.value)} placeholder="%" />
-                      </Field>
+                      {/* Wastage lives only in the single WASTAGE % beside WORK ORDER (top of card);
+                          the size-row duplicate was removed for Cutting & Sewing. */}
                     </div>
                   )}
 
@@ -953,22 +952,8 @@ const WorkOrdersSection = ({
                             />
                           </Field>
 
-                          {/* WASTAGE % - OPTIONAL for SEWING */}
-                          <Field
-                            label="WASTAGE %"
-                            required
-                            width="sm"
-                            error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`]}
-                          >
-                            <PercentInput
-                              value={workOrder.wastage || ''}
-                              onChange={(e) => {
-                                handleWorkOrderChange(actualIndex, woIndex, 'wastage', e.target.value);
-                              }}
-                              placeholder="e.g., 2"
-                              error={Boolean(errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_wastage`])}
-                            />
-                          </Field>
+                          {/* WASTAGE % for SEWING is captured by the single field beside
+                              WORK ORDER (top of card); the duplicate here was removed. */}
 
                           {/* APPROVAL */}
                           <Field label="APPROVAL" required width="sm" error={errors[`rawMaterial_${actualIndex}_workOrder_${woIndex}_approval`]}>

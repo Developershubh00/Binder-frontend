@@ -379,25 +379,6 @@ const FiberDownAlt = ({
       </>
     )}
 
-    {/* WASTAGE % */}
-    <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-700 mb-2">WASTAGE %</label>
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <input
-          type="text"
-          value={material.fiberWastage || ''}
-          onChange={(e) => {
-            const numericValue = e.target.value.replace(/[^0-9.]/g, '');
-            handleRawMaterialChange(actualIndex, 'fiberWastage', numericValue);
-          }}
-          className="border-2 rounded-lg text-sm transition-all bg-white text-gray-900 border-[#e5e7eb] focus:border-indigo-500 focus:outline-none"
-          style={{ padding: '10px 32px 10px 14px', width: '100%', height: '44px' }}
-          placeholder="2-3%"
-        />
-        <span style={{ position: 'absolute', right: '14px', color: '#6b7280', pointerEvents: 'none', userSelect: 'none' }}>%</span>
-      </div>
-    </div>
-
     {/* APPROVAL */}
     <div className="flex flex-col">
       <label className="text-sm font-semibold text-gray-700 mb-2">APPROVAL</label>

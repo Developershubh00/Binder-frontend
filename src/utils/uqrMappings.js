@@ -188,3 +188,60 @@ export const mapRawMaterialToFormKey = (material = {}) => {
 
 export const mapArtworkCategoryToFormKey = (artworkCategory) =>
   ARTWORK_CATEGORY_TO_FORM_KEY[normalizeValue(artworkCategory)] || null;
+
+// Which UQR forms a single IPC's step data requires: every raw material or
+// artwork whose "quality inspected?" is Yes maps to its form key. Shared by the
+// Consumption Sheet's share payload and the Generate flow's requirements sync so
+// both compute the same set. Returns a sorted, de-duplicated array of form keys.
+export const collectRequiredUqrFormsForStepData = (stepData) => {
+  const formKeys = new Set();
+  const sd = stepData || {};
+
+  (sd.rawMaterials || []).forEach((material) => {
+    const hasMaterialQualityYes = isQualityYes(material?.qualityVerification);
+    const hasWorkOrderQualityYes = Array.isArray(material?.workOrders)
+      && material.workOrders.some((workOrder) => isQualityYes(workOrder?.qualityVerification));
+    if (!hasMaterialQualityYes && !hasWorkOrderQualityYes) return;
+
+    const formKey = mapRawMaterialToFormKey(material);
+    if (formKey) formKeys.add(formKey);
+  });
+
+  (sd.artworkMaterials || []).forEach((material) => {
+    const artworkCategory = material?.artworkCategory;
+    const qualityValue =
+      material?.qualityVerificationByCategory?.[artworkCategory] ?? material?.qualityVerification;
+    if (!isQualityYes(qualityValue)) return;
+
+    const formKey = mapArtworkCategoryToFormKey(artworkCategory);
+    if (formKey) formKeys.add(formKey);
+  });
+
+  return Array.from(formKeys).sort();
+};
+
+// Build the payload the UQR requirements-sync endpoint expects from the whole
+// wizard formData: one entry per IPC (and per subproduct) with its required UQR
+// form keys. Mirrors the IPC iteration in ConsumptionSheet.buildPurchaseSharePayload.
+export const buildUqrRequirementsPayload = (formData = {}) => {
+  const ipcs = [];
+  const addIpc = (ipcCode, stepData) => {
+    if (!ipcCode) return;
+    ipcs.push({ ipcCode, uqrForms: collectRequiredUqrFormsForStepData(stepData) });
+  };
+
+  (formData.skus || []).forEach((sku, skuIndex) => {
+    const ipcCode = sku.ipcCode || `IPC-${skuIndex + 1}`;
+    addIpc(ipcCode, sku.stepData);
+    (sku.subproducts || []).forEach((subproduct, spIndex) => {
+      const spCode = `${(ipcCode || `IPC-${skuIndex + 1}`).replace(/\/SP-?\d+$/i, '')}/SP-${spIndex + 1}`;
+      addIpc(spCode, subproduct.stepData);
+    });
+  });
+
+  return {
+    code: formData.ipoCode || formData.buyerCode || '',
+    orderType: getOrderTypeLabel(formData.orderType || ''),
+    ipcs,
+  };
+};

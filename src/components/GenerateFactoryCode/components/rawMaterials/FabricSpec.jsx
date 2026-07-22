@@ -14,7 +14,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import TenantDropdown from '@/components/ui/TenantDropdown';
 import QualityVerificationToggle from '../QualityVerificationToggle';
@@ -109,16 +108,6 @@ const FabricSpec = ({
                       onChange={(e) => handleRawMaterialChange(actualIndex, 'gsm', e.target.value)}
                       placeholder="e.g., 90"
                       aria-invalid={!!errors[`rawMaterial_${actualIndex}_gsm`]}
-                    />
-                  </Field>
-
-                  {/* Wastage */}
-                  <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_fabricWastage`]}>
-                    <PercentInput
-                      value={material.fabricWastage || ''}
-                      onChange={(e) => handleRawMaterialChange(actualIndex, 'fabricWastage', e.target.value)}
-                      placeholder="e.g., 3"
-                      error={!!errors[`rawMaterial_${actualIndex}_fabricWastage`]}
                     />
                   </Field>
 

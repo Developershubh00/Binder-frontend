@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import BaseFormTemplate from "./BaseFormTemplate";
+import UQRPendings from "./UQRPendings";
 import { formsConfig } from "./formConfig";
 import ThemedSelect from "../IMS/StockSheet/ThemedSelect";
 import {
@@ -124,6 +125,8 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
   const [selectedSubType, setSelectedSubType] = useState("");
   const [loadingIpos, setLoadingIpos] = useState(false);
   const [loadingIpcs, setLoadingIpcs] = useState(false);
+  // "Pending UQRs" popup — the queue of required-but-unfilled UQR forms.
+  const [showPendings, setShowPendings] = useState(false);
 
   /* ---------------------------------------------------------------- *
    * IPOs for the selected section (mirrors StockSheet)
@@ -446,14 +449,27 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
               ← Back
             </button>
           )}
-          <h1 className="text-3xl font-bold text-foreground">
-            {isDatabaseMode ? "UQR Database" : "UQR Forms"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isDatabaseMode
-              ? "Browse all saved UQR forms using the same section, IPO, IPC, and material filters."
-              : "Create and submit UQR forms using the existing section, IPO, IPC, and material flow."}
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                {isDatabaseMode ? "UQR Database" : "UQR Forms"}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {isDatabaseMode
+                  ? "Browse all saved UQR forms using the same section, IPO, IPC, and material filters."
+                  : "Create and submit UQR forms using the existing section, IPO, IPC, and material flow."}
+              </p>
+            </div>
+            {!isDatabaseMode && (
+              <button
+                type="button"
+                onClick={() => setShowPendings(true)}
+                className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90"
+              >
+                Pending UQRs
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Filters */}
@@ -576,6 +592,9 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
           </div>
         )}
       </div>
+
+      {/* Pending UQRs popup (opened from the header button) */}
+      <UQRPendings open={showPendings} onClose={() => setShowPendings(false)} />
     </div>
   );
 };

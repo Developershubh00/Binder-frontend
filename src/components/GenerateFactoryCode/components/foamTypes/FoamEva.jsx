@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
@@ -202,30 +201,6 @@ const FoamEva = ({
                             >
                               {material.foamTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
                             </Button>
-                          </div>
-                        </Field>
-
-                        {/* WASTAGE % */}
-                        <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamWastage`]}>
-                          <div className="relative">
-                            <TenantDropdown
-                              value={material.foamWastage || ''}
-                              onChange={(selectedValue) => {
-                                const predefinedOptions = ['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'];
-                                if (predefinedOptions.includes(selectedValue)) {
-                                  handleRawMaterialChange(actualIndex, 'foamWastage', selectedValue);
-                                } else {
-                                  const numericValue = selectedValue.replace(/[^0-9.]/g, '');
-                                  handleRawMaterialChange(actualIndex, 'foamWastage', numericValue);
-                                }
-                              }}
-                              options={['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases']}
-                              placeholder="Select or type %"
-                              className={`${material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamWastage`] ? 'border-red-600' : ''}`}
-                            />
-                            {material.foamWastage && !['Yoga Mats', 'Packaging', 'Insoles', 'Craft', 'Protective Cases'].includes(material.foamWastage) && (
-                              <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
-                            )}
                           </div>
                         </Field>
 

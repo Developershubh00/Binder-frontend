@@ -1407,6 +1407,38 @@ export const saveContextualUQRFormDraft = async ({
   return await response.json();
 };
 
+// UQR requirements / pendings (Section/IPO/IPC/Form scoped, driven by quality=Yes)
+// GET  ims/uqr-requirements/?status=pending&order_type=...&ipo_code=...&ipc_code=...
+export const getUQRRequirements = async ({
+  status = '',
+  orderType = '',
+  ipoCode = '',
+  ipcCode = '',
+  formId = '',
+} = {}) => {
+  const params = {};
+  if (status) params.status = status;
+  if (orderType) params.order_type = orderType;
+  if (ipoCode) params.ipo_code = ipoCode;
+  if (ipcCode) params.ipc_code = ipcCode;
+  if (formId) params.form_id = formId;
+  const query = new URLSearchParams(params).toString();
+  const response = await apiRequest(`ims/uqr-requirements/${query ? `?${query}` : ''}`);
+  return await response.json();
+};
+
+// POST ims/uqr-requirements/sync/
+// body: { code, orderType, ipcs: [{ ipcCode, uqrForms: [...] }] }
+// Upserts the required UQR forms for an IPO's IPCs and clears the ones that are
+// no longer required (quality flipped to No). Called when an IPC is generated.
+export const syncUQRRequirements = async (payload) => {
+  const response = await apiRequest('ims/uqr-requirements/sync/', {
+    method: 'POST',
+    body: JSON.stringify(payload || {}),
+  });
+  return await response.json();
+};
+
 // ============================================================================
 // PURCHASE SECTION
 // ============================================================================

@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
@@ -220,30 +219,6 @@ const FoamRebonded = ({
         >
           {material.foamRebondedTestingRequirementsFile ? 'UPLOADED' : 'UPLOAD'}
         </Button>
-      </div>
-    </Field>
-
-    {/* WASTAGE % */}
-    <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamRebondedWastage`]}>
-      <div className="relative">
-        <TenantDropdown
-          value={material.foamRebondedWastage || ''}
-          onChange={(selectedValue) => {
-            const predefinedOptions = ['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging'];
-            if (predefinedOptions.includes(selectedValue)) {
-              handleRawMaterialChange(actualIndex, 'foamRebondedWastage', selectedValue);
-            } else {
-              const numericValue = selectedValue.replace(/[^0-9.]/g, '');
-              handleRawMaterialChange(actualIndex, 'foamRebondedWastage', numericValue);
-            }
-          }}
-          options={['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging']}
-          placeholder="Select or type %"
-          className={`${material.foamRebondedWastage && !['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging'].includes(material.foamRebondedWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamRebondedWastage`] ? 'border-red-600' : ''}`}
-        />
-        {material.foamRebondedWastage && !['Carpet Underlay', 'Gym Mats', 'Economy Mattress', 'Packaging'].includes(material.foamRebondedWastage) && (
-          <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
-        )}
       </div>
     </Field>
 

@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { PercentInput } from '@/components/ui/percent-input';
 import { TestingRequirementsInput } from '@/components/ui/testing-requirements-input';
 import QualityVerificationToggle from '../QualityVerificationToggle';
 import { MATERIAL_APPROVAL_OPTIONS } from '../../data/approvalOptions';
@@ -177,30 +176,6 @@ const FoamHr = ({
                               placeholder="Type to search or select testing requirements..."
                               error={Boolean(errors[`rawMaterial_${actualIndex}_foamHrTestingRequirements`])}
                             />
-                          </Field>
-
-                          {/* WASTAGE % */}
-                          <Field label="WASTAGE %" required width="sm" error={errors[`rawMaterial_${actualIndex}_foamHrWastage`]}>
-                            <div className="relative">
-                              <TenantDropdown
-                                value={material.foamHrWastage || ''}
-                                onChange={(selectedValue) => {
-                                  const predefinedOptions = ['Premium Mattress', 'Automotive Seating', 'High-End Cushions'];
-                                  if (predefinedOptions.includes(selectedValue)) {
-                                    handleRawMaterialChange(actualIndex, 'foamHrWastage', selectedValue);
-                                  } else {
-                                    const numericValue = selectedValue.replace(/[^0-9.]/g, '');
-                                    handleRawMaterialChange(actualIndex, 'foamHrWastage', numericValue);
-                                  }
-                                }}
-                                options={['Premium Mattress', 'Automotive Seating', 'High-End Cushions']}
-                                placeholder="Select or type %"
-                                className={`${material.foamHrWastage && !['Premium Mattress', 'Automotive Seating', 'High-End Cushions'].includes(material.foamHrWastage) ? 'pr-10' : ''} ${errors[`rawMaterial_${actualIndex}_foamHrWastage`] ? 'border-red-600' : ''}`}
-                              />
-                              {material.foamHrWastage && !['Premium Mattress', 'Automotive Seating', 'High-End Cushions'].includes(material.foamHrWastage) && (
-                                <span style={{ position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none', userSelect: 'none', zIndex: 10 }}>%</span>
-                              )}
-                            </div>
                           </Field>
 
                           {/* APPROVAL */}

@@ -15,7 +15,8 @@ import { FormCard } from '@/components/ui/form-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection, getFactoryCodeSections } from '../../services/integration';
+import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection, getFactoryCodeSections, syncUQRRequirements } from '../../services/integration';
+import { buildUqrRequirementsPayload } from '@/utils/uqrMappings';
 import { applyCutSewSections } from './utils/sectionOverlay';
 import { enumerateProcessRows } from './utils/processRows';
 // Pure default/scaffold builders (blank per-IPC stepData + packaging defaults).
@@ -2710,6 +2711,18 @@ const GenerateFactoryCode = ({
       // Persist the full wizard state for this IPO so the derived consumption
       // sheet can be viewed under IPO Management → IPO Derived CNS.
       await saveToLocalStorage(latestFormDataRef.current);
+
+      // Record UQR requirements for this IPO: every IPC material/artwork marked
+      // "quality inspected = Yes" becomes a pending UQR form (shows under
+      // Quality → UQR Pendings). Best-effort — never block factory-code generation.
+      try {
+        const uqrPayload = buildUqrRequirementsPayload(latestFormDataRef.current || formData);
+        if (uqrPayload.code && uqrPayload.ipcs.length) {
+          await syncUQRRequirements(uqrPayload);
+        }
+      } catch (uqrErr) {
+        console.warn('UQR requirements sync failed', uqrErr);
+      }
 
       setShowFactoryCodePopup(true);
     } finally {
