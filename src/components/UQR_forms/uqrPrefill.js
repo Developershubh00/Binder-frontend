@@ -33,6 +33,9 @@ const MANUAL_FIELDS = new Set([
 
 // Form field/column name → candidate material keys (first non-empty wins).
 // Only needed where the names don't line up under the normalizer below.
+// NB: an alias only ever applies to a form that HAS that column, and candidate
+// keys are specific enough that they only exist on the relevant material — so
+// e.g. adding stitchingThread* candidates can't affect fabric/fiber rows.
 const FIELD_ALIASES = {
   materialType: ['materialDescription', 'description', 'materialType'],
   materialTypeDescription: ['materialDescription', 'materialType'],
@@ -41,10 +44,13 @@ const FIELD_ALIASES = {
     'fiberCertifications', 'certification',
   ],
   widthCm: ['fabricWidth', 'width'],
-  // Yarn table columns.
-  count: ['yarnCountRange', 'countRange'],
+  // Yarn table columns. A "Yarn" material is often a Stitching Thread, whose
+  // fields are named stitchingThread* — map those onto the yarn form columns.
+  fiberType: ['stitchingThreadType'],
+  yarnType: ['subMaterial'],
+  count: ['yarnCountRange', 'countRange', 'stitchingThreadTex', 'stitchingThreadCountTicket'],
   doubling: ['yarnDoublingOptions'],
-  ply: ['yarnPlyOptions'],
+  ply: ['yarnPlyOptions', 'stitchingThreadPly'],
   winding: ['windingOptions'],
 };
 
@@ -173,4 +179,25 @@ export const buildUqrRequirementsPayload = (formData = {}) => {
     orderType: getOrderTypeLabel(formData.orderType || ''),
     ipcs,
   };
+};
+
+// Compute a form's prefill ({ header, rows }) LIVE from an IPO draft payload for
+// a given IPC + form key — no stored snapshot needed. Using this means mapping
+// improvements take effect immediately (the UI reads the draft directly, which
+// is the complete source), instead of waiting for a re-sync of the snapshot.
+export const computePrefillFromDraft = (draftPayload, ipcCode, formKey) => {
+  const empty = { header: {}, rows: [] };
+  if (!draftPayload || !ipcCode || !formKey) return empty;
+  const stepDataForIpc = () => {
+    for (const sku of draftPayload.skus || []) {
+      if (sku?.ipcCode === ipcCode) return sku.stepData;
+      const sp = (sku?.subproducts || []).find((s) => s?.ipcCode === ipcCode);
+      if (sp) return sp.stepData;
+    }
+    return null;
+  };
+  const stepData = stepDataForIpc();
+  if (!stepData) return empty;
+  const byKey = collectRequiredMaterialsByFormKey(stepData);
+  return buildFormPrefill(formKey, byKey[formKey] || []);
 };

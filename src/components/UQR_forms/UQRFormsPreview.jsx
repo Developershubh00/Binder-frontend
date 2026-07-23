@@ -16,6 +16,18 @@ import {
   ORDER_TYPE_SEQUENCE,
   FORM_DISPLAY_NAME_BY_KEY,
 } from "@/utils/uqrMappings";
+import { computePrefillFromDraft } from "./uqrPrefill";
+
+// The material category a UQR form key belongs to (for the inline list filter).
+const materialCategoryOfFormKey = (formKey = "") => {
+  if (formKey === "fabric") return "Fabric";
+  if (formKey === "yarn") return "Yarn";
+  if (formKey.startsWith("foam")) return "Foam";
+  if (formKey.startsWith("fiber")) return "Fiber";
+  if (formKey.startsWith("trims")) return "Trims & Accessory";
+  if (formKey.startsWith("artworks")) return "Artwork & Labelling";
+  return "Other";
+};
 
 const UQR_DRAFT_PREFIX = "uqrDraft::";
 
@@ -129,9 +141,14 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
   const [loadingIpcs, setLoadingIpcs] = useState(false);
   // "Pending UQRs" popup — the queue of required-but-unfilled UQR forms.
   const [showPendings, setShowPendings] = useState(false);
-  // Material-spec prefill snapshot ({header, rows}) for the picked IPC+form,
-  // captured at Generate time and stored on the UQR requirement.
-  const [reqPrefill, setReqPrefill] = useState(null);
+  // The IPO's full draft payload — the complete source we read material specs
+  // from to prefill a form (the committed factory-code APIs don't carry them).
+  const [draftPayload, setDraftPayload] = useState(null);
+  // Required UQR forms for the currently-selected IPC (drives the inline list).
+  const [ipcReqs, setIpcReqs] = useState([]);
+  const [loadingReqs, setLoadingReqs] = useState(false);
+  // Optional material-type filter on the inline list.
+  const [pendingFilter, setPendingFilter] = useState("");
 
   /* ---------------------------------------------------------------- *
    * IPOs for the selected section (mirrors StockSheet)
@@ -245,6 +262,26 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
       setSelectedIpcId("");
     }
   }, [ipcList, selectedIpcId]);
+
+  // Load the IPO's draft once — the complete source for material-spec prefill.
+  useEffect(() => {
+    if (!selectedIpoId) {
+      setDraftPayload(null);
+      return undefined;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const draft = await getFactoryCodeDraft(selectedIpoId);
+        if (!cancelled) setDraftPayload(draft?.payload || draft || null);
+      } catch {
+        if (!cancelled) setDraftPayload(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIpoId]);
 
   /* ---------------------------------------------------------------- *
    * Full IPC (factory code) detail for the selected IPC. The list record
@@ -367,6 +404,33 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
   ]);
 
   /* ---------------------------------------------------------------- *
+   * Required UQR forms for the selected IPC — the inline "pending" list.
+   * ---------------------------------------------------------------- */
+  const loadIpcReqs = useCallback(async () => {
+    if (!selectedOrderType || !selectedIpoCode || !selectedIpcCode) {
+      setIpcReqs([]);
+      return;
+    }
+    setLoadingReqs(true);
+    try {
+      const data = await getUQRRequirements({
+        orderType: selectedOrderType,
+        ipoCode: selectedIpoCode,
+        ipcCode: selectedIpcCode,
+      });
+      setIpcReqs(Array.isArray(data?.results) ? data.results : []);
+    } catch {
+      setIpcReqs([]);
+    } finally {
+      setLoadingReqs(false);
+    }
+  }, [selectedOrderType, selectedIpoCode, selectedIpcCode]);
+
+  useEffect(() => {
+    loadIpcReqs();
+  }, [loadIpcReqs]);
+
+  /* ---------------------------------------------------------------- *
    * Material form (Materials dropdown) — e.g. YARN → the Yarn UQR form.
    * Foam/Fiber pick a sub-type whose value is the form key.
    * ---------------------------------------------------------------- */
@@ -410,33 +474,13 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
     [selectedIpcRecord, ipcDetail],
   );
 
-  // Pull the material-spec prefill snapshot for the picked IPC + form. This is
-  // the ONLY reliable source for the spec fields — the committed factory-code
-  // APIs don't carry them; the snapshot was captured at Generate time.
-  useEffect(() => {
-    if (!hasFullContext || !materialFormKey) {
-      setReqPrefill(null);
-      return undefined;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await getUQRRequirements({
-          orderType: selectedOrderType,
-          ipoCode: selectedIpoCode,
-          ipcCode: selectedIpcCode,
-          formId: materialFormKey,
-        });
-        const row = (data?.results || [])[0];
-        if (!cancelled) setReqPrefill(row?.prefill || null);
-      } catch {
-        if (!cancelled) setReqPrefill(null);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [hasFullContext, materialFormKey, selectedOrderType, selectedIpoCode, selectedIpcCode]);
+  // Material-spec prefill computed LIVE from the IPO draft for the picked IPC +
+  // form. Live (not a stored snapshot) so mapping improvements show immediately —
+  // the draft is the complete source the committed APIs don't carry.
+  const livePrefill = useMemo(() => {
+    if (!materialFormKey || !draftPayload || !selectedIpcCode) return null;
+    return computePrefillFromDraft(draftPayload, selectedIpcCode, materialFormKey);
+  }, [materialFormKey, draftPayload, selectedIpcCode]);
 
   const materialPrefillValues = useMemo(() => {
     if (!materialFormKey) return null;
@@ -459,20 +503,20 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
       "uid",
       "code",
     ]);
-    // Start from the material-spec snapshot (MATERIAL TYPE/DESCRIPTION, WIDTH,
+    // Start from the material-spec prefill (MATERIAL TYPE/DESCRIPTION, WIDTH,
     // CERTIFICATION, …); PO/IPC context fields fill on top.
-    const values = { ...(reqPrefill?.header || {}) };
+    const values = { ...(livePrefill?.header || {}) };
     if (poNo) values.poNo = poNo;
     if (factoryPoCode) values.factoryPoCode = factoryPoCode;
     if (uin) values.uin = uin;
     return Object.keys(values).length ? values : null;
-  }, [materialFormKey, selectedIpo, ipcSource, selectedIpoCode, selectedIpcCode, reqPrefill]);
+  }, [materialFormKey, selectedIpo, ipcSource, selectedIpoCode, selectedIpcCode, livePrefill]);
 
-  // Table prefill: prefer the snapshot's rows (one per IPC material that needs
-  // this form). Otherwise fall back to a single row seeded with the USN.
+  // Table prefill: prefer the live rows (one per IPC material that needs this
+  // form). Otherwise fall back to a single row seeded with the USN.
   const materialTablePrefill = useMemo(() => {
     if (!materialFormKey) return null;
-    if (reqPrefill?.rows?.length) return reqPrefill.rows;
+    if (livePrefill?.rows?.length) return livePrefill.rows;
     const dedicated = firstOf(ipcSource, [
       "usn",
       "unit_sequence",
@@ -484,7 +528,41 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
     const usn =
       dedicated || (sequenceMatch && sequenceMatch[1]) || firstOf(ipcSource, ["sku"]);
     return usn ? { usn } : null;
-  }, [materialFormKey, ipcSource, reqPrefill]);
+  }, [materialFormKey, ipcSource, livePrefill]);
+
+  // Open the form for a given UQR form key by driving the existing Material /
+  // sub-type selectors — this reuses the whole render + prefill pipeline below.
+  const openFormForKey = (formKey) => {
+    if (!formKey) return;
+    if (formKey === "fabric") {
+      setSelectedMaterial("FABRIC");
+      setSelectedSubType("");
+    } else if (formKey === "yarn") {
+      setSelectedMaterial("YARN");
+      setSelectedSubType("");
+    } else if (formKey.startsWith("foam")) {
+      setSelectedMaterial("FOAM");
+      setSelectedSubType(formKey);
+    } else if (formKey.startsWith("fiber")) {
+      setSelectedMaterial("FIBER");
+      setSelectedSubType(formKey);
+    } else if (formKey.startsWith("trims")) {
+      setSelectedMaterial("TRIMS_ACCESSORY");
+      setSelectedSubType(formKey);
+    } else if (formKey.startsWith("artworks")) {
+      setSelectedMaterial("ARTWORK_LABELLING");
+      setSelectedSubType(formKey);
+    }
+  };
+
+  // The inline list, filtered by the optional material-type chip.
+  const filteredIpcReqs = pendingFilter
+    ? ipcReqs.filter((r) => materialCategoryOfFormKey(r.form_id) === pendingFilter)
+    : ipcReqs;
+  // Distinct material categories present on this IPC (for the filter chips).
+  const ipcReqCategories = Array.from(
+    new Set(ipcReqs.map((r) => materialCategoryOfFormKey(r.form_id))),
+  ).sort();
 
   return (
     <div
@@ -633,6 +711,96 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
           </div>
         </div>
 
+        {/* Inline list of required UQR forms for the selected IPC (forms mode) */}
+        {!isDatabaseMode && selectedIpcCode && (
+          <div className={`${CARD} space-y-3`}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="text-sm font-semibold text-foreground">
+                Quality inspections required for{" "}
+                <span className="text-primary">{selectedIpcCode}</span>
+                {!loadingReqs && (
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
+                    {filteredIpcReqs.length} form{filteredIpcReqs.length === 1 ? "" : "s"}
+                  </span>
+                )}
+              </div>
+              {ipcReqCategories.length > 1 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {["", ...ipcReqCategories].map((cat) => (
+                    <button
+                      key={cat || "all"}
+                      type="button"
+                      onClick={() => setPendingFilter(cat)}
+                      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                        pendingFilter === cat
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-[#e2e3e8] bg-card text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {cat || "All"}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {loadingReqs ? (
+              <div className="py-6 text-center text-sm text-muted-foreground">Loading…</div>
+            ) : filteredIpcReqs.length === 0 ? (
+              <div className="rounded-md border border-dashed border-[#e2e3e8] py-8 text-center text-sm text-muted-foreground">
+                No quality inspections required for this IPC. (They appear once the
+                IPC is generated with a material marked “quality inspected? = Yes”.)
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-[#e2e3e8]">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr>
+                      <th className="border-b border-[#e2e3e8] bg-muted px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-foreground">Material</th>
+                      <th className="border-b border-[#e2e3e8] bg-muted px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-foreground">UQR Form</th>
+                      <th className="border-b border-[#e2e3e8] bg-muted px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-foreground">Status</th>
+                      <th className="border-b border-[#e2e3e8] bg-muted px-4 py-2.5" style={{ width: 100 }} aria-label="Actions" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredIpcReqs.map((r) => {
+                      const isActive = r.form_id === materialFormKey;
+                      return (
+                        <tr key={r.id} className={isActive ? "bg-primary/5" : ""}>
+                          <td className="border-b border-[#e2e3e8] px-4 py-2.5 text-foreground">
+                            {materialCategoryOfFormKey(r.form_id)}
+                          </td>
+                          <td className="border-b border-[#e2e3e8] px-4 py-2.5 text-foreground">
+                            {FORM_DISPLAY_NAME_BY_KEY[r.form_id] || formsConfig[r.form_id]?.title || r.form_id}
+                          </td>
+                          <td className="border-b border-[#e2e3e8] px-4 py-2.5">
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                                r.filled ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                              }`}
+                            >
+                              {r.filled ? "Filled" : "Pending"}
+                            </span>
+                          </td>
+                          <td className="border-b border-[#e2e3e8] px-4 py-2.5 text-right">
+                            <button
+                              type="button"
+                              onClick={() => openFormForKey(r.form_id)}
+                              className="inline-flex cursor-pointer items-center justify-center rounded-md bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground transition-all hover:opacity-90"
+                            >
+                              {isActive ? "Open" : r.filled ? "View" : "Fill"}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Material form */}
         {materialFormConfig && (
           <div className={CARD}>
@@ -647,6 +815,7 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
               prefillValues={materialPrefillValues}
               tablePrefill={materialTablePrefill}
               readOnly={isDatabaseMode}
+              onSubmitSuccess={loadIpcReqs}
             />
           </div>
         )}
