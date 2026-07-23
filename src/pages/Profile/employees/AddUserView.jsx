@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Select from 'react-select';
-import { ArrowLeft, ChevronRight, Check, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Check, ShieldCheck, RotateCcw } from 'lucide-react';
 import { getBuyerCodes } from '../../../services/integration';
 import {
   LEVELS,
@@ -144,13 +144,21 @@ function PermCell({ value, max, onChange, approve, apOn, onAp }) {
 export default function AddUserView({ mode = 'add', member, onCancel, onSubmit }) {
   const isEdit = mode === 'edit';
 
-  const [user, setUser] = useState({
-    first: member?.first_name || '',
-    last: member?.last_name || '',
-    email: member?.email || '',
-    pass: '',
-    desig: member?.designation || '',
-  });
+  // Baseline the form resets to: the fetched member values when editing, all
+  // empty when creating. Permissions + buyer scope aren't fetched (UI-only), so
+  // their baseline is empty in both modes.
+  const initialUser = useMemo(
+    () => ({
+      first: member?.first_name || '',
+      last: member?.last_name || '',
+      email: member?.email || '',
+      pass: '',
+      desig: member?.designation || '',
+    }),
+    [member],
+  );
+
+  const [user, setUser] = useState(initialUser);
   const [lv, setLv] = useState({});
   const [ap, setAp] = useState({});
   const [allBuyers, setAllBuyers] = useState(true);
@@ -211,6 +219,15 @@ export default function AddUserView({ mode = 'add', member, onCancel, onSubmit }
 
   const toggleBuyer = (b) =>
     setBuyerSel((s) => (s.includes(b) ? s.filter((x) => x !== b) : [...s, b]));
+
+  // Reset the form to its baseline: fetched values when editing, empty when creating.
+  const handleReset = () => {
+    setUser(initialUser);
+    setLv({});
+    setAp({});
+    setAllBuyers(true);
+    setBuyerSel([]);
+  };
 
   const summary = useMemo(() => buildAccessPayload(lv, ap), [lv, ap]);
 
@@ -527,8 +544,13 @@ export default function AddUserView({ mode = 'add', member, onCancel, onSubmit }
             </div>
 
             <button type="button" onClick={handleSave} disabled={!valid || saving}
-              className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+              className="w-full cursor-pointer rounded-md bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
               {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create user'}
+            </button>
+            <button type="button" onClick={handleReset} disabled={saving}
+              className="mt-2 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[#e2e3e8] bg-white px-4 py-2 text-sm font-semibold text-[#6b7280] transition-colors hover:border-[#c9cad2] hover:bg-[#f3f4f6] disabled:cursor-not-allowed disabled:opacity-50">
+              <RotateCcw className="h-3.5 w-3.5" />
+              {isEdit ? 'Reset changes' : 'Reset form'}
             </button>
             {!valid && (
               <div className="mt-2 text-center text-[11px] text-muted-foreground">

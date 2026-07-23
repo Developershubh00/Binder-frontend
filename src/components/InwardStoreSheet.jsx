@@ -10,6 +10,16 @@ import {
 } from "../services/integration";
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
+import { printInwardReceipt } from "./inwardReceiptPrint";
+
+// Read the logged-in user (for the "Received By" block on the printed receipt).
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("user")) || {};
+  } catch {
+    return {};
+  }
+};
 
 // Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp:
 // small radius, defined grey borders, no shadows, orange primary, grey neutrals.
@@ -360,6 +370,54 @@ const InwardStoreSheet = ({ onBack }) => {
     }
   };
 
+  // Build the printable Goods Receipt Note from the current form state, resolving the
+  // selected ids to their human labels.
+  const buildReceiptDocument = () => {
+    const user = getStoredUser();
+    const receivableLabel =
+      RECEIVABLE_TYPE_OPTIONS.find((o) => o.value === receivableType)?.label ||
+      receivableType;
+    const ipoTypeLabel =
+      IPO_TYPE_OPTIONS.find((o) => o.value === ipoType)?.label || ipoType;
+    const ipoObj = ipoList.find((o) => o.id === selectedIpo);
+    const ipcObj = ipcList.find((o) => o.id === selectedIpc);
+    const vpoObj = issuedVpos.find((o) => o.id === selectedIssuedVpo);
+
+    return {
+      date: new Date(),
+      receivable_type: receivableLabel,
+      ipo_type: ipoTypeLabel,
+      ipo_code: ipoObj?.ipo_code || "",
+      ipc_code: ipcObj?.code || "",
+      vpo_number: vpoObj?.vpo_number || "",
+      vendor_challan_no: vendorChallanNo,
+      vendor_invoice_no: isChallanOnly ? "" : vendorInvoiceNo,
+      goods_condition: goodsReceivingCondition,
+      is_challan_only: isChallanOnly,
+      lines: rows.map((r) => ({
+        particulars: r.particulars,
+        po_quantity: r.po_quantity,
+        received_quantity: r.received_quantity,
+        balance: computeBalance(r),
+        rate: r.rate,
+        amount: computeAmount(r),
+        remarks: r.remarks,
+        received_form: r.received_form,
+        num_packages: r.num_packages,
+        uqr: r.uqr_sent,
+      })),
+      received_by_name:
+        user.name ||
+        user.full_name ||
+        [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+        "",
+      received_by_userid: user.email || user.username || "",
+      received_by_post: user.designation || "",
+    };
+  };
+
+  const handlePrint = () => printInwardReceipt(buildReceiptDocument());
+
   // Generate UIN/USN codes
   const handleGenerateCodes = async () => {
     if (!createdSheet?.id) {
@@ -386,7 +444,7 @@ const InwardStoreSheet = ({ onBack }) => {
 
   return (
     <div
-      className="min-h-full w-full overflow-y-auto bg-[#f3f4f6] py-9"
+      className="min-h-full w-full overflow-y-auto bg-[#f3f4f6] pt-9 pb-40"
       style={{
         zoom: 0.9,
         fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
@@ -817,6 +875,13 @@ const InwardStoreSheet = ({ onBack }) => {
 
         {/* Action buttons */}
         <div className="flex flex-wrap justify-end gap-3 pt-1">
+          <button
+            type="button"
+            className="cursor-pointer rounded-md border border-[#e2e3e8] bg-card px-6 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:bg-muted"
+            onClick={handlePrint}
+          >
+            Print Receipt
+          </button>
           <button
             type="button"
             className="cursor-pointer rounded-md border border-[#e2e3e8] bg-muted px-6 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:bg-[#e9eaee] disabled:cursor-not-allowed disabled:opacity-50"

@@ -11,9 +11,6 @@ const TH =
   "border border-primary/40 bg-primary px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-primary-foreground whitespace-nowrap";
 const TD =
   "border border-[#e2e3e8] px-3 py-2 align-middle text-sm text-foreground";
-// Section header strip inside the FROM / TO blocks.
-const BLOCK_HEAD =
-  "mb-3 rounded-md bg-primary/5 px-3 py-2 text-sm font-bold tracking-wide text-primary";
 const PRIMARY_BTN =
   "cursor-pointer rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
 const OUTLINE_BTN =
@@ -37,12 +34,24 @@ const todayIso = () => {
   return `${d.getFullYear()}-${mm}-${dd}`;
 };
 
-// Read-only label/value line used in the FROM (company) block.
-const StaticRow = ({ label, value }) => (
-  <div className="flex gap-2 text-sm">
-    <span className="shrink-0 font-semibold text-foreground">{label}</span>
-    <span className="break-words text-muted-foreground">{value}</span>
+// Borderless inline field used inside the document-style FROM / TO blocks, so the
+// editable modal reads like the printed Purchase Order (no per-cell grid lines).
+const DOC_INPUT =
+  "w-full rounded bg-transparent px-1.5 py-1 text-sm text-foreground outline-none transition-colors hover:bg-black/[0.03] focus:bg-primary/5 focus:ring-1 focus:ring-primary/30 placeholder:text-muted-foreground/60";
+
+// One label:value row — mirrors the print's `table.kv` rows (label ~44%, no borders,
+// top-aligned so a wrapping value keeps its label against the first line).
+const DocRow = ({ label, children }) => (
+  <div className="grid grid-cols-[44%_56%] items-start gap-1 px-3 py-0.5">
+    <span className="pt-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+      {label}
+    </span>
+    <div className="min-w-0">{children}</div>
   </div>
+);
+
+const DocStatic = ({ children }) => (
+  <div className="px-1.5 py-1 text-sm text-foreground">{children || "—"}</div>
 );
 
 const Field = ({ label, children, className = "" }) => (
@@ -289,188 +298,185 @@ const VpoPreviewModal = ({
               Purchase Order
             </div>
 
-            {/* FROM / TO */}
+            {/* FROM / TO — laid out to mirror the printed Purchase Order:
+                orange block header, address strip(s), then borderless label:value
+                rows (editable inline). */}
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* FROM — company */}
-              <div className="space-y-3 border-b border-[#e2e3e8] p-5 lg:border-b-0 lg:border-r">
-                <div className={BLOCK_HEAD}>FROM: {COMPANY.name}</div>
-                <div className="space-y-1 rounded-md border border-[#e2e3e8] bg-muted/40 p-3">
-                  <div className="text-sm text-muted-foreground">
-                    {COMPANY.address}
-                  </div>
-                  <StaticRow label="GST:" value={COMPANY.gst} />
-                  <StaticRow label="EMAIL:" value={COMPANY.email} />
+              <div className="border-b border-[#e2e3e8] lg:border-b-0 lg:border-r">
+                <div className="border-b border-[#e2e3e8] bg-primary/5 px-3 py-2 text-sm font-bold uppercase tracking-wide text-primary">
+                  FROM: {COMPANY.name}
                 </div>
-
-                <Field label="Company Dispatch Address">
-                  <input
-                    className={INPUT}
-                    value={companyDispatchAddress}
-                    onChange={(e) => setCompanyDispatchAddress(e.target.value)}
-                    placeholder="Enter dispatch address"
-                  />
-                </Field>
-                <Field label="Company Delivery Address">
-                  <input
-                    className={INPUT}
-                    value={companyDeliveryAddress}
-                    onChange={(e) => setCompanyDeliveryAddress(e.target.value)}
-                    placeholder="Enter delivery address"
-                  />
-                </Field>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Contact Person">
+                <div className="flex min-h-15 items-start border-b border-[#e2e3e8] px-3 py-2 text-sm text-foreground">
+                  {COMPANY.address}
+                </div>
+                <div className="py-1.5">
+                  <DocRow label="GST:">
+                    <DocStatic>{COMPANY.gst}</DocStatic>
+                  </DocRow>
+                  <DocRow label="Email:">
+                    <DocStatic>{COMPANY.email}</DocStatic>
+                  </DocRow>
+                  <DocRow label="Company Dispatch Address:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
+                      value={companyDispatchAddress}
+                      onChange={(e) => setCompanyDispatchAddress(e.target.value)}
+                      placeholder="—"
+                    />
+                  </DocRow>
+                  <DocRow label="Company Delivery Address:">
+                    <input
+                      className={DOC_INPUT}
+                      value={companyDeliveryAddress}
+                      onChange={(e) => setCompanyDeliveryAddress(e.target.value)}
+                      placeholder="—"
+                    />
+                  </DocRow>
+                  <DocRow label="Contact Person:">
+                    <input
+                      className={DOC_INPUT}
                       value={companyContact}
                       onChange={(e) => setCompanyContact(e.target.value)}
-                      placeholder="Enter contact person"
+                      placeholder="—"
                     />
-                  </Field>
-                  <Field label="WhatsApp No.">
+                  </DocRow>
+                  <DocRow label="WhatsApp No:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={companyWhatsapp}
                       onChange={(e) => setCompanyWhatsapp(e.target.value)}
-                      placeholder="Enter WhatsApp number"
+                      placeholder="—"
                     />
-                  </Field>
+                  </DocRow>
+                  <DocRow label="IPO Code:">
+                    <DocStatic>{ipoCode}</DocStatic>
+                  </DocRow>
                 </div>
-                <Field label="IPO Code">
-                  <input
-                    className={`${INPUT} bg-muted/50`}
-                    value={ipoCode}
-                    readOnly
-                  />
-                </Field>
               </div>
 
               {/* TO — vendor */}
-              <div className="space-y-3 p-5">
-                <div className={BLOCK_HEAD}>
+              <div>
+                <div className="border-b border-[#e2e3e8] bg-primary/5 px-3 py-2 text-sm font-bold uppercase tracking-wide text-primary">
                   TO: {vendorName || "VENDOR"}
                   {vendorCode ? ` (${vendorCode})` : " (VENDOR CODE)"}
                 </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Select Vendor">
-                    <ThemedSelect
-                      value={vendorId}
-                      onChange={setVendorId}
-                      isDisabled={vendors.length === 0}
-                      placeholder={
-                        vendors.length === 0
-                          ? "No vendors available"
-                          : "— Select vendor —"
-                      }
-                      options={vendors.map((v) => ({
-                        value: String(v.id),
-                        label: `${v.code ? `${v.code} — ` : ""}${
-                          v.vendor_name || v.name || "Vendor"
-                        }`,
-                      }))}
-                    />
-                  </Field>
-                  <Field label="Vendor Code">
-                    <input
-                      className={INPUT}
-                      value={vendorCode}
-                      onChange={(e) => setVendorCode(e.target.value)}
-                      placeholder="Vendor code"
-                    />
-                  </Field>
-                </div>
-
-                <Field label="Vendor Name">
-                  <input
-                    className={INPUT}
-                    value={vendorName}
-                    onChange={(e) => setVendorName(e.target.value)}
-                    placeholder="Vendor name"
+                {/* Vendor picker — an editing aid; drives the block above. */}
+                <div className="border-b border-[#e2e3e8] px-3 py-2">
+                  <ThemedSelect
+                    value={vendorId}
+                    onChange={setVendorId}
+                    isDisabled={vendors.length === 0}
+                    placeholder={
+                      vendors.length === 0
+                        ? "No vendors available"
+                        : "— Select vendor —"
+                    }
+                    options={vendors.map((v) => ({
+                      value: String(v.id),
+                      label: `${v.code ? `${v.code} — ` : ""}${
+                        v.vendor_name || v.name || "Vendor"
+                      }`,
+                    }))}
                   />
-                </Field>
-                <Field label="Vendor Address">
+                </div>
+                <div className="flex items-start border-b border-[#e2e3e8] px-3 py-1">
                   <input
-                    className={INPUT}
+                    className={DOC_INPUT}
                     value={vendorAddress}
                     onChange={(e) => setVendorAddress(e.target.value)}
-                    placeholder="Vendor address"
+                    placeholder="VENDOR ADDRESS"
                   />
-                </Field>
-                <Field label="Vendor Delivery Address">
+                </div>
+                <div className="flex items-start border-b border-[#e2e3e8] px-3 py-1">
                   <input
-                    className={INPUT}
+                    className={`${DOC_INPUT} italic`}
                     value={vendorDeliveryAddress}
                     onChange={(e) => setVendorDeliveryAddress(e.target.value)}
-                    placeholder="Vendor delivery address"
+                    placeholder="VENDOR DELIVERY ADDRESS"
                   />
-                </Field>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="GST">
+                </div>
+                <div className="py-1.5">
+                  <DocRow label="Vendor Name:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
+                      value={vendorName}
+                      onChange={(e) => setVendorName(e.target.value)}
+                      placeholder="—"
+                    />
+                  </DocRow>
+                  <DocRow label="Vendor Code:">
+                    <input
+                      className={DOC_INPUT}
+                      value={vendorCode}
+                      onChange={(e) => setVendorCode(e.target.value)}
+                      placeholder="—"
+                    />
+                  </DocRow>
+                  <DocRow label="GST:">
+                    <input
+                      className={DOC_INPUT}
                       value={vendorGst}
                       onChange={(e) => setVendorGst(e.target.value)}
-                      placeholder="Vendor GST"
+                      placeholder="—"
                     />
-                  </Field>
-                  <Field label="Contact Person">
+                  </DocRow>
+                  <DocRow label="Contact Person:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={vendorContact}
                       onChange={(e) => setVendorContact(e.target.value)}
-                      placeholder="Contact person"
+                      placeholder="—"
                     />
-                  </Field>
-                  <Field label="WhatsApp No.">
+                  </DocRow>
+                  <DocRow label="WhatsApp No.:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={vendorWhatsapp}
                       onChange={(e) => setVendorWhatsapp(e.target.value)}
-                      placeholder="WhatsApp number"
+                      placeholder="—"
                     />
-                  </Field>
-                  <Field label="Email">
+                  </DocRow>
+                  <DocRow label="Email:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={vendorEmail}
                       onChange={(e) => setVendorEmail(e.target.value)}
-                      placeholder="Vendor email"
+                      placeholder="—"
                     />
-                  </Field>
-                  <Field label="VPO No.">
+                  </DocRow>
+                  <DocRow label="VPO No:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={vpoNo}
                       onChange={(e) => setVpoNo(e.target.value)}
                       placeholder="Auto / enter VPO no."
                     />
-                  </Field>
-                  <Field label="VPO Date">
+                  </DocRow>
+                  <DocRow label="VPO Date:">
                     <input
                       type="date"
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={vpoDate}
                       onChange={(e) => setVpoDate(e.target.value)}
                     />
-                  </Field>
-                  <Field label="Delivery Due Date">
+                  </DocRow>
+                  <DocRow label="Delivery Due Date:">
                     <input
                       type="date"
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={deliveryDueDate}
                       onChange={(e) => setDeliveryDueDate(e.target.value)}
                     />
-                  </Field>
-                  <Field label="Payment Terms">
+                  </DocRow>
+                  <DocRow label="Payment Terms:">
                     <input
-                      className={INPUT}
+                      className={DOC_INPUT}
                       value={paymentTerms}
                       onChange={(e) => setPaymentTerms(e.target.value)}
-                      placeholder="Payment terms"
+                      placeholder="—"
                     />
-                  </Field>
+                  </DocRow>
                 </div>
               </div>
             </div>

@@ -163,7 +163,8 @@
 /* ── Root Shell ───────────────────────────────────────────────── */
 .profile-root {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--background);
 }
 
@@ -174,7 +175,7 @@
   width: 260px;
   min-width: 260px;
   background: var(--primary);
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -325,6 +326,8 @@
   flex: 1;
   padding: 48px 52px 80px;
   min-width: 0;
+  min-height: 0;
+  height: 100vh;
   overflow-y: auto;
 }
 
@@ -978,6 +981,8 @@
   .profile-sidebar {
     width: 100%;
     min-height: auto;
+    height: auto;
+    position: static;
   }
 
   .profile-sidebar-top {
@@ -1022,7 +1027,7 @@
     white-space: nowrap;
   }
 
-  .profile-main { padding: 28px 20px 60px; }
+  .profile-main { padding: 28px 20px 60px; height: auto; }
 
   .profile-form-grid { grid-template-columns: 1fr; }
 

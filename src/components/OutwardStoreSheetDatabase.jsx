@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
-import { Search, Plus, ChevronDown } from 'lucide-react';
+import { Search, Plus, ChevronDown, Printer } from 'lucide-react';
 import Pagination from '@/components/ui/Pagination';
 import { getOutwardStoreSheets } from '../services/integration';
 import { useServerPagination } from '../hooks/useServerPagination';
+import { CHALLAN_COMPANY, printOutwardChallan } from './outwardChallanPrint';
 
 const extractItems = (payload) => {
   if (Array.isArray(payload)) return payload;
@@ -45,6 +46,63 @@ const formatDate = (iso) => {
     hour: '2-digit',
     minute: '2-digit',
   });
+};
+
+// Read the logged-in user (for the "Given By" block on the printed challan).
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user')) || {};
+  } catch {
+    return {};
+  }
+};
+
+// Map a saved outward store sheet row to the Delivery Challan document shape —
+// the same shape OutwardStoreSheet builds, so the print/PDF is identical.
+const buildChallanDoc = (sheet) => {
+  const user = getStoredUser();
+  const referenceCode =
+    sheet.ipo_type === 'COMPANY_ESSENTIALS'
+      ? sheet.company_essential_code_display
+      : sheet.ipo_code_display;
+  const issuedTo = sheet.dispatch_target_display || '';
+
+  return {
+    gst: CHALLAN_COMPANY.gst,
+    company_contact: CHALLAN_COMPANY.contact,
+    date: sheet.created_at || new Date(),
+    challan_no: sheet.company_challan_number || '',
+    dispatch_type: dispatchTypeLabel(sheet.dispatch_type),
+    ipo_type: ipoTypeLabel(sheet.ipo_type),
+    ipo_code: referenceCode || '',
+    department: sheet.department_name_display || '',
+    section: sheet.section_name_display || '',
+    issued_to: issuedTo,
+    address: sheet.dispatch_issued_to_address || '',
+    contact_person: sheet.contact_person || '',
+    contact_number: sheet.contact_number || '',
+    vehicle_no: sheet.vehicle_no || '',
+    lines: (sheet.items || []).map((item) => ({
+      particulars: item.particulars,
+      qty: item.dispatch_quantity,
+      unit: item.unit,
+      link_usn: item.usn_links?.map((l) => l.link_usn) || [],
+      usn_qty: item.usn_links?.map((l) => l.usn_quantity) || [],
+      dispatch_form: item.dispatch_form,
+      num_packages: item.num_packages,
+      uqr: item.uqr_sent,
+    })),
+    given_by_name:
+      user.name ||
+      user.full_name ||
+      [user.first_name, user.last_name].filter(Boolean).join(' ') ||
+      '',
+    given_by_userid: user.email || user.username || '',
+    given_by_post: user.designation || '',
+    given_to_name: issuedTo,
+    given_to_person: sheet.contact_person || '',
+    given_to_post: '',
+  };
 };
 
 const OutwardStoreSheetDatabase = ({ onBack, onOpenForm }) => {
@@ -188,9 +246,16 @@ const OutwardStoreSheetDatabase = ({ onBack, onOpenForm }) => {
                   className="border-b border-[#e2e3e8] last:border-b-0"
                 >
                   {/* Card header — always visible */}
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setExpandedId(isExpanded ? null : sheet.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setExpandedId(isExpanded ? null : sheet.id);
+                      }
+                    }}
                     className={`${HEAD_COLS} w-full cursor-pointer px-4 py-3.5 text-left text-sm transition-colors ${
                       isExpanded ? 'bg-muted' : 'hover:bg-muted'
                     }`}
@@ -207,12 +272,25 @@ const OutwardStoreSheetDatabase = ({ onBack, onOpenForm }) => {
                     <span className="text-xs text-muted-foreground">
                       {formatDate(sheet.created_at)}
                     </span>
-                    <ChevronDown
-                      className={`h-4 w-4 text-muted-foreground transition-transform ${
-                        isExpanded ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
+                    <span className="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        title="Print challan"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          printOutwardChallan(buildChallanDoc(sheet));
+                        }}
+                        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                      >
+                        <Printer className="h-4 w-4" />
+                      </button>
+                      <ChevronDown
+                        className={`h-4 w-4 text-muted-foreground transition-transform ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </span>
+                  </div>
 
                   {/* Expanded detail */}
                   {isExpanded && (

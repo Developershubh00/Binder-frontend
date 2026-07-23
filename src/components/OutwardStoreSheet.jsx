@@ -10,6 +10,16 @@ import {
 } from "../services/integration";
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
+import { CHALLAN_COMPANY, printOutwardChallan } from "./outwardChallanPrint";
+
+// Read the logged-in user (for the "Given By" block on the printed challan).
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("user")) || {};
+  } catch {
+    return {};
+  }
+};
 
 // Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp:
 // small radius, defined grey borders, no shadows, orange primary, grey neutrals.
@@ -383,13 +393,18 @@ const OutwardStoreSheet = ({ onBack }) => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await getVpoHistory({ ipoId: selectedIpo || undefined, status: "issued" });
+        const res = await getVpoHistory({
+          ipoId: selectedIpo || undefined,
+          status: "issued",
+        });
         if (!cancelled) setIssuedVpos(res?.results || []);
       } catch {
         if (!cancelled) setIssuedVpos([]);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [selectedIpo]);
 
   const handleSelectIssuedVpo = async (vpoId) => {
@@ -407,7 +422,7 @@ const OutwardStoreSheet = ({ onBack }) => {
             dispatch_quantity: l.qty != null ? String(l.qty) : "",
             unit: l.unit || "CM",
             remark: l.remark || "",
-          }))
+          })),
         );
       }
     } catch {
@@ -507,6 +522,74 @@ const OutwardStoreSheet = ({ onBack }) => {
     return "";
   };
 
+  // Build the printable Delivery Challan from the current form state, resolving the
+  // selected ids to their human labels.
+  const buildChallanDocument = () => {
+    const user = getStoredUser();
+    const dispatchTypeLabel =
+      choices.dispatch_types.find((o) => o.value === dispatchType)?.label ||
+      dispatchType;
+    const ipoTypeLabel =
+      choices.ipo_types.find((o) => o.value === ipoType)?.label || ipoType;
+    const departmentName = activeDepartment?.name || "";
+    const sectionName =
+      sectionOptions.find((s) => s.id === selectedSection)?.name || "";
+    const ipoObj = ipoOptions.find((o) => o.id === selectedIpo);
+    const ceObj = companyEssentialOptions.find(
+      (o) => o.id === selectedCompanyEssential,
+    );
+    const ipoCode =
+      ipoType === "COMPANY_ESSENTIALS"
+        ? ceObj?.code || ""
+        : ipoObj?.ipo_code || "";
+    const vendorObj = choices.vendors.find((v) => v.id === selectedVendor);
+    const issuedTo =
+      dispatchType === "EXTERNAL_CHALLAN"
+        ? vendorObj
+          ? `${vendorObj.code} - ${vendorObj.vendor_name}`
+          : ""
+        : [unitNumber, departmentName, sectionName].filter(Boolean).join(" / ");
+
+    return {
+      gst: CHALLAN_COMPANY.gst,
+      company_contact: CHALLAN_COMPANY.contact,
+      date: new Date(),
+      challan_no: companyChallanNumber,
+      dispatch_type: dispatchTypeLabel,
+      ipo_type: ipoTypeLabel,
+      ipo_code: ipoCode,
+      department: departmentName,
+      section: sectionName,
+      issued_to: issuedTo,
+      address: dispatchIssuedToAddress,
+      contact_person: contactPerson,
+      contact_number: contactNumber,
+      vehicle_no: vehicleNo,
+      lines: rows.map((r) => ({
+        particulars: r.particulars,
+        qty: r.dispatch_quantity,
+        unit: r.unit,
+        link_usn: r.usn_links.map((l) => l.link_usn),
+        usn_qty: r.usn_links.map((l) => l.usn_quantity),
+        dispatch_form: r.dispatch_form,
+        num_packages: r.num_packages,
+        uqr: r.uqr_sent,
+      })),
+      given_by_name:
+        user.name ||
+        user.full_name ||
+        [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+        "",
+      given_by_userid: user.email || user.username || "",
+      given_by_post: user.designation || "",
+      given_to_name: issuedTo,
+      given_to_person: contactPerson,
+      given_to_post: "",
+    };
+  };
+
+  const handlePrint = () => printOutwardChallan(buildChallanDocument());
+
   const handleSave = async () => {
     setSaving(true);
     setErrorMsg("");
@@ -537,17 +620,21 @@ const OutwardStoreSheet = ({ onBack }) => {
     try {
       // Upload each picked image to Vercel Blob (in parallel); the API stores the
       // returned public URLs, not file bytes.
-      const [
-        dispatchedGoodsUrl,
-        vehicleNoUrl,
-        companyChallanUrl,
-      ] = await Promise.all([
-        dispatchedGoodsConditionImage
-          ? uploadToBlob(dispatchedGoodsConditionImage, "ims/outward/goods-condition")
-          : "",
-        vehicleNoImage ? uploadToBlob(vehicleNoImage, "ims/outward/vehicle-no") : "",
-        companyChallanImage ? uploadToBlob(companyChallanImage, "ims/outward/company-challan") : "",
-      ]);
+      const [dispatchedGoodsUrl, vehicleNoUrl, companyChallanUrl] =
+        await Promise.all([
+          dispatchedGoodsConditionImage
+            ? uploadToBlob(
+                dispatchedGoodsConditionImage,
+                "ims/outward/goods-condition",
+              )
+            : "",
+          vehicleNoImage
+            ? uploadToBlob(vehicleNoImage, "ims/outward/vehicle-no")
+            : "",
+          companyChallanImage
+            ? uploadToBlob(companyChallanImage, "ims/outward/company-challan")
+            : "",
+        ]);
 
       const payload = new FormData();
       payload.append("dispatch_type", dispatchType);
@@ -624,7 +711,7 @@ const OutwardStoreSheet = ({ onBack }) => {
 
   return (
     <div
-      className="min-h-full w-full overflow-y-auto bg-[#f3f4f6] py-9"
+      className="min-h-full w-full overflow-y-auto bg-[#f3f4f6] pt-9 pb-40"
       style={{
         zoom: 0.9,
         fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
@@ -824,7 +911,8 @@ const OutwardStoreSheet = ({ onBack }) => {
             {/* Row 5 — Select VPO to auto-fill dispatch items */}
             <div>
               <label className={LABEL}>
-                Select VPO (auto-fill items){loadingVpoItems ? " — loading…" : ""}
+                Select VPO (auto-fill items)
+                {loadingVpoItems ? " — loading…" : ""}
               </label>
               <ThemedSelect
                 value={selectedIssuedVpo}
@@ -1166,7 +1254,14 @@ const OutwardStoreSheet = ({ onBack }) => {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end pt-1">
+        <div className="flex justify-end gap-2 pt-1">
+          <button
+            type="button"
+            className="cursor-pointer rounded-md border border-[#e2e3e8] bg-card px-6 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:bg-muted"
+            onClick={handlePrint}
+          >
+            Print Challan
+          </button>
           <button
             type="button"
             className="cursor-pointer rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"

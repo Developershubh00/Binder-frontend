@@ -107,12 +107,17 @@ export const VPO_STYLES = `
 .vpo-doc .addr.tall { min-height: 72px; }
 .vpo-doc table.kv { border: 0; table-layout: fixed; }
 .vpo-doc table.kv th {
-  font-weight: 700; border-left: 0; width: 46%;
+  font-weight: 700; width: 46%;
   color: var(--muted); font-size: 11px; letter-spacing: 0.3px;
 }
-.vpo-doc table.kv th, .vpo-doc table.kv td { height: 24px; }
-.vpo-doc table.kv td { border-right: 0; word-break: break-word; }
-.vpo-doc table.kv tr:last-child th, .vpo-doc table.kv tr:last-child td { border-bottom: 0; }
+/* No internal grid lines inside the FROM / TO blocks: a value wrapping to a
+   second line on one side would otherwise push its row's borders out of step
+   with the opposite side. Cells are top-aligned so labels sit against the first
+   line of a wrapped value. */
+.vpo-doc table.kv th, .vpo-doc table.kv td {
+  height: 24px; border: 0; vertical-align: top;
+}
+.vpo-doc table.kv td { word-break: break-word; }
 .vpo-doc .items th {
   background: var(--brand); color: #fff; text-align: center; font-weight: 700;
   border-color: var(--brand); letter-spacing: 0.3px;
