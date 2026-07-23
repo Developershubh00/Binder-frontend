@@ -148,6 +148,14 @@ const IPO_TYPE_TO_ORDER_TYPE = {
   COMPANY: "SELF",
 };
 
+// Packaging form the goods are dispatched in — a fixed set for the Dispatch Form column.
+const FORM_OPTIONS = [
+  { value: "BALE", label: "BALE" },
+  { value: "BUNDLE", label: "BUNDLE" },
+  { value: "ROLL", label: "ROLL" },
+  { value: "PCS", label: "PCS" },
+];
+
 const toNumber = (value) => {
   const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -983,17 +991,19 @@ const OutwardStoreSheet = ({ onBack }) => {
         {/* Items */}
         <div className={CARD}>
           <h3 className={SECTION_TITLE}>Items</h3>
-          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8]">
+          {/* pb gives the in-cell "Dispatch Form" dropdown room to open without the
+              table's overflow clipping it (which would add a scrollbar). */}
+          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8] pb-44">
             <table className="w-full table-fixed border-collapse text-sm">
               <colgroup>
                 <col style={{ width: "4%" }} />
                 <col style={{ width: "14%" }} />
                 <col style={{ width: "10%" }} />
                 <col style={{ width: "8%" }} />
-                <col style={{ width: "17%" }} />
-                <col style={{ width: "17%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "14%" }} />
                 <col style={{ width: "12%" }} />
-                <col style={{ width: "10%" }} />
+                <col style={{ width: "16%" }} />
                 <col style={{ width: "8%" }} />
                 <col style={{ width: "14%" }} />
                 <col style={{ width: "4%" }} />
@@ -1175,18 +1185,14 @@ const OutwardStoreSheet = ({ onBack }) => {
                         />
                       </td>
                       <td className={TD}>
-                        <input
-                          className={TCTRL}
-                          type="text"
+                        <ThemedSelect
                           value={row.dispatch_form}
-                          onChange={(event) =>
-                            handleRowChange(
-                              row.id,
-                              "dispatch_form",
-                              event.target.value,
-                            )
+                          onChange={(v) =>
+                            handleRowChange(row.id, "dispatch_form", v)
                           }
-                          placeholder="Dispatch Form"
+                          options={FORM_OPTIONS}
+                          isSearchable={false}
+                          placeholder="Form"
                         />
                       </td>
                       <td className={TD}>

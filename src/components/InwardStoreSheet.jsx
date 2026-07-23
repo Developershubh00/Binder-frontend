@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { ImagePlus, X } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ImagePlus, X, CheckCircle2 } from "lucide-react";
 import {
   getIPOs,
   createInwardStoreSheet,
-  generateInwardStoreSheetCodes,
   getVpoHistory,
   getVpoDetail,
   getFactoryCodesByIpo,
@@ -47,6 +47,14 @@ const IPO_TYPE_OPTIONS = [
   { value: "COMPANY", label: "Company" },
   { value: "PRODUCTION", label: "Production" },
   { value: "SAMPLING", label: "Sampling" },
+];
+
+// Packaging form the goods arrive in — a fixed set for the Received Form column.
+const FORM_OPTIONS = [
+  { value: "BALE", label: "BALE" },
+  { value: "BUNDLE", label: "BUNDLE" },
+  { value: "ROLL", label: "ROLL" },
+  { value: "PCS", label: "PCS" },
 ];
 
 // Truncate a filename to `max` chars, keeping the extension and adding an ellipsis.
@@ -138,6 +146,111 @@ const EMPTY_ROW = {
   length: "",
 };
 
+// Row letter: 0 -> A, 1 -> B, ... 25 -> Z, 26 -> AA (spreadsheet-style).
+const rowLetter = (index) => {
+  let n = index + 1;
+  let out = "";
+  while (n > 0) {
+    const r = (n - 1) % 26;
+    out = String.fromCharCode(65 + r) + out;
+    n = Math.floor((n - 1) / 26);
+  }
+  return out;
+};
+
+// ── Code formats (tweak the pieces here) ──────────────────────────────────────
+// UIN (one per sheet): CHD / buyerCode / vendorCode / productCode / serial.
+const buildUin = ({ buyerCode, vendorCode, productCode, serial = 1 }) =>
+  `CHD/${buyerCode || ""}/${vendorCode || ""}/${productCode || ""}/${serial}`;
+
+// USN (one per row): USN-SR#-<A,B,C…> / PARTICULAR:<01,02…> / <particulars>.
+const buildUsn = (row, index) =>
+  `USN-SR#-${rowLetter(index)}/PARTICULAR:${String(index + 1).padStart(2, "0")}/${row.particulars || ""}`;
+
+// Success modal listing the generated UIN + per-row USN codes.
+const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
+  if (!open) return null;
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+      style={{ fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif" }}
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-[#e2e3e8] bg-card shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-[#e2e3e8] px-6 py-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <h3 className="text-base font-bold text-foreground">
+              Successfully generated UIN and USN codes
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            title="Close"
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-5 overflow-y-auto px-6 py-5">
+          <div>
+            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              UIN
+            </div>
+            <div className="break-all rounded-md border border-[#e2e3e8] bg-muted/40 px-3 py-2 font-mono text-sm font-semibold text-foreground">
+              {uin}
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              USN — one per item
+            </div>
+            <div className="overflow-hidden rounded-md border border-[#e2e3e8]">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr>
+                    <th className={`${TH} w-12 text-center`}>SR</th>
+                    <th className={TH}>Particulars</th>
+                    <th className={TH}>USN Code</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usns.map((u) => (
+                    <tr key={u.sr}>
+                      <td className={`${TD} text-center font-semibold`}>{u.sr}</td>
+                      <td className={TD}>{u.particulars || "—"}</td>
+                      <td className={`${TD} break-all font-mono text-xs text-foreground`}>
+                        {u.usn}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end border-t border-[#e2e3e8] px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="cursor-pointer rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+};
+
 const InwardStoreSheet = ({ onBack }) => {
   // Form state
   const [receivableType, setReceivableType] = useState("");
@@ -167,10 +280,20 @@ const InwardStoreSheet = ({ onBack }) => {
 
   // UI state
   const [saving, setSaving] = useState(false);
-  const [generatingCodes, setGeneratingCodes] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [createdSheet, setCreatedSheet] = useState(null);
+
+  // Buyer / vendor / product codes resolved from the selected IPO + VPO, used to
+  // build the UIN. Populated by the effect below.
+  const [orderCodes, setOrderCodes] = useState({
+    buyerCode: "",
+    vendorCode: "",
+    productCode: "",
+  });
+  // Generated UIN + per-row USN codes, shown in the success modal.
+  const [generated, setGenerated] = useState({ uin: "", usns: [] });
+  const [showCodesModal, setShowCodesModal] = useState(false);
 
   const isChallanOnly = receivableType === "CHALLAN_ONLY";
 
@@ -265,6 +388,62 @@ const InwardStoreSheet = ({ onBack }) => {
     };
     loadIPCs();
   }, [selectedIpo]);
+
+  // Debug: once both an IPO and a VPO are selected, log the buyer / vendor / product
+  // codes (with the raw source objects, so the exact backend field names are visible).
+  useEffect(() => {
+    if (!selectedIpo || !selectedIssuedVpo) return undefined;
+    let cancelled = false;
+
+    (async () => {
+      const ipoObj = ipoList.find((o) => o.id === selectedIpo);
+      const vpoObj = issuedVpos.find((o) => o.id === selectedIssuedVpo);
+      let vpoDetail = null;
+      try {
+        vpoDetail = await getVpoDetail(selectedIssuedVpo);
+      } catch {
+        /* ignore — still log what we have */
+      }
+      if (cancelled) return;
+
+      const buyerCode =
+        ipoObj?.buyer_code ||
+        ipoObj?.buyer_code_display ||
+        ipoObj?.buyer?.code ||
+        ipoObj?.buyer ||
+        "";
+      const vendorCode =
+        vpoDetail?.vendor_code ||
+        vpoDetail?.vendor?.code ||
+        vpoObj?.vendor_code ||
+        vpoObj?.vendor_code_display ||
+        "";
+      const productCode =
+        ipoObj?.product_code ||
+        ipoObj?.product_code_display ||
+        ipcList?.[0]?.product_code ||
+        ipcList?.[0]?.product?.code ||
+        "";
+
+      console.log("[Inward] IPO + VPO selected — codes:", {
+        buyerCode,
+        vendorCode,
+        productCode,
+      });
+      console.log("[Inward] source objects:", {
+        ipo: ipoObj,
+        vpo: vpoObj,
+        vpoDetail,
+        factoryCodes: ipcList,
+      });
+
+      setOrderCodes({ buyerCode, vendorCode, productCode });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIpo, selectedIssuedVpo, ipoList, issuedVpos, ipcList]);
 
   // Row helpers
   const addRow = () => {
@@ -418,28 +597,24 @@ const InwardStoreSheet = ({ onBack }) => {
 
   const handlePrint = () => printInwardReceipt(buildReceiptDocument());
 
-  // Generate UIN/USN codes
-  const handleGenerateCodes = async () => {
-    if (!createdSheet?.id) {
-      setErrorMsg("Please save the form first before generating codes.");
+  // Generate UIN/USN codes on the frontend from the current selections and rows,
+  // then show them in the success modal. One UIN per sheet; one USN per row.
+  const handleGenerateCodes = () => {
+    if (!selectedIpo || !selectedIssuedVpo) {
+      setErrorMsg("Select an IPO and a VPO first to generate codes.");
       return;
     }
-    setGeneratingCodes(true);
     setErrorMsg("");
 
-    try {
-      const result = await generateInwardStoreSheetCodes(createdSheet.id);
-      if (result?.status === "success") {
-        setCreatedSheet(result.data);
-        setSuccessMsg("UIN and USN codes generated successfully!");
-      } else {
-        setErrorMsg(result?.message || "Failed to generate codes.");
-      }
-    } catch (err) {
-      setErrorMsg(err.message || "An error occurred while generating codes.");
-    } finally {
-      setGeneratingCodes(false);
-    }
+    const uin = buildUin(orderCodes);
+    const usns = rows.map((row, i) => ({
+      sr: i + 1,
+      particulars: row.particulars,
+      usn: buildUsn(row, i),
+    }));
+
+    setGenerated({ uin, usns });
+    setShowCodesModal(true);
   };
 
   return (
@@ -677,17 +852,19 @@ const InwardStoreSheet = ({ onBack }) => {
         {/* Items Table */}
         <div className={CARD}>
           <h3 className={SECTION_TITLE}>Items</h3>
-          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8]">
+          {/* pb gives the in-cell "Received Form" dropdown room to open without the
+              table's overflow clipping it (which would add a scrollbar). */}
+          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8] pb-44">
             <table className="w-full table-fixed border-collapse text-sm">
               {isChallanOnly ? (
                 <colgroup>
                   <col style={{ width: "4%" }} />
-                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "14%" }} />
                   <col style={{ width: "10%" }} />
                   <col style={{ width: "10%" }} />
                   <col style={{ width: "8%" }} />
-                  <col style={{ width: "14%" }} />
                   <col style={{ width: "12%" }} />
+                  <col style={{ width: "16%" }} />
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "14%" }} />
                   <col style={{ width: "4%" }} />
@@ -695,16 +872,16 @@ const InwardStoreSheet = ({ onBack }) => {
               ) : (
                 <colgroup>
                   <col style={{ width: "3%" }} />
-                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "11%" }} />
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "6%" }} />
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "8%" }} />
-                  <col style={{ width: "12%" }} />
                   <col style={{ width: "10%" }} />
+                  <col style={{ width: "15%" }} />
                   <col style={{ width: "6%" }} />
-                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "13%" }} />
                   <col style={{ width: "4%" }} />
                 </colgroup>
               )}
@@ -809,13 +986,11 @@ const InwardStoreSheet = ({ onBack }) => {
                       />
                     </td>
                     <td className={TD}>
-                      <input
-                        className={TCTRL}
-                        type="text"
+                      <ThemedSelect
                         value={row.received_form}
-                        onChange={(e) =>
-                          updateRow(idx, "received_form", e.target.value)
-                        }
+                        onChange={(v) => updateRow(idx, "received_form", v)}
+                        options={FORM_OPTIONS}
+                        isSearchable={false}
                         placeholder="Form"
                       />
                     </td>
@@ -886,9 +1061,14 @@ const InwardStoreSheet = ({ onBack }) => {
             type="button"
             className="cursor-pointer rounded-md border border-[#e2e3e8] bg-muted px-6 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:bg-[#e9eaee] disabled:cursor-not-allowed disabled:opacity-50"
             onClick={handleGenerateCodes}
-            disabled={generatingCodes || !createdSheet}
+            disabled={!selectedIpo || !selectedIssuedVpo}
+            title={
+              !selectedIpo || !selectedIssuedVpo
+                ? "Select an IPO and a VPO first"
+                : undefined
+            }
           >
-            {generatingCodes ? "Generating..." : "Generate UIN and USN Codes"}
+            Generate UIN and USN Codes
           </button>
           <button
             type="button"
@@ -900,6 +1080,13 @@ const InwardStoreSheet = ({ onBack }) => {
           </button>
         </div>
       </div>
+
+      <GeneratedCodesModal
+        open={showCodesModal}
+        uin={generated.uin}
+        usns={generated.usns}
+        onClose={() => setShowCodesModal(false)}
+      />
     </div>
   );
 };
