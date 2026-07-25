@@ -585,7 +585,6 @@ const InwardStoreSheet = ({ onBack }) => {
           qc_requested: row.qc_requested,
           // These feed the USN: raw_material -> material description,
           // length -> specification; particular code defaults to the SR no.
-          raw_material_type: row.raw_material_type,
           raw_material: row.raw_material,
           length: row.length,
         })),

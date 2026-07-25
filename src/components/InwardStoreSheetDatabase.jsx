@@ -218,7 +218,6 @@ const InwardStoreSheetDatabase = ({ onBack, onOpenForm }) => {
                       <div className="grid grid-cols-1 gap-x-6 gap-y-3 py-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
                         <Meta label="IPO" value={sheet.ipo_code_display} />
                         <Meta label="VPO" value={sheet.vpo_code_display} />
-                        <Meta label="IPC" value={sheet.ipc_code_display} />
                         <Meta
                           label="Vendor Challan No."
                           value={sheet.vendor_challan_no}

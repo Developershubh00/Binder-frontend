@@ -1567,6 +1567,17 @@ export const getVpoDetail = async (vpoId) => {
   return await response.json();
 };
 
+// Per-material metadata for a VPO's IPO, keyed by material description:
+// { materials: [{ material_description, material_type, component_name, ipc_code }] }.
+// Used by Outward to auto-fill each USN row's Raw Material (the material TYPE) and
+// its IPC/Component from the IPO's BOM.
+export const getVpoMaterialsMeta = async (vpoId) => {
+  const response = await apiRequest(
+    `ims/purchase/vpos/${vpoId}/materials-meta/`,
+  );
+  return await response.json();
+};
+
 // Print-ready Purchase Order structure (server-side source of truth). Useful
 // for debugging the printable VPO and for any server-rendered copy.
 export const getVpoDocument = async (vpoId) => {

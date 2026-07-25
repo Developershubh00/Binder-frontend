@@ -6,8 +6,8 @@ import {
   getIPOs,
   getOutwardStoreSheetChoices,
   getVpoHistory,
-  getVpoDetail,
   getInwardStoreSheets,
+  getVpoMaterialsMeta,
 } from "../services/integration";
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
@@ -125,26 +125,81 @@ const createId = () => {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
-const createEmptyUsnLink = () => ({
-  id: createId(),
-  link_usn: "",
-  usn_quantity: "",
-});
-
-const createEmptyRow = () => ({
+// One dispatch line for a single USN (row inside a UIN block). `raw_material`
+// holds the material TYPE (Fabric/Yarn/…) and `ipc_component` holds "IPC / Comp",
+// both auto-filled from the IPO's BOM (see buildMaterialMetaMap / getMeta).
+const createEmptyUsnRow = () => ({
   id: createId(),
   raw_material: "",
-  uin_id: "",
-  uin: "",
+  ipc_component: "",
   particulars: "",
   dispatch_quantity: "",
   unit: "CM",
-  usn_links: [createEmptyUsnLink()],
+  link_usn: "",
+  usn_quantity: "",
   remark: "",
   dispatch_form: "",
   num_packages: "",
   uqr_sent: false,
 });
+
+// Build a lookup (lowercased material description → meta) from the VPO
+// materials-meta response, and a helper to resolve a USN item's Raw Material
+// (material type) + IPC/Component from it.
+const buildMaterialMetaMap = (materials) => {
+  const map = new Map();
+  (materials || []).forEach((m) => {
+    const key = String(m.material_description || "").trim().toLowerCase();
+    if (key) map.set(key, m);
+  });
+  return map;
+};
+
+const metaFor = (metaMap, description) =>
+  metaMap.get(String(description || "").trim().toLowerCase()) || {};
+
+const ipcComponentLabel = (meta) =>
+  [meta.ipc_code, meta.component_name].filter(Boolean).join(" / ");
+
+// A "UIN block" — the parent UIN (from an inward store sheet under the selected
+// VPO) plus a nested table of its USN rows. `uin_id` is the inward sheet id used as
+// the block's dropdown value; `uin_code` is the real UIN shown as the header.
+const createEmptyBlock = (uin = {}) => ({
+  id: createId(),
+  uin_id: uin.uin_id || "",
+  uin_code: uin.uin_code || "",
+  rows: [createEmptyUsnRow()],
+});
+
+// One USN row, pre-filled from an inward item. Raw Material = material TYPE and
+// IPC/Component come from the IPO meta (matched by description); Particulars keeps
+// the full material description; the USN is the inward item's usn_code.
+const rowFromInwardItem = (it, metaMap) => {
+  const description = it.particulars || it.material_description || "";
+  const meta = metaFor(metaMap, description);
+  return {
+    ...createEmptyUsnRow(),
+    raw_material: meta.material_type || "",
+    ipc_component: ipcComponentLabel(meta),
+    particulars: description,
+    link_usn: it.usn_code || "",
+  };
+};
+
+// Build one block per inward UIN, pre-filling a row per USN item.
+const buildBlocksFromSheets = (sheets, metaMap = new Map()) =>
+  (sheets || []).map((sheet) => {
+    const items = Array.isArray(sheet.items) ? sheet.items : [];
+    const rows = items.length
+      ? items.map((it) => rowFromInwardItem(it, metaMap))
+      : [createEmptyUsnRow()];
+    return {
+      id: createId(),
+      uin_id: sheet.id,
+      uin_code: sheet.uin_code || "",
+      rows,
+    };
+  });
 
 const IPO_TYPE_TO_ORDER_TYPE = {
   PRODUCTION: "PD",
@@ -173,39 +228,10 @@ const formatQuantity = (value) => {
     .replace(/(\.\d)0$/, "$1");
 };
 
-const getCarryCode = (index) => {
-  let current = index + 1;
-  let letters = "";
-
-  while (current > 0) {
-    const remainder = (current - 1) % 26;
-    letters = `${String.fromCharCode(65 + remainder)}${letters}`;
-    current = Math.floor((current - 1) / 26);
-  }
-
-  return `-${letters}`;
-};
-
-const normalizeCarryCode = (value) =>
-  String(value || "")
-    .toUpperCase()
-    .replace(/\s+/g, "");
-
-const getUsnQuantitySum = (row) =>
-  row.usn_links.reduce((sum, link) => sum + toNumber(link.usn_quantity), 0);
-
-const getBalance = (row) =>
-  toNumber(row.dispatch_quantity) - getUsnQuantitySum(row);
-
-const ensureNegativeBalanceLinkRow = (row) => {
-  if (getBalance(row) < 0 && row.usn_links.length === 1) {
-    return {
-      ...row,
-      usn_links: [...row.usn_links, createEmptyUsnLink()],
-    };
-  }
-  return row;
-};
+// Per-row balance: how much of the dispatch quantity is still unaccounted for by
+// the USN quantity on that row (each USN row carries exactly one USN).
+const getRowBalance = (row) =>
+  toNumber(row.dispatch_quantity) - toNumber(row.usn_quantity);
 
 const OutwardStoreSheet = ({ onBack }) => {
   const [dispatchType, setDispatchType] = useState("");
@@ -225,7 +251,9 @@ const OutwardStoreSheet = ({ onBack }) => {
   const [vehicleNoImage, setVehicleNoImage] = useState(null);
   const [companyChallanNumber, setCompanyChallanNumber] = useState("");
   const [companyChallanImage, setCompanyChallanImage] = useState(null);
-  const [rows, setRows] = useState([createEmptyRow()]);
+  // 2-D items: one block per UIN (from the selected VPO's inward sheets), each with
+  // a nested table of USN rows. Populated when a VPO is selected.
+  const [uinBlocks, setUinBlocks] = useState([]);
 
   const [choices, setChoices] = useState({
     dispatch_types: [],
@@ -236,14 +264,15 @@ const OutwardStoreSheet = ({ onBack }) => {
   });
   const [ipoOptions, setIpoOptions] = useState([]);
   const [companyEssentialOptions, setCompanyEssentialOptions] = useState([]);
-  // Issued VPOs used to auto-fill the dispatch line items.
+  // Issued VPOs — selecting one loads its inward UINs into the item blocks.
   const [issuedVpos, setIssuedVpos] = useState([]);
   const [selectedIssuedVpo, setSelectedIssuedVpo] = useState("");
-  const [loadingVpoItems, setLoadingVpoItems] = useState(false);
-  // UINs (inward store sheets) generated against the selected VPO — each row's
-  // UIN# dropdown picks one of these, which fills its Raw Material / Particulars
-  // and its USN links (one per item in that UIN).
+  // UINs (inward store sheets) generated against the selected VPO — used to build
+  // the item blocks and to (re)assign a block's UIN.
   const [vpoUins, setVpoUins] = useState([]);
+  // Per-material meta (material type + IPC/Component) for the selected VPO's IPO,
+  // keyed by lowercased material description. Auto-fills Raw Material + IPC/Comp.
+  const [materialMeta, setMaterialMeta] = useState(() => new Map());
   const [loadingUins, setLoadingUins] = useState(false);
   const [loadingChoices, setLoadingChoices] = useState(true);
   const [loadingIpoOptions, setLoadingIpoOptions] = useState(false);
@@ -340,69 +369,79 @@ const OutwardStoreSheet = ({ onBack }) => {
   );
   const sectionOptions = activeDepartment?.sections || [];
 
-  const getCarryReferences = (excludeRowId = null) => {
-    const references = {};
-
-    rows.forEach((row, index) => {
-      if (row.id === excludeRowId) return;
-      const balance = getBalance(row);
-      if (balance > 0) {
-        references[getCarryCode(index)] = balance;
-      }
-    });
-
-    return references;
-  };
-
-  const updateRow = (rowId, updater) => {
-    setRows((prev) =>
-      prev.map((row) => {
-        if (row.id !== rowId) return row;
-        return ensureNegativeBalanceLinkRow(updater(row));
-      }),
+  // ── UIN-block / USN-row editing ──────────────────────────────────────────
+  const updateBlockRow = (blockId, rowId, updater) => {
+    setUinBlocks((prev) =>
+      prev.map((block) =>
+        block.id !== blockId
+          ? block
+          : {
+              ...block,
+              rows: block.rows.map((row) =>
+                row.id === rowId ? updater(row) : row,
+              ),
+            },
+      ),
     );
   };
 
-  const handleRowChange = (rowId, field, value) => {
-    updateRow(rowId, (row) => ({ ...row, [field]: value }));
+  const handleRowChange = (blockId, rowId, field, value) => {
+    updateBlockRow(blockId, rowId, (row) => ({ ...row, [field]: value }));
   };
 
-  const handleUsnLinkChange = (rowId, linkId, field, value) => {
-    const carryReferences = getCarryReferences(rowId);
-
-    updateRow(rowId, (row) => {
-      const nextLinks = row.usn_links.map((link) => {
-        if (link.id !== linkId) return link;
-
-        const nextLink = { ...link, [field]: value };
-        if (field === "link_usn") {
-          const carryQuantity = carryReferences[normalizeCarryCode(value)];
-          if (typeof carryQuantity === "number" && carryQuantity > 0) {
-            nextLink.usn_quantity = formatQuantity(carryQuantity);
-          }
-        }
-        return nextLink;
-      });
-
-      return { ...row, usn_links: nextLinks };
-    });
+  const addRowToBlock = (blockId) => {
+    setUinBlocks((prev) =>
+      prev.map((block) =>
+        block.id !== blockId
+          ? block
+          : { ...block, rows: [...block.rows, createEmptyUsnRow()] },
+      ),
+    );
   };
 
-  const addUsnLinkRow = (rowId) => {
-    updateRow(rowId, (row) => ({
-      ...row,
-      usn_links: [...row.usn_links, createEmptyUsnLink()],
-    }));
+  const removeRowFromBlock = (blockId, rowId) => {
+    setUinBlocks((prev) =>
+      prev.map((block) =>
+        block.id !== blockId
+          ? block
+          : {
+              ...block,
+              rows:
+                block.rows.length > 1
+                  ? block.rows.filter((row) => row.id !== rowId)
+                  : block.rows,
+            },
+      ),
+    );
   };
 
-  const removeUsnLinkRow = (rowId, linkId) => {
-    updateRow(rowId, (row) => ({
-      ...row,
-      usn_links:
-        row.usn_links.length > 1
-          ? row.usn_links.filter((link) => link.id !== linkId)
-          : row.usn_links,
-    }));
+  const removeBlock = (blockId) => {
+    setUinBlocks((prev) => prev.filter((block) => block.id !== blockId));
+  };
+
+  const addManualBlock = () => {
+    setUinBlocks((prev) => [...prev, createEmptyBlock()]);
+  };
+
+  // Assign/replace a block's UIN — reloads its USN rows from that inward sheet.
+  const changeBlockUin = (blockId, sheetId) => {
+    const sheet = vpoUins.find((s) => s.id === sheetId);
+    setUinBlocks((prev) =>
+      prev.map((block) => {
+        if (block.id !== blockId) return block;
+        if (!sheet) return { ...block, uin_id: "", uin_code: "" };
+        const items = Array.isArray(sheet.items) ? sheet.items : [];
+        const rows = items.length
+          ? items.map((it) => rowFromInwardItem(it, materialMeta))
+          : block.rows;
+        return {
+          ...block,
+          uin_id: sheetId,
+          uin_code: sheet.uin_code || "",
+          rows,
+        };
+      }),
+    );
   };
 
   // Load issued VPOs (scoped to the selected IPO when present) for auto-fill.
@@ -424,38 +463,40 @@ const OutwardStoreSheet = ({ onBack }) => {
     };
   }, [selectedIpo]);
 
-  // Load the UINs (inward store sheets) generated against the selected VPO.
+  // Load the UINs (inward store sheets) generated against the selected VPO and
+  // build one editable block per UIN (each with a row per USN). Rebuilds whenever
+  // the VPO changes; the backend scopes by ?vpo= so only that VPO's UINs return.
   useEffect(() => {
     if (!selectedIssuedVpo) {
       setVpoUins([]);
+      setUinBlocks([]);
+      setMaterialMeta(new Map());
       return undefined;
     }
     let cancelled = false;
     setLoadingUins(true);
     (async () => {
       try {
-        const res = await getInwardStoreSheets({
-          vpo: selectedIssuedVpo,
-          page_size: 200,
-        });
+        // Inward UINs (for the blocks) and the IPO material meta (for auto-fill)
+        // load together; meta failing shouldn't block the UINs.
+        const [res, metaRes] = await Promise.all([
+          getInwardStoreSheets({ vpo: selectedIssuedVpo, page_size: 200 }),
+          getVpoMaterialsMeta(selectedIssuedVpo).catch(() => ({ materials: [] })),
+        ]);
         const list = res?.results || res?.data || (Array.isArray(res) ? res : []);
-        const selVpo = issuedVpos.find((v) => v.id === selectedIssuedVpo);
-        // Scope to this VPO client-side too, in case the API ignores ?vpo=.
-        const matches = list.filter(
-          (s) =>
-            s.vpo === selectedIssuedVpo ||
-            s.vpo_id === selectedIssuedVpo ||
-            (selVpo?.vpo_number && s.vpo_code_display === selVpo.vpo_number),
-        );
-        const scoped = (matches.length ? matches : list).filter(
-          (s) => s.uin_code,
-        );
+        const scoped = list.filter((s) => s.uin_code);
+        const metaMap = buildMaterialMetaMap(metaRes?.materials);
         if (!cancelled) {
           setVpoUins(scoped);
-          console.log("[Outward] UINs for selected VPO:", scoped);
+          setMaterialMeta(metaMap);
+          setUinBlocks(buildBlocksFromSheets(scoped, metaMap));
         }
       } catch {
-        if (!cancelled) setVpoUins([]);
+        if (!cancelled) {
+          setVpoUins([]);
+          setUinBlocks([]);
+          setMaterialMeta(new Map());
+        }
       } finally {
         if (!cancelled) setLoadingUins(false);
       }
@@ -463,67 +504,11 @@ const OutwardStoreSheet = ({ onBack }) => {
     return () => {
       cancelled = true;
     };
-  }, [selectedIssuedVpo, issuedVpos]);
+  }, [selectedIssuedVpo]);
 
-  // Selecting a UIN in a row: pull its Raw Material / Particulars and load every
-  // USN under that UIN (one link per inward item).
-  const handleSelectUin = (rowId, sheetId) => {
-    const sheet = vpoUins.find((s) => s.id === sheetId);
-    updateRow(rowId, (row) => {
-      if (!sheet) return { ...row, uin_id: "", uin: "" };
-      const items = Array.isArray(sheet.items) ? sheet.items : [];
-      const first = items[0] || {};
-      return {
-        ...row,
-        uin_id: sheetId,
-        uin: sheet.uin_code || "",
-        raw_material:
-          first.raw_material || first.raw_material_type || row.raw_material,
-        particulars: first.particulars || row.particulars,
-        usn_links: items.length
-          ? items.map((it) => ({
-              id: createId(),
-              link_usn: it.usn_code || "",
-              usn_quantity: "",
-            }))
-          : row.usn_links,
-      };
-    });
-  };
-
-  const handleSelectIssuedVpo = async (vpoId) => {
+  const handleSelectIssuedVpo = (vpoId) => {
     setSelectedIssuedVpo(vpoId);
-    if (!vpoId) return;
-    setLoadingVpoItems(true);
-    try {
-      const detail = await getVpoDetail(vpoId);
-      const lines = detail?.lines || [];
-      if (lines.length) {
-        setRows(
-          lines.map((l) => ({
-            ...createEmptyRow(),
-            particulars: l.material_description || "",
-            dispatch_quantity: l.qty != null ? String(l.qty) : "",
-            unit: l.unit || "CM",
-            remark: l.remark || "",
-          })),
-        );
-      }
-    } catch {
-      /* leave rows as-is on failure */
-    } finally {
-      setLoadingVpoItems(false);
-    }
-  };
-
-  const addMainRow = () => {
-    setRows((prev) => [...prev, createEmptyRow()]);
-  };
-
-  const removeMainRow = (rowId) => {
-    setRows((prev) =>
-      prev.length > 1 ? prev.filter((row) => row.id !== rowId) : prev,
-    );
+    setErrorMsg("");
   };
 
   const handleDispatchTypeChange = (value) => {
@@ -594,13 +579,13 @@ const OutwardStoreSheet = ({ onBack }) => {
       return "Please select an IPO.";
     }
     if (normalizedRows.length === 0)
-      return "Please add at least one outward row.";
+      return "Please select a VPO and add at least one dispatch USN row.";
 
     const incompleteRow = normalizedRows.find(
       (row) => !row.particulars.trim() || !toNumber(row.dispatch_quantity),
     );
     if (incompleteRow) {
-      return "Each row needs Particulars and Dispatch Quantity.";
+      return "Each dispatch row needs Particulars and Dispatch Quantity.";
     }
 
     return "";
@@ -649,16 +634,19 @@ const OutwardStoreSheet = ({ onBack }) => {
       contact_person: contactPerson,
       contact_number: contactNumber,
       vehicle_no: vehicleNo,
-      lines: rows.map((r) => ({
-        particulars: r.particulars,
-        qty: r.dispatch_quantity,
-        unit: r.unit,
-        link_usn: r.usn_links.map((l) => l.link_usn),
-        usn_qty: r.usn_links.map((l) => l.usn_quantity),
-        dispatch_form: r.dispatch_form,
-        num_packages: r.num_packages,
-        uqr: r.uqr_sent,
-      })),
+      lines: uinBlocks.flatMap((block) =>
+        block.rows.map((r) => ({
+          particulars: r.particulars,
+          qty: r.dispatch_quantity,
+          unit: r.unit,
+          uin_code: block.uin_code,
+          link_usn: [r.link_usn],
+          usn_qty: [r.usn_quantity],
+          dispatch_form: r.dispatch_form,
+          num_packages: r.num_packages,
+          uqr: r.uqr_sent,
+        })),
+      ),
       given_by_name:
         user.name ||
         user.full_name ||
@@ -679,18 +667,18 @@ const OutwardStoreSheet = ({ onBack }) => {
     setErrorMsg("");
     setSuccessMsg("");
 
-    const normalizedRows = rows
-      .map((row) => ({
-        ...row,
-        usn_links: row.usn_links.filter(
-          (link) => link.link_usn.trim() || toNumber(link.usn_quantity) > 0,
-        ),
-      }))
+    // Flatten every UIN block's USN rows into one dispatch-line list, tagging each
+    // with its parent UIN. Keep only rows that carry real content.
+    const normalizedRows = uinBlocks
+      .flatMap((block) =>
+        block.rows.map((row) => ({ ...row, uin_code: block.uin_code })),
+      )
       .filter(
         (row) =>
           row.particulars.trim() ||
           String(row.dispatch_quantity).trim() ||
-          row.usn_links.length > 0 ||
+          row.link_usn.trim() ||
+          toNumber(row.usn_quantity) > 0 ||
           row.remark.trim(),
       );
 
@@ -760,8 +748,9 @@ const OutwardStoreSheet = ({ onBack }) => {
         JSON.stringify(
           normalizedRows.map((row) => ({
             raw_material: row.raw_material,
-            uin: row.uin,
-            uin_id: row.uin_id,
+            ipc_component: row.ipc_component,
+            // UIN snapshot for this dispatch line (from its parent block).
+            uin_code: row.uin_code,
             particulars: row.particulars,
             dispatch_quantity: toNumber(row.dispatch_quantity),
             unit: row.unit || "CM",
@@ -769,10 +758,16 @@ const OutwardStoreSheet = ({ onBack }) => {
             dispatch_form: row.dispatch_form,
             num_packages: Number.parseInt(row.num_packages, 10) || 0,
             uqr_sent: row.uqr_sent,
-            usn_links: row.usn_links.map((link) => ({
-              link_usn: link.link_usn,
-              usn_quantity: toNumber(link.usn_quantity),
-            })),
+            // Each USN row carries exactly one USN link.
+            usn_links:
+              row.link_usn.trim() || toNumber(row.usn_quantity) > 0
+                ? [
+                    {
+                      link_usn: row.link_usn,
+                      usn_quantity: toNumber(row.usn_quantity),
+                    },
+                  ]
+                : [],
           })),
         ),
       );
@@ -995,11 +990,11 @@ const OutwardStoreSheet = ({ onBack }) => {
               )}
             </div>
 
-            {/* Row 5 — Select VPO to auto-fill dispatch items */}
+            {/* Row 5 — Select VPO to load its UINs into the item blocks */}
             <div>
               <label className={LABEL}>
-                Select VPO (auto-fill items)
-                {loadingVpoItems ? " — loading…" : ""}
+                Select VPO (loads UIN blocks)
+                {loadingUins ? " — loading…" : ""}
               </label>
               <ThemedSelect
                 value={selectedIssuedVpo}
@@ -1069,318 +1064,372 @@ const OutwardStoreSheet = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Items */}
+        {/* Items — 2-D: one block per UIN (from the selected VPO's inward sheets),
+            each holding a nested table of that UIN's USN rows. */}
         <div className={CARD}>
-          <h3 className={SECTION_TITLE}>Items</h3>
-          {/* The in-cell dropdowns (UIN#, Dispatch Form) portal their menus to
-              <body>, so this horizontally-scrolling container no longer clips them. */}
-          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8]">
-            <table
-              className="w-full table-fixed border-collapse text-sm"
-              style={{ minWidth: 1720 }}
-            >
-              <colgroup>
-                <col style={{ width: "40px" }} />
-                <col style={{ width: "180px" }} />
-                <col style={{ width: "200px" }} />
-                <col style={{ width: "220px" }} />
-                <col style={{ width: "110px" }} />
-                <col style={{ width: "80px" }} />
-                <col style={{ width: "200px" }} />
-                <col style={{ width: "170px" }} />
-                <col style={{ width: "150px" }} />
-                <col style={{ width: "140px" }} />
-                <col style={{ width: "90px" }} />
-                <col style={{ width: "120px" }} />
-                <col style={{ width: "44px" }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th className={`${TH} text-center`}>Sr</th>
-                  <th className={TH}>Raw Material</th>
-                  <th className={TH}>UIN#</th>
-                  <th className={TH}>Particulars</th>
-                  <th className={TH}>Dispatch Qty</th>
-                  <th className={TH}>Unit</th>
-                  <th className={TH}>Link USN</th>
-                  <th className={TH}>USN Quantity</th>
-                  <th className={TH}>Remark</th>
-                  <th className={TH}>Dispatch Form</th>
-                  <th className={TH}># of Package</th>
-                  <th className={TH}>UQR</th>
-                  <th className={TH}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, rowIndex) => {
-                  const usnQuantitySum = getUsnQuantitySum(row);
-                  const balance = getBalance(row);
-                  const carryCode = getCarryCode(rowIndex);
-                  const showCarryForward = balance > 0;
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+              Items — by UIN
+            </h3>
+            {vpoUins.length > 0 && (
+              <button
+                type="button"
+                onClick={addManualBlock}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+              >
+                + Add UIN block
+              </button>
+            )}
+          </div>
 
-                  return (
-                    <tr
-                      key={row.id}
-                      className="transition-colors hover:bg-muted/40"
-                    >
-                      <td className={`${TD} text-center font-semibold`}>
-                        {rowIndex + 1}
-                      </td>
-                      <td className={TD}>
-                        <input
-                          className={TCTRL}
-                          type="text"
-                          value={row.raw_material}
-                          title={row.raw_material}
-                          onChange={(event) =>
-                            handleRowChange(
-                              row.id,
-                              "raw_material",
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Raw Material"
-                        />
-                      </td>
-                      <td className={TD}>
-                        <ThemedSelect
-                          value={row.uin_id}
-                          onChange={(v) => handleSelectUin(row.id, v)}
-                          isDisabled={!selectedIssuedVpo || loadingUins}
-                          menuPortal
-                          options={vpoUins.map((s) => ({
-                            value: s.id,
-                            label: s.uin_code,
-                          }))}
-                          placeholder={
-                            !selectedIssuedVpo
-                              ? "Select VPO first"
-                              : loadingUins
-                                ? "Loading…"
-                                : "Select UIN#"
-                          }
-                        />
-                      </td>
-                      <td className={TD}>
-                        <input
-                          className={TCTRL}
-                          type="text"
-                          value={row.particulars}
-                          title={row.particulars}
-                          onChange={(event) =>
-                            handleRowChange(
-                              row.id,
-                              "particulars",
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Particulars"
-                        />
-                      </td>
-                      <td className={TD}>
-                        <input
-                          className={`${TCTRL} ${NO_SPIN}`}
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={row.dispatch_quantity}
-                          onChange={(event) =>
-                            handleRowChange(
-                              row.id,
-                              "dispatch_quantity",
-                              event.target.value,
-                            )
-                          }
-                          placeholder="0"
-                        />
-                      </td>
-                      <td className={TD}>
-                        <input
-                          className={TCTRL}
-                          type="text"
-                          value={row.unit}
-                          onChange={(event) =>
-                            handleRowChange(
-                              row.id,
-                              "unit",
-                              event.target.value.toUpperCase(),
-                            )
-                          }
-                          placeholder={choices.item_units[0] || "CM"}
-                        />
-                      </td>
-                      <td className={TD}>
-                        <div className="flex flex-col gap-1.5">
-                          {row.usn_links.map((link, linkIndex) => (
-                            <div
-                              key={link.id}
-                              className="flex items-center gap-1"
-                            >
+          {!selectedIssuedVpo && (
+            <div className="rounded-md border border-dashed border-[#d5d6dc] bg-muted/40 px-4 py-6 text-center text-sm text-muted-foreground">
+              Select a VPO above to load its UINs and USNs.
+            </div>
+          )}
+
+          {selectedIssuedVpo && loadingUins && (
+            <div className="rounded-md border border-dashed border-[#d5d6dc] bg-muted/40 px-4 py-6 text-center text-sm text-muted-foreground">
+              Loading UINs for this VPO…
+            </div>
+          )}
+
+          {selectedIssuedVpo && !loadingUins && uinBlocks.length === 0 && (
+            <div className="rounded-md border border-dashed border-[#d5d6dc] bg-muted/40 px-4 py-6 text-center text-sm text-muted-foreground">
+              No inward UINs found for this VPO yet. Create an Inward Store sheet
+              for this VPO, or{" "}
+              <button
+                type="button"
+                onClick={addManualBlock}
+                className="font-semibold text-primary underline"
+              >
+                add a UIN block manually
+              </button>
+              .
+            </div>
+          )}
+
+          <div className="space-y-5">
+            {uinBlocks.map((block, blockIndex) => (
+              <div key={block.id} className="rounded-lg border border-[#e2e3e8]">
+                {/* Block header — the parent UIN */}
+                <div className="flex flex-wrap items-center gap-3 border-b border-[#e2e3e8] bg-muted/50 px-4 py-3">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    UIN #{blockIndex + 1}
+                  </span>
+                  <div className="min-w-[280px] flex-1">
+                    <ThemedSelect
+                      value={block.uin_id}
+                      onChange={(v) => changeBlockUin(block.id, v)}
+                      isDisabled={loadingUins}
+                      menuPortal
+                      options={vpoUins.map((s) => ({
+                        value: s.id,
+                        label: s.uin_code,
+                      }))}
+                      placeholder="Select UIN#"
+                    />
+                  </div>
+                  {block.uin_code && (
+                    <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                      {block.uin_code}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground">
+                    {block.rows.length} USN
+                    {block.rows.length === 1 ? "" : "s"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeBlock(block.id)}
+                    title="Remove this UIN block"
+                    className="ml-auto cursor-pointer rounded-md border border-[#e2e3e8] px-2.5 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+                  >
+                    Remove UIN
+                  </button>
+                </div>
+
+                {/* Nested USN table for this UIN */}
+                <div className="overflow-x-auto">
+                  <table
+                    className="w-full table-fixed border-collapse text-sm"
+                    style={{ minWidth: 1620 }}
+                  >
+                    <colgroup>
+                      <col style={{ width: "40px" }} />
+                      <col style={{ width: "150px" }} />
+                      <col style={{ width: "190px" }} />
+                      <col style={{ width: "220px" }} />
+                      <col style={{ width: "110px" }} />
+                      <col style={{ width: "70px" }} />
+                      <col style={{ width: "210px" }} />
+                      <col style={{ width: "150px" }} />
+                      <col style={{ width: "150px" }} />
+                      <col style={{ width: "140px" }} />
+                      <col style={{ width: "90px" }} />
+                      <col style={{ width: "120px" }} />
+                      <col style={{ width: "44px" }} />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th className={`${TH} text-center`}>Sr</th>
+                        <th className={TH}>Raw Material</th>
+                        <th className={TH}>IPC/Component</th>
+                        <th className={TH}>Particulars</th>
+                        <th className={TH}>Dispatch Qty</th>
+                        <th className={TH}>Unit</th>
+                        <th className={TH}>Link USN</th>
+                        <th className={TH}>USN Quantity</th>
+                        <th className={TH}>Remark</th>
+                        <th className={TH}>Dispatch Form</th>
+                        <th className={TH}># of Package</th>
+                        <th className={TH}>UQR</th>
+                        <th className={TH}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {block.rows.map((row, rowIndex) => {
+                        const rowBalance = getRowBalance(row);
+                        return (
+                          <tr
+                            key={row.id}
+                            className="transition-colors hover:bg-muted/40"
+                          >
+                            <td className={`${TD} text-center font-semibold`}>
+                              {rowIndex + 1}
+                            </td>
+                            <td className={TD}>
                               <input
                                 className={TCTRL}
                                 type="text"
-                                value={link.link_usn}
-                                title={link.link_usn}
+                                value={row.raw_material}
+                                title={row.raw_material}
                                 onChange={(event) =>
-                                  handleUsnLinkChange(
+                                  handleRowChange(
+                                    block.id,
                                     row.id,
-                                    link.id,
+                                    "raw_material",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="Raw Material"
+                              />
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={TCTRL}
+                                type="text"
+                                value={row.ipc_component}
+                                title={row.ipc_component}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "ipc_component",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="IPC / Component"
+                              />
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={TCTRL}
+                                type="text"
+                                value={row.particulars}
+                                title={row.particulars}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "particulars",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="Particulars"
+                              />
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={`${TCTRL} ${NO_SPIN}`}
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={row.dispatch_quantity}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "dispatch_quantity",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="0"
+                              />
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={TCTRL}
+                                type="text"
+                                value={row.unit}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "unit",
+                                    event.target.value.toUpperCase(),
+                                  )
+                                }
+                                placeholder={choices.item_units[0] || "CM"}
+                              />
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={TCTRL}
+                                type="text"
+                                value={row.link_usn}
+                                title={row.link_usn}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
                                     "link_usn",
                                     event.target.value,
                                   )
                                 }
-                                placeholder={
-                                  linkIndex === 0
-                                    ? "Link USN"
-                                    : "Extra Link USN"
-                                }
+                                placeholder="Link USN"
                               />
-                              {row.usn_links.length > 1 && (
-                                <button
-                                  type="button"
-                                  className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-lg leading-none text-destructive transition-colors hover:bg-destructive/10"
-                                  onClick={() =>
-                                    removeUsnLinkRow(row.id, link.id)
-                                  }
-                                  title="Remove USN link"
-                                >
-                                  ×
-                                </button>
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={`${TCTRL} ${NO_SPIN}`}
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={row.usn_quantity}
+                                title={row.usn_quantity}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "usn_quantity",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="USN Qty"
+                              />
+                              {(toNumber(row.dispatch_quantity) > 0 ||
+                                toNumber(row.usn_quantity) > 0) && (
+                                <div className="pt-1 text-[10px] text-muted-foreground">
+                                  Balance: {formatQuantity(rowBalance)}
+                                </div>
                               )}
-                            </div>
-                          ))}
-                          {(balance < 0 || row.usn_links.length > 1) && (
-                            <button
-                              type="button"
-                              className="inline-flex w-fit cursor-pointer items-center gap-1 rounded-md border border-dashed border-primary/40 bg-primary/5 px-2.5 py-1 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/10"
-                              onClick={() => addUsnLinkRow(row.id)}
-                            >
-                              + Add USN Row
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className={TD}>
-                        <div className="flex flex-col gap-1.5">
-                          {row.usn_links.map((link, linkIndex) => (
-                            <input
-                              key={link.id}
-                              className={`${TCTRL} ${NO_SPIN}`}
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={link.usn_quantity}
-                              title={link.usn_quantity}
-                              onChange={(event) =>
-                                handleUsnLinkChange(
-                                  row.id,
-                                  link.id,
-                                  "usn_quantity",
-                                  event.target.value,
-                                )
-                              }
-                              placeholder={
-                                linkIndex === 0 ? "USN Qty" : "Extra Qty"
-                              }
-                            />
-                          ))}
-                          <div className="flex flex-col gap-1 pt-0.5 text-[10px] text-muted-foreground">
-                            <span>Sum: {formatQuantity(usnQuantitySum)}</span>
-                            <span>Balance: {formatQuantity(balance)}</span>
-                            {showCarryForward && (
-                              <span className="inline-flex w-fit items-center rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 font-semibold text-primary">
-                                {carryCode} {formatQuantity(balance)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className={TD}>
-                        <input
-                          className={TCTRL}
-                          type="text"
-                          value={row.remark}
-                          title={row.remark}
-                          onChange={(event) =>
-                            handleRowChange(
-                              row.id,
-                              "remark",
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Remark"
-                        />
-                      </td>
-                      <td className={TD}>
-                        <ThemedSelect
-                          value={row.dispatch_form}
-                          onChange={(v) =>
-                            handleRowChange(row.id, "dispatch_form", v)
-                          }
-                          options={FORM_OPTIONS}
-                          isSearchable={false}
-                          menuPortal
-                          placeholder="Form"
-                        />
-                      </td>
-                      <td className={TD}>
-                        <input
-                          className={`${TCTRL} ${NO_SPIN}`}
-                          type="number"
-                          min="0"
-                          value={row.num_packages}
-                          onChange={(event) =>
-                            handleRowChange(
-                              row.id,
-                              "num_packages",
-                              event.target.value,
-                            )
-                          }
-                          placeholder="0"
-                        />
-                      </td>
-                      <td className={TD}>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleRowChange(row.id, "uqr_sent", !row.uqr_sent)
-                          }
-                          title="Click to request a quality verification — it's sent to the Quality team on Save."
-                          className={`w-full cursor-pointer rounded-md border px-2 py-1.5 text-[9px] font-semibold leading-tight transition-colors ${
-                            row.uqr_sent
-                              ? "border-green-600 bg-green-500/10 text-green-600"
-                              : "border-amber-500 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
-                          }`}
-                        >
-                          {row.uqr_sent
-                            ? "✓ REQUESTED — SENDS ON SAVE"
-                            : "REQUEST TO VERIFICATION"}
-                        </button>
-                      </td>
-                      <td className={`${TD} text-center`}>
-                        <button
-                          type="button"
-                          className="cursor-pointer rounded p-1 text-lg leading-none text-destructive transition-colors hover:bg-destructive/10"
-                          onClick={() => removeMainRow(row.id)}
-                          title="Remove row"
-                        >
-                          ×
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={TCTRL}
+                                type="text"
+                                value={row.remark}
+                                title={row.remark}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "remark",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="Remark"
+                              />
+                            </td>
+                            <td className={TD}>
+                              <ThemedSelect
+                                value={row.dispatch_form}
+                                onChange={(v) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "dispatch_form",
+                                    v,
+                                  )
+                                }
+                                options={FORM_OPTIONS}
+                                isSearchable={false}
+                                menuPortal
+                                placeholder="Form"
+                              />
+                            </td>
+                            <td className={TD}>
+                              <input
+                                className={`${TCTRL} ${NO_SPIN}`}
+                                type="number"
+                                min="0"
+                                value={row.num_packages}
+                                onChange={(event) =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "num_packages",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="0"
+                              />
+                            </td>
+                            <td className={TD}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRowChange(
+                                    block.id,
+                                    row.id,
+                                    "uqr_sent",
+                                    !row.uqr_sent,
+                                  )
+                                }
+                                title="Click to request a quality verification — this USN is sent to the Quality team on Save."
+                                className={`w-full cursor-pointer rounded-md border px-2 py-1.5 text-[9px] font-semibold leading-tight transition-colors ${
+                                  row.uqr_sent
+                                    ? "border-green-600 bg-green-500/10 text-green-600"
+                                    : "border-amber-500 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                                }`}
+                              >
+                                {row.uqr_sent
+                                  ? "✓ REQUESTED — SENDS ON SAVE"
+                                  : "REQUEST TO VERIFICATION"}
+                              </button>
+                            </td>
+                            <td className={`${TD} text-center`}>
+                              <button
+                                type="button"
+                                className="cursor-pointer rounded p-1 text-lg leading-none text-destructive transition-colors hover:bg-destructive/10"
+                                onClick={() =>
+                                  removeRowFromBlock(block.id, row.id)
+                                }
+                                title="Remove USN row"
+                              >
+                                ×
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
 
-          <button
-            type="button"
-            onClick={addMainRow}
-            className="mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
-          >
-            + Add Row
-          </button>
+                <div className="px-4 py-3">
+                  <button
+                    type="button"
+                    onClick={() => addRowToBlock(block.id)}
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-dashed border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                  >
+                    + Add USN row
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Actions */}
