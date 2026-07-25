@@ -5,8 +5,10 @@ import Select from "react-select";
  * small radius, orange primary for the selected option). Works with plain { value, label }
  * options; `value` is the raw value and `onChange` is called with the raw value ("" cleared).
  *
- * The menu is rendered inline (not portaled) on purpose so it scales with the StockSheet
- * root's `zoom`.
+ * The menu is rendered inline by default (so it scales with a `zoom`ed root). Pass
+ * `menuPortal` when the select sits inside a scroll/overflow container (e.g. a table
+ * with `overflow-x-auto`) that would otherwise clip the open menu — this renders the
+ * menu into <body> so every option is visible regardless of the container's clipping.
  */
 const ThemedSelect = ({
   value,
@@ -17,8 +19,18 @@ const ThemedSelect = ({
   isClearable = false,
   isSearchable = true,
   inputId,
+  menuPortal = false,
 }) => {
   const selected = options.find((o) => o.value === value) || null;
+
+  const portalProps = menuPortal
+    ? {
+        menuPortalTarget:
+          typeof document !== "undefined" ? document.body : undefined,
+        menuPosition: "fixed",
+        styles: { menuPortal: (base) => ({ ...base, zIndex: 10000 }) },
+      }
+    : {};
 
   return (
     <Select
@@ -32,6 +44,7 @@ const ThemedSelect = ({
       value={selected}
       onChange={(opt) => onChange(opt ? opt.value : "")}
       menuPlacement="auto"
+      {...portalProps}
       classNames={{
         control: ({ isFocused, isDisabled: disabled }) =>
           [

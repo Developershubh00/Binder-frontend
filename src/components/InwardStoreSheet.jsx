@@ -224,8 +224,8 @@ const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
               {uin}
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Preview — the leading UIN number is a per-tenant running number set
-              on Save. One UIN, one USN per item below.
+              Preview — the leading UIN number is a per-tenant running number
+              set on Save. One UIN, one USN per item below.
             </p>
           </div>
 
@@ -245,9 +245,13 @@ const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
                 <tbody>
                   {usns.map((u) => (
                     <tr key={u.sr}>
-                      <td className={`${TD} text-center font-semibold`}>{u.sr}</td>
+                      <td className={`${TD} text-center font-semibold`}>
+                        {u.sr}
+                      </td>
                       <td className={TD}>{u.particulars || "—"}</td>
-                      <td className={`${TD} break-all font-mono text-xs text-foreground`}>
+                      <td
+                        className={`${TD} break-all font-mono text-xs text-foreground`}
+                      >
                         {u.usn}
                       </td>
                     </tr>
@@ -395,13 +399,18 @@ const InwardStoreSheet = ({ onBack }) => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await getVpoHistory({ ipoId: selectedIpo || undefined, status: "issued" });
+        const res = await getVpoHistory({
+          ipoId: selectedIpo || undefined,
+          status: "issued",
+        });
         if (!cancelled) setIssuedVpos(res?.results || []);
       } catch {
         if (!cancelled) setIssuedVpos([]);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [selectedIpo]);
 
   // When a VPO is selected, pull its lines and populate the inward rows so the
@@ -424,7 +433,7 @@ const InwardStoreSheet = ({ onBack }) => {
             received_quantity: "",
             rate: l.rate != null ? String(l.rate) : "",
             remarks: l.remark || "",
-          }))
+          })),
         );
       }
     } catch {
@@ -456,10 +465,7 @@ const InwardStoreSheet = ({ onBack }) => {
       const ipoCode = ipoObj?.ipo_code || vpoDetail?.ipo_code || "";
       const parts = ipoCode.split("/"); // [CHD, type, buyer, program, seq]
       const buyerCode =
-        parts[2] ||
-        ipoObj?.buyer_code_display ||
-        ipoObj?.buyer_code_text ||
-        "";
+        parts[2] || ipoObj?.buyer_code_display || ipoObj?.buyer_code_text || "";
       const program =
         parts[3] ||
         (ipoObj?.program_name || "").toUpperCase().replace(/\s+/g, "");
@@ -538,11 +544,19 @@ const InwardStoreSheet = ({ onBack }) => {
         vendorChallanUrl,
         vendorInvoiceUrl,
       ] = await Promise.all([
-        goodsConditionImage ? uploadToBlob(goodsConditionImage, "ims/inward/goods-condition") : "",
-        vehicleNumberImage ? uploadToBlob(vehicleNumberImage, "ims/inward/vehicle-number") : "",
+        goodsConditionImage
+          ? uploadToBlob(goodsConditionImage, "ims/inward/goods-condition")
+          : "",
+        vehicleNumberImage
+          ? uploadToBlob(vehicleNumberImage, "ims/inward/vehicle-number")
+          : "",
         vehiclePic ? uploadToBlob(vehiclePic, "ims/inward/vehicle-pic") : "",
-        vendorChallanImage ? uploadToBlob(vendorChallanImage, "ims/inward/vendor-challan") : "",
-        !isChallanOnly && vendorInvoiceImage ? uploadToBlob(vendorInvoiceImage, "ims/inward/vendor-invoice") : "",
+        vendorChallanImage
+          ? uploadToBlob(vendorChallanImage, "ims/inward/vendor-challan")
+          : "",
+        !isChallanOnly && vendorInvoiceImage
+          ? uploadToBlob(vendorInvoiceImage, "ims/inward/vendor-invoice")
+          : "",
       ]);
 
       const payload = {
@@ -779,7 +793,8 @@ const InwardStoreSheet = ({ onBack }) => {
 
             <div>
               <label className={LABEL}>
-                Select VPO (auto-fill items){loadingVpoItems ? " — loading…" : ""}
+                Select VPO (auto-fill items)
+                {loadingVpoItems ? " — loading…" : ""}
               </label>
               <ThemedSelect
                 value={selectedIssuedVpo}

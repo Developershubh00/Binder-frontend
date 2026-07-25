@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, ChevronLeft, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ShieldCheck } from "lucide-react";
 import {
-  FingerprintScanIcon,
-  ReceiptIcon,
-  ShoppingBagIcon,
-  Stack3Icon,
-  StorefrontIcon,
+  HomeIcon,
+  TasksIcon,
+  CodeCreationIcon,
+  IpoIcon,
+  PurchaseIcon,
+  InventoryIcon,
 } from "../icons/SidebarIcons";
 
 // Aliased so ESLint credits `motion` as used (JSX member-expression usage isn't
@@ -30,12 +31,12 @@ const IMS_ACTIVE_PAGES = [
 const QUALITY_ACTIVE_PAGES = ["uqr-forms", "uqr-database"];
 
 const getMenuItems = () => [
-  { id: "home", label: "Home", icon: Home },
-  { id: "tasks", label: "Tasks", icon: ReceiptIcon },
-  { id: "code-creation", label: "Code Creation", icon: FingerprintScanIcon },
-  { id: "ipo-management", label: "IPO Management", icon: Stack3Icon },
-  { id: "purchase", label: "Purchase", icon: ShoppingBagIcon },
-  { id: "ims", label: "Inventory Management", icon: StorefrontIcon },
+  { id: "home", label: "Home", icon: HomeIcon },
+  { id: "tasks", label: "Tasks", icon: TasksIcon },
+  { id: "code-creation", label: "Code Creation", icon: CodeCreationIcon },
+  { id: "ipo-management", label: "IPO Management", icon: IpoIcon },
+  { id: "purchase", label: "Purchase", icon: PurchaseIcon },
+  { id: "ims", label: "Inventory Management", icon: InventoryIcon },
   { id: "quality", label: "Quality", icon: ShieldCheck },
 ];
 

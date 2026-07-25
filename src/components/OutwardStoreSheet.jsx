@@ -7,6 +7,7 @@ import {
   getOutwardStoreSheetChoices,
   getVpoHistory,
   getVpoDetail,
+  getInwardStoreSheets,
 } from "../services/integration";
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
@@ -132,6 +133,9 @@ const createEmptyUsnLink = () => ({
 
 const createEmptyRow = () => ({
   id: createId(),
+  raw_material: "",
+  uin_id: "",
+  uin: "",
   particulars: "",
   dispatch_quantity: "",
   unit: "CM",
@@ -236,6 +240,11 @@ const OutwardStoreSheet = ({ onBack }) => {
   const [issuedVpos, setIssuedVpos] = useState([]);
   const [selectedIssuedVpo, setSelectedIssuedVpo] = useState("");
   const [loadingVpoItems, setLoadingVpoItems] = useState(false);
+  // UINs (inward store sheets) generated against the selected VPO — each row's
+  // UIN# dropdown picks one of these, which fills its Raw Material / Particulars
+  // and its USN links (one per item in that UIN).
+  const [vpoUins, setVpoUins] = useState([]);
+  const [loadingUins, setLoadingUins] = useState(false);
   const [loadingChoices, setLoadingChoices] = useState(true);
   const [loadingIpoOptions, setLoadingIpoOptions] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -414,6 +423,73 @@ const OutwardStoreSheet = ({ onBack }) => {
       cancelled = true;
     };
   }, [selectedIpo]);
+
+  // Load the UINs (inward store sheets) generated against the selected VPO.
+  useEffect(() => {
+    if (!selectedIssuedVpo) {
+      setVpoUins([]);
+      return undefined;
+    }
+    let cancelled = false;
+    setLoadingUins(true);
+    (async () => {
+      try {
+        const res = await getInwardStoreSheets({
+          vpo: selectedIssuedVpo,
+          page_size: 200,
+        });
+        const list = res?.results || res?.data || (Array.isArray(res) ? res : []);
+        const selVpo = issuedVpos.find((v) => v.id === selectedIssuedVpo);
+        // Scope to this VPO client-side too, in case the API ignores ?vpo=.
+        const matches = list.filter(
+          (s) =>
+            s.vpo === selectedIssuedVpo ||
+            s.vpo_id === selectedIssuedVpo ||
+            (selVpo?.vpo_number && s.vpo_code_display === selVpo.vpo_number),
+        );
+        const scoped = (matches.length ? matches : list).filter(
+          (s) => s.uin_code,
+        );
+        if (!cancelled) {
+          setVpoUins(scoped);
+          console.log("[Outward] UINs for selected VPO:", scoped);
+        }
+      } catch {
+        if (!cancelled) setVpoUins([]);
+      } finally {
+        if (!cancelled) setLoadingUins(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIssuedVpo, issuedVpos]);
+
+  // Selecting a UIN in a row: pull its Raw Material / Particulars and load every
+  // USN under that UIN (one link per inward item).
+  const handleSelectUin = (rowId, sheetId) => {
+    const sheet = vpoUins.find((s) => s.id === sheetId);
+    updateRow(rowId, (row) => {
+      if (!sheet) return { ...row, uin_id: "", uin: "" };
+      const items = Array.isArray(sheet.items) ? sheet.items : [];
+      const first = items[0] || {};
+      return {
+        ...row,
+        uin_id: sheetId,
+        uin: sheet.uin_code || "",
+        raw_material:
+          first.raw_material || first.raw_material_type || row.raw_material,
+        particulars: first.particulars || row.particulars,
+        usn_links: items.length
+          ? items.map((it) => ({
+              id: createId(),
+              link_usn: it.usn_code || "",
+              usn_quantity: "",
+            }))
+          : row.usn_links,
+      };
+    });
+  };
 
   const handleSelectIssuedVpo = async (vpoId) => {
     setSelectedIssuedVpo(vpoId);
@@ -683,6 +759,9 @@ const OutwardStoreSheet = ({ onBack }) => {
         "items",
         JSON.stringify(
           normalizedRows.map((row) => ({
+            raw_material: row.raw_material,
+            uin: row.uin,
+            uin_id: row.uin_id,
             particulars: row.particulars,
             dispatch_quantity: toNumber(row.dispatch_quantity),
             unit: row.unit || "CM",
@@ -993,26 +1072,33 @@ const OutwardStoreSheet = ({ onBack }) => {
         {/* Items */}
         <div className={CARD}>
           <h3 className={SECTION_TITLE}>Items</h3>
-          {/* pb gives the in-cell "Dispatch Form" dropdown room to open without the
-              table's overflow clipping it (which would add a scrollbar). */}
-          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8] pb-44">
-            <table className="w-full table-fixed border-collapse text-sm">
+          {/* The in-cell dropdowns (UIN#, Dispatch Form) portal their menus to
+              <body>, so this horizontally-scrolling container no longer clips them. */}
+          <div className="overflow-x-auto rounded-lg border border-[#e2e3e8]">
+            <table
+              className="w-full table-fixed border-collapse text-sm"
+              style={{ minWidth: 1720 }}
+            >
               <colgroup>
-                <col style={{ width: "4%" }} />
-                <col style={{ width: "14%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "8%" }} />
-                <col style={{ width: "14%" }} />
-                <col style={{ width: "14%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "16%" }} />
-                <col style={{ width: "8%" }} />
-                <col style={{ width: "14%" }} />
-                <col style={{ width: "4%" }} />
+                <col style={{ width: "40px" }} />
+                <col style={{ width: "180px" }} />
+                <col style={{ width: "200px" }} />
+                <col style={{ width: "220px" }} />
+                <col style={{ width: "110px" }} />
+                <col style={{ width: "80px" }} />
+                <col style={{ width: "200px" }} />
+                <col style={{ width: "170px" }} />
+                <col style={{ width: "150px" }} />
+                <col style={{ width: "140px" }} />
+                <col style={{ width: "90px" }} />
+                <col style={{ width: "120px" }} />
+                <col style={{ width: "44px" }} />
               </colgroup>
               <thead>
                 <tr>
                   <th className={`${TH} text-center`}>Sr</th>
+                  <th className={TH}>Raw Material</th>
+                  <th className={TH}>UIN#</th>
                   <th className={TH}>Particulars</th>
                   <th className={TH}>Dispatch Qty</th>
                   <th className={TH}>Unit</th>
@@ -1044,7 +1130,43 @@ const OutwardStoreSheet = ({ onBack }) => {
                         <input
                           className={TCTRL}
                           type="text"
+                          value={row.raw_material}
+                          title={row.raw_material}
+                          onChange={(event) =>
+                            handleRowChange(
+                              row.id,
+                              "raw_material",
+                              event.target.value,
+                            )
+                          }
+                          placeholder="Raw Material"
+                        />
+                      </td>
+                      <td className={TD}>
+                        <ThemedSelect
+                          value={row.uin_id}
+                          onChange={(v) => handleSelectUin(row.id, v)}
+                          isDisabled={!selectedIssuedVpo || loadingUins}
+                          menuPortal
+                          options={vpoUins.map((s) => ({
+                            value: s.id,
+                            label: s.uin_code,
+                          }))}
+                          placeholder={
+                            !selectedIssuedVpo
+                              ? "Select VPO first"
+                              : loadingUins
+                                ? "Loading…"
+                                : "Select UIN#"
+                          }
+                        />
+                      </td>
+                      <td className={TD}>
+                        <input
+                          className={TCTRL}
+                          type="text"
                           value={row.particulars}
+                          title={row.particulars}
                           onChange={(event) =>
                             handleRowChange(
                               row.id,
@@ -1098,6 +1220,7 @@ const OutwardStoreSheet = ({ onBack }) => {
                                 className={TCTRL}
                                 type="text"
                                 value={link.link_usn}
+                                title={link.link_usn}
                                 onChange={(event) =>
                                   handleUsnLinkChange(
                                     row.id,
@@ -1147,6 +1270,7 @@ const OutwardStoreSheet = ({ onBack }) => {
                               min="0"
                               step="0.01"
                               value={link.usn_quantity}
+                              title={link.usn_quantity}
                               onChange={(event) =>
                                 handleUsnLinkChange(
                                   row.id,
@@ -1176,6 +1300,7 @@ const OutwardStoreSheet = ({ onBack }) => {
                           className={TCTRL}
                           type="text"
                           value={row.remark}
+                          title={row.remark}
                           onChange={(event) =>
                             handleRowChange(
                               row.id,
@@ -1194,6 +1319,7 @@ const OutwardStoreSheet = ({ onBack }) => {
                           }
                           options={FORM_OPTIONS}
                           isSearchable={false}
+                          menuPortal
                           placeholder="Form"
                         />
                       </td>
