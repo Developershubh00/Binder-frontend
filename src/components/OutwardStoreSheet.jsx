@@ -1340,26 +1340,22 @@ const OutwardStoreSheet = ({ onBack }) => {
                         />
                       </td>
                       <td className={TD}>
-                        <label
-                          className="flex cursor-pointer items-center gap-2"
-                          title="Sent to verification"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleRowChange(row.id, "uqr_sent", !row.uqr_sent)
+                          }
+                          title="Click to request a quality verification — it's sent to the Quality team on Save."
+                          className={`w-full cursor-pointer rounded-md border px-2 py-1.5 text-[9px] font-semibold leading-tight transition-colors ${
+                            row.uqr_sent
+                              ? "border-green-600 bg-green-500/10 text-green-600"
+                              : "border-amber-500 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                          }`}
                         >
-                          <input
-                            type="checkbox"
-                            className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-primary"
-                            checked={row.uqr_sent}
-                            onChange={(event) =>
-                              handleRowChange(
-                                row.id,
-                                "uqr_sent",
-                                event.target.checked,
-                              )
-                            }
-                          />
-                          <span className="text-[9px] font-semibold leading-tight text-primary">
-                            SENT TO VERIFICATION
-                          </span>
-                        </label>
+                          {row.uqr_sent
+                            ? "✓ REQUESTED — SENDS ON SAVE"
+                            : "REQUEST TO VERIFICATION"}
+                        </button>
                       </td>
                       <td className={`${TD} text-center`}>
                         <button
