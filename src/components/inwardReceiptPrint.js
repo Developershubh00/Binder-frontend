@@ -119,7 +119,6 @@ export const buildReceiptBody = (doc) => {
       <td><span class="k">IPO</span>${esc(doc?.ipo_code)}</td>
     </tr>
     <tr>
-      <td><span class="k">IPC / Factory Code</span>${esc(doc?.ipc_code)}</td>
       <td><span class="k">VPO No</span>${esc(doc?.vpo_number)}</td>
       <td><span class="k">Vendor Challan No.</span>${esc(doc?.vendor_challan_no)}</td>
       <td><span class="k">Vendor Invoice No.</span>${esc(doc?.vendor_invoice_no)}</td>

@@ -6,7 +6,7 @@ import {
   createInwardStoreSheet,
   getVpoHistory,
   getVpoDetail,
-  getFactoryCodesByIpo,
+  getUQRRequirements,
 } from "../services/integration";
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
@@ -141,31 +141,49 @@ const EMPTY_ROW = {
   received_form: "",
   num_packages: "",
   uqr_sent: false,
+  qc_requested: false,
   raw_material_type: "",
   raw_material: "",
   length: "",
 };
 
-// Row letter: 0 -> A, 1 -> B, ... 25 -> Z, 26 -> AA (spreadsheet-style).
-const rowLetter = (index) => {
-  let n = index + 1;
-  let out = "";
-  while (n > 0) {
-    const r = (n - 1) % 26;
-    out = String.fromCharCode(65 + r) + out;
-    n = Math.floor((n - 1) / 26);
-  }
-  return out;
+// Uppercase + dash-join a material/spec string: "Slub Fabric" -> "SLUB-FABRIC".
+const slug = (text) =>
+  (text || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+// ── Code formats (must mirror the backend in models.py) ───────────────────────
+// UIN (one per sheet — the parent record):
+//   [UIN_NO]-CHD/[BUYER]/[VENDOR]/[PROGRAM]/[PO_SEQUENCE]
+//   e.g. 1-CHD/646A/104/PRACHI-CUSHION/6
+// Buyer/program/sequence come from the IPO code; vendor from the VPO. UIN_NO is
+// a per-tenant DB counter assigned on Save; the preview shows the first ("1").
+const UIN_NO_PLACEHOLDER = "1";
+const buildUin = (
+  { buyerCode, vendorCode, program, poSequence } = {},
+  uinNo = UIN_NO_PLACEHOLDER,
+) =>
+  `${uinNo}-CHD/${buyerCode || "000"}/${vendorCode || "000"}/` +
+  `${program || "NA"}/${poSequence || "0"}`;
+
+// USN (one per ITEM under the UIN — a child traceability record):
+//   USN-SR[Serial]-[Series][Split]/[MaterialDescription][/Specification]
+//   e.g. USN-SR001-1A/VISCOSE-TWILL-100-VISCOSE-90GSM
+// For an original receipt: serial = series = sr_no, split = "A".
+const buildUsn = (row, index) => {
+  const srNo = index + 1;
+  const serial = String(srNo).padStart(3, "0");
+  const material = slug(row.raw_material || row.particulars);
+  const spec = (row.length || "").trim();
+  const parts = [];
+  if (material) parts.push(material);
+  if (spec) parts.push(spec);
+  const suffix = parts.length ? `/${parts.join("/")}` : "";
+  return `USN-SR${serial}-${srNo}A${suffix}`;
 };
-
-// ── Code formats (tweak the pieces here) ──────────────────────────────────────
-// UIN (one per sheet): CHD / buyerCode / vendorCode / productCode / serial.
-const buildUin = ({ buyerCode, vendorCode, productCode, serial = 1 }) =>
-  `CHD/${buyerCode || ""}/${vendorCode || ""}/${productCode || ""}/${serial}`;
-
-// USN (one per row): USN-SR#-<A,B,C…> / PARTICULAR:<01,02…> / <particulars>.
-const buildUsn = (row, index) =>
-  `USN-SR#-${rowLetter(index)}/PARTICULAR:${String(index + 1).padStart(2, "0")}/${row.particulars || ""}`;
 
 // Success modal listing the generated UIN + per-row USN codes.
 const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
@@ -205,6 +223,10 @@ const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
             <div className="break-all rounded-md border border-[#e2e3e8] bg-muted/40 px-3 py-2 font-mono text-sm font-semibold text-foreground">
               {uin}
             </div>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Preview — the leading UIN number is a per-tenant running number set
+              on Save. One UIN, one USN per item below.
+            </p>
           </div>
 
           <div>
@@ -256,7 +278,6 @@ const InwardStoreSheet = ({ onBack }) => {
   const [receivableType, setReceivableType] = useState("");
   const [ipoType, setIpoType] = useState("");
   const [selectedIpo, setSelectedIpo] = useState("");
-  const [selectedIpc, setSelectedIpc] = useState("");
 
   const [goodsReceivingCondition, setGoodsReceivingCondition] = useState("");
   const [goodsConditionImage, setGoodsConditionImage] = useState(null);
@@ -272,7 +293,6 @@ const InwardStoreSheet = ({ onBack }) => {
 
   // Dropdown data
   const [ipoList, setIpoList] = useState([]);
-  const [ipcList, setIpcList] = useState([]);
   // Issued VPOs (the new Purchase-department VPOs) used to auto-fill line items.
   const [issuedVpos, setIssuedVpos] = useState([]);
   const [selectedIssuedVpo, setSelectedIssuedVpo] = useState("");
@@ -284,14 +304,20 @@ const InwardStoreSheet = ({ onBack }) => {
   const [errorMsg, setErrorMsg] = useState("");
   const [createdSheet, setCreatedSheet] = useState(null);
 
-  // Buyer / vendor / product codes resolved from the selected IPO + VPO, used to
-  // build the UIN. Populated by the effect below.
+  // True when the IPO's quality inspection is DONE (has UQR requirements and none
+  // pending). Then rows auto "Sent to Quality Verification". Otherwise (No, or
+  // still-pending UQR) rows show a "Request to Verification" click button.
+  const [qcAutoSend, setQcAutoSend] = useState(false);
+
+  // UIN component codes resolved from the selected IPO + VPO. Populated by the
+  // effect below and fed to buildUin().
   const [orderCodes, setOrderCodes] = useState({
     buyerCode: "",
     vendorCode: "",
-    productCode: "",
+    program: "",
+    poSequence: "",
   });
-  // Generated UIN + per-row USN codes, shown in the success modal.
+  // Generated UIN + per-item USN codes, shown in the success modal.
   const [generated, setGenerated] = useState({ uin: "", usns: [] });
   const [showCodesModal, setShowCodesModal] = useState(false);
 
@@ -321,6 +347,47 @@ const InwardStoreSheet = ({ onBack }) => {
       })
       .catch(() => setIpoList([]));
   }, [ipoType]);
+
+  // Detect whether the selected IPO's goods are quality-inspected (BOM had
+  // "quality inspected = Yes" → UQR requirements exist). Drives the UQR column:
+  // Yes → auto Sent to Quality Verification; No → manual Request Inspection.
+  useEffect(() => {
+    if (!selectedIpo) {
+      setQcAutoSend(false);
+      return undefined;
+    }
+    let cancelled = false;
+    (async () => {
+      const ipoObj = ipoList.find((o) => o.id === selectedIpo);
+      const ipoCode = ipoObj?.ipo_code;
+      if (!ipoCode) return;
+      try {
+        const res = await getUQRRequirements({ ipoCode });
+        const raw = res?.results || res || [];
+        const list = Array.isArray(raw) ? raw : [];
+        // Auto-send only when the IPO's quality inspection is DONE — i.e. it has
+        // UQR requirements and none are still pending (all filled). Otherwise
+        // (No inspection, or still pending) rows offer a manual request.
+        const filled = list.filter((r) => r.status === "filled").length;
+        const pending = list.length - filled;
+        if (!cancelled) setQcAutoSend(filled > 0 && pending === 0);
+      } catch {
+        if (!cancelled) setQcAutoSend(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIpo, ipoList]);
+
+  // When the IPO turns out to require inspection, default every row's "Sent to
+  // Quality Verification" on (the auto = Yes case). Runs on the transition only.
+  useEffect(() => {
+    if (!qcAutoSend) return;
+    setRows((prev) =>
+      prev.map((r) => ({ ...r, uqr_sent: true, qc_requested: false })),
+    );
+  }, [qcAutoSend]);
 
   // Load issued VPOs (new Purchase-department VPOs) for the auto-fill selector.
   // When an IPO is chosen we scope to it; otherwise list all issued VPOs.
@@ -367,30 +434,9 @@ const InwardStoreSheet = ({ onBack }) => {
     }
   };
 
-  // Load IPCs (factory codes) when IPO is selected
-  useEffect(() => {
-    if (!selectedIpo) {
-      setIpcList([]);
-      return;
-    }
-    const loadIPCs = async () => {
-      try {
-        // Scope IPCs to the chosen IPO (endpoint supports ?ipo=); otherwise the
-        // dropdown would list every factory code across all IPOs. Goes through the
-        // shared apiRequest client (Bearer + transparent 401 refresh, honors
-        // "remember me") instead of a hand-rolled fetch that read the token directly.
-        const data = await getFactoryCodesByIpo(selectedIpo);
-        const results = data?.results || data || [];
-        setIpcList(Array.isArray(results) ? results : []);
-      } catch {
-        setIpcList([]);
-      }
-    };
-    loadIPCs();
-  }, [selectedIpo]);
-
-  // Debug: once both an IPO and a VPO are selected, log the buyer / vendor / product
-  // codes (with the raw source objects, so the exact backend field names are visible).
+  // Resolve the UIN component codes once both an IPO and a VPO are selected.
+  // Mirrors the backend generate_uin(): buyer / program / sequence are read from
+  // the IPO code (CHD/<type>/<buyer>/<program>/<seq>); the vendor from the VPO.
   useEffect(() => {
     if (!selectedIpo || !selectedIssuedVpo) return undefined;
     let cancelled = false;
@@ -402,48 +448,44 @@ const InwardStoreSheet = ({ onBack }) => {
       try {
         vpoDetail = await getVpoDetail(selectedIssuedVpo);
       } catch {
-        /* ignore — still log what we have */
+        /* ignore — still use what we have */
       }
       if (cancelled) return;
 
+      // Buyer / program / sequence from the IPO code segments.
+      const ipoCode = ipoObj?.ipo_code || vpoDetail?.ipo_code || "";
+      const parts = ipoCode.split("/"); // [CHD, type, buyer, program, seq]
       const buyerCode =
-        ipoObj?.buyer_code ||
+        parts[2] ||
         ipoObj?.buyer_code_display ||
-        ipoObj?.buyer?.code ||
-        ipoObj?.buyer ||
+        ipoObj?.buyer_code_text ||
         "";
-      const vendorCode =
-        vpoDetail?.vendor_code ||
-        vpoDetail?.vendor?.code ||
-        vpoObj?.vendor_code ||
-        vpoObj?.vendor_code_display ||
-        "";
-      const productCode =
-        ipoObj?.product_code ||
-        ipoObj?.product_code_display ||
-        ipcList?.[0]?.product_code ||
-        ipcList?.[0]?.product?.code ||
-        "";
+      const program =
+        parts[3] ||
+        (ipoObj?.program_name || "").toUpperCase().replace(/\s+/g, "");
+      const poSequence = parts[4] || String(ipoObj?.po_sr_no || "");
 
-      console.log("[Inward] IPO + VPO selected — codes:", {
-        buyerCode,
-        vendorCode,
-        productCode,
-      });
-      console.log("[Inward] source objects:", {
-        ipo: ipoObj,
-        vpo: vpoObj,
-        vpoDetail,
-        factoryCodes: ipcList,
-      });
+      // Vendor code from the VPO. Prefer the explicit field; otherwise pull it
+      // out of the composed vpo_number (…/BUYER/VENDOR/CAT/…), where the vendor
+      // segment sits right after the buyer.
+      let vendorCode =
+        vpoDetail?.vendor_code_display || vpoObj?.vendor_code_display || "";
+      if (!vendorCode) {
+        const vpoNumber = vpoDetail?.vpo_number || vpoObj?.vpo_number || "";
+        const segs = vpoNumber.split("/");
+        const bi = segs.findIndex(
+          (s) => s === buyerCode || s.endsWith(`-${buyerCode}`),
+        );
+        if (bi >= 0 && segs[bi + 1]) vendorCode = segs[bi + 1];
+      }
 
-      setOrderCodes({ buyerCode, vendorCode, productCode });
+      setOrderCodes({ buyerCode, vendorCode, program, poSequence });
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [selectedIpo, selectedIssuedVpo, ipoList, issuedVpos, ipcList]);
+  }, [selectedIpo, selectedIssuedVpo, ipoList, issuedVpos]);
 
   // Row helpers
   const addRow = () => {
@@ -508,7 +550,6 @@ const InwardStoreSheet = ({ onBack }) => {
         ipo_type: ipoType,
         ipo: selectedIpo || null,
         vpo: selectedIssuedVpo || null,
-        ipc: selectedIpc || null,
         goods_receiving_condition: goodsReceivingCondition,
         goods_receiving_condition_image: goodsConditionUrl || "",
         vehicle_number_image: vehicleNumberUrl || "",
@@ -527,6 +568,9 @@ const InwardStoreSheet = ({ onBack }) => {
           received_form: row.received_form,
           num_packages: parseInt(row.num_packages) || 0,
           uqr_sent: row.uqr_sent,
+          qc_requested: row.qc_requested,
+          // These feed the USN: raw_material -> material description,
+          // length -> specification; particular code defaults to the SR no.
           raw_material_type: row.raw_material_type,
           raw_material: row.raw_material,
           length: row.length,
@@ -559,7 +603,6 @@ const InwardStoreSheet = ({ onBack }) => {
     const ipoTypeLabel =
       IPO_TYPE_OPTIONS.find((o) => o.value === ipoType)?.label || ipoType;
     const ipoObj = ipoList.find((o) => o.id === selectedIpo);
-    const ipcObj = ipcList.find((o) => o.id === selectedIpc);
     const vpoObj = issuedVpos.find((o) => o.id === selectedIssuedVpo);
 
     return {
@@ -567,7 +610,6 @@ const InwardStoreSheet = ({ onBack }) => {
       receivable_type: receivableLabel,
       ipo_type: ipoTypeLabel,
       ipo_code: ipoObj?.ipo_code || "",
-      ipc_code: ipcObj?.code || "",
       vpo_number: vpoObj?.vpo_number || "",
       vendor_challan_no: vendorChallanNo,
       vendor_invoice_no: isChallanOnly ? "" : vendorInvoiceNo,
@@ -597,8 +639,9 @@ const InwardStoreSheet = ({ onBack }) => {
 
   const handlePrint = () => printInwardReceipt(buildReceiptDocument());
 
-  // Generate UIN/USN codes on the frontend from the current selections and rows,
-  // then show them in the success modal. One UIN per sheet; one USN per row.
+  // Preview the UIN + per-item USN codes from the current selections and rows.
+  // One UIN per sheet (parent); one USN per item (child). The real UIN number
+  // and USNs are assigned by the backend on Save.
   const handleGenerateCodes = () => {
     if (!selectedIpo || !selectedIssuedVpo) {
       setErrorMsg("Select an IPO and a VPO first to generate codes.");
@@ -744,21 +787,9 @@ const InwardStoreSheet = ({ onBack }) => {
                 placeholder="-- Select issued VPO --"
                 options={issuedVpos.map((v) => ({
                   value: v.id,
-                  label: `${v.vpo_number}${v.ipo_code ? ` — ${v.ipo_code}` : ""}`,
-                }))}
-              />
-            </div>
-
-            <div>
-              <label className={LABEL}>IPC (Factory Code)</label>
-              <ThemedSelect
-                value={selectedIpc}
-                onChange={setSelectedIpc}
-                isDisabled={!selectedIpo}
-                placeholder="-- Select IPC --"
-                options={ipcList.map((fc) => ({
-                  value: fc.id,
-                  label: fc.code || fc.id,
+                  // The composed VPO code already carries the IPO base + category,
+                  // so show it alone (no trailing ipo_code).
+                  label: v.vpo_number,
                 }))}
               />
             </div>
@@ -1006,22 +1037,37 @@ const InwardStoreSheet = ({ onBack }) => {
                       />
                     </td>
                     <td className={TD}>
-                      <label
-                        className="flex cursor-pointer items-center gap-2"
-                        title="SENT TO QUALITY VERIFICATION"
-                      >
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-primary"
-                          checked={row.uqr_sent}
-                          onChange={(e) =>
-                            updateRow(idx, "uqr_sent", e.target.checked)
+                      {qcAutoSend ? (
+                        // Quality inspection is done for this IPO → auto-send.
+                        <div
+                          className="flex items-center gap-1.5"
+                          title="This IPO's goods are quality-inspected (UQR done) — sent automatically."
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
+                          <span className="text-[9px] font-semibold leading-tight text-green-600">
+                            AUTO-SENT TO QUALITY
+                          </span>
+                        </div>
+                      ) : (
+                        // No / not-yet-inspected → a click button that requests
+                        // verification (sent to UQR on Save).
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateRow(idx, "qc_requested", !row.qc_requested)
                           }
-                        />
-                        <span className="text-[9px] font-semibold leading-tight text-primary">
-                          SENT TO QUALITY VERIFICATION
-                        </span>
-                      </label>
+                          title="Not quality-inspected. Click to request a quality inspection — it's sent to the Quality team on Save."
+                          className={`w-full rounded-md border px-2 py-1.5 text-[9px] font-semibold leading-tight transition-colors ${
+                            row.qc_requested
+                              ? "border-green-600 bg-green-500/10 text-green-600"
+                              : "border-amber-500 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                          }`}
+                        >
+                          {row.qc_requested
+                            ? "✓ REQUESTED — SENDS ON SAVE"
+                            : "REQUEST TO VERIFICATION"}
+                        </button>
+                      )}
                     </td>
                     <td className={`${TD} text-center`}>
                       <button
@@ -1059,7 +1105,7 @@ const InwardStoreSheet = ({ onBack }) => {
           </button>
           <button
             type="button"
-            className="cursor-pointer rounded-md border border-[#e2e3e8] bg-muted px-6 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:bg-[#e9eaee] disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-md border border-primary bg-primary/10 px-6 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:cursor-not-allowed disabled:border-[#e2e3e8] disabled:bg-muted disabled:text-foreground/40"
             onClick={handleGenerateCodes}
             disabled={!selectedIpo || !selectedIssuedVpo}
             title={

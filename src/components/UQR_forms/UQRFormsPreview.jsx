@@ -10,6 +10,7 @@ import {
   getFactoryCodesByIpo,
   getFactoryCodeDraft,
   getUQRRequirements,
+  getStoreQualitySummary,
 } from "../../services/integration";
 import { toOrderTypeApiValue } from "../../utils/orderType";
 import {
@@ -123,8 +124,21 @@ const firstOf = (obj, keys) => {
   return "";
 };
 
-const UQRFormsPreview = ({ mode = "forms", onBack }) => {
+const UQRFormsPreview = ({ mode = "forms", onBack, onOpenStoreRequests }) => {
   const isDatabaseMode = mode === "database";
+  // Open store inspection-request count (for the badge on the header button).
+  const [storeOpenCount, setStoreOpenCount] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    getStoreQualitySummary()
+      .then((s) => {
+        if (!cancelled) setStoreOpenCount(Number(s?.open) || 0);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Section → IPO → IPC, loaded from the API exactly like StockSheet's From-IPO flow.
   // Nothing is pre-selected — the user picks each one.
@@ -598,13 +612,29 @@ const UQRFormsPreview = ({ mode = "forms", onBack }) => {
               </p>
             </div>
             {!isDatabaseMode && (
-              <button
-                type="button"
-                onClick={() => setShowPendings(true)}
-                className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90"
-              >
-                Pending UQRs
-              </button>
+              <div className="flex shrink-0 items-center gap-2">
+                {onOpenStoreRequests && (
+                  <button
+                    type="button"
+                    onClick={onOpenStoreRequests}
+                    className="relative inline-flex cursor-pointer items-center gap-2 rounded-md border border-primary bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                  >
+                    Store Inspections
+                    {storeOpenCount > 0 && (
+                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                        {storeOpenCount}
+                      </span>
+                    )}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowPendings(true)}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90"
+                >
+                  Pending UQRs
+                </button>
+              </div>
             )}
           </div>
         </div>

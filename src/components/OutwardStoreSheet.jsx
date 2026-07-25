@@ -928,7 +928,9 @@ const OutwardStoreSheet = ({ onBack }) => {
                 placeholder="-- Select issued VPO --"
                 options={issuedVpos.map((v) => ({
                   value: v.id,
-                  label: `${v.vpo_number}${v.ipo_code ? ` — ${v.ipo_code}` : ""}`,
+                  // The composed VPO code already carries the IPO base + category,
+                  // so show it alone (no trailing ipo_code).
+                  label: v.vpo_number,
                 }))}
               />
             </div>

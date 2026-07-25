@@ -1439,6 +1439,40 @@ export const syncUQRRequirements = async (payload) => {
   return await response.json();
 };
 
+// ── Store Quality Inspection Requests (Inward/Outward → Quality inbox) ────────
+// GET ims/store-quality-requests/?status=&source=&assigned=me
+export const getStoreQualityRequests = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await apiRequest(
+    `ims/store-quality-requests/${query ? `?${query}` : ''}`,
+  );
+  return await response.json();
+};
+
+// GET ims/store-quality-requests/summary/ → { total, open, unassigned, assigned_to_me }
+export const getStoreQualitySummary = async () => {
+  const response = await apiRequest('ims/store-quality-requests/summary/');
+  return await response.json();
+};
+
+// POST ims/store-quality-requests/ — raise a request (manual "Request Inspection").
+export const createStoreQualityRequest = async (data) => {
+  const response = await apiRequest('ims/store-quality-requests/', {
+    method: 'POST',
+    body: JSON.stringify(data || {}),
+  });
+  return await response.json();
+};
+
+// PATCH ims/store-quality-requests/{id}/ — assign a member and/or move status.
+export const updateStoreQualityRequest = async (id, data) => {
+  const response = await apiRequest(`ims/store-quality-requests/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data || {}),
+  });
+  return await response.json();
+};
+
 // ============================================================================
 // PURCHASE SECTION
 // ============================================================================

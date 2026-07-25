@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import ThemedSelect from "../../IMS/StockSheet/ThemedSelect";
 import { COMPANY, DEFAULT_TERMS, downloadVpoPdf, printVpo } from "./vpoPrint";
+import { buildVpoCode, SEQ_PLACEHOLDER } from "./vpoCode";
 
 const INPUT =
   "w-full rounded-md border border-[#e2e3e8] bg-card px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15";
@@ -93,6 +94,8 @@ const VpoPreviewModal = ({
 
   // Order meta
   const [vpoNo, setVpoNo] = useState("");
+  // True once the user hand-edits the VPO No, so we stop auto-seeding it.
+  const vpoNoTouched = useRef(false);
   const [vpoDate, setVpoDate] = useState(todayIso());
   const [deliveryDueDate, setDeliveryDueDate] = useState("");
   const [paymentTerms, setPaymentTerms] = useState("");
@@ -150,6 +153,37 @@ const VpoPreviewModal = ({
     setVendorEmail(selectedVendor.email || "");
     setPaymentTerms((prev) => prev || selectedVendor.payment_terms || "");
   }, [selectedVendor]);
+
+  // Live projected VPO code — the exact format the backend assigns on issue,
+  // with the running sequence shown as a placeholder ("N") since it's allocated
+  // server-side. Rebuilds as the vendor/preview changes.
+  //   VPO-{ipoBase}/{vendorCode}/{categoryCode}/VPO-N
+  const projectedVpoCode = useMemo(
+    () =>
+      buildVpoCode({
+        ipoCode: preview?.ipo?.ipo_code,
+        vendorCode,
+        productCategory: preview?.product_category,
+        categoryCode: preview?.product_category_code,
+        sequence: SEQ_PLACEHOLDER,
+      }),
+    [
+      preview?.ipo?.ipo_code,
+      preview?.product_category,
+      preview?.product_category_code,
+      vendorCode,
+    ],
+  );
+
+  // Seed the VPO No field with the projected code until the user overrides it.
+  useEffect(() => {
+    if (!vpoNoTouched.current) setVpoNo(projectedVpoCode);
+  }, [projectedVpoCode]);
+
+  // A fresh open starts clean — drop any manual override from a prior session.
+  useEffect(() => {
+    if (open) vpoNoTouched.current = false;
+  }, [open]);
 
   // The edited qty for a line (falls back to the preview qty until seeded).
   //   const qtyOf = (l, i) => (qtys[i] === undefined ? num(l.qty) : num(qtys[i]));
@@ -449,9 +483,16 @@ const VpoPreviewModal = ({
                     <input
                       className={DOC_INPUT}
                       value={vpoNo}
-                      onChange={(e) => setVpoNo(e.target.value)}
+                      onChange={(e) => {
+                        vpoNoTouched.current = true;
+                        setVpoNo(e.target.value);
+                      }}
                       placeholder="Auto / enter VPO no."
                     />
+                    <div className="px-1.5 text-[10px] text-muted-foreground">
+                      Auto-generated on issue — the trailing “{SEQ_PLACEHOLDER}”
+                      becomes the next VPO number.
+                    </div>
                   </DocRow>
                   <DocRow label="VPO Date:">
                     <input

@@ -22,6 +22,7 @@ import OutwardStoreSheet from "../OutwardStoreSheet.jsx";
 import OutwardStoreSheetDatabase from "../OutwardStoreSheetDatabase.jsx";
 import StockSheet from "../IMS/StockSheet/StockSheet.jsx";
 import MasterStockSheet from "../MasterStockSheet.jsx";
+import StoreQualityInbox from "../StoreQualityInbox.jsx";
 
 const DashboardContent = ({
   activePage,
@@ -55,7 +56,12 @@ const DashboardContent = ({
             setActivePage("quality");
             setHoveredMenu("quality");
           }}
+          onOpenStoreRequests={() => setActivePage("store-quality-inbox")}
         />
+      );
+    case "store-quality-inbox":
+      return (
+        <StoreQualityInbox onBack={() => setActivePage("uqr-forms")} />
       );
     case "uqr-database":
       return (
