@@ -664,10 +664,12 @@ colored left-border tint + label; each row shows Single/Club mode + Active/Inact
   `Step1.jsx` passes `clubs` + the two club handlers. modeAction/finalAction unchanged
   (Sewing still "Save & Move to IPC Assembly" + gated "Forward to Pack").
 
-**Carry-forward rule:** "Save & Forward to Sewing" now **propagates the Cutting
-grouping into Sewing** (`propagateClubs('cutting','sewing')`) — clubbed components go
-to Sewing **together**, singles go **alone**. Sewing is seeded with the same clubs and
-can still be adjusted there.
+**Carry-forward rule:** ~~"Save & Forward to Sewing" propagates the Cutting grouping
+into Sewing~~ — **REVERSED (per Vikram).** Cutting and Sewing clubbing are now
+**independent**. "Save & Forward to Sewing" only saves cutting and opens the sewing
+line; it no longer seeds the sewing clubs. The sewing process starts from singles and
+is clubbed on its own. Each section keeps its own `processAssignments[kind].clubs`;
+`propagateClubs` was removed.
 
 **Merged-component semantics:** a club renders as **one merged row** — the member names
 joined (`A  +  B`) with a **"Merged"** badge and a colored tint — meaning they're cut &

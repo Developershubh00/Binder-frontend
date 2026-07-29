@@ -18,7 +18,6 @@ import { X } from 'lucide-react';
 import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection, getFactoryCodeSections, syncUQRRequirements } from '../../services/integration';
 import { buildUqrRequirementsPayload } from '../UQR_forms/uqrPrefill';
 import { applyCutSewSections } from './utils/sectionOverlay';
-import { enumerateProcessRows } from './utils/processRows';
 // Pure default/scaffold builders (blank per-IPC stepData + packaging defaults).
 import { getInitialStepData, getDefaultPackagingMaterial, getDefaultExtraPack } from './data/stepDataDefaults';
 // Pure raw-material row builder (common shape + per-type default fields).
@@ -1772,41 +1771,27 @@ const GenerateFactoryCode = ({
       return withUpdatedIpcSavedState({ ...stepData, processAssignments: { ...pa, [kind]: { clubs } } }, { cut: false });
     });
   };
-  const unclubClub = (kind, clubId) => {
+  // Isolate club(s) by their POSITION in the list, not by id. Two clubs can share an
+  // id (identical member sets) or carry an undefined id (older/section-store data);
+  // filtering by id would then remove the wrong club — or both at once. `clubIndexes`
+  // is a single index or an array; all are removed in one update so indices never shift
+  // mid-removal.
+  const unclubClub = (kind, clubIndexes) => {
+    const toRemove = new Set(Array.isArray(clubIndexes) ? clubIndexes : [clubIndexes]);
     setStep1Saved(false);
     updateSelectedSkuStepData((stepData) => {
       const pa = stepData.processAssignments || {};
       const clubs = (pa[kind]?.clubs || [])
-        .filter((c) => c.id !== clubId)
+        .filter((_, i) => !toRemove.has(i))
         .map((c, i) => ({ ...c, label: `Club ${i + 1} ${kind}` }));
       return withUpdatedIpcSavedState({ ...stepData, processAssignments: { ...pa, [kind]: { clubs } } }, { cut: false });
     });
   };
-  // Carry the grouping forward when moving to the next stage. Clubs now group
-  // per-work-order ROWS (e.g. "Front Panel · CUTTING #1"), so a cutting row key does
-  // not exist among the sewing rows. Translate by COMPONENT: rows that were clubbed
-  // in `fromKind` bring ALL of their component's `toKind` rows into one club (clubbed
-  // components stay grouped; singles stay alone). Re-labelled/re-ided for `toKind`.
-  const WO_OF_KIND = { cutting: 'CUTTING', sewing: 'SEWING' };
-  const propagateClubs = (fromKind, toKind) => {
-    updateSelectedSkuStepData((stepData) => {
-      const pa = stepData.processAssignments || {};
-      const rms = stepData.rawMaterials || [];
-      const fromRows = enumerateProcessRows(rms, WO_OF_KIND[fromKind]);
-      const toRows = enumerateProcessRows(rms, WO_OF_KIND[toKind]);
-      const nameOfFromKey = new Map(fromRows.map((r) => [r.key, r.name]));
-      const toKeysByName = toRows.reduce((acc, r) => { (acc[r.name] = acc[r.name] || []).push(r.key); return acc; }, {});
-      const clubs = (pa[fromKind]?.clubs || [])
-        .map((c) => {
-          const names = [...new Set(c.components.map((k) => nameOfFromKey.get(k)).filter(Boolean))];
-          const components = names.flatMap((n) => toKeysByName[n] || []);
-          return { components };
-        })
-        .filter((c) => c.components.length >= 2)
-        .map((c, i) => ({ id: [...c.components].sort().join('|'), components: c.components, label: `Club ${i + 1} ${toKind}` }));
-      return { ...stepData, processAssignments: { ...pa, [toKind]: { clubs } } };
-    });
-  };
+  // Cutting and Sewing clubbing are INDEPENDENT: grouping done in the cutting
+  // process is NOT carried into sewing (and vice-versa). Each section's clubs live
+  // under its own `processAssignments[kind]`, so the sewing process starts from
+  // singles and the user clubs it separately. (Previously "Save & Forward to Sewing"
+  // seeded sewing with the cutting grouping via propagateClubs — removed per Vikram.)
 
   // Sewing → "Save & Move to IPC Assembly": remember that this IPC's stitching
   // has been sent to the assembly line (a simple flag on stepData; the popup is
@@ -4806,7 +4791,6 @@ const GenerateFactoryCode = ({
                 removeWorkOrder={removeCutSewWorkOrder}
                 clubComponents={clubComponents}
                 unclubClub={unclubClub}
-                propagateClubs={propagateClubs}
                 markSewMovedToAssembly={markSewMovedToAssembly}
                 onProceedToSelector={goToIpcSelector}
                 onPrev={handlePrevious}

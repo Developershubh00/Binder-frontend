@@ -12,7 +12,7 @@ import { printVpo } from './vpo';
 import { CATEGORY_CHIPS, TOP_TABS } from './columnSchemas';
 import PurchaseGrid from './PurchaseGrid';
 import JobWorkGrid from './JobWorkGrid';
-import { VpoPreviewModal, JobWorkVpoPreviewModal } from './vpo';
+import { VpoPreviewModal } from './vpo';
 import StockUqrPanel from './StockUqrPanel';
 
 // Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp.
@@ -174,12 +174,43 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
   const selectedCount = selectedRows.length;
 
   const handleLineItemUpdated = (row, patch) => {
+    // Editing Purchase Qty changes the row's Balance (Balance = Purchase Qty −
+    // Issued). Recompute it locally so the grid reflects the edit immediately;
+    // the backend derives the same value on the next fetch.
+    const enrich = (r) => {
+      const merged = { ...r, ...patch };
+      if ('purchase_qty' in patch) {
+        const pq = Number(patch.purchase_qty);
+        if (patch.purchase_qty === '' || patch.purchase_qty === null || Number.isNaN(pq)) {
+          merged.balance_qty = null;
+        } else {
+          const issued = Number(merged.issued_qty ?? 0);
+          merged.balance_qty = String(pq - (Number.isNaN(issued) ? 0 : issued));
+        }
+      }
+      return merged;
+    };
     const apply = (g) => ({
       ...g,
-      rows: g.rows.map((r) => (r.id === row.id ? { ...r, ...patch } : r)),
+      rows: g.rows.map((r) => (r.id === row.id ? enrich(r) : r)),
     });
     setGrid((prev) => apply(prev));
     // Keep the cached copy in sync so the edit survives a tab/category flip.
+    const key = `${ipoId}:${tab}:${category}`;
+    if (gridCache.current[key]) gridCache.current[key] = apply(gridCache.current[key]);
+  };
+
+  // Autosave of an editable Job Work material cell (Purchased Width / Length
+  // Qty) — mirror the patched value into the job-work grid state + cache so the
+  // edit shows immediately and survives a tab/category flip.
+  const handleJobWorkMaterialUpdated = (material, patch) => {
+    const apply = (jw) => ({
+      ...jw,
+      materials: (jw.materials || []).map((m) =>
+        m.source_id === material.source_id ? { ...m, ...patch } : m
+      ),
+    });
+    setJobWork((prev) => apply(prev));
     const key = `${ipoId}:${tab}:${category}`;
     if (gridCache.current[key]) gridCache.current[key] = apply(gridCache.current[key]);
   };
@@ -262,6 +293,30 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
   };
 
   // --- Job Work preview / issue ---
+  // Job Work issues through the SAME VpoPreviewModal as material VPOs (vendor +
+  // user PO block, entered manually). Adapt the job-work preview into that
+  // modal's line shape; `jwPending` keeps the work-order meta for the issue call.
+  const adaptJobWorkPreview = (res) => ({
+    ipo: res?.ipo || ipo,
+    lines: (res?.lines || []).map((l) => ({
+      source_type: l.source_type,
+      source_id: l.source_id,
+      ipc_code: l.ipc_code,
+      component_name: l.component_name,
+      material_description: l.material_description || '',
+      category: l.work_order_type,
+      process_unit: l.process_unit,
+      // Job-work table columns (fetched from the work-order grid).
+      cns_qty: l.cns_qty,
+      balance_qty: l.balance_qty,
+      qty: l.issued_qty, // "Issued Qty" — drives the VPO line qty + amount
+      unit: l.unit,
+      rate: l.rate,
+      amount: l.amount,
+      remark: '',
+    })),
+  });
+
   const openJobWorkPreview = async (meta, lines) => {
     setJwPreviewErrors(null);
     setJwPreview(null);
@@ -271,20 +326,36 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
       const res = await previewJobWorkVpo(ipoId, { ...meta, lines });
       if (res?.errors) {
         setJwPreviewErrors(res.errors);
-        setJwPreview({ ipo, lines: [], ...meta });
+        setJwPreview({ ipo, lines: [] });
       } else {
-        setJwPreview(res);
+        setJwPreview(adaptJobWorkPreview(res));
       }
     } catch (err) {
       setJwPreviewErrors([err?.message || 'Failed to preview Job Work VPO.']);
     }
   };
 
-  const handleIssueJobWorkVpo = async () => {
-    if (!jwPending || !jwPending.lines?.length) return;
+  // issueData comes from VpoPreviewModal — same shape as the material flow:
+  // { vendor_id, payment_terms, delivery_due_date, remarks, lines:[{ source_id, qty, rate }] }.
+  // Re-attach the work-order meta (kept in jwPending) for the job-work endpoint.
+  const handleIssueJobWorkVpo = async (issueData) => {
+    const modalLines = issueData?.lines || [];
+    if (!jwPending || !modalLines.length) return;
     setJwIssuing(true);
     try {
-      const res = await issueJobWorkVpo(ipoId, jwPending);
+      const res = await issueJobWorkVpo(ipoId, {
+        work_order_type: jwPending.work_order_type,
+        process_unit: jwPending.process_unit,
+        vendor_id: issueData?.vendor_id,
+        payment_terms: issueData?.payment_terms,
+        delivery_due_date: issueData?.delivery_due_date,
+        remarks: issueData?.remarks,
+        lines: modalLines.map((l) => ({
+          source_id: l.source_id,
+          issued_qty: Number(l.qty),
+          rate: l.rate,
+        })),
+      });
       if (res?.errors) {
         setJwPreviewErrors(res.errors);
       } else {
@@ -431,7 +502,11 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
         {loading ? (
           <div className="p-6 text-sm text-muted-foreground">Loading grid…</div>
         ) : isJobWork ? (
-          <JobWorkGrid data={jobWork} onGenerateVpo={openJobWorkPreview} />
+          <JobWorkGrid
+            data={jobWork}
+            onGenerateVpo={openJobWorkPreview}
+            onMaterialUpdated={handleJobWorkMaterialUpdated}
+          />
         ) : (
           <PurchaseGrid
             rows={grid.rows}
@@ -446,11 +521,13 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
           />
         )}
 
-        <JobWorkVpoPreviewModal
+        <VpoPreviewModal
         open={jwPreviewOpen}
         preview={jwPreview}
         errors={jwPreviewErrors}
         busy={jwIssuing}
+        vendors={vendors}
+        jobWork
         onClose={() => {
           setJwPreviewOpen(false);
           setJwPreview(null);

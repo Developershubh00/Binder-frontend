@@ -22,6 +22,11 @@ const num = (v) => {
   return Number.isNaN(n) ? 0 : n;
 };
 
+// Job-work rate is per process unit — map it to the label shown on the rate column.
+const PROCESS_RATE_UNIT = { YARDAGE: "meter", WEIGHTAGE: "kg", PCS: "pcs" };
+const qtyUnit = (v, unit) =>
+  v === null || v === undefined || v === "" ? "—" : `${v}${unit ? ` ${unit}` : ""}`;
+
 const money = (n) =>
   n.toLocaleString("en-IN", {
     minimumFractionDigits: 2,
@@ -72,6 +77,9 @@ const VpoPreviewModal = ({
   onIssue,
   busy,
   vendors = [],
+  // When true the same PO document renders the Job Work line table (CNS/Issued/
+  // Balance/Rate-per-process-unit) instead of the material Purchase-Qty table.
+  jobWork = false,
 }) => {
   const previewLines = useMemo(() => preview?.lines || [], [preview]);
 
@@ -329,7 +337,7 @@ const VpoPreviewModal = ({
           <div className="overflow-hidden rounded-lg border border-[#e2e3e8] bg-card">
             {/* Title band */}
             <div className="bg-primary py-3 text-center text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground">
-              Purchase Order
+              {jobWork ? "Job Work Order" : "Purchase Order"}
             </div>
 
             {/* FROM / TO — laid out to mirror the printed Purchase Order:
@@ -522,95 +530,204 @@ const VpoPreviewModal = ({
               </div>
             </div>
 
-            {/* Line items */}
+            {/* Line items — material Purchase-Qty table, or the Job Work table
+                (CNS / Issued / Balance / Rate-per-process-unit) when jobWork. */}
             <div className="overflow-x-auto border-t border-[#e2e3e8]">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr>
-                    <th className={`${TH} w-14 text-center`}>S.No.</th>
-                    <th className={TH}>Material Description</th>
-                    <th className={`${TH} w-28 text-right`}>Purchase Qty</th>
-                    <th className={`${TH} w-20 text-center`}>Unit</th>
-                    <th className={`${TH} w-32 text-right`}>Rate (INR/Unit)</th>
-                    <th className={`${TH} w-32 text-right`}>Amount</th>
-                    <th className={`${TH} w-44`}>Remark</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewLines.map((l, i) => (
-                    <tr key={i}>
-                      <td className={`${TD} text-center font-semibold`}>
-                        {i + 1}
-                      </td>
-                      <td className={TD}>
-                        <div className="text-foreground">
-                          {l.material_description}
-                        </div>
-                        {l.ipc_code && (
-                          <div className="mt-0.5 font-mono text-[11px] text-muted-foreground">
-                            {l.ipc_code}
-                          </div>
-                        )}
-                      </td>
-                      <td className={`${TD} text-right`}>{l.qty}</td>
-                      <td className={`${TD} text-center`}>{l.unit}</td>
-                      <td className={TD}>
-                        <input
-                          type="number"
-                          step="any"
-                          min="0"
-                          value={rates[i] ?? ""}
-                          placeholder="—"
-                          onChange={(e) =>
-                            setRates((p) => ({ ...p, [i]: e.target.value }))
-                          }
-                          className={`${INPUT} text-right`}
-                        />
-                      </td>
-                      <td className={`${TD} text-right font-medium`}>
-                        {money(num(rates[i]) * num(l.qty))}
-                      </td>
-                      <td className={TD}>
-                        <input
-                          type="text"
-                          value={lineRemarks[i] ?? ""}
-                          onChange={(e) =>
-                            setLineRemarks((p) => ({
-                              ...p,
-                              [i]: e.target.value,
-                            }))
-                          }
-                          className={INPUT}
-                          placeholder="Remark"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                  {previewLines.length === 0 && (
+              {jobWork ? (
+                <table className="w-full border-collapse text-sm">
+                  <thead>
                     <tr>
-                      <td
-                        colSpan={7}
-                        className={`${TD} py-6 text-center text-muted-foreground`}
-                      >
-                        No lines.
-                      </td>
+                      <th className={`${TH} w-14 text-center`}>S.No.</th>
+                      <th className={TH}>IPC / Component</th>
+                      <th className={`${TH} w-28 text-right`}>CNS Qty / Unit</th>
+                      <th className={`${TH} w-28 text-right`}>Issued Qty / Unit</th>
+                      <th className={`${TH} w-28 text-right`}>Balance Qty / Unit</th>
+                      <th className={`${TH} w-32 text-right`}>
+                        Rate (INR) /{" "}
+                        {PROCESS_RATE_UNIT[previewLines[0]?.process_unit] ||
+                          previewLines[0]?.unit ||
+                          "unit"}
+                      </th>
+                      <th className={`${TH} w-32 text-right`}>Amount</th>
+                      <th className={`${TH} w-44`}>Remark</th>
                     </tr>
-                  )}
-                  <tr className="bg-primary/10">
-                    <td colSpan={2} className={`${TD} text-right font-bold`}>
-                      TOTAL
-                    </td>
-                    <td className={`${TD} text-right font-bold`}>{totalQty}</td>
-                    <td colSpan={2} className={TD} />
-                    <td
-                      className={`${TD} text-right text-base font-bold text-primary`}
-                    >
-                      ₹ {money(totalAmount)}
-                    </td>
-                    <td className={TD} />
-                  </tr>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {previewLines.map((l, i) => (
+                      <tr key={i}>
+                        <td className={`${TD} text-center font-semibold`}>
+                          {i + 1}
+                        </td>
+                        <td className={TD}>
+                          <div className="text-foreground">
+                            {[l.ipc_code, l.component_name]
+                              .filter(Boolean)
+                              .join(" / ") ||
+                              l.material_description ||
+                              "—"}
+                          </div>
+                          {l.material_description &&
+                            (l.ipc_code || l.component_name) && (
+                              <div className="mt-0.5 text-[11px] text-muted-foreground">
+                                {l.material_description}
+                              </div>
+                            )}
+                        </td>
+                        <td className={`${TD} text-right`}>
+                          {qtyUnit(l.cns_qty, l.unit)}
+                        </td>
+                        <td className={`${TD} text-right`}>
+                          {qtyUnit(l.qty, l.unit)}
+                        </td>
+                        <td className={`${TD} text-right`}>
+                          {qtyUnit(l.balance_qty, l.unit)}
+                        </td>
+                        <td className={TD}>
+                          <input
+                            type="number"
+                            step="any"
+                            min="0"
+                            value={rates[i] ?? ""}
+                            placeholder="—"
+                            onChange={(e) =>
+                              setRates((p) => ({ ...p, [i]: e.target.value }))
+                            }
+                            className={`${INPUT} text-right`}
+                          />
+                        </td>
+                        <td className={`${TD} text-right font-medium`}>
+                          {money(num(rates[i]) * num(l.qty))}
+                        </td>
+                        <td className={TD}>
+                          <input
+                            type="text"
+                            value={lineRemarks[i] ?? ""}
+                            onChange={(e) =>
+                              setLineRemarks((p) => ({
+                                ...p,
+                                [i]: e.target.value,
+                              }))
+                            }
+                            className={INPUT}
+                            placeholder="Remark"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                    {previewLines.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className={`${TD} py-6 text-center text-muted-foreground`}
+                        >
+                          No lines.
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="bg-primary/10">
+                      <td colSpan={3} className={`${TD} text-right font-bold`}>
+                        TOTAL
+                      </td>
+                      <td className={`${TD} text-right font-bold`}>{totalQty}</td>
+                      <td colSpan={2} className={TD} />
+                      <td
+                        className={`${TD} text-right text-base font-bold text-primary`}
+                      >
+                        ₹ {money(totalAmount)}
+                      </td>
+                      <td className={TD} />
+                    </tr>
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr>
+                      <th className={`${TH} w-14 text-center`}>S.No.</th>
+                      <th className={TH}>Material Description</th>
+                      <th className={`${TH} w-28 text-right`}>Purchase Qty</th>
+                      <th className={`${TH} w-20 text-center`}>Unit</th>
+                      <th className={`${TH} w-32 text-right`}>Rate (INR/Unit)</th>
+                      <th className={`${TH} w-32 text-right`}>Amount</th>
+                      <th className={`${TH} w-44`}>Remark</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewLines.map((l, i) => (
+                      <tr key={i}>
+                        <td className={`${TD} text-center font-semibold`}>
+                          {i + 1}
+                        </td>
+                        <td className={TD}>
+                          <div className="text-foreground">
+                            {l.material_description}
+                          </div>
+                          {l.ipc_code && (
+                            <div className="mt-0.5 font-mono text-[11px] text-muted-foreground">
+                              {l.ipc_code}
+                            </div>
+                          )}
+                        </td>
+                        <td className={`${TD} text-right`}>{l.qty}</td>
+                        <td className={`${TD} text-center`}>{l.unit}</td>
+                        <td className={TD}>
+                          <input
+                            type="number"
+                            step="any"
+                            min="0"
+                            value={rates[i] ?? ""}
+                            placeholder="—"
+                            onChange={(e) =>
+                              setRates((p) => ({ ...p, [i]: e.target.value }))
+                            }
+                            className={`${INPUT} text-right`}
+                          />
+                        </td>
+                        <td className={`${TD} text-right font-medium`}>
+                          {money(num(rates[i]) * num(l.qty))}
+                        </td>
+                        <td className={TD}>
+                          <input
+                            type="text"
+                            value={lineRemarks[i] ?? ""}
+                            onChange={(e) =>
+                              setLineRemarks((p) => ({
+                                ...p,
+                                [i]: e.target.value,
+                              }))
+                            }
+                            className={INPUT}
+                            placeholder="Remark"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                    {previewLines.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className={`${TD} py-6 text-center text-muted-foreground`}
+                        >
+                          No lines.
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="bg-primary/10">
+                      <td colSpan={2} className={`${TD} text-right font-bold`}>
+                        TOTAL
+                      </td>
+                      <td className={`${TD} text-right font-bold`}>{totalQty}</td>
+                      <td colSpan={2} className={TD} />
+                      <td
+                        className={`${TD} text-right text-base font-bold text-primary`}
+                      >
+                        ₹ {money(totalAmount)}
+                      </td>
+                      <td className={TD} />
+                    </tr>
+                  </tbody>
+                </table>
+              )}
             </div>
 
             {/* Footer blocks */}

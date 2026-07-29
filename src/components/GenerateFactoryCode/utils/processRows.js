@@ -7,8 +7,9 @@
 // component's two cutting steps are two different pieces.
 //
 // The row `key` is what a club stores in `club.components`. It is derived (never
-// stored) and MUST be reproduced identically wherever clubs are read (the Process
-// view and propagateClubs), so both use this single helper.
+// stored) and MUST be reproduced identically wherever clubs are read (the cutting
+// and sewing Process views), so they use this single helper. Cutting and sewing
+// clubbing are independent — a club's rows never cross from one section to the other.
 
 import { buildFlowMeta } from '../components/workOrders/workOrderFlow';
 

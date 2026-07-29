@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getPackagingDescriptionSyntax } from '../../utils/materialDescription';
+import { computeAssortmentRounds, getPackedByIpc } from '../../utils/assortmentLedger';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import TenantDropdown from '@/components/ui/TenantDropdown';
@@ -139,17 +140,23 @@ const Step5 = ({
     pack && typeof pack.packQty === 'object' && pack.packQty ? pack.packQty : {};
   // All packs that participate in the allocation: main pack + every extra pack.
   const allPacks = [formData.packaging || {}, ...extraPacks];
-  // Total already packed for an IPC across every pack.
-  const getAllocatedForIpc = (ipc) =>
-    allPacks.reduce((sum, p) => sum + toNum(getPackQtyMap(p)[ipc]), 0);
   // Total packed EXCLUDING one pack — the cap available to that pack's input.
   const getAllocatedExcluding = (ipc, excludePack) =>
     allPacks.reduce((sum, p) => (p === excludePack ? sum : sum + toNum(getPackQtyMap(p)[ipc])), 0);
 
+  // Assortment rounds across the whole config (main pack = round 1, each extra pack
+  // = a later round). For ASSORTED (Clubbed) packs this auto-caps each round's qty to
+  // the lowest active balance; for STANDALONE packs it honours the manual allocation.
+  const allPacksOrdered = [formData.packaging || {}, ...extraPacks];
+  const assortmentRounds = computeAssortmentRounds(allPacksOrdered, getIpcPoQty);
+  const roundByPack = new Map();
+  allPacksOrdered.forEach((p, i) => roundByPack.set(p, assortmentRounds[i]));
+  const packedByIpc = getPackedByIpc(assortmentRounds);
+
   // Per-IPC reconciliation across the whole PO (drives the leftover panel).
   const reconRows = allIpcValues.map((ipc) => {
     const po = getIpcPoQty(ipc);
-    const packed = getAllocatedForIpc(ipc);
+    const packed = packedByIpc[ipc] || 0;
     return { ipc, po, packed, balance: po - packed };
   });
   const totalPo = reconRows.reduce((s, r) => s + r.po, 0);
@@ -158,9 +165,71 @@ const Step5 = ({
   const hasOverPack = reconRows.some((r) => r.balance < 0);
   const allNil = reconRows.length > 0 && reconRows.every((r) => r.balance === 0);
 
+  // ASSORTED (Clubbed) pack: read-only, auto-capped. Every clubbed IPC ships the same
+  // Assorted Qty (the lowest active balance); the leftover carries to the next pack/round.
+  const renderAssortedPackTable = (round) => {
+    const rows = round?.rows || [];
+    if (rows.length === 0) return null;
+    const casepack = round.casepack || 0;
+    const roundNum = (n) => (Number.isFinite(n) ? Math.round(n * 100) / 100 : n);
+    return (
+      <div className="mt-5 rounded-xl border border-gray-200 bg-white overflow-hidden">
+        <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+          <span className="text-sm font-bold text-gray-800">ASSORTED PACK</span>
+          <span className="text-xs text-gray-500">Auto-capped to the lowest IPC balance · Casepack {casepack || '—'}</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-600">
+                <th className="text-left font-semibold px-4 py-2.5">IMAGE</th>
+                <th className="text-left font-semibold px-4 py-2.5">IPC</th>
+                <th className="text-right font-semibold px-4 py-2.5">PO QTY</th>
+                <th className="text-right font-semibold px-4 py-2.5">INNER CASEPACK QTY</th>
+                <th className="text-right font-semibold px-4 py-2.5">ASSORTED QTY</th>
+                <th className="text-right font-semibold px-4 py-2.5">PO BALANCE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const img = getIpcImage(r.ipc);
+                return (
+                  <tr key={r.ipc} className="border-b border-gray-100 last:border-b-0">
+                    <td className="px-4 py-2.5">
+                      <div className="w-10 h-10 rounded-md border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+                        {img ? <img src={img} alt="" className="w-full h-full object-cover" /> : (
+                          <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.5" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" strokeWidth="1.5" /></svg>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-2.5 font-medium text-gray-800 whitespace-nowrap">{r.ipc}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-900">{r.poQty || '—'}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{round.innerCasepackQty ? roundNum(round.innerCasepackQty) : '—'}</td>
+                    <td className="px-4 py-2.5 text-right font-bold text-indigo-700">{r.packedQty || '—'}</td>
+                    <td className={cn('px-4 py-2.5 text-right font-medium', r.balanceAfter === 0 ? 'text-green-600' : 'text-amber-600')}>{r.balanceAfter === 0 ? 'Nil' : r.balanceAfter}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="bg-gray-50 border-t-2 border-gray-200 font-bold text-gray-800">
+                <td className="px-4 py-2.5" colSpan={4}>REQUIRED MATERIAL QTY <span className="font-normal text-gray-500">(Σ assorted ÷ casepack)</span></td>
+                <td className="px-4 py-2.5 text-right text-indigo-700" colSpan={2}>{casepack > 0 ? roundNum(round.requiredMaterialQty) : '—'}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   // Small reusable quantity-allocation table for a single pack.
   const renderPackQtyTable = (packSelection, pack, onQtyChange) => {
     if (!packSelection || packSelection.length === 0) return null;
+    // Clubbed/ASSORTED packs are auto-capped and read-only; only STANDALONE packs
+    // take a manual "qty to pack" entry.
+    const round = roundByPack.get(pack);
+    if (round?.isAssorted) return renderAssortedPackTable(round);
     return (
       <div className="mt-5 rounded-xl border border-gray-200 bg-white overflow-hidden">
         <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
