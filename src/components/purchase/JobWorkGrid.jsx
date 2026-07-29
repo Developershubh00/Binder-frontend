@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { patchPurchaseLineItem } from '../../services/integration';
 
 // Process-unit options shown per work order. The selected unit drives the rate
 // label (₹/meter vs ₹/kg vs ₹/pcs); CNS qty itself comes from the backend.
@@ -52,13 +53,65 @@ const selKey = (sourceId, woType) => `${sourceId}::${woType}`;
 // Edits (issued/rate) are per detail line, scoped to the selection it sits under.
 const editKey = (sourceId, woType, lineSourceId) => `${sourceId}::${woType}::${lineSourceId}`;
 
-const JobWorkGrid = ({ data, onGenerateVpo }) => {
+const JobWorkGrid = ({ data, onGenerateVpo, onMaterialUpdated }) => {
   const materials = data?.materials || [];
   const workOrders = data?.work_orders || [];
 
   const [edits, setEdits] = useState({}); // editKey -> { issued, rate }
   const [selected, setSelected] = useState({}); // selKey -> bool (work order expanded)
   const [processUnit, setProcessUnit] = useState({}); // selKey -> process unit
+  // Editable material cells (Purchased Width / Length Qty) with autosave.
+  const [matEdits, setMatEdits] = useState({}); // `${source_id}:${field}` -> string
+  const [matSaving, setMatSaving] = useState({}); // `${source_id}:${field}` -> bool
+
+  // Commit an edited material cell: autosave to the DB (PATCH), then let the
+  // parent mirror it into the grid state/cache. No-ops when unchanged.
+  const commitMat = async (m, field) => {
+    const k = `${m.source_id}:${field}`;
+    const val = matEdits[k];
+    if (val === undefined) return;
+    if (String(val) === String(m[field] ?? '')) {
+      setMatEdits((p) => { const n = { ...p }; delete n[k]; return n; });
+      return;
+    }
+    setMatSaving((p) => ({ ...p, [k]: true }));
+    try {
+      await patchPurchaseLineItem(m.source_type || 'raw_material', m.source_id, { [field]: val });
+      onMaterialUpdated?.(m, { [field]: val });
+    } catch (err) {
+      console.error('Failed to save job-work material field', err);
+    } finally {
+      setMatSaving((p) => { const n = { ...p }; delete n[k]; return n; });
+      setMatEdits((p) => { const n = { ...p }; delete n[k]; return n; });
+    }
+  };
+
+  // Inline editable number cell for a material field (returns JSX; kept a plain
+  // function so the input keeps focus across re-renders).
+  const renderMatEdit = (m, field) => {
+    const k = `${m.source_id}:${field}`;
+    const saving = Boolean(matSaving[k]);
+    const current = matEdits[k] !== undefined ? matEdits[k] : (m[field] ?? '');
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+        <input
+          type="number"
+          min="0"
+          step="any"
+          value={current}
+          placeholder="—"
+          disabled={saving}
+          onChange={(e) => setMatEdits((p) => ({ ...p, [k]: e.target.value }))}
+          onBlur={() => commitMat(m, field)}
+          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+          style={{ ...inputStyle, width: 90, opacity: saving ? 0.5 : 1 }}
+        />
+        {m.unit ? (
+          <span style={{ fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>{m.unit}</span>
+        ) : null}
+      </div>
+    );
+  };
 
   // For each material, the work-order groups that include one of its lines, with
   // the lines narrowed to that material. This is what turns the flat backend
@@ -323,8 +376,8 @@ const JobWorkGrid = ({ data, onGenerateVpo }) => {
                     </td>
                     <td style={cellTd('left')} rowSpan={span}>{m.ipc_code || '—'}</td>
                     <td style={cellTd('left')} rowSpan={span}>{m.material_description || '—'}</td>
-                    <td style={cellTd('right')} rowSpan={span}>{fmt(m.purchase_width, m.unit)}</td>
-                    <td style={cellTd('right')} rowSpan={span}>{fmt(m.purchase_length_qty, m.unit)}</td>
+                    <td style={cellTd('right')} rowSpan={span}>{renderMatEdit(m, 'purchase_width')}</td>
+                    <td style={cellTd('right')} rowSpan={span}>{renderMatEdit(m, 'purchase_length_qty')}</td>
                   </>
                 );
 

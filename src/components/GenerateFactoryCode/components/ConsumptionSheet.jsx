@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TRIM_ACCESSORY_SCHEMAS } from '@/utils/validationSchemas';
 import { collectRequiredUqrFormsForStepData } from '@/utils/uqrMappings';
+import { computeAssortmentRounds } from '../utils/assortmentLedger';
 
 // Explicit column templates for the desktop CNS tables. Equal columns made the
 // (now longer, slash-joined) MATERIAL DESCRIPTION too narrow, so it overflowed
@@ -675,9 +676,17 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
     const seenExtraKeys = new Set();
     const addBlocksFromPkg = (pkg, isFromStepData) => {
       if (!pkg) return;
+      // Compute the assortment rounds across the whole config (main + every extra pack)
+      // so each block carries its own round (capped assorted qty, inner casepack, etc).
+      // All packs participate in the forward pass even if a pack has no materials yet.
+      const orderedPacks = [pkg, ...(Array.isArray(pkg.extraPacks) ? pkg.extraPacks : [])];
+      const rounds = computeAssortmentRounds(orderedPacks, (ipc) => getPoQtyForIpc(formData?.skus || [], ipc));
+      const roundByPack = new Map();
+      orderedPacks.forEach((p, i) => roundByPack.set(p, rounds[i]));
+
       const mainMats = (pkg?.materials || []).filter(hasMaterialData);
       if (mainMats.length > 0 && blocks.length === 0) {
-        blocks.push({ config: pkg, materials: mainMats, label: 'Packaging', isExtra: false });
+        blocks.push({ config: pkg, materials: mainMats, label: 'Packaging', isExtra: false, round: roundByPack.get(pkg) });
       }
       (pkg?.extraPacks || []).forEach((ep) => {
         const mats = (ep?.materials || []).filter(hasMaterialData);
@@ -685,7 +694,7 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
           const key = `${ep?.toBeShipped}-${(ep?.productSelection || []).join(',')}`;
           if (!seenExtraKeys.has(key)) {
             seenExtraKeys.add(key);
-            blocks.push({ config: ep, materials: mats, label: `Packaging ${blocks.length + 1}`, isExtra: true });
+            blocks.push({ config: ep, materials: mats, label: `Packaging ${blocks.length + 1}`, isExtra: true, round: roundByPack.get(ep) });
           }
         }
       });
@@ -1090,6 +1099,40 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
       }
     }
 
+    // --- Cut & Sew size helpers ------------------------------------------------
+    // Cut/Sew size is now captured per CUTTING / SEWING work order (cutLength /
+    // cutWidth / cutUnit and sewLength / sewWidth / sewUnit on each work order in
+    // stepData.rawMaterials). The legacy per-component cuttingSize / sewSize
+    // fields are almost always empty, so we read the work orders and keep the
+    // component fields only as a fallback for old drafts.
+    const hasVal = (v) => v !== undefined && v !== null && String(v).trim() !== '';
+    const valOrDash = (v) => (hasVal(v) ? v : '-');
+    const shortSizeUnit = (u) => {
+      const s = String(u || '').toUpperCase();
+      if (s.includes('KG')) return 'kgs';
+      if (s.includes('PCS')) return 'pcs';
+      if (s.includes('CM') || s.includes('YARD')) return 'cm';
+      return String(u || '').trim();
+    };
+    // Finished cut & sew dimensions for this component: scan its raw materials'
+    // work orders and take the last CUTTING / SEWING order that carries a size
+    // (the final pass determines the finished piece).
+    const componentCutSewSpec = (() => {
+      let cut = null;
+      let sew = null;
+      (rawMats || []).forEach((m) => {
+        (m.workOrders || []).forEach((wo) => {
+          const t = String(wo?.workOrder || '').toUpperCase();
+          if (t === 'CUTTING' && (hasVal(wo.cutLength) || hasVal(wo.cutWidth))) {
+            cut = { length: wo.cutLength, width: wo.cutWidth, unit: wo.cutUnit };
+          } else if (t === 'SEWING' && (hasVal(wo.sewLength) || hasVal(wo.sewWidth))) {
+            sew = { length: wo.sewLength, width: wo.sewWidth, unit: wo.sewUnit };
+          }
+        });
+      });
+      return { cut, sew };
+    })();
+
     const row4Cell = 'min-w-0 border-r border-border bg-muted/5 flex items-center';
     const row4Last = 'min-w-0 border-border bg-muted/5 flex items-center';
     const desktopTableCell = { padding: '14px 18px' };
@@ -1251,18 +1294,32 @@ const ConsumptionSheet = forwardRef(({ formData = {}, isEditMode = false, onEdit
         <div className="space-y-2">
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Work orders</span>
           <div className="flex flex-wrap gap-3">
-            {workOrders.map((wo, idx) => (
-              <div
-                key={`${wo.workOrder || 'wo'}-${idx}`}
-                className="bg-muted/10 border border-border rounded-lg text-sm"
-                style={{ padding: '8px 12px' }}
-              >
-                <span className="font-semibold text-foreground">{wo.workOrder || `WO ${idx + 1}`}</span>
-                {wo.wastage && (
-                  <span className="text-muted-foreground text-xs block mt-1">Wastage: {wo.wastage}</span>
-                )}
-              </div>
-            ))}
+            {workOrders.map((wo, idx) => {
+              // Surface the cut/sew size on the CUTTING / SEWING chip itself, where
+              // it is captured (cutLength/cutWidth, sewLength/sewWidth).
+              const woType = String(wo.workOrder || '').toUpperCase();
+              let sizeLine = null;
+              if (woType === 'CUTTING' && (hasVal(wo.cutLength) || hasVal(wo.cutWidth))) {
+                sizeLine = `Cut: ${valOrDash(wo.cutLength)} × ${valOrDash(wo.cutWidth)} ${shortSizeUnit(wo.cutUnit)}`.trim();
+              } else if (woType === 'SEWING' && (hasVal(wo.sewLength) || hasVal(wo.sewWidth))) {
+                sizeLine = `Sew: ${valOrDash(wo.sewLength)} × ${valOrDash(wo.sewWidth)} ${shortSizeUnit(wo.sewUnit)}`.trim();
+              }
+              return (
+                <div
+                  key={`${wo.workOrder || 'wo'}-${idx}`}
+                  className="bg-muted/10 border border-border rounded-lg text-sm"
+                  style={{ padding: '8px 12px' }}
+                >
+                  <span className="font-semibold text-foreground">{wo.workOrder || `WO ${idx + 1}`}</span>
+                  {sizeLine && (
+                    <span className="text-foreground text-xs block mt-1">{sizeLine}</span>
+                  )}
+                  {wo.wastage && (
+                    <span className="text-muted-foreground text-xs block mt-1">Wastage: {wo.wastage}</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       );
@@ -1637,7 +1694,11 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
             <div className="grid grid-cols-2" style={isMobileCns ? { gap: '16px' } : { gap: '20px' }}>
               <div className="bg-white rounded-lg border border-border shadow-sm" style={{ padding: isMobileCns ? '16px 18px' : '18px 20px' }}>
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Cut Size</span>
-                {String(componentDetails?.unit || unit || '').toUpperCase() === 'KGS' ? (
+                {componentCutSewSpec.cut ? (
+                  <span className="text-base font-medium text-foreground">
+                    {valOrDash(componentCutSewSpec.cut.length)} × {valOrDash(componentCutSewSpec.cut.width)} {shortSizeUnit(componentCutSewSpec.cut.unit) || 'cm'}
+                  </span>
+                ) : String(componentDetails?.unit || unit || '').toUpperCase() === 'KGS' ? (
                   <span className="text-base font-medium text-foreground">
                     {componentDetails?.cuttingSize?.consumption ?? '-'}
                     <span className="text-muted-foreground font-normal"> kgs</span>
@@ -1650,7 +1711,11 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
               </div>
               <div className="bg-white rounded-lg border border-border shadow-sm" style={{ padding: isMobileCns ? '16px 18px' : '18px 20px' }}>
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Sew Size</span>
-                {String(componentDetails?.unit || unit || '').toUpperCase() === 'KGS' ? (
+                {componentCutSewSpec.sew ? (
+                  <span className="text-base font-medium text-foreground">
+                    {valOrDash(componentCutSewSpec.sew.length)} × {valOrDash(componentCutSewSpec.sew.width)} {shortSizeUnit(componentCutSewSpec.sew.unit) || 'cm'}
+                  </span>
+                ) : String(componentDetails?.unit || unit || '').toUpperCase() === 'KGS' ? (
                   <span className="text-base font-medium text-foreground">
                     {componentDetails?.sewSize?.consumption ?? '-'}
                     <span className="text-muted-foreground font-normal"> kgs</span>
@@ -1843,6 +1908,25 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
       const isInnerCasepack = /inner\s*[~-]?\s*caseapack/i.test(innerType) || /inner/i.test(innerType);
       return isPolybagBale && isInnerCasepack;
     };
+    // A material with an Inner Casepack (polybag-flap / polybag-bale) is packed
+    // per inner group, so its requirement divides by the inner casepack, not the
+    // outer master casepack. Returns 0 for materials without an inner casepack,
+    // which then fall back to the outer casepack.
+    const getStdInnerCasepack = (p) => {
+      const type = String(p.packagingMaterialType || '').trim();
+      if (type === 'POLYBAG~POLYBAG-FLAP') return parseFloat(String(p.polybagPolybagFlapInnerCasepack || '').trim()) || 0;
+      if (type === 'POLYBAG~Bale') return parseFloat(String(p.polybagBaleInnerCasepack || '').trim()) || 0;
+      return 0;
+    };
+    // Per-carton accessories (silica gel, shipping mark) are placed N per master carton,
+    // so their requirement is qty-per-carton × number of cartons — NOT a casepack division.
+    // Returns 0 for materials that aren't per-carton accessories.
+    const getStdPerCartonQty = (p) => {
+      const type = String(p.packagingMaterialType || '').trim();
+      if (type === 'SILICA GEL DESICCANT') return parseFloat(String(p.silicaGelDesiccantQuantity || '').trim()) || 0;
+      if (type === 'SHIPPING MARK') return parseFloat(String(p.shippingMarkQty || '').trim()) || 0;
+      return 0;
+    };
     const standardMats = packagingMats.filter((p) => !isPolybagInner(p));
     const innerMats = packagingMats.filter(isPolybagInner);
 
@@ -1878,11 +1962,27 @@ Gross Wastage % = ((1+w1/100) × (1+w2/100) × ... − 1) × 100`)}
                 const packagingWastageSurplus = extractPackagingWastageSurplus(packaging);
                 const packagingCompoundWastage = calculateCompoundWastage(packagingWastageSurplus);
                 const matType = formatPackagingTypeName(packaging.packagingMaterialType);
-                const matCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
-                const totalMatReqBase = isMerged
-                  ? totalPoSetQtyForMerged
-                  : (poQtyForStandalone * setOfForStandalone);
-                const reqMat = matCasepack > 0 ? (totalMatReqBase / matCasepack).toFixed(2) : '-';
+                // Prefer the material's own Inner Casepack (polybag-flap/bale); otherwise
+                // fall back to the material's casepack, then the packaging-level casepack.
+                const innerCasepack = getStdInnerCasepack(packaging);
+                const outerCasepack = parseFloat(String(packaging.casepack || '').trim()) || formCasepack;
+                const matCasepack = innerCasepack > 0 ? innerCasepack : outerCasepack;
+                // Clubbed/ASSORTED: this block is one assortment round — the pieces packed
+                // are Σ(assorted qty) for this round (capped to the lowest IPC balance), not
+                // the full merged PO sum. round.isAssorted resolves an extra pack that
+                // inherits "Merged" from the main pack (its own toBeShipped may be blank).
+                const totalMatReqBase = pkgBlock?.round?.isAssorted
+                  ? pkgBlock.round.totalPackedQty
+                  : (isMerged ? totalPoSetQtyForMerged : (poQtyForStandalone * setOfForStandalone));
+                // Three NET behaviours:
+                //  • per-carton accessory (silica/shipping) → qty-per-carton × number of cartons
+                //  • inner-pack / carton unit               → pieces ÷ (inner or master casepack)
+                const perCartonQty = getStdPerCartonQty(packaging);
+                const numCartons = outerCasepack > 0 ? (totalMatReqBase / outerCasepack) : 0;
+                const reqMatValue = perCartonQty > 0
+                  ? perCartonQty * numCartons
+                  : (matCasepack > 0 ? totalMatReqBase / matCasepack : null);
+                const reqMat = reqMatValue == null ? '-' : reqMatValue.toFixed(2);
                 const matDesc = getPackagingDescriptionWithStiffener(packaging, reqMat);
                 const matSize = getPackagingSize(packaging);
                 const reqMatNum = typeof reqMat === 'string' ? parseFloat(reqMat) : reqMat;

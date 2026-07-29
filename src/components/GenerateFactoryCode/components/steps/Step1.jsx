@@ -17,7 +17,6 @@ const Step1 = ({
   removeWorkOrder,
   clubComponents,
   unclubClub,
-  propagateClubs,
   markSewMovedToAssembly,
   onProceedToSelector,
   onPrev,
@@ -147,12 +146,13 @@ const Step1 = ({
       {activeTab === 'cutting' && renderProcessTab({
         woType: 'CUTTING', prefix: 'cut', sizeLabel: 'CUT SIZE', kind: 'cutting',
         section: cuttingSection, setSection: setCuttingSection,
-        // Cutting: save + carry the club grouping into Sewing (clubs together,
-        // singles alone), show the popup, and open Sewing on Continue.
+        // Cutting: save, show the popup, and open Sewing on Continue. The cutting
+        // grouping is NOT carried into Sewing — sewing clubbing is independent, so
+        // the sewing process starts from singles and is clubbed separately there.
         modeAction: {
           label: 'Save & Forward to Sewing Line',
-          onClick: () => { onSave(); propagateClubs?.('cutting', 'sewing'); },
-          notice: 'Saved and moved to the sewing line.',
+          onClick: () => { onSave(); },
+          notice: 'Cutting saved — opening the sewing line. The grouping below is for cutting only; sewing is clubbed separately.',
           onContinue: () => { setSewingSection('spec'); setActiveTab('sewing'); },
         },
       })}

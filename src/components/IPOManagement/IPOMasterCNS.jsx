@@ -236,6 +236,24 @@ const getDyeingShrinkageLength = (rm) => {
   return 0;
 };
 
+// Cut/Sew size now lives on the raw material's CUTTING / SEWING work orders
+// (cutLength / cutWidth, sewLength / sewWidth) — not on the component's legacy
+// cuttingSize. Return the finished CUTTING dimensions: the last CUTTING work
+// order that carries a size, as floats (null when none).
+const getCuttingWoSize = (rm) => {
+  const out = { length: null, width: null };
+  for (const wo of rm?.workOrders || []) {
+    if (!wo) continue;
+    const type = String(wo.workOrder || wo.work_order || '').toUpperCase();
+    if (type !== 'CUTTING') continue;
+    const l = wo.cutLength;
+    const w = wo.cutWidth;
+    if (l !== undefined && l !== null && String(l).trim() !== '') out.length = parseFloat(l);
+    if (w !== undefined && w !== null && String(w).trim() !== '') out.width = parseFloat(w);
+  }
+  return out;
+};
+
 // Length-side gross wastage: compound of all wastage/surplus PLUS the DYEING
 // shrinkage-length % (extra fabric length needed to compensate for post-dyeing
 // shrinkage). extractAllWastages ignores shrinkage (key has no "wastage"/"surplus"),
@@ -372,8 +390,11 @@ const buildFiberRowsFromDerived = (formData) => {
       const componentName = rm.componentName || rm.component_name || '';
       const comp = findComponentInStep(stepdata, componentName);
       const cutting = (comp && comp.cuttingSize) || {};
-      const netLength = pickFloat({ v: cutting.length }, ['v']);
-      const netWidth = pickFloat({ v: cutting.width }, ['v']);
+      // Cut size now lives on the raw material's CUTTING work order (cutLength /
+      // cutWidth); the legacy component cuttingSize is only a fallback.
+      const cutWo = getCuttingWoSize(rm);
+      const netLength = Number.isFinite(cutWo.length) ? cutWo.length : pickFloat({ v: cutting.length }, ['v']);
+      const netWidth = Number.isFinite(cutWo.width) ? cutWo.width : pickFloat({ v: cutting.width }, ['v']);
       // GSM is stored on the Cut & Sew Spec component itself, not on the
       // fiber raw-material entry.
       const gsm = comp ? pickFirst(comp, ['gsm', 'GSM', 'componentGsm']) : null;
@@ -425,8 +446,11 @@ const buildFoamRowsFromDerived = (formData) => {
       const componentName = rm.componentName || rm.component_name || '';
       const comp = findComponentInStep(stepdata, componentName);
       const cutting = (comp && comp.cuttingSize) || {};
-      const netLength = pickFloat({ v: cutting.length }, ['v']);
-      const netWidth = pickFloat({ v: cutting.width }, ['v']);
+      // Cut size now lives on the raw material's CUTTING work order (cutLength /
+      // cutWidth); the legacy component cuttingSize is only a fallback.
+      const cutWo = getCuttingWoSize(rm);
+      const netLength = Number.isFinite(cutWo.length) ? cutWo.length : pickFloat({ v: cutting.length }, ['v']);
+      const netWidth = Number.isFinite(cutWo.width) ? cutWo.width : pickFloat({ v: cutting.width }, ['v']);
       // GSM comes from the Cut & Sew Spec component (same source as fiber & trim).
       const gsm = comp ? pickFirst(comp, ['gsm', 'GSM', 'componentGsm']) : null;
       const foamNetWeightGrams = netWeightGramsFromBom(rm);
@@ -487,8 +511,12 @@ const buildTrimRowsFromDerived = (formData) => {
       const componentName = String(rawComponent || '').trim();
       const comp = findComponentInStep(stepdata, componentName);
       const cutting = (comp && comp.cuttingSize) || {};
-      const netLength = pickFloat({ v: cutting.length }, ['v']);
-      const netWidth = pickFloat({ v: cutting.width }, ['v']);
+      // Cut size now lives on the raw material's CUTTING work order (cutLength /
+      // cutWidth); the legacy component cuttingSize is only a fallback. PCS-based
+      // trims still zero these out below.
+      const cutWo = getCuttingWoSize(m);
+      const netLength = Number.isFinite(cutWo.length) ? cutWo.length : pickFloat({ v: cutting.length }, ['v']);
+      const netWidth = Number.isFinite(cutWo.width) ? cutWo.width : pickFloat({ v: cutting.width }, ['v']);
       // GSM is stored on the Cut & Sew Spec component itself.
       // CNS/PC comes from the row's own Net CNS/PC field on the BOM & WIP form.
       const gsm = comp ? pickFirst(comp, ['gsm', 'GSM', 'componentGsm']) : null;
@@ -710,14 +738,15 @@ const buildFabricRowsFromDerived = (formData) => {
       const componentName = rm.componentName || rm.component_name || '';
       const comp = findComponentInStep(stepdata, componentName);
       const cutting = (comp && comp.cuttingSize) || {};
-      const netLengthRaw = cutting.length;
-      const netWidthRaw = cutting.width;
-      const netLength = netLengthRaw !== undefined && netLengthRaw !== null && netLengthRaw !== ''
-        ? parseFloat(netLengthRaw)
-        : null;
-      const netWidth = netWidthRaw !== undefined && netWidthRaw !== null && netWidthRaw !== ''
-        ? parseFloat(netWidthRaw)
-        : null;
+      // Net Length CNS/PC = the Net Consumption entered at Raw Material Selection
+      // (authoritative per-piece net; for fabric this is the running length). Net
+      // Width CNS/PC = the finished CUTTING work order's cut width. The legacy
+      // component cuttingSize is kept only as a fallback for old drafts.
+      const netLength = pickFloat(rm, ['netConsumption', 'net_consumption', 'consumption']);
+      const cutWo = getCuttingWoSize(rm);
+      const netWidth = Number.isFinite(cutWo.width)
+        ? cutWo.width
+        : pickFloat({ v: cutting.width }, ['v']);
       rows.push({
         id: `derived-fabric-${ipcCode}-${idx}-${normKey(description)}`,
         ipc: ipcCode,
@@ -1108,15 +1137,16 @@ const renderSumComputed = (computeOne, decimals = 2) => (r, ctx) => {
   return formatNumber(value, { decimals });
 };
 
-// FABRIC columns — updated to match the IPC MASTER CNS spec (Fabric sheet).
-// Order & set mirror the spec exactly. IPC# and Club/Single stay as row grouping
-// (rendered by the table shell), so they are NOT columns here.
+// FABRIC columns — Fabric sheet of the IPC MASTER CNS. IPC# and Club/Single stay
+// as row grouping (rendered by the table shell), so they are NOT columns here.
 //   Material Description → Component → Overage QTY
 //   → Net Length CNS/PC → Gross Length Wastage % → Gross Length CNS/PC
-//   → Net Width CNS/PC  → Gross Width Wastage %  → Gross Width CNS/PC
-//   → Purchase Width → Unit → Gross Purchase QTY (Unit) → Remarks / Status
-// Gross Width CNS is still computed via fabricGrossWidthCns() for the Purchase
-// Width validation/clubbing, but is no longer shown as its own column.
+//   → Net Width CNS/PC → Purchase Width → Unit → Gross Purchase QTY → Remarks
+// Net Length CNS/PC = the Net Consumption entered at Raw Material Selection;
+// Net Width CNS/PC = the finished CUTTING work order's cut width. Length wastage
+// AND DYEING length shrinkage are compounded into Gross Length CNS/PC. There is
+// no Gross Width column: width wastage is surfaced as an (i) popup on Purchase
+// Width instead (fabricGrossWidthCns() still computes the validation threshold).
 const FABRIC_COLUMNS = [
   { key: 'material_description', header: 'Material Description', align: 'left',
     render: (r) => r.material_description || '-' },
@@ -1147,10 +1177,6 @@ const FABRIC_COLUMNS = [
       if (ctx?.isClub) return formatNumber(effectiveFabricNetWidth(r, ctx));
       return <YardageCell rowId={r.id} field="net_width_cns_pc" ctx={ctx} />;
     } },
-  { key: 'gross_wastage_width', header: 'Gross Width Wastage', align: 'right',
-    render: (r) => formatNumber(r.gross_wastage_width, { decimals: 2, suffix: '%' }) },
-  { key: 'gross_width_cns_pc', header: 'Gross Width CNS/PC', align: 'right',
-    render: (r, ctx) => formatNumber(fabricGrossWidthPc(r, ctx)) },
   { key: 'purchase_width', header: 'Purchase Width', align: 'right',
     aggregatedInClub: true,
     render: (r, ctx) => {
@@ -1165,13 +1191,27 @@ const FABRIC_COLUMNS = [
               fontWeight: 600,
               color: invalid ? '#dc2626' : undefined,
             }}
-            title={invalid ? 'Purchase Width sum must be greater than Gross Width CNS' : undefined}
+            title={invalid ? 'Purchase Width sum must be greater than the width wastage threshold' : undefined}
           >
             {formatNumber(scopePurchase, { decimals: 2 })}
           </span>
         );
       }
-      return <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} invalid={invalid} />;
+      // Width wastage is NOT its own column — it is surfaced here, at the moment
+      // the Purchase Width is entered, as an (i) popup telling the user the % to
+      // account for (per-row DYEING shrinkage width).
+      const widthWastage = toNum(r.gross_wastage_width);
+      const netW = effectiveFabricNetWidth(r, ctx);
+      const infoText = Number.isFinite(widthWastage) && widthWastage > 0
+        ? `Consider ${formatNumber(widthWastage, { decimals: 2 })}% width wastage when setting Purchase Width` +
+          (Number.isFinite(netW) ? ` (Net Width CNS/PC ${formatNumber(netW)}).` : '.')
+        : 'No width wastage recorded for this material — set Purchase Width to the required fabric width.';
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <ManualNumberCell rowId={r.id} field="purchase_width" ctx={ctx} invalid={invalid} />
+          <HeaderInfo text={infoText} />
+        </span>
+      );
     } },
   { key: 'unit', header: 'Unit', align: 'left',
     render: (r) => r.unit || '-' },

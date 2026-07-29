@@ -15,7 +15,7 @@ const CLUB_TINTS = ['#f97316', '#0ea5e9', '#22c55e', '#a855f7', '#ef4444', '#eab
 
 const ProcessSection = ({ formData, woType, prefix, kind, clubs = [], clubComponents, unclubClub, modeAction, finalAction, saveBtn = null }) => {
   const [selected, setSelected] = useState({});        // row key -> bool
-  const [selectedClubs, setSelectedClubs] = useState({}); // club id -> bool
+  const [selectedClubs, setSelectedClubs] = useState({}); // club INDEX -> bool (ids can collide/be undefined)
   const [notice, setNotice] = useState('');
   const [sizeMismatch, setSizeMismatch] = useState(null); // { keys, rows } when club is blocked on size
 
@@ -73,10 +73,12 @@ const ProcessSection = ({ formData, woType, prefix, kind, clubs = [], clubCompon
     performClub(keys);
   };
   const doUnclub = () => {
-    const ids = Object.entries(selectedClubs).filter(([, v]) => v).map(([id]) => id);
-    if (!ids.length) return;
-    const separated = clubs.filter((c) => ids.includes(c.id)).flatMap((c) => c.components);
-    ids.forEach((id) => unclubClub(kind, id));
+    // Selection is keyed by the club's INDEX (ids can collide or be undefined), so
+    // isolate exactly the picked rows and remove them in one shot.
+    const idxs = Object.entries(selectedClubs).filter(([, v]) => v).map(([i]) => Number(i));
+    if (!idxs.length) return;
+    const separated = idxs.map((i) => clubs[i]).filter(Boolean).flatMap((c) => c.components);
+    unclubClub(kind, idxs);
     setSelectedClubs({});
     setNotice(`${separated.join(' and ')} separated — each is processed on its own again (isolation).`);
   };
@@ -139,10 +141,16 @@ const ProcessSection = ({ formData, woType, prefix, kind, clubs = [], clubCompon
               const tint = CLUB_TINTS[ci % CLUB_TINTS.length];
               const active = club.components.every((k) => isRowActive(rowByKey[k]?.wo));
               const clubSize = sizeOf(rowByKey[club.components[0]]?.wo);
+              // A club groups several work orders, each with its own fill-time remark.
+              // List them per member (labelled by the member key) so a remark is never
+              // shown ambiguously as if it belonged to the whole club.
+              const memberRemarks = club.components
+                .map((k) => ({ k, remark: rowByKey[k]?.wo?.remarks }))
+                .filter((x) => x.remark);
               return (
-                <label key={club.id} className={`${rowCls} cursor-pointer`} style={{ borderLeft: `3px solid ${tint}`, background: `${tint}12` }}>
+                <label key={ci} className={`${rowCls} cursor-pointer`} style={{ borderLeft: `3px solid ${tint}`, background: `${tint}12` }}>
                   <span className="px-2 py-2">
-                    <input type="checkbox" checked={!!selectedClubs[club.id]} onChange={() => setSelectedClubs((p) => ({ ...p, [club.id]: !p[club.id] }))} />
+                    <input type="checkbox" checked={!!selectedClubs[ci]} onChange={() => setSelectedClubs((p) => ({ ...p, [ci]: !p[ci] }))} />
                   </span>
                   <span className="px-2 py-2 text-sm min-w-0">
                     <span className="flex items-center gap-2 flex-wrap">
@@ -150,6 +158,9 @@ const ProcessSection = ({ formData, woType, prefix, kind, clubs = [], clubCompon
                       <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide" style={{ background: tint, color: '#fff' }}>Merged</span>
                     </span>
                     {clubSize && <span className="block text-[11px] text-muted-foreground truncate">Size {clubSize}</span>}
+                    {memberRemarks.map(({ k, remark }) => (
+                      <span key={k} className="block text-[11px] italic text-muted-foreground truncate">{k}: “{remark}”</span>
+                    ))}
                   </span>
                   <span className="px-2 py-2 text-xs font-medium" style={{ color: tint }}>{club.label} · together</span>
                   <span className={`px-2 py-2 text-xs text-right ${active ? 'text-green-600 font-medium' : 'text-muted-foreground'}`}>{active ? 'Active' : 'Inactive'}</span>
@@ -168,6 +179,10 @@ const ProcessSection = ({ formData, woType, prefix, kind, clubs = [], clubCompon
                   <span className="px-2 py-2 text-sm min-w-0">
                     <span className="truncate block">{r.name} <span className="text-muted-foreground">· {r.placement}</span></span>
                     <span className="block text-[11px] text-muted-foreground truncate">{r.typeCode}{size ? ` · ${size}` : ''}</span>
+                    {/* Remark entered at cut/sew fill time (workOrder.remarks). */}
+                    {r.wo?.remarks && (
+                      <span className="block text-[11px] italic text-muted-foreground truncate">Remark: “{r.wo.remarks}”</span>
+                    )}
                   </span>
                   <span className="px-2 py-2 text-xs text-muted-foreground">Single (isolation)</span>
                   <span className={`px-2 py-2 text-xs text-right ${isRowActive(r.wo) ? 'text-green-600 font-medium' : 'text-muted-foreground'}`}>{isRowActive(r.wo) ? 'Active' : 'Inactive'}</span>
