@@ -43,6 +43,14 @@ const fmtDate = (v) => {
 const PRINT_STYLES = `
 html, body { margin: 0; padding: 0; background: #fff; }
 body { padding: 18px; }
+.challan-doc .items td.mono { font-family: "Consolas", "Courier New", monospace; word-break: break-all; }
+.challan-doc .items td.pkg-cell { padding: 0; background: #fbfbfc; }
+.challan-doc .pkgs { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.challan-doc .pkgs th, .challan-doc .pkgs td { border: 1px solid #d7dae0; padding: 2px 6px; font-size: 10px; text-align: left; }
+.challan-doc .pkgs th { background: #f3f4f6; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; color: #555; }
+.challan-doc .pkgs td.r { text-align: right; }
+.challan-doc .pkgs td.c { text-align: center; }
+.challan-doc .pkgs td.mono { font-family: "Consolas", "Courier New", monospace; word-break: break-all; }
 @media print {
   html, body, *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
@@ -61,21 +69,23 @@ export const buildReceiptBody = (doc) => {
   const challanOnly = !!doc?.is_challan_only;
 
   // Item columns differ by receivable type: Challan-Only drops Rate & Amount.
+  // A UIN column sits right after Particulars (before PO Qty).
   const itemCols = challanOnly
-    ? '<col style="width:5%" /><col style="width:24%" /><col style="width:10%" /><col style="width:11%" /><col style="width:9%" /><col style="width:15%" /><col style="width:12%" /><col style="width:8%" /><col style="width:6%" />'
-    : '<col style="width:4%" /><col style="width:19%" /><col style="width:8%" /><col style="width:9%" /><col style="width:7%" /><col style="width:8%" /><col style="width:9%" /><col style="width:12%" /><col style="width:10%" /><col style="width:8%" /><col style="width:6%" />';
+    ? '<col style="width:4%" /><col style="width:18%" /><col style="width:17%" /><col style="width:8%" /><col style="width:9%" /><col style="width:7%" /><col style="width:12%" /><col style="width:10%" /><col style="width:9%" /><col style="width:6%" />'
+    : '<col style="width:3%" /><col style="width:15%" /><col style="width:14%" /><col style="width:7%" /><col style="width:8%" /><col style="width:6%" /><col style="width:7%" /><col style="width:8%" /><col style="width:10%" /><col style="width:9%" /><col style="width:7%" /><col style="width:6%" />';
 
   const itemHead = challanOnly
-    ? '<th>Sr. No.</th><th>Particulars</th><th>PO Qty</th><th>Received Qty</th><th>Balance</th><th>Remarks</th><th>Received Form</th><th>No. of Packages</th><th>UQR</th>'
-    : '<th>Sr. No.</th><th>Particulars</th><th>PO Qty</th><th>Received Qty</th><th>Balance</th><th>Rate</th><th>Amount</th><th>Remarks</th><th>Received Form</th><th>No. of Packages</th><th>UQR</th>';
+    ? '<th>Sr. No.</th><th>Particulars</th><th>UIN</th><th>PO Qty</th><th>Received Qty</th><th>Balance</th><th>Remarks</th><th>Received Form</th><th>No. of Packages</th><th>UQR</th>'
+    : '<th>Sr. No.</th><th>Particulars</th><th>UIN</th><th>PO Qty</th><th>Received Qty</th><th>Balance</th><th>Rate</th><th>Amount</th><th>Remarks</th><th>Received Form</th><th>No. of Packages</th><th>UQR</th>';
 
-  const colCount = challanOnly ? 9 : 11;
+  const colCount = challanOnly ? 10 : 12;
 
   const rowsHtml = lines
     .map((l, i) => {
       const cells = [
         `<td class="c">${i + 1}</td>`,
         `<td>${esc(l.particulars)}</td>`,
+        `<td class="mono">${esc(l.uin)}</td>`,
         `<td class="r">${esc(fmtNum(l.po_quantity))}</td>`,
         `<td class="r">${esc(fmtNum(l.received_quantity))}</td>`,
         `<td class="r">${esc(fmtNum(l.balance))}</td>`,
@@ -88,43 +98,68 @@ export const buildReceiptBody = (doc) => {
       cells.push(`<td>${esc(l.received_form)}</td>`);
       cells.push(`<td class="c">${esc(l.num_packages)}</td>`);
       cells.push(`<td class="c">${l.uqr ? 'YES' : ''}</td>`);
-      return `<tr>${cells.join('')}</tr>`;
+
+      // Nested 2D sub-table: one row per package (Received Form / Qty / Unit / USN),
+      // indented under the Sr. No. column.
+      const pkgs = l.packages || [];
+      let pkgRowHtml = '';
+      if (pkgs.length) {
+        const pkgBody = pkgs
+          .map(
+            (p) => `<tr>
+              <td>${esc(p.form)}</td>
+              <td class="r">${esc(fmtNum(p.quantity))}</td>
+              <td class="c">${esc(p.unit)}</td>
+              <td class="mono">${esc(p.usn)}</td>
+            </tr>`,
+          )
+          .join('');
+        pkgRowHtml = `<tr class="pkg-row">
+          <td></td>
+          <td colspan="${colCount - 1}" class="pkg-cell">
+            <table class="pkgs">
+              <colgroup><col style="width:22%" /><col style="width:14%" /><col style="width:9%" /><col style="width:55%" /></colgroup>
+              <thead><tr><th>Received Form</th><th>Quantity</th><th>Unit</th><th>USN</th></tr></thead>
+              <tbody>${pkgBody}</tbody>
+            </table>
+          </td>
+        </tr>`;
+      }
+      return `<tr>${cells.join('')}</tr>${pkgRowHtml}`;
     })
     .join('');
 
-  const padRows = Math.max(0, 8 - lines.length);
-  const emptyTds = `<td>&nbsp;</td>${'<td></td>'.repeat(colCount - 1)}`;
-  const padHtml = Array.from({ length: padRows })
-    .map(() => `<tr>${emptyTds}</tr>`)
-    .join('');
+  const padHtml = '';
 
   return `
   <table class="info divide">
-    <colgroup><col style="width:34%" /><col style="width:32%" /><col style="width:34%" /></colgroup>
+    <colgroup><col style="width:30%" /><col style="width:40%" /><col style="width:30%" /></colgroup>
     <tr>
       <td><span class="k">GST:</span>${esc(CHALLAN_COMPANY.gst)}</td>
-      <td class="title-cell">GOODS RECEIPT NOTE</td>
+      <td rowspan="3" style="text-align:center; vertical-align:middle;">
+        <div class="title-cell">GOODS RECEIPT NOTE</div>
+        <div class="company" style="padding:4px;">${esc(CHALLAN_COMPANY.name)}</div>
+        <div class="sub" style="padding:2px;">${esc(CHALLAN_COMPANY.subtitle)}</div>
+      </td>
       <td><span class="k">CONTACT:</span>${esc(CHALLAN_COMPANY.contact)}</td>
     </tr>
-    <tr><td colspan="3" class="company" style="padding-top:2px;">${esc(CHALLAN_COMPANY.name)}</td></tr>
-    <tr><td colspan="3" class="sub">${esc(CHALLAN_COMPANY.subtitle)}</td></tr>
-  </table>
-
-  <table class="info" style="margin-top:2px;">
-    <colgroup><col style="width:25%" /><col style="width:25%" /><col style="width:25%" /><col style="width:25%" /></colgroup>
     <tr>
-      <td><span class="k">Date</span>${esc(fmtDate(doc?.date))}</td>
-      <td><span class="k">Receivable Type</span>${esc(doc?.receivable_type)}</td>
-      <td><span class="k">IPO Type</span>${esc(doc?.ipo_type)}</td>
-      <td><span class="k">IPO</span>${esc(doc?.ipo_code)}</td>
+      <td><span class="k">Date:</span>${esc(fmtDate(doc?.date))}</td>
+      <td><span class="k">IPO Type:</span>${esc(doc?.ipo_type)}</td>
     </tr>
     <tr>
+      <td><span class="k">Receivable Type:</span>${esc(doc?.receivable_type)}</td>
+      <td></td>
+    </tr>
+  </table>
+
+  <table class="info" style="margin-top:4px;">
+    <colgroup><col style="width:25%" /><col style="width:25%" /><col style="width:25%" /><col style="width:25%" /></colgroup>
+    <tr>
+      <td><span class="k">IPO</span>${esc(doc?.ipo_code)}</td>
       <td><span class="k">VPO No</span>${esc(doc?.vpo_number)}</td>
       <td><span class="k">Vendor Challan No.</span>${esc(doc?.vendor_challan_no)}</td>
       <td><span class="k">Vendor Invoice No.</span>${esc(doc?.vendor_invoice_no)}</td>
-    </tr>
-    <tr>
-      <td colspan="4"><span class="k">Goods Receiving Condition</span>${esc(doc?.goods_condition)}</td>
     </tr>
   </table>
 

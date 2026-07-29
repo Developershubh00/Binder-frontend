@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { ImagePlus, X, CheckCircle2 } from "lucide-react";
+import { ImagePlus, X, CheckCircle2, Printer } from "lucide-react";
 import {
   getIPOs,
   createInwardStoreSheet,
@@ -56,6 +56,36 @@ const FORM_OPTIONS = [
   { value: "ROLL", label: "ROLL" },
   { value: "PCS", label: "PCS" },
 ];
+
+// A row's "# of Package" expands into that many package sub-rows (the 2nd dimension);
+// the per-package quantities must add up to the row's received quantity.
+const MAX_PACKAGES = 200;
+
+const createId = () =>
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+// One package sub-row. Only the quantity is entered — its Received Form, Unit and
+// USN are derived from the parent item (see the render + buildUsn).
+const createPackage = () => ({ id: createId(), quantity: "" });
+
+// Grow/shrink a row's packages array to `count`, preserving existing quantities.
+const resizePackages = (packages = [], count = 0) => {
+  const n = Math.max(
+    0,
+    Math.min(Number.isFinite(count) ? count : 0, MAX_PACKAGES),
+  );
+  const next = packages.slice(0, n);
+  while (next.length < n) next.push(createPackage());
+  return next;
+};
+
+const packagesSum = (row) =>
+  (row.packages || []).reduce(
+    (sum, p) => sum + (parseFloat(p.quantity) || 0),
+    0,
+  );
 
 // Truncate a filename to `max` chars, keeping the extension and adding an ellipsis.
 const truncateName = (name, max = 20) => {
@@ -140,12 +170,20 @@ const EMPTY_ROW = {
   remarks: "",
   received_form: "",
   num_packages: "",
+  packages: [], // [{ id, quantity }] — the 2nd-dimension per-package quantities
   uqr_sent: false,
   qc_requested: false,
   raw_material_type: "",
   raw_material: "",
   length: "",
 };
+
+// Fresh row — a new `packages` array each time (never share EMPTY_ROW's reference).
+const createRow = (overrides = {}) => ({
+  ...EMPTY_ROW,
+  packages: [],
+  ...overrides,
+});
 
 // Uppercase + dash-join a material/spec string: "Slub Fabric" -> "SLUB-FABRIC".
 const slug = (text) =>
@@ -169,24 +207,111 @@ const buildUin = (
   `${uinNo}-CHD/${buyerCode || "000"}/${vendorCode || "000"}/` +
   `${program || "NA"}/${poSequence || "0"}`;
 
-// USN (one per ITEM under the UIN — a child traceability record):
-//   USN-SR[Serial]-[Series][Split]/[MaterialDescription][/Specification]
-//   e.g. USN-SR001-1A/VISCOSE-TWILL-100-VISCOSE-90GSM
-// For an original receipt: serial = series = sr_no, split = "A".
-const buildUsn = (row, index) => {
-  const srNo = index + 1;
-  const serial = String(srNo).padStart(3, "0");
+// USN (one per PACKAGE under the item's UIN — a child traceability record):
+//   USN-[GlobalPkgNo]A/[MaterialDescription][/Specification]
+//   e.g. USN-1A/VISCOSE-TWILL-100-VISCOSE-90GSM
+// GlobalPkgNo is a running number across ALL packages of ALL particulars on the
+// sheet, so the sequence is 1A, 2A, 3A, 4A… regardless of which item a package
+// belongs to.
+const buildUsn = (row, globalNo) => {
   const material = slug(row.raw_material || row.particulars);
   const spec = (row.length || "").trim();
   const parts = [];
   if (material) parts.push(material);
   if (spec) parts.push(spec);
   const suffix = parts.length ? `/${parts.join("/")}` : "";
-  return `USN-SR${serial}-${srNo}A${suffix}`;
+  return `USN-${globalNo}A${suffix}`;
 };
 
-// Success modal listing the generated UIN + per-row USN codes.
-const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
+// Running package number (1-based) across all rows: every package in earlier
+// rows is counted first, so package `pkgIndex` of row `rowIndex` gets its global
+// position in the 1A, 2A, 3A… sequence.
+const globalPackageNo = (rows, rowIndex, pkgIndex = 0) => {
+  let n = 0;
+  for (let i = 0; i < rowIndex; i += 1) n += (rows[i].packages || []).length;
+  return n + pkgIndex + 1;
+};
+
+const escHtml = (v) =>
+  String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+// Open a print-ready A4 sheet of carton stickers — one per package/USN, each showing
+// UIN / USN / Quantity. A 2-column grid flows as many rows as fit; stickers never
+// split across a page.
+const printUsnStickers = (uin, items) => {
+  const stickers = [];
+  (items || []).forEach((item) => {
+    (item.packages || []).forEach((p) => {
+      stickers.push({ usn: p.usn, quantity: p.quantity, unit: p.unit });
+    });
+  });
+  if (!stickers.length) return;
+
+  const cards = stickers
+    .map(
+      (s) => `
+      <div class="sticker">
+        <div class="row uin"><span class="lbl">UIN:</span><span class="val">${escHtml(uin)}</span></div>
+        <div class="row usn"><span class="lbl">USN:</span><span class="val">${escHtml(s.usn)}</span></div>
+        <div class="row qty"><span class="lbl">Quantity:</span><span class="val">${escHtml(s.quantity || "")}${s.unit ? " " + escHtml(s.unit) : ""}</span></div>
+      </div>`,
+    )
+    .join("");
+
+  const html = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>USN Stickers</title>
+<style>
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  html, body { margin: 0; padding: 0; background: #fff; color: #1f2937;
+    font-family: "Segoe UI", Inter, Arial, sans-serif; }
+  body { padding: 8mm; }
+  .sheet { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; }
+  .sticker {
+    border: 1px dashed #555; border-radius: 5px; padding: 3.5mm 5mm;
+    display: flex; flex-direction: column; justify-content: center; gap: 1.2mm;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .row { line-height: 1.2; word-break: break-all; }
+  .lbl { font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; margin-right: 6px; }
+  .val { font-weight: 600; }
+  .uin .val { font-family: "Consolas", "Courier New", monospace; font-size: 13px; }
+  .usn .val { font-family: "Consolas", "Courier New", monospace; font-size: 14px; font-weight: 700; }
+  .qty .val { font-size: 16px; font-weight: 800; }
+  @media print {
+    body { padding: 0; }
+    @page { size: A4 portrait; margin: 8mm; }
+    .no-print { display: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">${cards}</div>
+  <div class="no-print" style="margin:14px 0 4px; text-align:center;">
+    <button onclick="window.print()" style="padding:10px 28px; font-size:14px; font-weight:600; color:#fff; background:#f94d00; border:0; border-radius:6px; cursor:pointer;">Print Stickers</button>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open("", "_blank", "width=900,height=1000");
+  if (!win) {
+    alert("Please allow pop-ups to print stickers.");
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+};
+
+// Success modal: the UIN, then each particular (item) with its packages' USN codes.
+const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
   if (!open) return null;
   return createPortal(
     <div
@@ -195,7 +320,7 @@ const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-[#e2e3e8] bg-card shadow-2xl"
+        className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-[#e2e3e8] bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[#e2e3e8] px-6 py-4">
@@ -223,38 +348,86 @@ const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
             <div className="break-all rounded-md border border-[#e2e3e8] bg-muted/40 px-3 py-2 font-mono text-sm font-semibold text-foreground">
               {uin}
             </div>
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              Preview — the leading UIN number is a per-tenant running number
-              set on Save. One UIN, one USN per item below.
-            </p>
           </div>
 
           <div>
             <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              USN — one per item
+              Particulars &amp; their package USN codes
             </div>
             <div className="overflow-hidden rounded-md border border-[#e2e3e8]">
-              <table className="w-full text-sm">
+              <table className="w-full table-fixed text-sm">
+                <colgroup>
+                  <col style={{ width: "8%" }} />
+                  <col style={{ width: "62%" }} />
+                  <col style={{ width: "30%" }} />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th className={`${TH} w-12 text-center`}>SR</th>
-                    <th className={TH}>Particulars</th>
-                    <th className={TH}>USN Code</th>
+                    <th className={`${TH} text-center`}>S. No.</th>
+                    <th className={TH}>Particular</th>
+                    <th className={TH}>No. of Package</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {usns.map((u) => (
-                    <tr key={u.sr}>
-                      <td className={`${TD} text-center font-semibold`}>
-                        {u.sr}
-                      </td>
-                      <td className={TD}>{u.particulars || "—"}</td>
-                      <td
-                        className={`${TD} break-all font-mono text-xs text-foreground`}
-                      >
-                        {u.usn}
-                      </td>
-                    </tr>
+                  {items.map((item) => (
+                    <Fragment key={item.sr}>
+                      {/* Particular row */}
+                      <tr>
+                        <td className={`${TD} text-center font-semibold`}>
+                          {item.sr}
+                        </td>
+                        <td className={TD}>{item.particulars || "—"}</td>
+                        <td className={`${TD} text-center`}>
+                          {item.numPackages}
+                        </td>
+                      </tr>
+                      {/* Its packages' USNs — indented (S. No. column left blank) */}
+                      <tr>
+                        <td
+                          className={`${TD} bg-muted/20`}
+                          aria-hidden="true"
+                        />
+                        <td colSpan={2} className={`${TD} bg-muted/20 p-0`}>
+                          <table className="w-full table-fixed text-sm">
+                            <colgroup>
+                              <col style={{ width: "22%" }} />
+                              <col style={{ width: "14%" }} />
+                              <col style={{ width: "10%" }} />
+                              <col style={{ width: "54%" }} />
+                            </colgroup>
+                            <thead>
+                              <tr>
+                                <th className={TH}>Received Form</th>
+                                <th className={TH}>Qty</th>
+                                <th className={TH}>Unit</th>
+                                <th className={TH}>USN</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {item.packages.map((p) => (
+                                <tr key={p.id}>
+                                  <td
+                                    className={`${TD} font-medium text-foreground`}
+                                  >
+                                    {p.form}
+                                  </td>
+                                  <td className={TD}>{p.quantity || "—"}</td>
+                                  <td className={`${TD} text-muted-foreground`}>
+                                    {p.unit}
+                                  </td>
+                                  <td
+                                    className={`${TD} break-all font-mono text-[11px] text-foreground`}
+                                    title={p.usn}
+                                  >
+                                    {p.usn}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
@@ -262,7 +435,15 @@ const GeneratedCodesModal = ({ open, uin, usns, onClose }) => {
           </div>
         </div>
 
-        <div className="flex justify-end border-t border-[#e2e3e8] px-6 py-4">
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[#e2e3e8] px-6 py-4">
+          <button
+            type="button"
+            onClick={() => printUsnStickers(uin, items)}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[#e2e3e8] bg-card px-5 py-2.5 text-sm font-semibold text-foreground/70 transition-colors hover:bg-muted"
+          >
+            <Printer className="h-4 w-4" />
+            Print Stickers
+          </button>
           <button
             type="button"
             onClick={onClose}
@@ -293,7 +474,7 @@ const InwardStoreSheet = ({ onBack }) => {
   const [vendorInvoiceImage, setVendorInvoiceImage] = useState(null);
 
   // Table rows
-  const [rows, setRows] = useState([{ ...EMPTY_ROW }]);
+  const [rows, setRows] = useState([createRow()]);
 
   // Dropdown data
   const [ipoList, setIpoList] = useState([]);
@@ -321,8 +502,6 @@ const InwardStoreSheet = ({ onBack }) => {
     program: "",
     poSequence: "",
   });
-  // Generated UIN + per-item USN codes, shown in the success modal.
-  const [generated, setGenerated] = useState({ uin: "", usns: [] });
   const [showCodesModal, setShowCodesModal] = useState(false);
 
   const isChallanOnly = receivableType === "CHALLAN_ONLY";
@@ -424,16 +603,17 @@ const InwardStoreSheet = ({ onBack }) => {
       const lines = detail?.lines || [];
       if (lines.length) {
         setRows(
-          lines.map((l) => ({
-            ...EMPTY_ROW,
-            particulars: l.material_description || "",
-            raw_material: l.material_description || "",
-            raw_material_type: l.category || "",
-            po_quantity: l.qty != null ? String(l.qty) : "",
-            received_quantity: "",
-            rate: l.rate != null ? String(l.rate) : "",
-            remarks: l.remark || "",
-          })),
+          lines.map((l) =>
+            createRow({
+              particulars: l.material_description || "",
+              raw_material: l.material_description || "",
+              raw_material_type: l.category || "",
+              po_quantity: l.qty != null ? String(l.qty) : "",
+              received_quantity: "",
+              rate: l.rate != null ? String(l.rate) : "",
+              remarks: l.remark || "",
+            }),
+          ),
         );
       }
     } catch {
@@ -495,7 +675,7 @@ const InwardStoreSheet = ({ onBack }) => {
 
   // Row helpers
   const addRow = () => {
-    setRows((prev) => [...prev, { ...EMPTY_ROW }]);
+    setRows((prev) => [...prev, createRow()]);
   };
 
   const removeRow = (idx) => {
@@ -508,6 +688,34 @@ const InwardStoreSheet = ({ onBack }) => {
     setRows((prev) => {
       const next = [...prev];
       next[idx] = { ...next[idx], [field]: value };
+      return next;
+    });
+  };
+
+  // "# of Package" also resizes the row's package sub-rows (the 2nd dimension).
+  const handleNumPackagesChange = (idx, value) => {
+    const count = parseInt(value, 10);
+    setRows((prev) => {
+      const next = [...prev];
+      const row = next[idx];
+      next[idx] = {
+        ...row,
+        num_packages: value,
+        packages: resizePackages(
+          row.packages,
+          Number.isFinite(count) ? count : 0,
+        ),
+      };
+      return next;
+    });
+  };
+
+  const updatePackageField = (idx, pkgIdx, field, value) => {
+    setRows((prev) => {
+      const next = [...prev];
+      const packages = [...(next[idx].packages || [])];
+      packages[pkgIdx] = { ...packages[pkgIdx], [field]: value };
+      next[idx] = { ...next[idx], packages };
       return next;
     });
   };
@@ -530,6 +738,27 @@ const InwardStoreSheet = ({ onBack }) => {
       setErrorMsg("Please select Receivable Type and IPO Type.");
       return;
     }
+
+    // Every packaged row must allocate its full received quantity across its packages.
+    const badRow = rows.findIndex((row) => {
+      const np = parseInt(row.num_packages, 10) || 0;
+      if (np <= 0) return false;
+      const recd = parseFloat(row.received_quantity) || 0;
+      if (recd <= 0) return true;
+      return Math.abs(packagesSum(row) - recd) > 1e-6;
+    });
+    if (badRow !== -1) {
+      const row = rows[badRow];
+      const recd = parseFloat(row.received_quantity) || 0;
+      const sum = packagesSum(row);
+      setErrorMsg(
+        `Row ${badRow + 1}: the ${row.num_packages} package quantities must add up to the ` +
+          `received quantity (${recd || 0}). Allocated ${sum}` +
+          `${recd ? `, ${(recd - sum).toFixed(2)} remaining` : ""}.`,
+      );
+      return;
+    }
+
     setSaving(true);
     setErrorMsg("");
     setSuccessMsg("");
@@ -581,6 +810,13 @@ const InwardStoreSheet = ({ onBack }) => {
           remarks: row.remarks,
           received_form: row.received_form,
           num_packages: parseInt(row.num_packages) || 0,
+          packages: (row.packages || []).map((p, pIdx) => ({
+            package_no: pIdx + 1,
+            received_form: row.received_form || "",
+            quantity: parseFloat(p.quantity) || 0,
+            unit: "CM",
+            usn: buildUsn(row, globalPackageNo(rows, idx, pIdx)),
+          })),
           uqr_sent: row.uqr_sent,
           qc_requested: row.qc_requested,
           // These feed the USN: raw_material -> material description,
@@ -628,18 +864,40 @@ const InwardStoreSheet = ({ onBack }) => {
       vendor_invoice_no: isChallanOnly ? "" : vendorInvoiceNo,
       goods_condition: goodsReceivingCondition,
       is_challan_only: isChallanOnly,
-      lines: rows.map((r) => ({
-        particulars: r.particulars,
-        po_quantity: r.po_quantity,
-        received_quantity: r.received_quantity,
-        balance: computeBalance(r),
-        rate: r.rate,
-        amount: computeAmount(r),
-        remarks: r.remarks,
-        received_form: r.received_form,
-        num_packages: r.num_packages,
-        uqr: r.uqr_sent,
-      })),
+      uin: previewUin,
+      lines: rows.map((r, i) => {
+        const form = r.received_form || "FORM";
+        const pkgs = r.packages || [];
+        const packages = pkgs.length
+          ? pkgs.map((pkg, pIdx) => ({
+              form: `${form}-${pIdx + 1}`,
+              quantity: pkg.quantity,
+              unit: "CM",
+              usn: buildUsn(r, globalPackageNo(rows, i, pIdx)),
+            }))
+          : [
+              {
+                form: `${form}-1`,
+                quantity: r.received_quantity,
+                unit: "CM",
+                usn: buildUsn(r, globalPackageNo(rows, i, 0)),
+              },
+            ];
+        return {
+          particulars: r.particulars,
+          uin: previewUin,
+          po_quantity: r.po_quantity,
+          received_quantity: r.received_quantity,
+          balance: computeBalance(r),
+          rate: r.rate,
+          amount: computeAmount(r),
+          remarks: r.remarks,
+          received_form: r.received_form,
+          num_packages: r.num_packages,
+          uqr: r.uqr_sent,
+          packages,
+        };
+      }),
       received_by_name:
         user.name ||
         user.full_name ||
@@ -652,24 +910,50 @@ const InwardStoreSheet = ({ onBack }) => {
 
   const handlePrint = () => printInwardReceipt(buildReceiptDocument());
 
-  // Preview the UIN + per-item USN codes from the current selections and rows.
-  // One UIN per sheet (parent); one USN per item (child). The real UIN number
-  // and USNs are assigned by the backend on Save.
+  // Preview the UIN + per-package USN codes LIVE from the current rows — the same
+  // buildUsn() the table uses, so the modal and the table never diverge. One UIN
+  // per sheet; one USN per package (a single fallback when a row has no packages).
+  // The real UIN number and USNs are assigned by the backend on Save.
+  const previewUin = useMemo(() => buildUin(orderCodes), [orderCodes]);
+
+  const previewItems = useMemo(
+    () =>
+      rows.map((row, i) => {
+        const form = row.received_form || "FORM";
+        const pkgs = row.packages || [];
+        const packages = pkgs.length
+          ? pkgs.map((pkg, pIdx) => ({
+              id: pkg.id,
+              form: `${form}-${pIdx + 1}`,
+              quantity: pkg.quantity,
+              unit: "CM",
+              usn: buildUsn(row, globalPackageNo(rows, i, pIdx)),
+            }))
+          : [
+              {
+                id: `${i}-single`,
+                form: `${form}-1`,
+                quantity: row.received_quantity,
+                unit: "CM",
+                usn: buildUsn(row, globalPackageNo(rows, i, 0)),
+              },
+            ];
+        return {
+          sr: i + 1,
+          particulars: row.particulars,
+          numPackages: parseInt(row.num_packages, 10) || packages.length,
+          packages,
+        };
+      }),
+    [rows],
+  );
+
   const handleGenerateCodes = () => {
     if (!selectedIpo || !selectedIssuedVpo) {
       setErrorMsg("Select an IPO and a VPO first to generate codes.");
       return;
     }
     setErrorMsg("");
-
-    const uin = buildUin(orderCodes);
-    const usns = rows.map((row, i) => ({
-      sr: i + 1,
-      particulars: row.particulars,
-      usn: buildUsn(row, i),
-    }));
-
-    setGenerated({ uin, usns });
     setShowCodesModal(true);
   };
 
@@ -947,154 +1231,286 @@ const InwardStoreSheet = ({ onBack }) => {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, idx) => (
-                  <tr key={idx} className="transition-colors hover:bg-muted/50">
-                    <td className={`${TD} text-center font-semibold`}>
-                      {idx + 1}
-                    </td>
-                    <td className={TD}>
-                      <input
-                        className={TCTRL}
-                        type="text"
-                        value={row.particulars}
-                        onChange={(e) =>
-                          updateRow(idx, "particulars", e.target.value)
-                        }
-                        placeholder="Item name"
-                      />
-                    </td>
-                    <td className={TD}>
-                      <input
-                        className={`${TCTRL} ${NO_SPIN}`}
-                        type="number"
-                        value={row.po_quantity}
-                        onChange={(e) =>
-                          updateRow(idx, "po_quantity", e.target.value)
-                        }
-                        min="0"
-                      />
-                    </td>
-                    <td className={TD}>
-                      <input
-                        className={`${TCTRL} ${NO_SPIN}`}
-                        type="number"
-                        value={row.received_quantity}
-                        onChange={(e) =>
-                          updateRow(idx, "received_quantity", e.target.value)
-                        }
-                        min="0"
-                      />
-                    </td>
-                    <td className={`${TD} text-center font-medium`}>
-                      {computeBalance(row)}
-                    </td>
-                    {!isChallanOnly && (
-                      <td className={TD}>
-                        <div className="flex items-center gap-1">
-                          <span className="shrink-0 text-xs font-semibold text-muted-foreground">
-                            ₹
-                          </span>
+                {rows.map((row, idx) => {
+                  const pkgCount = parseInt(row.num_packages, 10) || 0;
+                  const colSpan = isChallanOnly ? 10 : 12;
+                  const recd = parseFloat(row.received_quantity) || 0;
+                  const allocated = packagesSum(row);
+                  const remaining = recd - allocated;
+                  return (
+                    <Fragment key={idx}>
+                      <tr className="transition-colors hover:bg-muted/50">
+                        <td className={`${TD} text-center font-semibold`}>
+                          {idx + 1}
+                        </td>
+                        <td className={TD}>
+                          <input
+                            className={TCTRL}
+                            type="text"
+                            value={row.particulars}
+                            onChange={(e) =>
+                              updateRow(idx, "particulars", e.target.value)
+                            }
+                            placeholder="Item name"
+                          />
+                        </td>
+                        <td className={TD}>
                           <input
                             className={`${TCTRL} ${NO_SPIN}`}
                             type="number"
-                            value={row.rate}
+                            value={row.po_quantity}
                             onChange={(e) =>
-                              updateRow(idx, "rate", e.target.value)
+                              updateRow(idx, "po_quantity", e.target.value)
                             }
                             min="0"
-                            step="0.01"
                           />
-                        </div>
-                      </td>
-                    )}
-                    {!isChallanOnly && (
-                      <td className={TD}>
-                        <div className="flex items-center gap-1">
-                          <span className="shrink-0 text-xs font-semibold text-muted-foreground">
-                            ₹
-                          </span>
-                          <span className="font-medium">
-                            {computeAmount(row)}
-                          </span>
-                        </div>
-                      </td>
-                    )}
-                    <td className={TD}>
-                      <input
-                        className={TCTRL}
-                        type="text"
-                        value={row.remarks}
-                        onChange={(e) =>
-                          updateRow(idx, "remarks", e.target.value)
-                        }
-                        placeholder="Remarks"
-                      />
-                    </td>
-                    <td className={TD}>
-                      <ThemedSelect
-                        value={row.received_form}
-                        onChange={(v) => updateRow(idx, "received_form", v)}
-                        options={FORM_OPTIONS}
-                        isSearchable={false}
-                        placeholder="Form"
-                      />
-                    </td>
-                    <td className={TD}>
-                      <input
-                        className={`${TCTRL} ${NO_SPIN}`}
-                        type="number"
-                        value={row.num_packages}
-                        onChange={(e) =>
-                          updateRow(idx, "num_packages", e.target.value)
-                        }
-                        min="0"
-                      />
-                    </td>
-                    <td className={TD}>
-                      {qcAutoSend ? (
-                        // Quality inspection is done for this IPO → auto-send.
-                        <div
-                          className="flex items-center gap-1.5"
-                          title="This IPO's goods are quality-inspected (UQR done) — sent automatically."
-                        >
-                          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
-                          <span className="text-[9px] font-semibold leading-tight text-green-600">
-                            AUTO-SENT TO QUALITY
-                          </span>
-                        </div>
-                      ) : (
-                        // No / not-yet-inspected → a click button that requests
-                        // verification (sent to UQR on Save).
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateRow(idx, "qc_requested", !row.qc_requested)
-                          }
-                          title="Not quality-inspected. Click to request a quality inspection — it's sent to the Quality team on Save."
-                          className={`w-full rounded-md border px-2 py-1.5 text-[9px] font-semibold leading-tight transition-colors ${
-                            row.qc_requested
-                              ? "border-green-600 bg-green-500/10 text-green-600"
-                              : "border-amber-500 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
-                          }`}
-                        >
-                          {row.qc_requested
-                            ? "✓ REQUESTED — SENDS ON SAVE"
-                            : "REQUEST TO VERIFICATION"}
-                        </button>
+                        </td>
+                        <td className={TD}>
+                          <input
+                            className={`${TCTRL} ${NO_SPIN}`}
+                            type="number"
+                            value={row.received_quantity}
+                            onChange={(e) =>
+                              updateRow(
+                                idx,
+                                "received_quantity",
+                                e.target.value,
+                              )
+                            }
+                            min="0"
+                          />
+                        </td>
+                        <td className={`${TD} text-center font-medium`}>
+                          {computeBalance(row)}
+                        </td>
+                        {!isChallanOnly && (
+                          <td className={TD}>
+                            <div className="flex items-center gap-1">
+                              <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                                ₹
+                              </span>
+                              <input
+                                className={`${TCTRL} ${NO_SPIN}`}
+                                type="number"
+                                value={row.rate}
+                                onChange={(e) =>
+                                  updateRow(idx, "rate", e.target.value)
+                                }
+                                min="0"
+                                step="0.01"
+                              />
+                            </div>
+                          </td>
+                        )}
+                        {!isChallanOnly && (
+                          <td className={TD}>
+                            <div className="flex items-center gap-1">
+                              <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                                ₹
+                              </span>
+                              <span className="font-medium">
+                                {computeAmount(row)}
+                              </span>
+                            </div>
+                          </td>
+                        )}
+                        <td className={TD}>
+                          <input
+                            className={TCTRL}
+                            type="text"
+                            value={row.remarks}
+                            onChange={(e) =>
+                              updateRow(idx, "remarks", e.target.value)
+                            }
+                            placeholder="Remarks"
+                          />
+                        </td>
+                        <td className={TD}>
+                          <ThemedSelect
+                            value={row.received_form}
+                            onChange={(v) => updateRow(idx, "received_form", v)}
+                            options={FORM_OPTIONS}
+                            isSearchable={false}
+                            placeholder="Form"
+                          />
+                        </td>
+                        <td className={TD}>
+                          <input
+                            className={`${TCTRL} ${NO_SPIN}`}
+                            type="number"
+                            value={row.num_packages}
+                            onChange={(e) =>
+                              handleNumPackagesChange(idx, e.target.value)
+                            }
+                            min="0"
+                          />
+                        </td>
+                        <td className={TD}>
+                          {qcAutoSend ? (
+                            // Quality inspection is done for this IPO → auto-send.
+                            <div
+                              className="flex items-center gap-1.5"
+                              title="This IPO's goods are quality-inspected (UQR done) — sent automatically."
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
+                              <span className="text-[9px] font-semibold leading-tight text-green-600">
+                                AUTO-SENT TO QUALITY
+                              </span>
+                            </div>
+                          ) : (
+                            // No / not-yet-inspected → a click button that requests
+                            // verification (sent to UQR on Save).
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateRow(
+                                  idx,
+                                  "qc_requested",
+                                  !row.qc_requested,
+                                )
+                              }
+                              title="Not quality-inspected. Click to request a quality inspection — it's sent to the Quality team on Save."
+                              className={`w-full rounded-md border px-2 py-1.5 text-[9px] font-semibold leading-tight transition-colors ${
+                                row.qc_requested
+                                  ? "border-green-600 bg-green-500/10 text-green-600"
+                                  : "border-amber-500 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                              }`}
+                            >
+                              {row.qc_requested
+                                ? "✓ REQUESTED — SENDS ON SAVE"
+                                : "REQUEST TO VERIFICATION"}
+                            </button>
+                          )}
+                        </td>
+                        <td className={`${TD} text-center`}>
+                          <button
+                            type="button"
+                            className="cursor-pointer rounded p-1 text-lg leading-none text-destructive transition-colors hover:bg-destructive/10"
+                            onClick={() => removeRow(idx)}
+                            title="Remove row"
+                          >
+                            ×
+                          </button>
+                        </td>
+                      </tr>
+
+                      {/* 2nd dimension: the item's packages. Received Form, Unit and
+                          USN are prefilled from the parent; only quantity is entered,
+                          and the quantities must sum to the received quantity to save.
+                          The first (blank) cell keeps it indented under the SR column. */}
+                      {pkgCount > 0 && row.packages.length > 0 && (
+                        <tr>
+                          <td
+                            className="border-b border-[#e2e3e8] bg-muted/20"
+                            aria-hidden="true"
+                          />
+                          <td
+                            colSpan={colSpan - 1}
+                            className="border-b border-[#e2e3e8] bg-muted/20 px-3 py-3"
+                          >
+                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                {pkgCount} {row.received_form || "package"}
+                                {pkgCount > 1 ? "s" : ""} — enter quantity per
+                                package
+                              </div>
+                              <div className="flex items-center gap-3 text-xs">
+                                <span className="text-muted-foreground">
+                                  Allocated{" "}
+                                  <span className="font-semibold text-foreground">
+                                    {allocated}
+                                  </span>{" "}
+                                  / Received{" "}
+                                  <span className="font-semibold text-foreground">
+                                    {recd || 0}
+                                  </span>
+                                </span>
+                                {Math.abs(remaining) < 1e-6 && recd > 0 ? (
+                                  <span className="inline-flex items-center gap-1 font-semibold text-green-600">
+                                    <CheckCircle2 className="h-3.5 w-3.5" />
+                                    Balanced
+                                  </span>
+                                ) : remaining > 0 ? (
+                                  <span className="font-semibold text-amber-600">
+                                    {remaining.toFixed(2)} remaining
+                                  </span>
+                                ) : (
+                                  <span className="font-semibold text-destructive">
+                                    {Math.abs(remaining).toFixed(2)} over
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="overflow-hidden rounded-md border border-[#e2e3e8] bg-card">
+                              <table className="w-full table-fixed border-collapse text-sm">
+                                <colgroup>
+                                  <col style={{ width: "26%" }} />
+                                  <col style={{ width: "22%" }} />
+                                  <col style={{ width: "14%" }} />
+                                  <col style={{ width: "38%" }} />
+                                </colgroup>
+                                <thead>
+                                  <tr>
+                                    <th className={TH}>Received Form</th>
+                                    <th className={TH}>Quantity</th>
+                                    <th className={TH}>Unit</th>
+                                    <th className={TH}>USN</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {row.packages.map((pkg, pIdx) => {
+                                    const usn = buildUsn(
+                                      row,
+                                      globalPackageNo(rows, idx, pIdx),
+                                    );
+                                    return (
+                                      <tr key={pkg.id}>
+                                        <td
+                                          className={`${TD} font-medium text-foreground`}
+                                        >
+                                          {row.received_form || "FORM"}-
+                                          {pIdx + 1}
+                                        </td>
+                                        <td className={TD}>
+                                          <input
+                                            className={`${TCTRL} ${NO_SPIN}`}
+                                            type="number"
+                                            min="0"
+                                            value={pkg.quantity}
+                                            onChange={(e) =>
+                                              updatePackageField(
+                                                idx,
+                                                pIdx,
+                                                "quantity",
+                                                e.target.value,
+                                              )
+                                            }
+                                            placeholder="0"
+                                          />
+                                        </td>
+                                        <td
+                                          className={`${TD} text-muted-foreground`}
+                                        >
+                                          CM
+                                        </td>
+                                        <td
+                                          className={`${TD} break-all font-mono text-[11px] text-foreground`}
+                                          title={usn}
+                                        >
+                                          {usn}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
                       )}
-                    </td>
-                    <td className={`${TD} text-center`}>
-                      <button
-                        type="button"
-                        className="cursor-pointer rounded p-1 text-lg leading-none text-destructive transition-colors hover:bg-destructive/10"
-                        onClick={() => removeRow(idx)}
-                        title="Remove row"
-                      >
-                        ×
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -1143,8 +1559,8 @@ const InwardStoreSheet = ({ onBack }) => {
 
       <GeneratedCodesModal
         open={showCodesModal}
-        uin={generated.uin}
-        usns={generated.usns}
+        uin={previewUin}
+        items={previewItems}
         onClose={() => setShowCodesModal(false)}
       />
     </div>

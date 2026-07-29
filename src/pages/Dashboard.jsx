@@ -294,7 +294,34 @@ const Dashboard = () => {
 
   // State -> URL: keep the address bar pointed at the exact screen so a
   // refresh (or copy/paste of the URL) reopens the same view.
+  //
+  // This must ONLY navigate in response to an in-app state change (the user
+  // clicking a tab). If it also reacted to URL changes coming from the browser
+  // — back/forward, including the trackpad two-finger swipe — it would re-push
+  // the *stale* activePage's path and fight the navigation, so this effect and
+  // URL -> State below ping-pong and the screen flickers between the current
+  // tab and Home. We detect whether activePage/codeCreationView actually
+  // changed since the last run; if they didn't, the change came from the URL
+  // side, so we let URL -> State reconcile it (a bare/invalid path is still
+  // normalized, since that never causes the fight).
+  const prevActivePageRef = useRef(activePage);
+  const prevCodeCreationViewRef = useRef(codeCreationView);
   useEffect(() => {
+    const stateChanged =
+      prevActivePageRef.current !== activePage ||
+      prevCodeCreationViewRef.current !== codeCreationView;
+    prevActivePageRef.current = activePage;
+    prevCodeCreationViewRef.current = codeCreationView;
+
+    const { section } = getDashboardSegments(
+      location.pathname,
+      dashboardBasePath,
+    );
+    // URL-driven change that already resolves to a valid section: don't touch
+    // history — URL -> State will update the tab. This is what stops the
+    // back-gesture flicker.
+    if (!stateChanged && sectionToPage(section)) return;
+
     const targetPath = buildDashboardPath(
       dashboardBasePath,
       activePage,
@@ -304,10 +331,6 @@ const Dashboard = () => {
       // Replace (don't push) when the current URL has no valid section — i.e.
       // the bare "/dashboard" landing being normalized to "/dashboard/home" —
       // so we don't leave a dead entry in the history stack.
-      const { section } = getDashboardSegments(
-        location.pathname,
-        dashboardBasePath,
-      );
       navigate(targetPath, { replace: !sectionToPage(section) });
     }
   }, [

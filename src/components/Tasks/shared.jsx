@@ -54,14 +54,14 @@ export const TagsInput = ({ value = [], onChange, placeholder = 'Add tag and pre
       {tags.map((tag) => (
         <span
           key={tag}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e3e8] bg-muted px-2.5 py-1 text-xs font-medium text-foreground"
+          className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#e2e3e8] bg-muted px-2.5 py-1 text-xs font-medium text-foreground"
         >
-          {tag}
+          <span className="min-w-0 wrap-break-word">{tag}</span>
           <button
             type="button"
             onClick={() => onChange(tags.filter((t) => t !== tag))}
             title="Remove"
-            className="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+            className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
           >
             <X className="h-3 w-3" />
           </button>

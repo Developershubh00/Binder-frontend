@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, ImagePlus } from 'lucide-react';
 import ThemedSelect from '../IMS/StockSheet/ThemedSelect';
 import {
   getUQRFormDraft,
@@ -28,6 +28,72 @@ const NO_SPIN =
   '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
 
 const toOptions = (values) => (values || []).map((v) => ({ value: v, label: v }));
+
+// Read a picked file as a data URL so it can be stored inline in the (JSON) draft.
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+// An image picker used for table columns of `type: 'image'` (e.g. "Attach Ref Image").
+// Stores the image as a data URL string in the cell value; shows a thumbnail + clear.
+const TableImageCell = ({ value, onChange, readOnly }) => {
+  if (value) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <a
+          href={value}
+          target="_blank"
+          rel="noreferrer"
+          title="Open image"
+          className="shrink-0"
+        >
+          <img
+            src={value}
+            alt="Reference"
+            className="h-9 w-9 rounded border border-[#e2e3e8] object-cover"
+          />
+        </a>
+        {!readOnly && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            title="Remove image"
+            className="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+    );
+  }
+  if (readOnly) return <span className="text-xs text-muted-foreground">—</span>;
+  return (
+    <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-dashed border-[#cdced6] bg-card px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primary">
+      <ImagePlus className="h-3.5 w-3.5" />
+      Image
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={async (event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          try {
+            const url = await readFileAsDataUrl(file);
+            onChange(url);
+          } catch {
+            /* ignore read failure */
+          }
+          event.target.value = '';
+        }}
+      />
+    </label>
+  );
+};
 
 const pad2 = (value) => String(value).padStart(2, '0');
 
@@ -407,6 +473,14 @@ const BaseFormTemplate = ({
                             placeholder="Select"
                             isDisabled={readOnly}
                             isSearchable={false}
+                          />
+                        ) : column.type === 'image' ? (
+                          <TableImageCell
+                            value={row[column.name] || ''}
+                            onChange={(value) =>
+                              setTableCellValue(rowIndex, column.name, value)
+                            }
+                            readOnly={readOnly}
                           />
                         ) : (
                           <input

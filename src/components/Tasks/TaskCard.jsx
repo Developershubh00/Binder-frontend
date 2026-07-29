@@ -33,7 +33,7 @@ const TaskCard = ({ task }) => {
 
       {/* Title */}
       <h4
-        className={`text-sm font-bold leading-snug text-foreground ${
+        className={`wrap-break-word text-sm font-bold leading-snug text-foreground ${
           isDone ? 'line-through opacity-70' : ''
         }`}
       >
@@ -42,7 +42,7 @@ const TaskCard = ({ task }) => {
 
       {/* Description */}
       {task.description && (
-        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+        <p className="mt-1 line-clamp-2 wrap-break-word text-xs leading-relaxed text-muted-foreground">
           {task.description}
         </p>
       )}
@@ -75,7 +75,7 @@ const TaskCard = ({ task }) => {
           {task.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded border border-[#e2e3e8] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+              className="max-w-full wrap-break-word rounded border border-[#e2e3e8] bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
             >
               {tag}
             </span>

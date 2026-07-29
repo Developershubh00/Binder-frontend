@@ -2889,7 +2889,7 @@ export const formsConfig = {
         { name: 'major', label: 'Major', type: 'number' },
         { name: 'minor', label: 'Minor', type: 'number' },
         { name: 'findings', label: 'Findings', type: 'text' },
-        { name: 'attachRefImage', label: 'Attach Ref Image', type: 'text' },
+        { name: 'attachRefImage', label: 'Attach Ref Image', type: 'image' },
         { name: 'lengthMeter', label: 'Length (Meter)', type: 'text' }
       ]
     }

@@ -77,7 +77,7 @@ const TaskDetailModal = ({
                 {columnLabel}
               </span>
             </div>
-            <h2 className="text-lg font-bold text-foreground">{task.title}</h2>
+            <h2 className="wrap-break-word text-lg font-bold text-foreground">{task.title}</h2>
           </div>
           <div className="flex shrink-0 items-center gap-1">
             {canManage && (
@@ -143,7 +143,7 @@ const TaskDetailModal = ({
               <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Description
               </div>
-              <p className="text-sm leading-relaxed text-foreground">
+              <p className="wrap-break-word text-sm leading-relaxed text-foreground">
                 {task.description}
               </p>
             </div>
@@ -156,7 +156,7 @@ const TaskDetailModal = ({
               </div>
               <div className="mt-1 flex items-center gap-2">
                 <Avatar name={task.assignee} size="h-6 w-6" />
-                <span className="text-sm text-foreground">
+                <span className="min-w-0 wrap-break-word text-sm text-foreground">
                   {task.assignee || '—'}
                 </span>
               </div>
@@ -214,7 +214,7 @@ const TaskDetailModal = ({
                     {task.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded border border-[#e2e3e8] bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
+                        className="max-w-full wrap-break-word rounded border border-[#e2e3e8] bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
                       >
                         {tag}
                       </span>
@@ -260,7 +260,7 @@ const TaskDetailModal = ({
                         className="h-4 w-4 shrink-0 cursor-pointer accent-[#f94d00]"
                       />
                       <span
-                        className={`text-sm ${
+                        className={`min-w-0 wrap-break-word text-sm ${
                           sub.done
                             ? 'text-muted-foreground line-through'
                             : 'text-foreground'
