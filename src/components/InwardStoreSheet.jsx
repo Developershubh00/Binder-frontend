@@ -356,10 +356,12 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
             </div>
             <div className="overflow-hidden rounded-md border border-[#e2e3e8]">
               <table className="w-full table-fixed text-sm">
+                {/* Particular / No. of Package split so No. of Package lines up
+                    above the nested USN column (which starts at 50%). */}
                 <colgroup>
                   <col style={{ width: "8%" }} />
-                  <col style={{ width: "62%" }} />
-                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "42%" }} />
+                  <col style={{ width: "50%" }} />
                 </colgroup>
                 <thead>
                   <tr>
@@ -377,26 +379,29 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
                           {item.sr}
                         </td>
                         <td className={TD}>{item.particulars || "—"}</td>
-                        <td className={`${TD} text-center`}>
-                          {item.numPackages}
-                        </td>
+                        <td className={TD}>{item.numPackages}</td>
                       </tr>
-                      {/* Its packages' USNs — indented (S. No. column left blank) */}
+                      {/* Its packages' USNs — the tree guide sits under the S. No.
+                          column and branches to each USN, rounding at the last. */}
                       <tr>
-                        <td
-                          className={`${TD} bg-muted/20`}
-                          aria-hidden="true"
-                        />
-                        <td colSpan={2} className={`${TD} bg-muted/20 p-0`}>
+                        <td colSpan={3} className="bg-muted/20 p-0">
                           <table className="w-full table-fixed text-sm">
                             <colgroup>
-                              <col style={{ width: "22%" }} />
-                              <col style={{ width: "14%" }} />
-                              <col style={{ width: "10%" }} />
-                              <col style={{ width: "54%" }} />
+                              <col style={{ width: "8%" }} />
+                              <col style={{ width: "20%" }} />
+                              <col style={{ width: "13%" }} />
+                              <col style={{ width: "9%" }} />
+                              <col style={{ width: "50%" }} />
                             </colgroup>
                             <thead>
                               <tr>
+                                {/* Trunk (bottom half) → connects into row 1. */}
+                                <th
+                                  className="relative p-0"
+                                  aria-hidden="true"
+                                >
+                                  <span className="pointer-events-none absolute bottom-0 left-1/2 top-1/2 w-px bg-primary/50" />
+                                </th>
                                 <th className={TH}>Received Form</th>
                                 <th className={TH}>Qty</th>
                                 <th className={TH}>Unit</th>
@@ -404,25 +409,43 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
                               </tr>
                             </thead>
                             <tbody>
-                              {item.packages.map((p) => (
-                                <tr key={p.id}>
-                                  <td
-                                    className={`${TD} font-medium text-foreground`}
-                                  >
-                                    {p.form}
-                                  </td>
-                                  <td className={TD}>{p.quantity || "—"}</td>
-                                  <td className={`${TD} text-muted-foreground`}>
-                                    {p.unit}
-                                  </td>
-                                  <td
-                                    className={`${TD} break-all font-mono text-[11px] text-foreground`}
-                                    title={p.usn}
-                                  >
-                                    {p.usn}
-                                  </td>
-                                </tr>
-                              ))}
+                              {item.packages.map((p, pIdx) => {
+                                const isLastPkg =
+                                  pIdx === item.packages.length - 1;
+                                return (
+                                  <tr key={p.id}>
+                                    {/* Tree branch to this USN; last row rounds (└). */}
+                                    <td
+                                      className="relative p-0"
+                                      aria-hidden="true"
+                                    >
+                                      {isLastPkg ? (
+                                        <span className="pointer-events-none absolute left-1/2 top-0 h-1/2 w-1/2 rounded-bl-[7px] border-b border-l border-primary/50" />
+                                      ) : (
+                                        <>
+                                          <span className="pointer-events-none absolute left-1/2 top-0 h-full w-px bg-primary/50" />
+                                          <span className="pointer-events-none absolute left-1/2 top-1/2 h-px w-1/2 bg-primary/50" />
+                                        </>
+                                      )}
+                                    </td>
+                                    <td
+                                      className={`${TD} font-medium text-foreground`}
+                                    >
+                                      {p.form}
+                                    </td>
+                                    <td className={TD}>{p.quantity || "—"}</td>
+                                    <td className={`${TD} text-muted-foreground`}>
+                                      {p.unit}
+                                    </td>
+                                    <td
+                                      className={`${TD} break-all font-mono text-[11px] text-foreground`}
+                                      title={p.usn}
+                                    >
+                                      {p.usn}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </td>
@@ -466,6 +489,7 @@ const InwardStoreSheet = ({ onBack }) => {
 
   const [goodsReceivingCondition, setGoodsReceivingCondition] = useState("");
   const [goodsConditionImage, setGoodsConditionImage] = useState(null);
+  const [vehicleNumber, setVehicleNumber] = useState("");
   const [vehicleNumberImage, setVehicleNumberImage] = useState(null);
   const [vehiclePic, setVehiclePic] = useState(null);
   const [vendorChallanNo, setVendorChallanNo] = useState("");
@@ -795,6 +819,7 @@ const InwardStoreSheet = ({ onBack }) => {
         vpo: selectedIssuedVpo || null,
         goods_receiving_condition: goodsReceivingCondition,
         goods_receiving_condition_image: goodsConditionUrl || "",
+        vehicle_number: vehicleNumber,
         vehicle_number_image: vehicleNumberUrl || "",
         vehicle_pic: vehiclePicUrl || "",
         vendor_challan_image: vendorChallanUrl || "",
@@ -1121,11 +1146,20 @@ const InwardStoreSheet = ({ onBack }) => {
             {/* Row 2 — Vehicle Number | Vehicle Pic */}
             <div>
               <label className={LABEL}>Vehicle Number</label>
-              <ImageUpload
-                id="iss-vehicle-number"
-                value={vehicleNumberImage}
-                onChange={setVehicleNumberImage}
+              <input
+                className={CTRL}
+                type="text"
+                value={vehicleNumber}
+                onChange={(e) => setVehicleNumber(e.target.value)}
+                placeholder="Enter vehicle number"
               />
+              <div className="mt-2">
+                <ImageUpload
+                  id="iss-vehicle-number"
+                  value={vehicleNumberImage}
+                  onChange={setVehicleNumberImage}
+                />
+              </div>
             </div>
 
             <div>
@@ -1188,29 +1222,29 @@ const InwardStoreSheet = ({ onBack }) => {
               {isChallanOnly ? (
                 <colgroup>
                   <col style={{ width: "4%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "24%" }} />
+                  <col style={{ width: "9%" }} />
+                  <col style={{ width: "9%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "11%" }} />
+                  <col style={{ width: "9%" }} />
                   <col style={{ width: "8%" }} />
-                  <col style={{ width: "12%" }} />
-                  <col style={{ width: "16%" }} />
-                  <col style={{ width: "8%" }} />
-                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "15%" }} />
                   <col style={{ width: "4%" }} />
                 </colgroup>
               ) : (
                 <colgroup>
                   <col style={{ width: "3%" }} />
-                  <col style={{ width: "11%" }} />
-                  <col style={{ width: "8%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "6%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "9%" }} />
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "6%" }} />
-                  <col style={{ width: "8%" }} />
-                  <col style={{ width: "8%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "15%" }} />
-                  <col style={{ width: "6%" }} />
-                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "16%" }} />
                   <col style={{ width: "4%" }} />
                 </colgroup>
               )}
@@ -1400,15 +1434,14 @@ const InwardStoreSheet = ({ onBack }) => {
                           The first (blank) cell keeps it indented under the SR column. */}
                       {pkgCount > 0 && row.packages.length > 0 && (
                         <tr>
+                          {/* Packages span the whole row width (incl. under Sr.
+                              No.) so the tree-guide trunk sits under Sr. No. and
+                              each USN row branches off it, rounding at the last. */}
                           <td
-                            className="border-b border-[#e2e3e8] bg-muted/20"
-                            aria-hidden="true"
-                          />
-                          <td
-                            colSpan={colSpan - 1}
-                            className="border-b border-[#e2e3e8] bg-muted/20 px-3 py-3"
+                            colSpan={colSpan}
+                            className="border-b border-[#e2e3e8] bg-muted/20 py-3 pl-1 pr-3"
                           >
-                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2 pl-[calc(4%+0.5rem)]">
                               <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 {pkgCount} {row.received_form || "package"}
                                 {pkgCount > 1 ? "s" : ""} — enter quantity per
@@ -1441,16 +1474,34 @@ const InwardStoreSheet = ({ onBack }) => {
                                 )}
                               </div>
                             </div>
-                            <div className="overflow-hidden rounded-md border border-[#e2e3e8] bg-card">
-                              <table className="w-full table-fixed border-collapse text-sm">
+                            <div className="relative">
+                              {/* White fill for the data columns only; the guide
+                                  rail (first 5% ≈ under Sr. No.) stays outside the
+                                  box, so the tree reads as part of the parent. */}
+                              <div
+                                className="pointer-events-none absolute inset-y-0 right-0 rounded-md bg-card"
+                                style={{ left: "4%" }}
+                                aria-hidden="true"
+                              />
+                              <table className="relative w-full table-fixed border-collapse text-sm">
                                 <colgroup>
-                                  <col style={{ width: "26%" }} />
+                                  <col style={{ width: "4%" }} />
+                                  <col style={{ width: "24%" }} />
                                   <col style={{ width: "22%" }} />
-                                  <col style={{ width: "14%" }} />
-                                  <col style={{ width: "38%" }} />
+                                  <col style={{ width: "13%" }} />
+                                  <col style={{ width: "37%" }} />
                                 </colgroup>
                                 <thead>
                                   <tr>
+                                    {/* Trunk (bottom half) → connects down into
+                                        the first package row. Transparent so the
+                                        rail sits outside the data box. */}
+                                    <th
+                                      className="relative p-0"
+                                      aria-hidden="true"
+                                    >
+                                      <span className="pointer-events-none absolute bottom-0 left-1/2 top-1/2 w-px bg-primary/50" />
+                                    </th>
                                     <th className={TH}>Received Form</th>
                                     <th className={TH}>Quantity</th>
                                     <th className={TH}>Unit</th>
@@ -1463,8 +1514,25 @@ const InwardStoreSheet = ({ onBack }) => {
                                       row,
                                       globalPackageNo(rows, idx, pIdx),
                                     );
+                                    const isLastPkg =
+                                      pIdx === row.packages.length - 1;
                                     return (
                                       <tr key={pkg.id}>
+                                        {/* Tree branch to this USN row; the last
+                                            row rounds off into an └. */}
+                                        <td
+                                          className="relative p-0"
+                                          aria-hidden="true"
+                                        >
+                                          {isLastPkg ? (
+                                            <span className="pointer-events-none absolute left-1/2 top-0 h-1/2 w-1/2 rounded-bl-[7px] border-b border-l border-primary/50" />
+                                          ) : (
+                                            <>
+                                              <span className="pointer-events-none absolute left-1/2 top-0 h-full w-px bg-primary/50" />
+                                              <span className="pointer-events-none absolute left-1/2 top-1/2 h-px w-1/2 bg-primary/50" />
+                                            </>
+                                          )}
+                                        </td>
                                         <td
                                           className={`${TD} font-medium text-foreground`}
                                         >
@@ -1504,6 +1572,13 @@ const InwardStoreSheet = ({ onBack }) => {
                                   })}
                                 </tbody>
                               </table>
+                              {/* Border framing the data columns (right of the
+                                  guide rail). */}
+                              <div
+                                className="pointer-events-none absolute inset-y-0 right-0 rounded-md border border-[#e2e3e8]"
+                                style={{ left: "4%" }}
+                                aria-hidden="true"
+                              />
                             </div>
                           </td>
                         </tr>

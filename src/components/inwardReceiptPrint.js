@@ -4,37 +4,30 @@
 // `.challan-doc` styles (CHALLAN_STYLES) and company header — but only renders the
 // fields that exist on the inward form (which has fewer than outward).
 
-import { CHALLAN_COMPANY, CHALLAN_STYLES } from './outwardChallanPrint';
+import { CHALLAN_COMPANY, CHALLAN_STYLES } from "./outwardChallanPrint";
 
 const esc = (v) => {
-  if (v === null || v === undefined) return '';
+  if (v === null || v === undefined) return "";
   return String(v)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 };
 
 const fmtNum = (v) => {
-  if (v === null || v === undefined || v === '') return '';
+  if (v === null || v === undefined || v === "") return "";
   const n = Number(v);
   if (Number.isNaN(n)) return String(v);
-  return n.toLocaleString('en-IN', { maximumFractionDigits: 3 });
-};
-
-const fmtMoney = (v) => {
-  if (v === null || v === undefined || v === '') return '';
-  const n = Number(v);
-  if (Number.isNaN(n)) return String(v);
-  return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n.toLocaleString("en-IN", { maximumFractionDigits: 3 });
 };
 
 const fmtDate = (v) => {
-  if (!v) return '';
+  if (!v) return "";
   try {
     const d = new Date(v);
     if (Number.isNaN(d.getTime())) return String(v);
-    return d.toLocaleDateString('en-GB'); // dd/mm/yyyy
+    return d.toLocaleDateString("en-GB"); // dd/mm/yyyy
   } catch {
     return String(v);
   }
@@ -43,14 +36,15 @@ const fmtDate = (v) => {
 const PRINT_STYLES = `
 html, body { margin: 0; padding: 0; background: #fff; }
 body { padding: 18px; }
-.challan-doc .items td.mono { font-family: "Consolas", "Courier New", monospace; word-break: break-all; }
-.challan-doc .items td.pkg-cell { padding: 0; background: #fbfbfc; }
-.challan-doc .pkgs { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.challan-doc .pkgs th, .challan-doc .pkgs td { border: 1px solid #d7dae0; padding: 2px 6px; font-size: 10px; text-align: left; }
-.challan-doc .pkgs th { background: #f3f4f6; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; color: #555; }
-.challan-doc .pkgs td.r { text-align: right; }
-.challan-doc .pkgs td.c { text-align: center; }
-.challan-doc .pkgs td.mono { font-family: "Consolas", "Courier New", monospace; word-break: break-all; }
+.challan-doc .items td .pname { font-weight: 600; }
+.challan-doc .items td .psep { border-top: 1px dashed #c7cad0; margin: 3px 0; }
+.challan-doc .items td .pmeta { display: flex; gap: 5px; font-size: 10px; line-height: 1.35; margin-top: 1px; }
+.challan-doc .items td .plbl { font-weight: 700; color: #555; white-space: nowrap; }
+.challan-doc .items td .pmono { font-family: "Consolas", "Courier New", monospace; word-break: break-all; }
+.challan-doc .items td .pusns { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.challan-doc .items td .usnrow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.challan-doc .items td .uqty { white-space: nowrap; color: #444; }
+.challan-doc .items td.nowrap { white-space: nowrap; }
 @media print {
   html, body, *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
@@ -58,7 +52,9 @@ body { padding: 18px; }
     print-color-adjust: exact !important;
   }
   body { padding: 0; }
-  @page { size: A4 landscape; margin: 9mm; }
+  /* Portrait — overrides the landscape @page from the shared CHALLAN_STYLES
+     (this rule comes later in the concatenated stylesheet, so it wins). */
+  @page { size: A4 portrait; margin: 9mm; }
   .no-print { display: none !important; }
   .challan-doc .items thead { display: table-header-group; }
 }
@@ -66,79 +62,64 @@ body { padding: 18px; }
 
 export const buildReceiptBody = (doc) => {
   const lines = doc?.lines || [];
-  const challanOnly = !!doc?.is_challan_only;
 
-  // Item columns differ by receivable type: Challan-Only drops Rate & Amount.
-  // A UIN column sits right after Particulars (before PO Qty).
-  const itemCols = challanOnly
-    ? '<col style="width:4%" /><col style="width:18%" /><col style="width:17%" /><col style="width:8%" /><col style="width:9%" /><col style="width:7%" /><col style="width:12%" /><col style="width:10%" /><col style="width:9%" /><col style="width:6%" />'
-    : '<col style="width:3%" /><col style="width:15%" /><col style="width:14%" /><col style="width:7%" /><col style="width:8%" /><col style="width:6%" /><col style="width:7%" /><col style="width:8%" /><col style="width:10%" /><col style="width:9%" /><col style="width:7%" /><col style="width:6%" />';
+  // One row per item. The (wide) Particulars cell carries the material name, then
+  // a separator, then the linked UIN and every linked USN with its quantity+unit;
+  // so there are no separate Link USN / Unit / USN Qty columns.
+  const itemCols =
+    '<col style="width:5%" /><col style="width:55%" /><col style="width:12%" />' +
+    '<col style="width:12%" /><col style="width:10%" /><col style="width:6%" />';
 
-  const itemHead = challanOnly
-    ? '<th>Sr. No.</th><th>Particulars</th><th>UIN</th><th>PO Qty</th><th>Received Qty</th><th>Balance</th><th>Remarks</th><th>Received Form</th><th>No. of Packages</th><th>UQR</th>'
-    : '<th>Sr. No.</th><th>Particulars</th><th>UIN</th><th>PO Qty</th><th>Received Qty</th><th>Balance</th><th>Rate</th><th>Amount</th><th>Remarks</th><th>Received Form</th><th>No. of Packages</th><th>UQR</th>';
-
-  const colCount = challanOnly ? 10 : 12;
+  const itemHead =
+    "<th>Sr. No.</th><th>Particulars</th><th>Qty</th>" +
+    "<th>Dispatch Form</th><th>No. of Package</th><th>UQR</th>";
 
   const rowsHtml = lines
     .map((l, i) => {
-      const cells = [
-        `<td class="c">${i + 1}</td>`,
-        `<td>${esc(l.particulars)}</td>`,
-        `<td class="mono">${esc(l.uin)}</td>`,
-        `<td class="r">${esc(fmtNum(l.po_quantity))}</td>`,
-        `<td class="r">${esc(fmtNum(l.received_quantity))}</td>`,
-        `<td class="r">${esc(fmtNum(l.balance))}</td>`,
-      ];
-      if (!challanOnly) {
-        cells.push(`<td class="r">${esc(fmtMoney(l.rate))}</td>`);
-        cells.push(`<td class="r">${esc(fmtMoney(l.amount))}</td>`);
-      }
-      cells.push(`<td>${esc(l.remarks)}</td>`);
-      cells.push(`<td>${esc(l.received_form)}</td>`);
-      cells.push(`<td class="c">${esc(l.num_packages)}</td>`);
-      cells.push(`<td class="c">${l.uqr ? 'YES' : ''}</td>`);
-
-      // Nested 2D sub-table: one row per package (Received Form / Qty / Unit / USN),
-      // indented under the Sr. No. column.
-      const pkgs = l.packages || [];
-      let pkgRowHtml = '';
-      if (pkgs.length) {
-        const pkgBody = pkgs
-          .map(
-            (p) => `<tr>
-              <td>${esc(p.form)}</td>
-              <td class="r">${esc(fmtNum(p.quantity))}</td>
-              <td class="c">${esc(p.unit)}</td>
-              <td class="mono">${esc(p.usn)}</td>
-            </tr>`,
-          )
-          .join('');
-        pkgRowHtml = `<tr class="pkg-row">
-          <td></td>
-          <td colspan="${colCount - 1}" class="pkg-cell">
-            <table class="pkgs">
-              <colgroup><col style="width:22%" /><col style="width:14%" /><col style="width:9%" /><col style="width:55%" /></colgroup>
-              <thead><tr><th>Received Form</th><th>Quantity</th><th>Unit</th><th>USN</th></tr></thead>
-              <tbody>${pkgBody}</tbody>
-            </table>
-          </td>
-        </tr>`;
-      }
-      return `<tr>${cells.join('')}</tr>${pkgRowHtml}`;
+      const pkgs = l.packages && l.packages.length ? l.packages : [];
+      // Each package's USN with its quantity + unit, e.g.
+      //   USN-1A/VISCOSE-TWILL-100-VISCOSE-90GSM (12,000 cm)
+      const usnLines = pkgs
+        .map((p) => {
+          const hasQty =
+            p.quantity !== "" &&
+            p.quantity !== null &&
+            p.quantity !== undefined;
+          const qty = hasQty
+            ? `<span class="uqty">(${esc(fmtNum(p.quantity))} ${esc((p.unit || "").toLowerCase())})</span>`
+            : "";
+          return `<span class="usnrow"><span class="pmono">${esc(p.usn)}</span>${qty}</span>`;
+        })
+        .join("");
+      return (
+        `<tr>` +
+        `<td class="c">${i + 1}</td>` +
+        `<td>` +
+        `<div class="pname">${esc(l.particulars)}</div>` +
+        `<div class="psep"></div>` +
+        `<div class="pmeta"><span class="plbl">Link UIN:</span><span class="pmono">${esc(l.uin)}</span></div>` +
+        (usnLines
+          ? `<div class="pmeta"><span class="plbl">Link USN:</span><span class="pusns">${usnLines}</span></div>`
+          : "") +
+        `</td>` +
+        `<td class="r nowrap">${esc(fmtNum(l.received_quantity))}</td>` +
+        `<td class="nowrap">${esc(l.received_form)}</td>` +
+        `<td class="c">${esc(l.num_packages)}</td>` +
+        `<td class="c">${l.uqr ? "YES" : ""}</td>` +
+        `</tr>`
+      );
     })
-    .join('');
+    .join("");
 
-  const padHtml = '';
+  const padHtml = "";
 
   return `
-  <table class="info divide">
+  <table class="info">
     <colgroup><col style="width:30%" /><col style="width:40%" /><col style="width:30%" /></colgroup>
     <tr>
       <td><span class="k">GST:</span>${esc(CHALLAN_COMPANY.gst)}</td>
       <td rowspan="3" style="text-align:center; vertical-align:middle;">
-        <div class="title-cell">GOODS RECEIPT NOTE</div>
-        <div class="company" style="padding:4px;">${esc(CHALLAN_COMPANY.name)}</div>
+        <div class="company" style="padding:4px; font-size:16px;">${esc(CHALLAN_COMPANY.name)}</div>
         <div class="sub" style="padding:2px;">${esc(CHALLAN_COMPANY.subtitle)}</div>
       </td>
       <td><span class="k">CONTACT:</span>${esc(CHALLAN_COMPANY.contact)}</td>
@@ -149,15 +130,17 @@ export const buildReceiptBody = (doc) => {
     </tr>
     <tr>
       <td><span class="k">Receivable Type:</span>${esc(doc?.receivable_type)}</td>
-      <td></td>
+      <td><span class="k">Type:</span>Inward</td>
     </tr>
   </table>
 
-  <table class="info" style="margin-top:4px;">
-    <colgroup><col style="width:25%" /><col style="width:25%" /><col style="width:25%" /><col style="width:25%" /></colgroup>
+  <table class="info" style="margin-top:6px; border-top:1px solid #d7dae0;">
+    <colgroup><col style="width:50%" /><col style="width:50%" /></colgroup>
     <tr>
       <td><span class="k">IPO</span>${esc(doc?.ipo_code)}</td>
       <td><span class="k">VPO No</span>${esc(doc?.vpo_number)}</td>
+    </tr>
+    <tr>
       <td><span class="k">Vendor Challan No.</span>${esc(doc?.vendor_challan_no)}</td>
       <td><span class="k">Vendor Invoice No.</span>${esc(doc?.vendor_invoice_no)}</td>
     </tr>
@@ -194,7 +177,7 @@ export const buildReceiptHtml = (doc) => `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
-<title>${esc(doc?.vendor_challan_no || 'Goods Receipt Note')}</title>
+<title>${esc(doc?.vendor_challan_no || "Goods Receipt Note")}</title>
 <style>${CHALLAN_STYLES}${PRINT_STYLES}</style>
 </head>
 <body>
@@ -212,9 +195,9 @@ export const buildReceiptHtml = (doc) => `<!doctype html>
 export const printInwardReceipt = (doc) => {
   if (!doc) return;
   const html = buildReceiptHtml(doc);
-  const win = window.open('', '_blank', 'width=1150,height=820');
+  const win = window.open("", "_blank", "width=850,height=1100");
   if (!win) {
-    alert('Please allow pop-ups to print the receipt.');
+    alert("Please allow pop-ups to print the receipt.");
     return;
   }
   win.document.open();
