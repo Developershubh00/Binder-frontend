@@ -47,6 +47,16 @@ const TaskCard = ({ task }) => {
         </p>
       )}
 
+      {/* Attachment thumbnail — the reference image shows right on the board card. */}
+      {task.attachmentUrl && (
+        <img
+          src={task.attachmentUrl}
+          alt={task.attachmentName || 'attachment'}
+          loading="lazy"
+          className="mt-3 h-28 w-full rounded-md border border-[#e2e3e8] object-cover"
+        />
+      )}
+
       {/* Progress (from sub-tasks, or legacy in-progress value) */}
       {showProgress && (
         <div className="mt-3">

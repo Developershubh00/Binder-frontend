@@ -3,7 +3,7 @@ import { ImagePlus, X } from "lucide-react";
 import {
   createOutwardStoreSheet,
   getCompanyEssentials,
-  getIPOs,
+  getAllIPOs,
   getOutwardStoreSheetChoices,
   getVpoHistory,
   getInwardStoreSheets,
@@ -335,7 +335,7 @@ const OutwardStoreSheet = ({ onBack }) => {
           setCompanyEssentialOptions(Array.isArray(results) ? results : []);
           setIpoOptions([]);
         } else {
-          const data = await getIPOs({
+          const data = await getAllIPOs({
             order_type: IPO_TYPE_TO_ORDER_TYPE[ipoType],
           });
           if (!isMounted) return;

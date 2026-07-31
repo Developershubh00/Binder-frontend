@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { SidebarContext } from "../context/SidebarContext";
-import { getIPOs, getCompanyEssentials } from "../services/integration";
+import { getAllIPOs, getCompanyEssentials } from "../services/integration";
 import { useLoading } from "../context/LoadingContext";
 import "./Dashboard.css";
 import { normalizeOrderType } from "../utils/orderType";
@@ -393,7 +393,7 @@ const Dashboard = () => {
     if (showOverlay) showLoading();
     try {
       try {
-        const response = await getIPOs();
+        const response = await getAllIPOs();
         const ipos = response?.results || response?.data || response || [];
         const normalized = Array.isArray(ipos)
           ? ipos.map((ipo) => ({

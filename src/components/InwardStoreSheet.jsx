@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { ImagePlus, X, CheckCircle2, Printer } from "lucide-react";
 import {
-  getIPOs,
+  getAllIPOs,
   createInwardStoreSheet,
   getVpoHistory,
   getVpoDetail,
@@ -551,7 +551,7 @@ const InwardStoreSheet = ({ onBack }) => {
       return;
     }
     const orderType = ipoTypeToOrderType[ipoType];
-    getIPOs({ order_type: orderType })
+    getAllIPOs({ order_type: orderType })
       .then((data) => {
         const results = data?.results || data || [];
         const normalizedResults = Array.isArray(results) ? results : [];

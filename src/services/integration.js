@@ -791,6 +791,31 @@ export const getIPOs = async (params = {}) => {
   return await response.json();
 };
 
+// getIPOs() returns only ONE page — the backend paginates at PAGE_SIZE=50
+// (StandardResultsSetPagination). Any screen that needs the tenant's COMPLETE
+// IPO list — the sidebar IPO Management menu, the Tasks/Courier/IPO pickers, the
+// per-type IMS dropdowns — must walk every page, otherwise IPOs silently vanish
+// once a tenant crosses 50 (or 50 of a single order_type). getAllIPOs accepts
+// the same filters as getIPOs and accumulates all pages into { results }.
+export const getAllIPOs = async (params = {}) => {
+  const PAGE_SIZE = 200; // backend max_page_size — fewest round trips
+  const MAX_PAGES = 200; // safety valve against a runaway paging loop
+  const all = [];
+  for (let page = 1; page <= MAX_PAGES; page += 1) {
+    const res = await getIPOs({ ...params, page, page_size: PAGE_SIZE });
+    // Non-paginated fallback: a bare array means there is nothing more to page.
+    if (Array.isArray(res)) {
+      all.push(...res);
+      break;
+    }
+    const batch = res?.results || res?.data || [];
+    if (Array.isArray(batch)) all.push(...batch);
+    // DRF sets `next` to null on the final page.
+    if (!res?.next) break;
+  }
+  return { results: all };
+};
+
 export const getIPO = async (ipoId) => {
   const response = await apiRequest(`ims/ipos/${ipoId}/`);
   return await response.json();
