@@ -38,6 +38,13 @@ const TH =
 const TD = "border-b border-[#e2e3e8] px-2 py-1.5 align-middle";
 const TCTRL =
   "w-full rounded-md border border-[#e2e3e8] bg-card px-2.5 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15";
+// Compact styles for the nested package sub-table so it reads as a small,
+// secondary detail under the parent row (smaller text, greyer, tighter spacing).
+const CTH =
+  "border-b border-[#d7dae0] bg-[#e6e8ec] px-1.5 py-1 text-left text-[10px] font-semibold uppercase tracking-wide text-muted-foreground";
+const CTD = "border-b border-[#e6e7eb] px-1.5 py-1 text-[11px] align-middle";
+const CINPUT =
+  "w-20 rounded border border-[#e2e3e8] bg-card px-1.5 py-1 text-[11px] text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/20";
 
 const RECEIVABLE_TYPE_OPTIONS = [
   { value: "CHALLAN_ONLY", label: "Challan Only" },
@@ -1250,7 +1257,12 @@ const InwardStoreSheet = ({ onBack }) => {
               )}
               <thead>
                 <tr>
-                  <th className={`${TH} text-center`}>Sr</th>
+                  <th
+                    className={`${TH} text-center text-primary`}
+                    style={{ backgroundColor: "#ffe7db" }}
+                  >
+                    Sr
+                  </th>
                   <th className={TH}>Particulars</th>
                   <th className={TH}>PO Qty</th>
                   <th className={TH}>Received Qty</th>
@@ -1274,7 +1286,10 @@ const InwardStoreSheet = ({ onBack }) => {
                   return (
                     <Fragment key={idx}>
                       <tr className="transition-colors hover:bg-muted/50">
-                        <td className={`${TD} text-center font-semibold`}>
+                        <td
+                          className={`${TD} text-center font-bold text-primary`}
+                          style={{ backgroundColor: "#fff4ef" }}
+                        >
                           {idx + 1}
                         </td>
                         <td className={TD}>
@@ -1441,7 +1456,10 @@ const InwardStoreSheet = ({ onBack }) => {
                             colSpan={colSpan}
                             className="border-b border-[#e2e3e8] bg-muted/20 py-3 pl-1 pr-3"
                           >
-                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2 pl-[calc(4%+0.5rem)]">
+                            <div
+                              className="mb-2 flex flex-wrap items-center justify-between gap-2 pl-[calc(4%+0.5rem)]"
+                              style={{ maxWidth: "55%" }}
+                            >
                               <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 {pkgCount} {row.received_form || "package"}
                                 {pkgCount > 1 ? "s" : ""} — enter quantity per
@@ -1475,21 +1493,23 @@ const InwardStoreSheet = ({ onBack }) => {
                               </div>
                             </div>
                             <div className="relative">
-                              {/* White fill for the data columns only; the guide
-                                  rail (first 5% ≈ under Sr. No.) stays outside the
-                                  box, so the tree reads as part of the parent. */}
+                              {/* White fill for the data columns only. The guide
+                                  rail (~under Sr. No.) stays outside on the left,
+                                  and the box covers only the left ~half (spacer
+                                  column on the right) so it reads as a small,
+                                  secondary detail under the parent row. */}
                               <div
-                                className="pointer-events-none absolute inset-y-0 right-0 rounded-md bg-card"
-                                style={{ left: "4%" }}
+                                className="pointer-events-none absolute inset-y-0 rounded-md bg-white"
+                                style={{ left: "4%", right: "45%" }}
                                 aria-hidden="true"
                               />
-                              <table className="relative w-full table-fixed border-collapse text-sm">
+                              <table className="relative w-full table-fixed border-collapse">
                                 <colgroup>
                                   <col style={{ width: "4%" }} />
-                                  <col style={{ width: "24%" }} />
-                                  <col style={{ width: "22%" }} />
                                   <col style={{ width: "13%" }} />
-                                  <col style={{ width: "37%" }} />
+                                  <col style={{ width: "11%" }} />
+                                  <col style={{ width: "27%" }} />
+                                  <col style={{ width: "45%" }} />
                                 </colgroup>
                                 <thead>
                                   <tr>
@@ -1502,10 +1522,11 @@ const InwardStoreSheet = ({ onBack }) => {
                                     >
                                       <span className="pointer-events-none absolute bottom-0 left-1/2 top-1/2 w-px bg-primary/50" />
                                     </th>
-                                    <th className={TH}>Received Form</th>
-                                    <th className={TH}>Quantity</th>
-                                    <th className={TH}>Unit</th>
-                                    <th className={TH}>USN</th>
+                                    <th className={CTH}>Received Form</th>
+                                    <th className={CTH}>Qty / Unit</th>
+                                    <th className={CTH}>USN</th>
+                                    {/* Spacer — outside the box (keeps it half-width). */}
+                                    <th className="p-0" aria-hidden="true" />
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -1516,6 +1537,12 @@ const InwardStoreSheet = ({ onBack }) => {
                                     );
                                     const isLastPkg =
                                       pIdx === row.packages.length - 1;
+                                    // Zebra striping (grey / white) so packages are
+                                    // easy to scan; lighter than the parent rows.
+                                    const zebra =
+                                      pIdx % 2 === 0
+                                        ? "bg-[#eef0f3]"
+                                        : "bg-white";
                                     return (
                                       <tr key={pkg.id}>
                                         {/* Tree branch to this USN row; the last
@@ -1534,49 +1561,50 @@ const InwardStoreSheet = ({ onBack }) => {
                                           )}
                                         </td>
                                         <td
-                                          className={`${TD} font-medium text-foreground`}
+                                          className={`${CTD} ${zebra} font-semibold text-foreground`}
                                         >
                                           {row.received_form || "FORM"}-
                                           {pIdx + 1}
                                         </td>
-                                        <td className={TD}>
-                                          <input
-                                            className={`${TCTRL} ${NO_SPIN}`}
-                                            type="number"
-                                            min="0"
-                                            value={pkg.quantity}
-                                            onChange={(e) =>
-                                              updatePackageField(
-                                                idx,
-                                                pIdx,
-                                                "quantity",
-                                                e.target.value,
-                                              )
-                                            }
-                                            placeholder="0"
-                                          />
+                                        <td className={`${CTD} ${zebra}`}>
+                                          <div className="flex items-center gap-1">
+                                            <input
+                                              className={`${CINPUT} ${NO_SPIN}`}
+                                              type="number"
+                                              min="0"
+                                              value={pkg.quantity}
+                                              onChange={(e) =>
+                                                updatePackageField(
+                                                  idx,
+                                                  pIdx,
+                                                  "quantity",
+                                                  e.target.value,
+                                                )
+                                              }
+                                              placeholder="0"
+                                            />
+                                            <span className="shrink-0 text-[10px] font-medium text-muted-foreground">
+                                              cm
+                                            </span>
+                                          </div>
                                         </td>
                                         <td
-                                          className={`${TD} text-muted-foreground`}
-                                        >
-                                          CM
-                                        </td>
-                                        <td
-                                          className={`${TD} break-all font-mono text-[11px] text-foreground`}
+                                          className={`${CTD} ${zebra} break-all pl-3 font-mono text-[10px] text-muted-foreground`}
                                           title={usn}
                                         >
                                           {usn}
                                         </td>
+                                        <td className="p-0" aria-hidden="true" />
                                       </tr>
                                     );
                                   })}
                                 </tbody>
                               </table>
                               {/* Border framing the data columns (right of the
-                                  guide rail). */}
+                                  guide rail, left ~half of the row). */}
                               <div
-                                className="pointer-events-none absolute inset-y-0 right-0 rounded-md border border-[#e2e3e8]"
-                                style={{ left: "4%" }}
+                                className="pointer-events-none absolute inset-y-0 rounded-md border border-[#d0d3da]"
+                                style={{ left: "4%", right: "45%" }}
                                 aria-hidden="true"
                               />
                             </div>
