@@ -4,7 +4,7 @@ import UQRPendings from "./UQRPendings";
 import { formsConfig } from "./formConfig";
 import ThemedSelect from "../IMS/StockSheet/ThemedSelect";
 import {
-  getIPOs,
+  getAllIPOs,
   getFactoryCodes,
   getFactoryCode,
   getFactoryCodesByIpo,
@@ -175,7 +175,7 @@ const UQRFormsPreview = ({ mode = "forms", onBack, onOpenStoreRequests }) => {
     const orderType = toOrderTypeApiValue(selectedOrderType);
     setLoadingIpos(true);
     try {
-      const data = await getIPOs({ order_type: orderType });
+      const data = await getAllIPOs({ order_type: orderType });
       const results = data?.results || data?.data || data || [];
       setIpoList(
         Array.isArray(results)

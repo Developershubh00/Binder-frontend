@@ -9,7 +9,7 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import { Plus, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
-  getIPOs,
+  getAllIPOs,
   getTasks,
   createTask,
   updateTask,
@@ -127,7 +127,7 @@ const TasksContent = ({ initialView }) => {
   useEffect(() => {
     const loadIPOs = async () => {
       try {
-        const response = await getIPOs();
+        const response = await getAllIPOs();
         const list = response?.results || response?.data || response || [];
         const normalized = Array.isArray(list)
           ? list.map((ipo) => ({

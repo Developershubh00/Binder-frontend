@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import GenerateFactoryCode from '../GenerateFactoryCode/GenerateFactoryCode';
 import ThemedSelect from '../IMS/StockSheet/ThemedSelect';
-import { getIPOs, createIPO, updateIPO, getBuyerCodes } from '../../services/integration';
+import { getAllIPOs, createIPO, updateIPO, getBuyerCodes } from '../../services/integration';
 import { normalizeOrderType, toOrderTypeApiValue } from '../../utils/orderType';
 import { scrollToFirstError } from '@/utils/scrollToFirstError';
 import { useLoading } from '../../context/LoadingContext';
@@ -90,7 +90,7 @@ const InternalPurchaseOrder = ({ onBack, onNavigateToCodeCreation, onNavigateToI
   });
 
   const syncIposFromApi = async () => {
-    const response = await getIPOs();
+    const response = await getAllIPOs();
     const ipos = response.results || response.data || response || [];
     const mapped = Array.isArray(ipos) ? ipos.map(mapIpoResponseItem) : [];
     window.dispatchEvent(new Event('internalPurchaseOrdersUpdated'));

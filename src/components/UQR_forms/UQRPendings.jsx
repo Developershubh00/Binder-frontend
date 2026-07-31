@@ -3,7 +3,7 @@ import BaseFormTemplate from "./BaseFormTemplate";
 import { formsConfig } from "./formConfig";
 import {
   getUQRRequirements,
-  getIPOs,
+  getAllIPOs,
   getFactoryCodeDraft,
   syncUQRRequirements,
 } from "../../services/integration";
@@ -85,7 +85,7 @@ const UQRPendings = ({ open, onClose }) => {
     setSyncing(true);
     setSyncMsg("");
     try {
-      const iposRes = await getIPOs({ page_size: 500 });
+      const iposRes = await getAllIPOs();
       const ipos = iposRes?.results || iposRes?.data || iposRes || [];
       let scanned = 0;
       let created = 0;

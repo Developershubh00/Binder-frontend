@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  getIPOs,
+  getAllIPOs,
   getFactoryCodes,
   createStockSheet,
 } from "../../../services/integration";
@@ -127,7 +127,7 @@ const StockSheet = ({ onBack, onSaved }) => {
     const orderType = ipoTypeToOrderType[ipoType];
     (async () => {
       try {
-        const data = await getIPOs({ order_type: orderType });
+        const data = await getAllIPOs({ order_type: orderType });
         const results = data?.results || data || [];
         setIpoList(
           Array.isArray(results)

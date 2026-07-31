@@ -7,7 +7,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useRef, useState } from 'react';
 import { ImagePlus, X } from 'lucide-react';
-import { getIPOs, listCourierRecords } from '../../services/integration';
+import { getAllIPOs, listCourierRecords } from '../../services/integration';
 import { normalizeOrderType } from '../../utils/orderType';
 import { useLoading } from '../../context/LoadingContext';
 
@@ -477,7 +477,7 @@ export const useCourierIpos = () => {
     const syncIpos = async () => {
       showLoading();
       try {
-        const response = await getIPOs();
+        const response = await getAllIPOs();
         const rawItems = response?.results || response?.data || response || [];
         const mapped = dedupeIpos(Array.isArray(rawItems) ? rawItems.map(mapFetchedIPO) : []);
         if (!cancelled) setIpos(mapped);
