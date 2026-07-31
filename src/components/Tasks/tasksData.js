@@ -126,6 +126,56 @@ export const getCurrentUserName = () => {
 };
 
 /* ------------------------------------------------------------------ *
+ * Ownership + assignees.
+ * ------------------------------------------------------------------ */
+// The task's creator/owner id, checking the field names the API may use.
+export const getTaskCreatorId = (task) =>
+  task?.ownerId ??
+  task?.createdById ??
+  task?.creatorId ??
+  task?.created_by ??
+  null;
+
+// Only the creator may edit/delete their own task. Once the API returns a
+// creator id we compare it to the logged-in user; until then we fall back to
+// the server's `canManage` flag so nothing breaks.
+export const canManageTask = (task, currentUserId) => {
+  const creatorId = getTaskCreatorId(task);
+  if (creatorId != null && creatorId !== '') {
+    return !!currentUserId && String(creatorId) === String(currentUserId);
+  }
+  return !!task?.canManage;
+};
+
+// Normalised assignee list [{ id, name }] — supports the new multi-assignee
+// `assignees` array and the legacy single `assignee` / `assigneeId`.
+export const getAssignees = (task) => {
+  const list = Array.isArray(task?.assignees) ? task.assignees : null;
+  if (list && list.length) {
+    return list
+      .map((a) =>
+        typeof a === 'string'
+          ? { id: a, name: a }
+          : {
+              id: a.id ?? a.userId ?? null,
+              name: a.name || a.full_name || a.email || '',
+            },
+      )
+      .filter((a) => a.id != null || a.name);
+  }
+  if (task?.assignee || task?.assigneeId) {
+    return [{ id: task?.assigneeId ?? null, name: task?.assignee || '' }];
+  }
+  return [];
+};
+
+// True when `userId` is one of the task's assignees (single or multi).
+export const isAssignedTo = (task, userId) =>
+  !!userId &&
+  (task?.assigneeId === userId ||
+    getAssignees(task).some((a) => String(a.id) === String(userId)));
+
+/* ------------------------------------------------------------------ *
  * Sub-tasks — a checklist per task. Progress is derived from completion.
  * ------------------------------------------------------------------ */
 let subtaskSeq = 0;

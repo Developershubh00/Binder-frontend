@@ -22,6 +22,7 @@ import {
   PO_TYPE_OPTIONS,
   DEPARTMENT_OPTIONS,
   toOptions,
+  getAssignees,
 } from './tasksData';
 import { normalizeOrderType } from '../../utils/orderType';
 import { uploadToBlob } from '../../services/blobUpload';
@@ -45,8 +46,14 @@ const AssignTaskModal = ({
   const [poType, setPoType] = useState(task?.poType || '');
   const [ipo, setIpo] = useState(task?.ipo || '');
   const [department, setDepartment] = useState(task?.department || '');
-  // The real member id — assignment has to resolve to an actual user, not a name.
-  const [assigneeId, setAssigneeId] = useState(task?.assigneeId || '');
+  // Real member ids — a task can be assigned to more than one team member.
+  const [assigneeIds, setAssigneeIds] = useState(
+    Array.isArray(task?.assigneeIds)
+      ? task.assigneeIds
+      : getAssignees(task)
+          .map((a) => a.id)
+          .filter(Boolean),
+  );
   const [title, setTitle] = useState(task?.title || '');
   const [subTasks, setSubTasks] = useState(
     Array.isArray(task?.subTasks) ? task.subTasks : [],
@@ -122,7 +129,10 @@ const AssignTaskModal = ({
         poType,
         ipo,
         department,
-        assigneeId: assigneeId || null,
+        // Multi-assignee: send the full list; keep `assigneeId` as the first for
+        // back-compat with the current single-assignee API.
+        assigneeIds,
+        assigneeId: assigneeIds[0] || null,
         dueDate,
         attachmentUrl: url || '',
         attachmentName: url ? name : '',
@@ -217,16 +227,18 @@ const AssignTaskModal = ({
                   placeholder="Select Department"
                 />
               </Field>
-              <Field label="Assign to User">
+              <Field label="Assign to Users">
                 <ThemedSelect
-                  value={assigneeId}
-                  onChange={setAssigneeId}
+                  isMulti
+                  menuPortal
+                  value={assigneeIds}
+                  onChange={setAssigneeIds}
                   options={memberOptions}
                   isDisabled={memberOptions.length === 0}
                   placeholder={
                     memberOptions.length === 0
                       ? 'No team members found'
-                      : 'Search team member...'
+                      : 'Search team members...'
                   }
                 />
               </Field>

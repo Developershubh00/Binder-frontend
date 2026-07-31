@@ -9,6 +9,7 @@ import {
   formatDueDate,
   formatPriorityLabel,
   getSubtaskProgress,
+  getAssignees,
 } from './tasksData';
 
 const Detail = ({ label, value }) => (
@@ -40,6 +41,7 @@ const TaskDetailModal = ({
 }) => {
   const [draft, setDraft] = useState('');
   if (!task) return null;
+  const assignees = getAssignees(task);
   const subTasks = Array.isArray(task.subTasks) ? task.subTasks : [];
   const subProgress = getSubtaskProgress(task);
   const columnLabel =
@@ -152,14 +154,25 @@ const TaskDetailModal = ({
           <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
             <div className="min-w-0">
               <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Assignee
+                {assignees.length > 1 ? 'Assignees' : 'Assignee'}
               </div>
-              <div className="mt-1 flex items-center gap-2">
-                <Avatar name={task.assignee} size="h-6 w-6" />
-                <span className="min-w-0 wrap-break-word text-sm text-foreground">
-                  {task.assignee || '—'}
-                </span>
-              </div>
+              {assignees.length === 0 ? (
+                <div className="mt-1 text-sm text-foreground">—</div>
+              ) : (
+                <div className="mt-1 flex flex-col gap-1.5">
+                  {assignees.map((a, i) => (
+                    <div
+                      key={a.id || a.name || i}
+                      className="flex items-center gap-2"
+                    >
+                      <Avatar name={a.name} size="h-6 w-6" />
+                      <span className="min-w-0 wrap-break-word text-sm text-foreground">
+                        {a.name || '—'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <Detail label="Department" value={task.department} />
             <Detail label="PO Type" value={task.poType} />

@@ -1,7 +1,12 @@
 // A single Kanban task card.
 import { Calendar, Paperclip, MessageSquare, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
-import { Avatar, PriorityPill } from './shared';
-import { formatDueDate, formatRelativeTime, getSubtaskProgress } from './tasksData';
+import { AvatarStack, PriorityPill } from './shared';
+import {
+  formatDueDate,
+  formatRelativeTime,
+  getSubtaskProgress,
+  getAssignees,
+} from './tasksData';
 
 const TaskCard = ({ task }) => {
   const isDone = task.status === 'done';
@@ -27,7 +32,7 @@ const TaskCard = ({ task }) => {
         {isDone ? (
           <CheckCircle2 className="h-6 w-6 shrink-0 text-green-500" />
         ) : (
-          <Avatar name={task.assignee} />
+          <AvatarStack people={getAssignees(task)} />
         )}
       </div>
 

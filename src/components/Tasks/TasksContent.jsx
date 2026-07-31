@@ -27,7 +27,13 @@ import TasksBoardSkeleton from './TasksBoardSkeleton';
 import AssignTaskModal from './AssignTaskModal';
 import TaskDetailModal from './TaskDetailModal';
 import ConfirmDialog from './ConfirmDialog';
-import { COLUMNS, getCurrentUserId, getCurrentUserName } from './tasksData';
+import {
+  COLUMNS,
+  getCurrentUserId,
+  getCurrentUserName,
+  canManageTask,
+  isAssignedTo,
+} from './tasksData';
 
 // For the "Sort by priority" view lens: Urgent first, Low last.
 const PRIORITY_RANK = { Urgent: 0, High: 1, Medium: 2, Low: 3 };
@@ -243,7 +249,7 @@ const TasksContent = ({ initialView }) => {
   const visibleTasks = useMemo(
     () =>
       showMineOnly
-        ? tasks.filter((t) => !!currentUserId && t.assigneeId === currentUserId)
+        ? tasks.filter((t) => isAssignedTo(t, currentUserId))
         : tasks,
     [tasks, showMineOnly, currentUserId],
   );
@@ -302,8 +308,16 @@ const TasksContent = ({ initialView }) => {
         setTasks((prev) => prev.map((t) => (t.id === editingTask.id ? updated : t)));
         toast.success('Task updated.');
       } else {
-        const created = await createTask({ ...draft, status: composeStatus || 'backlog' });
-        setTasks((prev) => [created, ...prev]);
+        const created = await createTask({
+          ...draft,
+          status: composeStatus || 'backlog',
+          // Stamp the creator so edit/delete can be limited to them.
+          createdById: currentUserId,
+        });
+        // The current user IS the creator, so surface the owner controls
+        // immediately even if the API doesn't echo a creator id back yet.
+        const withOwner = { ...created, ownerId: created.ownerId ?? currentUserId };
+        setTasks((prev) => [withOwner, ...prev]);
         toast.success('Task assigned successfully!');
       }
       closeModal();
@@ -551,9 +565,9 @@ const TasksContent = ({ initialView }) => {
           onMove={handleMoveTask}
           onAddComment={handleAddComment}
           currentUserName={currentUserName}
-          canManage={!!selectedTask.canManage}
+          canManage={canManageTask(selectedTask, currentUserId)}
           canAccept={
-            selectedTask.assigneeId === currentUserId &&
+            isAssignedTo(selectedTask, currentUserId) &&
             selectedTask.acceptance === 'pending'
           }
           onAccept={handleAccept}

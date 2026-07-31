@@ -161,16 +161,45 @@ export const SectionHeader = ({ children }) => (
 );
 
 // Round avatar with initials; colour is derived from the name.
-export const Avatar = ({ name, size = 'h-7 w-7' }) => (
+export const Avatar = ({ name, size = 'h-7 w-7', className = '' }) => (
   <span
     className={`inline-flex shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white ${size} ${avatarColorFor(
       name,
-    )}`}
+    )} ${className}`}
     title={name || ''}
   >
     {getInitials(name)}
   </span>
 );
+
+// Overlapping avatars for multi-assignee tasks; shows up to `max`, then "+N".
+export const AvatarStack = ({ people = [], size = 'h-7 w-7', max = 3 }) => {
+  if (!people.length) return null;
+  const shown = people.slice(0, max);
+  const extra = people.length - shown.length;
+  return (
+    <div
+      className="flex shrink-0 -space-x-2"
+      title={people.map((p) => p.name).filter(Boolean).join(', ')}
+    >
+      {shown.map((p, i) => (
+        <Avatar
+          key={p.id || p.name || i}
+          name={p.name}
+          size={size}
+          className="ring-2 ring-card"
+        />
+      ))}
+      {extra > 0 && (
+        <span
+          className={`inline-flex items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground ring-2 ring-card ${size}`}
+        >
+          +{extra}
+        </span>
+      )}
+    </div>
+  );
+};
 
 // Small uppercase priority pill shown on cards (e.g. "HIGH PRIORITY").
 export const PriorityPill = ({ level }) => {

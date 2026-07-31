@@ -62,6 +62,16 @@ const Login = () => {
     return true;
   };
 
+  // Pressing Enter in the email/username or password field submits the form —
+  // the same path as clicking LOGIN NOW (requestSubmit → onSubmit → handleSubmit,
+  // which validates and calls the login endpoint).
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter" && !loading) {
+      e.preventDefault();
+      formRef.current?.requestSubmit();
+    }
+  };
+
   const displayPopup = (message, type = "error") => {
     setPopupMessage(message);
     setPopupType(type);
@@ -307,6 +317,7 @@ const Login = () => {
                   name="login"
                   value={formData.login}
                   onChange={handleChange}
+                  onKeyDown={handleInputKeyDown}
                   placeholder="Enter your email or username"
                   className={`input-field ${errors.login ? "error" : ""}`}
                 />
@@ -324,6 +335,7 @@ const Login = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  onKeyDown={handleInputKeyDown}
                   placeholder="Enter your password"
                   className={`input-field ${errors.password ? "error" : ""}`}
                 />

@@ -18,10 +18,14 @@ const ThemedSelect = ({
   isDisabled = false,
   isClearable = false,
   isSearchable = true,
+  isMulti = false,
   inputId,
   menuPortal = false,
 }) => {
-  const selected = options.find((o) => o.value === value) || null;
+  // Multi: `value` is an array of raw values and `onChange` receives an array.
+  const selected = isMulti
+    ? options.filter((o) => Array.isArray(value) && value.includes(o.value))
+    : options.find((o) => o.value === value) || null;
 
   const portalProps = menuPortal
     ? {
@@ -39,10 +43,17 @@ const ThemedSelect = ({
       isDisabled={isDisabled}
       isClearable={isClearable}
       isSearchable={isSearchable}
+      isMulti={isMulti}
+      closeMenuOnSelect={!isMulti}
+      hideSelectedOptions={false}
       placeholder={placeholder}
       options={options}
       value={selected}
-      onChange={(opt) => onChange(opt ? opt.value : "")}
+      onChange={(opt) =>
+        isMulti
+          ? onChange((opt || []).map((o) => o.value))
+          : onChange(opt ? opt.value : "")
+      }
       menuPlacement="auto"
       {...portalProps}
       classNames={{
@@ -55,9 +66,14 @@ const ThemedSelect = ({
                 ? "cursor-text border-primary ring-2 ring-primary/15 bg-white"
                 : "cursor-pointer border-[#e2e3e8] hover:border-[#c9cad2] bg-white",
           ].join(" "),
-        valueContainer: () => "gap-1 px-1 py-1",
+        valueContainer: () => "flex flex-wrap gap-1 px-1 py-1",
         placeholder: () => "text-muted-foreground",
         singleValue: () => "text-foreground",
+        multiValue: () =>
+          "flex items-center gap-1 rounded bg-[#fdece4] pl-2 my-0.5",
+        multiValueLabel: () => "text-xs font-medium text-primary",
+        multiValueRemove: () =>
+          "flex items-center rounded-r px-1 text-primary transition-colors hover:bg-primary/20",
         input: () => "text-foreground",
         indicatorsContainer: () => "gap-1",
         dropdownIndicator: () =>
