@@ -348,11 +348,11 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
         </div>
 
         <div className="space-y-5 overflow-y-auto px-6 py-5">
-          <div>
-            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="rounded-lg border border-primary/30 bg-primary/5 px-5 py-4">
+            <div className="mb-1.5 text-xs font-bold uppercase tracking-wider text-primary">
               UIN
             </div>
-            <div className="break-all rounded-md border border-[#e2e3e8] bg-muted/40 px-3 py-2 font-mono text-sm font-semibold text-foreground">
+            <div className="break-all font-mono text-2xl font-extrabold leading-tight tracking-tight text-primary">
               {uin}
             </div>
           </div>
@@ -396,9 +396,9 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
                             <colgroup>
                               <col style={{ width: "8%" }} />
                               <col style={{ width: "20%" }} />
-                              <col style={{ width: "13%" }} />
-                              <col style={{ width: "9%" }} />
-                              <col style={{ width: "50%" }} />
+                              <col style={{ width: "14%" }} />
+                              <col style={{ width: "33%" }} />
+                              <col style={{ width: "25%" }} />
                             </colgroup>
                             <thead>
                               <tr>
@@ -410,9 +410,10 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
                                   <span className="pointer-events-none absolute bottom-0 left-1/2 top-1/2 w-px bg-primary/50" />
                                 </th>
                                 <th className={TH}>Received Form</th>
-                                <th className={TH}>Qty</th>
-                                <th className={TH}>Unit</th>
+                                <th className={TH}>Qty / Unit</th>
                                 <th className={TH}>USN</th>
+                                {/* Spacer — keeps the child table narrower. */}
+                                <th className="p-0" aria-hidden="true" />
                               </tr>
                             </thead>
                             <tbody>
@@ -440,9 +441,10 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
                                     >
                                       {p.form}
                                     </td>
-                                    <td className={TD}>{p.quantity || "—"}</td>
-                                    <td className={`${TD} text-muted-foreground`}>
-                                      {p.unit}
+                                    <td className={TD}>
+                                      {p.quantity
+                                        ? `${p.quantity} ${(p.unit || "").toLowerCase()}`
+                                        : "—"}
                                     </td>
                                     <td
                                       className={`${TD} break-all font-mono text-[11px] text-foreground`}
@@ -450,6 +452,7 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
                                     >
                                       {p.usn}
                                     </td>
+                                    <td className="p-0" aria-hidden="true" />
                                   </tr>
                                 );
                               })}
@@ -472,7 +475,7 @@ const GeneratedCodesModal = ({ open, uin, items, onClose }) => {
             className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[#e2e3e8] bg-card px-5 py-2.5 text-sm font-semibold text-foreground/70 transition-colors hover:bg-muted"
           >
             <Printer className="h-4 w-4" />
-            Print Stickers
+            Print Codes
           </button>
           <button
             type="button"
@@ -534,6 +537,10 @@ const InwardStoreSheet = ({ onBack }) => {
     poSequence: "",
   });
   const [showCodesModal, setShowCodesModal] = useState(false);
+  // The UIN/USN codes are only revealed in the table once the user clicks
+  // "Generate UIN and USN Codes"; before that the cells show "UIN :-" / "USN :-"
+  // with a blank value.
+  const [codesGenerated, setCodesGenerated] = useState(false);
 
   const isChallanOnly = receivableType === "CHALLAN_ONLY";
 
@@ -770,6 +777,26 @@ const InwardStoreSheet = ({ onBack }) => {
       return;
     }
 
+    // Over-allocation is never allowed — a particular's package (USN) quantities
+    // must not add up to MORE than what was received. Block save on any "over".
+    const overRow = rows.findIndex((row) => {
+      const np = parseInt(row.num_packages, 10) || 0;
+      if (np <= 0) return false;
+      const recd = parseFloat(row.received_quantity) || 0;
+      return packagesSum(row) - recd > 1e-6;
+    });
+    if (overRow !== -1) {
+      const row = rows[overRow];
+      const recd = parseFloat(row.received_quantity) || 0;
+      const sum = packagesSum(row);
+      setErrorMsg(
+        `Row ${overRow + 1}: the package quantities add up to ${sum}, which exceeds the ` +
+          `received quantity (${recd}) by ${(sum - recd).toFixed(2)}. Reduce them so the ` +
+          `total does not exceed the received quantity.`,
+      );
+      return;
+    }
+
     // Every packaged row must allocate its full received quantity across its packages.
     const badRow = rows.findIndex((row) => {
       const np = parseInt(row.num_packages, 10) || 0;
@@ -986,8 +1013,18 @@ const InwardStoreSheet = ({ onBack }) => {
       return;
     }
     setErrorMsg("");
+    setCodesGenerated(true);
     setShowCodesModal(true);
   };
+
+  // True when any particular's package (USN) quantities add up to MORE than its
+  // received quantity. Save is blocked and the Save button is disabled while so.
+  const hasOverAllocation = rows.some((row) => {
+    const np = parseInt(row.num_packages, 10) || 0;
+    if (np <= 0) return false;
+    const recd = parseFloat(row.received_quantity) || 0;
+    return packagesSum(row) - recd > 1e-6;
+  });
 
   return (
     <div
@@ -1229,20 +1266,20 @@ const InwardStoreSheet = ({ onBack }) => {
               {isChallanOnly ? (
                 <colgroup>
                   <col style={{ width: "4%" }} />
-                  <col style={{ width: "24%" }} />
+                  <col style={{ width: "28%" }} />
                   <col style={{ width: "9%" }} />
                   <col style={{ width: "9%" }} />
                   <col style={{ width: "7%" }} />
                   <col style={{ width: "11%" }} />
                   <col style={{ width: "9%" }} />
                   <col style={{ width: "8%" }} />
-                  <col style={{ width: "15%" }} />
+                  <col style={{ width: "11%" }} />
                   <col style={{ width: "4%" }} />
                 </colgroup>
               ) : (
                 <colgroup>
                   <col style={{ width: "3%" }} />
-                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "24%" }} />
                   <col style={{ width: "7%" }} />
                   <col style={{ width: "7%" }} />
                   <col style={{ width: "6%" }} />
@@ -1251,18 +1288,13 @@ const InwardStoreSheet = ({ onBack }) => {
                   <col style={{ width: "9%" }} />
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "6%" }} />
-                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "12%" }} />
                   <col style={{ width: "4%" }} />
                 </colgroup>
               )}
               <thead>
                 <tr>
-                  <th
-                    className={`${TH} text-center text-primary`}
-                    style={{ backgroundColor: "#ffe7db" }}
-                  >
-                    Sr
-                  </th>
+                  <th className={`${TH} text-center`}>Sr</th>
                   <th className={TH}>Particulars</th>
                   <th className={TH}>PO Qty</th>
                   <th className={TH}>Received Qty</th>
@@ -1285,11 +1317,8 @@ const InwardStoreSheet = ({ onBack }) => {
                   const remaining = recd - allocated;
                   return (
                     <Fragment key={idx}>
-                      <tr className="transition-colors hover:bg-muted/50">
-                        <td
-                          className={`${TD} text-center font-bold text-primary`}
-                          style={{ backgroundColor: "#fff4ef" }}
-                        >
+                      <tr className="bg-[#fff6f1] transition-colors hover:bg-[#ffeede]">
+                        <td className={`${TD} text-center font-semibold`}>
                           {idx + 1}
                         </td>
                         <td className={TD}>
@@ -1524,7 +1553,9 @@ const InwardStoreSheet = ({ onBack }) => {
                                     </th>
                                     <th className={CTH}>Received Form</th>
                                     <th className={CTH}>Qty / Unit</th>
-                                    <th className={CTH}>USN</th>
+                                    <th className={`${CTH} normal-case`}>
+                                      UIN :- {codesGenerated ? previewUin : ""}
+                                    </th>
                                     {/* Spacer — outside the box (keeps it half-width). */}
                                     <th className="p-0" aria-hidden="true" />
                                   </tr>
@@ -1537,12 +1568,12 @@ const InwardStoreSheet = ({ onBack }) => {
                                     );
                                     const isLastPkg =
                                       pIdx === row.packages.length - 1;
-                                    // Zebra striping (grey / white) so packages are
-                                    // easy to scan; lighter than the parent rows.
+                                    // Zebra striping (white / light grey) so packages
+                                    // are easy to scan; first row white, then grey.
                                     const zebra =
                                       pIdx % 2 === 0
-                                        ? "bg-[#eef0f3]"
-                                        : "bg-white";
+                                        ? "bg-white"
+                                        : "bg-[#f5f6f8]";
                                     return (
                                       <tr key={pkg.id}>
                                         {/* Tree branch to this USN row; the last
@@ -1590,10 +1621,11 @@ const InwardStoreSheet = ({ onBack }) => {
                                         </td>
                                         <td
                                           className={`${CTD} ${zebra} break-all pl-3 font-mono text-[10px] text-muted-foreground`}
-                                          title={usn}
+                                          title={codesGenerated ? usn : ""}
                                         >
-                                          {usn}
+                                          USN :- {codesGenerated ? usn : ""}
                                         </td>
+
                                         <td className="p-0" aria-hidden="true" />
                                       </tr>
                                     );
@@ -1651,9 +1683,14 @@ const InwardStoreSheet = ({ onBack }) => {
           </button>
           <button
             type="button"
-            className="cursor-pointer rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-foreground/40 disabled:opacity-100 disabled:hover:opacity-100"
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || hasOverAllocation}
+            title={
+              hasOverAllocation
+                ? "Some particulars' package quantities exceed the received quantity — fix them to save."
+                : undefined
+            }
           >
             {saving ? "Saving..." : "Save"}
           </button>

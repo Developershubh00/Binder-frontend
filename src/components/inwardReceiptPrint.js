@@ -117,20 +117,20 @@ export const buildReceiptBody = (doc) => {
   <table class="info">
     <colgroup><col style="width:30%" /><col style="width:40%" /><col style="width:30%" /></colgroup>
     <tr>
-      <td><span class="k">GST:</span>${esc(CHALLAN_COMPANY.gst)}</td>
-      <td rowspan="3" style="text-align:center; vertical-align:middle;">
-        <div class="company" style="padding:4px; font-size:16px;">${esc(CHALLAN_COMPANY.name)}</div>
+      <td><span class="k">Date:</span>${esc(fmtDate(doc?.date))}</td>
+      <td rowspan="3" style="text-align:center; vertical-align:top;">
+        <div class="company" style="padding:2px 4px 4px; font-size:16px;">${esc(CHALLAN_COMPANY.name)}</div>
         <div class="sub" style="padding:2px;">${esc(CHALLAN_COMPANY.subtitle)}</div>
       </td>
       <td><span class="k">CONTACT:</span>${esc(CHALLAN_COMPANY.contact)}</td>
     </tr>
     <tr>
-      <td><span class="k">Date:</span>${esc(fmtDate(doc?.date))}</td>
-      <td><span class="k">IPO Type:</span>${esc(doc?.ipo_type)}</td>
+      <td><span class="k">GST:</span>${esc(CHALLAN_COMPANY.gst)}</td>
+      <td><span class="k">Challan Type:</span>Inward</td>
     </tr>
     <tr>
       <td><span class="k">Receivable Type:</span>${esc(doc?.receivable_type)}</td>
-      <td><span class="k">Type:</span>Inward</td>
+      <td><span class="k">IPO Type:</span>${esc(doc?.ipo_type)}</td>
     </tr>
   </table>
 
