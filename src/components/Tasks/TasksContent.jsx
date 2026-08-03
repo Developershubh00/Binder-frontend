@@ -38,6 +38,18 @@ import {
 // For the "Sort by priority" view lens: Urgent first, Low last.
 const PRIORITY_RANK = { Urgent: 0, High: 1, Medium: 2, Low: 3 };
 
+// Default board order: highest priority first, and within the same priority the
+// closest due date first (tasks with no due date fall to the bottom of their
+// tier). `position` is the final, stable tiebreaker.
+const byPriorityThenDue = (a, b) => {
+  const pr = (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9);
+  if (pr !== 0) return pr;
+  const da = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+  const db = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+  if (da !== db) return da - db;
+  return (a.position ?? 0) - (b.position ?? 0);
+};
+
 // Gap between adjacent cards' positions; mirrors POSITION_GAP on the backend.
 const POSITION_GAP = 1000;
 
@@ -72,10 +84,6 @@ const TasksContent = ({ initialView }) => {
   const [confirmState, setConfirmState] = useState(null);
   const [ipos, setIpos] = useState([]);
   const [members, setMembers] = useState([]);
-  // Per-column sort lens — a view preference only. It re-orders your screen and
-  // is never written back, so one person sorting cannot rearrange the shared
-  // board for everyone else in the company.
-  const [sortBy, setSortBy] = useState({});
 
   const currentUserId = useMemo(() => getCurrentUserId(), []);
   const currentUserName = useMemo(() => getCurrentUserName(), []);
@@ -257,26 +265,13 @@ const TasksContent = ({ initialView }) => {
   const tasksByColumn = useMemo(() => {
     const grouped = {};
     COLUMNS.forEach((col) => {
-      const inColumn = visibleTasks
+      // Always: highest priority first, then closest due date within a priority.
+      grouped[col.key] = visibleTasks
         .filter((t) => t.status === col.key)
-        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-
-      const lens = sortBy[col.key];
-      if (lens === 'priority') {
-        inColumn.sort(
-          (a, b) => (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9),
-        );
-      } else if (lens === 'due') {
-        inColumn.sort((a, b) => {
-          const da = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
-          const db = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
-          return da - db;
-        });
-      }
-      grouped[col.key] = inColumn;
+        .sort(byPriorityThenDue);
     });
     return grouped;
-  }, [visibleTasks, sortBy]);
+  }, [visibleTasks]);
 
   /* ---------------------------------------------------------------- *
    * Modal plumbing
@@ -386,11 +381,6 @@ const TasksContent = ({ initialView }) => {
     }
   };
 
-  // Sort lens — screen-only, nothing is written. Clicking the active lens clears it.
-  const handleSortColumn = (statusKey, by) => {
-    setSortBy((prev) => ({ ...prev, [statusKey]: prev[statusKey] === by ? null : by }));
-  };
-
   /* ---------------------------------------------------------------- *
    * Drag & drop — optimistic, with rollback on failure.
    * ---------------------------------------------------------------- */
@@ -404,13 +394,11 @@ const TasksContent = ({ initialView }) => {
       return;
     }
 
-    // A sorted column shows a computed order, so a drop index there has no stable
-    // meaning to persist. Allow the move out, refuse the in-place reorder.
-    if (
-      source.droppableId === destination.droppableId &&
-      sortBy[destination.droppableId]
-    ) {
-      toast('Clear the column sort to reorder cards by hand.', { icon: '↕️' });
+    // The board is always auto-sorted (by priority, then due date, or an active
+    // lens), so a hand reorder within a column has no stable order to persist —
+    // it would just snap back. Allow moves BETWEEN columns; refuse in-place.
+    if (source.droppableId === destination.droppableId) {
+      toast('Cards are auto-sorted by priority, then due date.', { icon: '↕️' });
       return;
     }
 
@@ -418,13 +406,7 @@ const TasksContent = ({ initialView }) => {
     if (!moved) return;
 
     const destColumn = tasksByColumn[destination.droppableId] || [];
-    // Dropping into a lens-sorted column: the drop index describes the sorted
-    // view, so the cards either side of it aren't neighbours by position and
-    // averaging them would put the card somewhere arbitrary. Append instead.
-    const destLens = sortBy[destination.droppableId];
-    const position = destLens
-      ? Math.max(0, ...destColumn.map((t) => t.position ?? 0)) + POSITION_GAP
-      : computePosition(destColumn, destination.index, draggableId);
+    const position = computePosition(destColumn, destination.index, draggableId);
     const rollback = tasks;
 
     setTasks((prev) =>
@@ -536,10 +518,8 @@ const TasksContent = ({ initialView }) => {
                     key={column.key}
                     column={column}
                     tasks={tasksByColumn[column.key] || []}
-                    sortLens={sortBy[column.key] || null}
                     onTaskClick={setSelectedTask}
                     onAddTask={openCompose}
-                    onSortColumn={handleSortColumn}
                   />
                 ))}
               </div>
