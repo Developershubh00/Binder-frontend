@@ -450,24 +450,28 @@ const Dashboard = () => {
     setHoveredSubmenu(null);
   }, [hoveredMenu]);
 
+  // A section's "landing" page (ims / quality, and code-creation / ipo-management
+  // with nothing selected) renders no real content — the floating panel IS its
+  // navigation. So keep that panel open whenever we're on such a landing
+  // (including after Back from a sub-page), and hide it on every content/leaf
+  // page. This is why the highlighted tab always shows its floating options.
   useEffect(() => {
-    if (
-      activePage === "home" ||
-      activePage === "tasks" ||
-      activePage === "uqr-forms" ||
-      activePage === "uqr-database" ||
-      activePage === "courier-slip" ||
-      activePage === "courier-master" ||
-      activePage === "inward-store-sheet" ||
-      activePage === "inward-store-sheet-db" ||
-      activePage === "outward-store-sheet" ||
-      activePage === "outward-store-sheet-db" ||
-      activePage === "stock-sheet" ||
-      activePage === "stock-sheet-db"
-    ) {
-      setHoveredMenu(null);
-    }
-  }, [activePage]);
+    const onLanding =
+      activePage === "ims" ||
+      activePage === "quality" ||
+      (activePage === "code-creation" && !codeCreationView) ||
+      (activePage === "ipo-management" &&
+        !selectedIpoForSpec &&
+        !selectedIpoForCNS &&
+        !selectedIpoForDerivedCNS);
+    setHoveredMenu(onLanding ? activePage : null);
+  }, [
+    activePage,
+    codeCreationView,
+    selectedIpoForSpec,
+    selectedIpoForCNS,
+    selectedIpoForDerivedCNS,
+  ]);
 
   useEffect(() => {
     if (!hoveredMenu) return;
@@ -476,11 +480,16 @@ const Dashboard = () => {
       const panelEl = hoverPanelRef.current;
       if (sidebarEl?.contains(event.target)) return;
       if (panelEl?.contains(event.target)) return;
+      // On a section's own landing page the panel IS the page's navigation —
+      // the main content is empty — so a background click must NOT dismiss it,
+      // which would strand the user on a blank screen. The landing state is when
+      // the open panel (hoveredMenu) matches the current section (activePage).
+      if (hoveredMenu === activePage) return;
       setHoveredMenu(null);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [hoveredMenu]);
+  }, [hoveredMenu, activePage]);
 
   return (
     <SidebarContext.Provider value={{ isSidebarCollapsed }}>

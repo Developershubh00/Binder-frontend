@@ -74,38 +74,38 @@ const DashboardContent = ({
         />
       );
     case "courier-slip":
-      return <CourierSlip onBack={() => setActivePage("home")} />;
+      return <CourierSlip onBack={() => setActivePage("ims")} />;
     case "courier-master":
-      return <MasterCourierSheet onBack={() => setActivePage("home")} />;
+      return <MasterCourierSheet onBack={() => setActivePage("ims")} />;
     case "inward-store-sheet":
-      return <InwardStoreSheet onBack={() => setActivePage("home")} />;
+      return <InwardStoreSheet onBack={() => setActivePage("ims")} />;
     case "inward-store-sheet-db":
       return (
         <InwardStoreSheetDatabase
-          onBack={() => setActivePage("home")}
+          onBack={() => setActivePage("ims")}
           onOpenForm={() => setActivePage("inward-store-sheet")}
         />
       );
     case "outward-store-sheet":
-      return <OutwardStoreSheet onBack={() => setActivePage("home")} />;
+      return <OutwardStoreSheet onBack={() => setActivePage("ims")} />;
     case "outward-store-sheet-db":
       return (
         <OutwardStoreSheetDatabase
-          onBack={() => setActivePage("home")}
+          onBack={() => setActivePage("ims")}
           onOpenForm={() => setActivePage("outward-store-sheet")}
         />
       );
     case "stock-sheet":
       return (
         <StockSheet
-          onBack={() => setActivePage("stock-sheet-db")}
+          onBack={() => setActivePage("ims")}
           onSaved={() => setActivePage("stock-sheet-db")}
         />
       );
     case "stock-sheet-db":
       return (
         <MasterStockSheet
-          onBack={() => setActivePage("home")}
+          onBack={() => setActivePage("ims")}
           onOpenForm={() => setActivePage("stock-sheet")}
         />
       );
