@@ -8,11 +8,15 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { getBuyerCodes } from "../../../services/integration";
+import { getMemberPermissions } from "../../../api/authService";
 import {
   LEVELS,
   MODULES,
   permKey,
   buildAccessPayload,
+  buildBuyerScopePayload,
+  buildGrantsPayload,
+  hydrateGrid,
 } from "./permissionConfig";
 
 // Pull the buyer array out of whatever shape the API returns (mirrors BuyerMasterSheet).
@@ -163,20 +167,20 @@ function PermCell({ value, max, onChange, approve, apOn, onAp }) {
 export default function AddUserView({
   mode = "add",
   member,
+  companyName = "",
   onCancel,
   onSubmit,
 }) {
   const isEdit = mode === "edit";
 
-  // Baseline the form resets to: the fetched member values when editing, all
-  // empty when creating. Permissions + buyer scope aren't fetched (UI-only), so
-  // their baseline is empty in both modes.
+  // Baseline the form resets to: the member's saved values when editing, all
+  // empty when creating. Permissions and buyer scope are fetched separately on
+  // edit (see the effect below) so Reset returns to what they actually hold.
   const initialUser = useMemo(
     () => ({
       first: member?.first_name || "",
       last: member?.last_name || "",
       email: member?.email || "",
-      pass: "",
       desig: member?.designation || "",
     }),
     [member],
@@ -196,6 +200,10 @@ export default function AddUserView({
     ims: false,
   });
   const [saving, setSaving] = useState(false);
+  const [loadingAccess, setLoadingAccess] = useState(isEdit);
+  const [accessError, setAccessError] = useState("");
+  // What Reset returns to: the member's saved access when editing, empty when creating.
+  const [baseline, setBaseline] = useState(null);
 
   // Fetch the tenant's buyers the same way BuyerMasterSheet does.
   useEffect(() => {
@@ -215,6 +223,40 @@ export default function AddUserView({
       alive = false;
     };
   }, []);
+
+  // Editing: load what this member currently holds so the grid opens showing
+  // their real access rather than an empty one. A save is a full replace, so an
+  // empty prefill would silently wipe everything they had.
+  useEffect(() => {
+    if (!isEdit || !member?.id) {
+      setLoadingAccess(false);
+      return undefined;
+    }
+    let alive = true;
+    setLoadingAccess(true);
+    getMemberPermissions(member.id)
+      .then((data) => {
+        if (!alive || !data) return;
+        const { lv: nextLv, ap: nextAp } = hydrateGrid(data.grid);
+        setLv(nextLv);
+        setAp(nextAp);
+        setAllBuyers(data.buyer_scope?.all !== false);
+        setBuyerSel(data.buyer_scope?.codes || []);
+        setBaseline({
+          lv: nextLv,
+          ap: nextAp,
+          allBuyers: data.buyer_scope?.all !== false,
+          buyerSel: data.buyer_scope?.codes || [],
+        });
+      })
+      .catch((e) => setAccessError(e?.message || "Could not load current access"))
+      .finally(() => {
+        if (alive) setLoadingAccess(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [isEdit, member?.id]);
 
   const getLv = (m, r, c) => lv[permKey(m, r, c)] || 0;
   const getAp = (m, r, c) => !!ap[permKey(m, r, c)];
@@ -261,21 +303,31 @@ export default function AddUserView({
   const toggleBuyer = (b) =>
     setBuyerSel((s) => (s.includes(b) ? s.filter((x) => x !== b) : [...s, b]));
 
-  // Reset the form to its baseline: fetched values when editing, empty when creating.
+  // Reset the form to its baseline: saved access when editing, empty when creating.
   const handleReset = () => {
     setUser(initialUser);
-    setLv({});
-    setAp({});
-    setAllBuyers(true);
-    setBuyerSel([]);
+    setLv(baseline?.lv || {});
+    setAp(baseline?.ap || {});
+    setAllBuyers(baseline ? baseline.allBuyers : true);
+    setBuyerSel(baseline?.buyerSel || []);
   };
 
   const summary = useMemo(() => buildAccessPayload(lv, ap), [lv, ap]);
 
   const buyerWarn = !allBuyers && buyerSel.length === 0;
   const fullName = `${user.first} ${user.last}`.trim();
-  const valid =
-    user.first.trim() && user.email.trim() && (isEdit || user.pass.trim());
+  const valid = Boolean(user.first.trim() && user.email.trim());
+
+  // Mirrors auth_service/utils/usernames.py so the admin sees the username the
+  // member will actually be given. The backend is the authority — it also
+  // resolves collisions with a numeric suffix (shubh2@mrsaxenaproduction).
+  const usernamePreview = useMemo(() => {
+    if (isEdit) return member?.username || "";
+    const slug = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const person = slug(user.first) || slug(user.email.split("@")[0]);
+    const company = slug(companyName);
+    return person && company ? `${person}@${company}` : "";
+  }, [isEdit, member?.username, user.first, user.email, companyName]);
 
   const handleSave = async () => {
     if (!valid || saving) return;
@@ -287,10 +339,13 @@ export default function AddUserView({
         lastName: user.last.trim(),
         email: user.email.trim(),
         designation: user.desig.trim(),
-        tempPassword: user.pass,
         memberName: fullName,
       },
-      buyerScope: { all: allBuyers, selected: allBuyers ? [] : buyerSel },
+      // Wire format for the backend: one grid, fanned out across whichever
+      // buyers are in scope. See permissionConfig.buildGrantsPayload.
+      buyerScope: buildBuyerScopePayload(allBuyers, buyerSel),
+      grants: buildGrantsPayload(lv, ap),
+      // Kept for the UI summary line; the backend ignores it.
       access: { lv, ap, summary },
     };
     setSaving(true);
@@ -344,18 +399,23 @@ export default function AddUserView({
                 placeholder="Sharma"
               />
               <TextField
-                label="Email / username"
+                label="Email"
                 value={user.email}
                 onChange={(v) => setUser((u) => ({ ...u, email: v }))}
                 placeholder="priya@company.com"
               />
-              <TextField
-                label={isEdit ? "Password (leave blank to keep)" : "Password"}
-                type="password"
-                value={user.pass}
-                onChange={(v) => setUser((u) => ({ ...u, pass: v }))}
-                placeholder="••••••••"
-              />
+              {/* No password field: the member is emailed a single-use link and
+                  chooses their own, so no plaintext credential is ever sent or
+                  stored. Their username is derived server-side. */}
+              <div>
+                <div className={LABEL}>Username (generated)</div>
+                <div
+                  className="flex h-[42px] items-center rounded-md border border-neutral-200
+                             bg-neutral-50 px-3 text-sm text-neutral-500"
+                >
+                  {usernamePreview || "first name + @ + company"}
+                </div>
+              </div>
               <div className="sm:col-span-2">
                 <TextField
                   label="Designation (free text — company's own wording)"
@@ -727,10 +787,28 @@ export default function AddUserView({
               {summary.cells} screens granted · approver on {summary.approvals}
             </div>
 
+            {loadingAccess && (
+              <div className="mb-2 rounded-md bg-[#f3f4f6] px-3 py-2 text-center text-[11px] text-muted-foreground">
+                Loading current access…
+              </div>
+            )}
+            {accessError && (
+              <div className="mb-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[11px] text-red-700">
+                {accessError} — saving now would replace their access with what is
+                shown above.
+              </div>
+            )}
+            {!isEdit && (
+              <div className="mb-2 rounded-md bg-[#f3f4f6] px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+                They will be emailed a link to set their own password. No password
+                is sent.
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleSave}
-              disabled={!valid || saving}
+              disabled={!valid || saving || loadingAccess}
               className="w-full cursor-pointer rounded-md bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? "Saving…" : isEdit ? "Save changes" : "Create user"}
@@ -746,9 +824,7 @@ export default function AddUserView({
             </button>
             {!valid && (
               <div className="mt-2 text-center text-[11px] text-muted-foreground">
-                {isEdit
-                  ? "first name + email needed"
-                  : "first name + email + password needed"}
+                first name + email needed
               </div>
             )}
           </div>

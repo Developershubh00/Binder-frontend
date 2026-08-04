@@ -1330,6 +1330,18 @@ export const saveFactoryCodeSection = async (ipoId, skuKey, section, payload) =>
   return await response.json();
 };
 
+// Drop an IPC's saved slices. `sku_key` is positional ('product_2'), so removing an
+// IPC in the wizard leaves the old rows behind as orphans — this clears them. Pass
+// `section` to drop just one step, omit it to drop the whole IPC.
+export const deleteFactoryCodeSections = async (ipoId, skuKey, section = null) => {
+  if (!ipoId || !skuKey) return null;
+  const q = `?ipo_id=${encodeURIComponent(ipoId)}&sku_key=${encodeURIComponent(skuKey)}`
+    + (section ? `&section=${encodeURIComponent(section)}` : '');
+  const response = await apiRequest(`ims/factory-codes/section/${q}`, { method: 'DELETE' });
+  await throwIfNotOk(response, 'Section delete');
+  return await response.json();
+};
+
 // All saved section slices for an IPO (for rehydrate): { sections: [...] }.
 export const getFactoryCodeSections = async (ipoId) => {
   const response = await apiRequest(`ims/factory-codes/sections/?ipo_id=${encodeURIComponent(ipoId)}`);

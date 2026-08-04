@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoadingProvider } from './context/LoadingContext';
+import { PermissionProvider } from './permissions/usePermissions';
 import GlobalLoadingOverlay from './components/GlobalLoadingOverlay';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -74,6 +75,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <PermissionProvider>
         <LoadingProvider>
         <Routes>
           <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
@@ -146,6 +148,7 @@ function App() {
           toastOptions={{ duration: 3500 }}
         />
         </LoadingProvider>
+        </PermissionProvider>
       </AuthProvider>
     </Router>
   );

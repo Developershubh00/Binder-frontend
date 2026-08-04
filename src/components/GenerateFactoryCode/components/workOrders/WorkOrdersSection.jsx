@@ -1311,15 +1311,15 @@ const WorkOrdersSection = ({
                               value={workOrder.dyeingType || ''}
                               onChange={(selectedValue) => {
                                 const selectedType = selectedValue;
+                                // Only cascade on an ACTUAL change — re-picking the dyeing
+                                // type already selected used to wipe a filled COLOR REF +
+                                // REFERENCE TYPE.
+                                if (selectedType === workOrder.dyeingType) return;
                                 handleWorkOrderChange(actualIndex, woIndex, 'dyeingType', selectedType);
-                                // Clear COLOR REF and REFERENCE TYPE when dyeing type changes
-                                if (!selectedType) {
-                                  handleWorkOrderChange(actualIndex, woIndex, 'colorRef', '');
-                                  handleWorkOrderChange(actualIndex, woIndex, 'referenceType', '');
-                                } else {
-                                  handleWorkOrderChange(actualIndex, woIndex, 'colorRef', '');
-                                  handleWorkOrderChange(actualIndex, woIndex, 'referenceType', '');
-                                }
+                                // The reference fields are dyeing-type specific, so a real
+                                // change invalidates whatever was picked for the old type.
+                                handleWorkOrderChange(actualIndex, woIndex, 'colorRef', '');
+                                handleWorkOrderChange(actualIndex, woIndex, 'referenceType', '');
                               }}
                               options={getAllDyeingTypes()}
                               placeholder="Select or type Dyeing Type"
@@ -2354,6 +2354,10 @@ const WorkOrdersSection = ({
                                     value={workOrder.sewingMachineType || ''}
                                     onChange={(selectedValue) => {
                                       const selectedType = selectedValue;
+                                      // Only cascade on an ACTUAL change — re-picking the
+                                      // same machine type used to overwrite a hand-edited
+                                      // STITCH TYPE / THREAD TYPE with the defaults.
+                                      if (selectedType === workOrder.sewingMachineType) return;
                                       handleWorkOrderChange(actualIndex, woIndex, 'sewingMachineType', selectedType);
                                       // Auto-populate STITCH TYPE when machine type changes
                                       if (selectedType) {

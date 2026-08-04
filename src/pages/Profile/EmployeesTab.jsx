@@ -18,8 +18,11 @@ const fmtDate = (s) => {
 };
 
 // "Employees" nav section (master-admin only): the single place to see, add, edit and
-// delete users. Editing a user is where their roles / permissions / buyer scope are set.
-// User creation hits the real endpoint; buyer-scope + permissions are UI-only for now.
+// delete users. Editing a user is where their permissions and buyer scope are set.
+//
+// Permissions are assigned directly per user — there are no roles or templates, so
+// two people sharing a designation share nothing. Changes take effect on the
+// member's next request; see auth_service/permissions/ for the enforcement side.
 export default function EmployeesTab({ members, setMembers, refreshMembers, orgSummary }) {
   const [view, setView] = useState('list'); // 'list' | 'form'
   const [formMode, setFormMode] = useState('add'); // 'add' | 'edit'
@@ -29,33 +32,58 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
   const openAdd = () => { setFormMode('add'); setEditingMember(null); setView('form'); };
   const openEdit = (m) => { setFormMode('edit'); setEditingMember(m); setView('form'); };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const m = confirmMember;
     if (!m) return;
-    // UI-only until a delete-user endpoint exists.
-    setMembers((list) => list.filter((x) => x.id !== m.id));
+    const label = m.full_name || m.name || m.email;
     setConfirmMember(null);
-    toast.success(`${m.full_name || m.name || m.email} removed`);
+    try {
+      await authService.deleteMember(m.id);
+      // Soft delete on the backend — the member is deactivated, not erased, so
+      // their audit trail and record history stay intact.
+      setMembers((list) => list.filter((x) => x.id !== m.id));
+      toast.success(`${label} removed`);
+    } catch (e) {
+      toast.error(e?.message || `Could not remove ${label}`);
+      if (refreshMembers) await refreshMembers();
+    }
   };
 
   const handleSubmit = async (payload) => {
-    const { mode, member, credentials, buyerScope, access } = payload;
-    console.log('[Profile] Save user — access + buyer scope (UI-only, wire later):', {
-      mode, email: credentials.email, buyerScope, access: access.summary,
-    });
+    const { mode, member, credentials, buyerScope, grants } = payload;
 
     if (mode === 'add') {
       try {
-        await authService.createUserAndSendInvite({
+        // One call: creates the member, assigns their grid, and emails them a
+        // set-password link. No password is sent — they choose their own.
+        const res = await authService.createUserAndSendInvite({
           email: credentials.email,
           memberName: credentials.memberName,
           firstName: credentials.firstName,
           lastName: credentials.lastName,
           designation: credentials.designation,
-          tempPassword: credentials.tempPassword,
           companyName: orgSummary?.company_name,
+          buyerScope,
+          grants,
         });
-        toast.success('User created and invite sent');
+
+        const created = res?.data;
+        if (created?.email_sent === false) {
+          // The member exists and their access is set — only the email failed.
+          // Surface the link so the admin can pass it on rather than being stuck.
+          toast.error(
+            `${created.user?.email}: invite email failed. Copy their set-password link from the console.`,
+            { duration: 8000 },
+          );
+          console.warn('[Profile] Set-password link:', created.set_password_url);
+        } else {
+          toast.success(
+            `User created — set-password email sent${
+              created?.user?.username ? ` · username: ${created.user.username}` : ''
+            }`,
+          );
+        }
+
         if (refreshMembers) await refreshMembers();
         setView('list');
       } catch (e) {
@@ -65,24 +93,28 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
       return;
     }
 
-    // Edit — no update-user endpoint yet, so apply optimistically in the UI.
-    setMembers((list) =>
-      list.map((x) =>
-        x.id === member?.id
-          ? {
-              ...x,
-              first_name: credentials.firstName,
-              last_name: credentials.lastName,
-              email: credentials.email,
-              designation: credentials.designation,
-              full_name: credentials.memberName || x.full_name,
-              name: credentials.memberName || x.name,
-            }
-          : x,
-      ),
-    );
-    toast.success('User updated');
-    setView('list');
+    // Edit — profile fields and permissions are separate endpoints. Permissions
+    // go first: if they fail, the member's access is unchanged and the admin sees
+    // a clear error, rather than a half-applied save where the name moved but the
+    // access did not.
+    try {
+      await authService.setMemberPermissions(member.id, { buyerScope, grants });
+      const updated = await authService.updateMember(member.id, {
+        first_name: credentials.firstName,
+        last_name: credentials.lastName,
+        name: credentials.memberName,
+        designation: credentials.designation,
+      });
+
+      setMembers((list) =>
+        list.map((x) => (x.id === member.id ? { ...x, ...updated } : x)),
+      );
+      toast.success('User updated — new access applies on their next request');
+      setView('list');
+    } catch (e) {
+      toast.error(e?.message || 'Failed to update user');
+      throw e;
+    }
   };
 
   // ── Add / Edit form takes over the whole tab body ──────────────
@@ -93,6 +125,7 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
           <AddUserView
             mode={formMode}
             member={editingMember}
+            companyName={orgSummary?.company_name}
             onCancel={() => setView('list')}
             onSubmit={handleSubmit}
           />
@@ -250,7 +283,7 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
         title="Remove user?"
         message={
           confirmMember
-            ? `${confirmMember.full_name || confirmMember.name || confirmMember.email} will be removed from the members list. This is a UI-only change until a delete endpoint is available.`
+            ? `${confirmMember.full_name || confirmMember.name || confirmMember.email} will be deactivated and can no longer sign in. Their records and history are kept, and you can restore access by creating them again.`
             : ''
         }
         confirmLabel="Remove"

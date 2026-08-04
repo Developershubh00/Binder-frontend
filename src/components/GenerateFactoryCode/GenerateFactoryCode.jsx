@@ -15,9 +15,9 @@ import { FormCard } from '@/components/ui/form-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection, getFactoryCodeSections, syncUQRRequirements } from '../../services/integration';
+import { saveFactoryCodeWizard, getFactoryCodeDraft, saveFactoryCodeDraft, getFactoryCodesByIpo, saveFactoryCodeSection, getFactoryCodeSections, deleteFactoryCodeSections, syncUQRRequirements } from '../../services/integration';
 import { buildUqrRequirementsPayload } from '../UQR_forms/uqrPrefill';
-import { applyCutSewSections } from './utils/sectionOverlay';
+import { applySections, sliceHasData } from './utils/sectionOverlay';
 // Pure default/scaffold builders (blank per-IPC stepData + packaging defaults).
 import { getInitialStepData, getDefaultPackagingMaterial, getDefaultExtraPack } from './data/stepDataDefaults';
 // Pure raw-material row builder (common shape + per-type default fields).
@@ -29,6 +29,28 @@ import { useLoading } from '../../context/LoadingContext';
 import { buildWizardPayload as buildWizardPayloadUtil, cleanArtworkFilesForWizard, cleanPackagingFilesForWizard } from './utils/wizardPayload';
 import { MaterialOptionsProvider } from './utils/useMaterialOptions';
 import { compressImage, normalizePackagingBlockStiffenerPlys, packagingToBackendShape, mergeArtworkWithUrls, normalizeFactoryCodePayloadStiffenerPlys } from './utils/factoryCodePayloadHelpers';
+
+/**
+ * True when writing `next` into a field that already holds `prev` would change nothing.
+ *
+ * The wizard's selector handlers (MATERIAL TYPE, ARTWORK CATEGORY, packaging MATERIAL
+ * DESC, WORK ORDER type) rebuild the whole row on change so the previous type's fields
+ * don't linger. react-select, however, fires onChange for a re-pick of the option that
+ * is ALREADY selected — which ran those rebuilds against unchanged data and silently
+ * erased a filled spec block. Every such handler now returns early on this check.
+ *
+ * Deliberately conservative: only primitives and plain arrays are compared. Objects and
+ * Files always report "changed" so nothing that could carry hidden state is skipped.
+ */
+const isUnchangedValue = (prev, next) => {
+  if (prev === next) return true;
+  // '' / null / undefined are all "empty" as far as these form fields are concerned.
+  if ((prev === '' || prev == null) && (next === '' || next == null)) return true;
+  if (Array.isArray(prev) && Array.isArray(next)) {
+    return prev.length === next.length && prev.every((v, i) => v === next[i]);
+  }
+  return false;
+};
 
 const GenerateFactoryCode = ({
   onBack,
@@ -459,9 +481,11 @@ const GenerateFactoryCode = ({
   // AFTER a newer one and overwrite fresh data with stale (backend is full-replace).
   // Each save takes a token at start and only PUTs if no newer save has begun.
   const saveSeqRef = useRef(0);
-  // Signature of the last Cut/Sew slice mirrored to the section store on autosave —
-  // skip redundant PUTs when nothing cut/sew-related changed.
-  const lastCutsewSigRef = useRef('');
+  // Signature of the last slice mirrored to the section store, per section
+  // ({ bomwo, cutsew, artwork, packaging }) — skip redundant PUTs when a section's
+  // data didn't change. Keyed per section so an edit in one step doesn't re-upload
+  // the others (the BOM slice is by far the largest).
+  const lastSectionSigRef = useRef({});
   // Always points at the latest "flush the pending debounced save now" fn, so the
   // unmount/navigation effects (whose closures would otherwise be stale) can persist
   // edits made inside the 2.5s autosave window before the user leaves (Problem 2).
@@ -613,22 +637,13 @@ const GenerateFactoryCode = ({
     autosaveTimerRef.current = setTimeout(() => {
       autosaveTimerRef.current = null; // fired → no longer pending (see flushPendingSave)
       saveCurrentFormState();
-      // Also mirror the Cut/Sew slice into the reliable per-section store on autosave —
-      // NOT only on an explicit Cut & Sew "Save" click. The sewing/cutting SPEC (SPI,
-      // thread type, approval, sizes…) lives only here + the fragile draft, so if the
-      // user navigates away without clicking Save and the draft PUT is lost, this is
-      // what lets the overlay restore it on reload (Problem 2). Guarded to when there
-      // IS cut/sew data and it actually changed, to avoid pointless PUTs.
-      try {
-        const slice = buildCutSewSlice(getSelectedSkuStepData());
-        if (slice.workOrderSpecs.length) {
-          const sig = `${String(selectedSku)}|${JSON.stringify(slice)}`;
-          if (sig !== lastCutsewSigRef.current) {
-            lastCutsewSigRef.current = sig;
-            persistSection('cutsew', slice);
-          }
-        }
-      } catch (e) { console.warn('cutsew autosave mirror failed', e); }
+      // Also mirror EVERY section slice into the reliable per-section store on autosave —
+      // NOT only on an explicit "Save" click, and no longer Cut/Sew only. Each step's
+      // data (BOM & WO specs, artwork rows, pack plan, the sewing/cutting spec) otherwise
+      // lives solely in the fragile draft, so a user who types and navigates away loses
+      // the lot if that one big PUT is dropped. This is what lets the overlay restore
+      // each step independently on reload.
+      mirrorSections();
     }, 2500);
     return () => clearTimeout(autosaveTimerRef.current);
   }, [formData]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -746,7 +761,7 @@ const GenerateFactoryCode = ({
           : Promise.resolve(null),
       ]);
       _mark('api_parallel');
-      const cutSewSections = Array.isArray(sectionsRes?.sections) ? sectionsRes.sections : [];
+      const sectionRows = Array.isArray(sectionsRes?.sections) ? sectionsRes.sections : [];
 
       if (cancelled) return;
 
@@ -772,9 +787,10 @@ const GenerateFactoryCode = ({
           data.skus = mergeDraftOverCommitted(data.skus || [], committedSkus);
           _mark('merge_committed');
         }
-        // Overlay Cut/Sew sizes + clubs from the (more reliable) section store so a
-        // draft that lost them still reloads with the data. Fill-empty only.
-        try { applyCutSewSections(data.skus, cutSewSections); } catch (e) { console.warn('cutsew overlay failed', e); }
+        // Overlay every saved section (BOM & WO, Cut/Sew, Artwork, Packaging) from the
+        // (much more reliable) section store so a draft that lost a step still reloads
+        // with the data. Fill-empty only — the draft always wins where it has a value.
+        try { applySections(data.skus, sectionRows); } catch (e) { console.warn('section overlay failed', e); }
         setFormData((prev) => ({ ...prev, ...data }));
         _mark('setFormData');
         console.log('[IPC Spec perf]', {
@@ -791,7 +807,7 @@ const GenerateFactoryCode = ({
       // No usable draft — fall back to committed rows (cross-device /
       // cross-user scenario) before trying the stale localStorage cache.
       if (committedSkus.length) {
-        try { applyCutSewSections(committedSkus, cutSewSections); } catch (e) { console.warn('cutsew overlay failed', e); }
+        try { applySections(committedSkus, sectionRows); } catch (e) { console.warn('section overlay failed', e); }
         setFormData((prev) => ({ ...prev, skus: committedSkus }));
         _mark('setFormData');
         console.log('[IPC Spec perf]', {
@@ -1081,10 +1097,26 @@ const GenerateFactoryCode = ({
   // assume skus[0] exists. Remaining IPC codes are left as-is — renumbering
   // would invalidate codes already committed to the backend for this IPO.
   const removeSkuAtIndex = (skuIndex) => {
+    const removed = formData.skus?.[skuIndex];
     setFormData(prev => {
       if (!prev.skus || prev.skus.length <= 1) return prev;
       return { ...prev, skus: prev.skus.filter((_, i) => i !== skuIndex) };
     });
+
+    // Drop this IPC's section slices, and any of its subproducts'. Every later IPC now
+    // shifts down a position, so their rows are stale too — the __skuRef stamp keeps
+    // the overlay from applying them to the wrong IPC, and the next autosave rewrites
+    // them under their new key. Clearing the signature cache forces that rewrite.
+    if (removed && formData.skus?.length > 1) {
+      const ipoId = initialFormData?.ipoId || formData?.ipoId;
+      if (ipoId) {
+        const keys = [`product_${skuIndex}`,
+          ...(removed.subproducts || []).map((_, s) => `subproduct_${skuIndex}_${s}`)];
+        keys.forEach((k) => deleteFactoryCodeSections(ipoId, k)
+          .catch((e) => console.warn(`Section purge for ${k} failed`, e)));
+      }
+      lastSectionSigRef.current = {};
+    }
 
     // If the removed IPC was the one selected, or selection pointed past the
     // removed index, adjust so selectedSku stays valid.
@@ -1140,6 +1172,15 @@ const GenerateFactoryCode = ({
       }
       return { ...prev, skus: updatedSkus };
     });
+    // Same positional-key cleanup as removeSkuAtIndex: drop this SP's section slices
+    // and force the later SPs (which just shifted down) to re-mirror under their new
+    // keys. The __skuRef stamp keeps the stale rows from being applied meanwhile.
+    const ipoId = initialFormData?.ipoId || formData?.ipoId;
+    if (ipoId) {
+      deleteFactoryCodeSections(ipoId, `subproduct_${skuIndex}_${subproductIndex}`)
+        .catch((e) => console.warn('Section purge for subproduct failed', e));
+    }
+    lastSectionSigRef.current = {};
   };
 
   const handleSubproductChange = (skuIndex, subproductIndex, field, value) => {
@@ -1831,7 +1872,20 @@ const GenerateFactoryCode = ({
 
   const handleRawMaterialChange = (materialIndex, field, value) => {
     const stepDataBefore = getSelectedSkuStepData();
-    const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
+    const materialBefore = stepDataBefore?.rawMaterials?.[materialIndex];
+    const componentName = materialBefore?.componentName;
+
+    // NO-OP GUARD — do nothing when the field already holds this exact value.
+    //
+    // react-select fires onChange even when the user re-picks the option that is
+    // already selected (click it again, or just hit Enter with it highlighted). Every
+    // `field === '<selector>'` branch below REBUILDS the row from scratch, so a
+    // same-value re-pick of MATERIAL TYPE silently wiped a fully-filled spec block —
+    // that is how a saved "Fiber / FIBER PADDING" came back with SELECT FIBER TABLE
+    // and MATERIAL DESC blank while NET CNS, UNIT and the work orders survived.
+    // It also flipped BOM & WO back to unsaved, so the IPC selector showed ○.
+    if (materialBefore && isUnchangedValue(materialBefore[field], value)) return;
+
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       const material = updatedRawMaterials[materialIndex];
@@ -1958,6 +2012,11 @@ const GenerateFactoryCode = ({
     const { origin = 'bom' } = options;
     const stepDataBefore = getSelectedSkuStepData();
     const componentName = stepDataBefore?.rawMaterials?.[materialIndex]?.componentName;
+
+    // NO-OP GUARD (see isUnchangedValue). Beyond protecting the work-order-type rebuild
+    // below, this stops a same-value re-pick from marking the step unsaved.
+    const woBefore = stepDataBefore?.rawMaterials?.[materialIndex]?.workOrders?.[workOrderIndex];
+    if (woBefore && isUnchangedValue(woBefore[field], value)) return;
     updateSelectedSkuStepData((stepData) => {
       const updatedRawMaterials = [...(stepData.rawMaterials || [])];
       updatedRawMaterials[materialIndex] = {
@@ -2410,13 +2469,11 @@ const GenerateFactoryCode = ({
       });
     }
     saveCurrentFormState();
-    // Mirror the BOM & WO slice into the per-section DB store.
-    const bomSd = getSelectedSkuStepData();
-    persistSection('bomwo', {
-      rawMaterials: bomSd?.rawMaterials || [],
-      consumptionMaterials: bomSd?.consumptionMaterials || [],
-      rawSavedComponents: bomSd?.rawSavedComponents || [],
-    });
+    // Mirror every section (incl. the BOM & WO slice just saved) into the per-section
+    // DB store. NOTE: the `raw`/rawSavedComponents flags set above are still queued in
+    // React state at this point, so this write can carry the pre-save flags; the
+    // autosave (2.5s) and the nav/unmount flush re-mirror with the settled state.
+    mirrorSections();
   };
 
   const handleSaveStep3 = () => {
@@ -2452,8 +2509,8 @@ const GenerateFactoryCode = ({
     setStep3SaveStatus('success');
     setShowSaveMessage(false);
     saveCurrentFormState();
-    // Mirror the Artwork & Labeling slice into the per-section DB store.
-    persistSection('artwork', { artworkMaterials: getSelectedSkuStepData()?.artworkMaterials || [] });
+    // Mirror every section (incl. the Artwork & Labeling slice) into the section store.
+    mirrorSections();
   };
 
   const handleSaveStep4 = () => {
@@ -2472,8 +2529,8 @@ const GenerateFactoryCode = ({
     setStep4SaveStatus('success');
     setShowSaveMessage(false);
     saveCurrentFormState();
-    // Mirror the Packaging slice into the per-section DB store.
-    persistSection('packaging', { packaging: getSelectedSkuStepData()?.packaging || {} });
+    // Mirror every section (incl. the Packaging slice) into the section store.
+    mirrorSections();
   };
 
   // Reconcile the selected SKU's packaging plan (main pack + extra packs)
@@ -2538,7 +2595,9 @@ const GenerateFactoryCode = ({
     setStep4SaveStatus('success');
     setShowSaveMessage(false);
     saveCurrentFormState();
-    persistSection('packaging', { packaging: getSelectedSkuStepData()?.packaging || {} });
+    // Mirror every section, not just packaging — this is the last save before the
+    // commit, so it's the point at which the section store most needs to be current.
+    mirrorSections();
 
     showLoading();
     try {
@@ -2787,6 +2846,48 @@ const GenerateFactoryCode = ({
   // wastage) and the quality-inspection flag live ONLY here + the draft, so when the
   // draft is lost they were vanishing on reload (Problem 2). Keep this in sync with
   // CUT_SEW_SPEC_KEYS in utils/sectionOverlay.js — the overlay restores these fields.
+  // ---- Per-section slices (the small, reliable DB store) --------------------
+  // The draft is ONE JSON blob per IPO with images inlined; a single oversized or
+  // failed PUT loses a whole step ("came back two days later and BOM & WO was gone").
+  // So every step also mirrors its own compact slice into `factory_code_sections`,
+  // which the loader overlays back on top of the draft (utils/sectionOverlay.js).
+  //
+  // Files are dropped on the way in: JSON.stringify turns a File into `{}`, and those
+  // empty objects are noise the overlay would have to special-case. Artwork/packaging
+  // uploads are already swapped for blob URLs before they reach here, and `*Base64`
+  // blobs stay in the draft — they'd bloat the slice for no benefit.
+  const stripFiles = (value) => {
+    if (value == null) return value;
+    if (typeof File !== 'undefined' && value instanceof File) return '';
+    if (Array.isArray(value)) return value.map(stripFiles);
+    if (typeof value === 'object') {
+      const out = {};
+      for (const [k, v] of Object.entries(value)) {
+        if (k.endsWith('Base64')) continue;
+        out[k] = stripFiles(v);
+      }
+      return out;
+    }
+    return value;
+  };
+
+  const buildBomWoSlice = (stepData) => stripFiles({
+    rawMaterials: stepData?.rawMaterials || [],
+    consumptionMaterials: stepData?.consumptionMaterials || [],
+    // Badge bookkeeping travels with the data — without it a BOM restored from this
+    // store would read as "never saved" on the IPC selector.
+    rawSavedComponents: getNormalizedRawSavedComponents(stepData),
+    ipcSavedState: getNormalizedIpcSavedState(stepData),
+  });
+
+  const buildArtworkSlice = (stepData) => stripFiles({
+    artworkMaterials: stepData?.artworkMaterials || [],
+  });
+
+  const buildPackagingSlice = (stepData) => stripFiles({
+    packaging: stepData?.packaging || {},
+  });
+
   const buildCutSewSlice = (stepData) => ({
     processAssignments: stepData?.processAssignments || { cutting: {}, sewing: {} },
     workOrderSpecs: (stepData?.rawMaterials || []).flatMap((m) =>
@@ -2807,6 +2908,49 @@ const GenerateFactoryCode = ({
     ),
   });
 
+  // Mirror EVERY section of the currently-selected IPC into the section store.
+  //
+  // Previously only `cutsew` was mirrored on autosave; BOM & WO / Artwork / Packaging
+  // reached the store only when the user clicked that step's Save button — so anything
+  // typed and navigated away from existed only in the fragile draft. Now each slice is
+  // written whenever it changes, deduped per section by signature so an edit that only
+  // touched Cut/Sew doesn't re-PUT the (much larger) BOM slice.
+  //
+  // `sliceHasData` is the safety valve: a pristine scaffold is never PUT, so merely
+  // opening a step can never blank out a previously saved slice.
+  const mirrorSections = () => {
+    const sd = getSelectedSkuStepData();
+    if (!sd) return;
+    const skuKey = selectedSku != null ? String(selectedSku) : '';
+    // Stamp the IPC's buyer SKU on every slice. `skuKey` is positional, so removing an
+    // IPC shifts the ones after it and their old rows would otherwise be overlaid onto
+    // the wrong IPC; the overlay checks this ref and skips a row that moved.
+    const parsed = parseSelectedSku();
+    const skuObj = formData.skus?.[parsed.skuIndex];
+    const owner = parsed.type === 'subproduct'
+      ? skuObj?.subproducts?.[parsed.subproductIndex]
+      : skuObj;
+    const skuRef = String(owner?.sku ?? owner?.buyerSku ?? '').trim();
+    const slices = {
+      bomwo: buildBomWoSlice(sd),
+      cutsew: buildCutSewSlice(sd),
+      artwork: buildArtworkSlice(sd),
+      packaging: buildPackagingSlice(sd),
+    };
+    for (const [section, slice] of Object.entries(slices)) {
+      try {
+        if (!sliceHasData(section, slice)) continue;
+        if (skuRef) slice.__skuRef = skuRef;
+        const sig = `${skuKey}|${JSON.stringify(slice)}`;
+        if (lastSectionSigRef.current[section] === sig) continue;
+        lastSectionSigRef.current[section] = sig;
+        persistSection(section, slice);
+      } catch (e) {
+        console.warn(`Section mirror '${section}' failed`, e);
+      }
+    }
+  };
+
   const handleSaveStep1 = () => {
     const result = validateStep1();
     if (!result.isValid) {
@@ -2819,8 +2963,8 @@ const GenerateFactoryCode = ({
     updateSelectedSkuStepData((stepData) => withUpdatedIpcSavedState(stepData, { cut: isFinishingComplete(stepData) }));
     setShowSaveMessage(false);
     saveCurrentFormState();
-    // Mirror the Cut/Sew/Finishing slice into the per-section DB store.
-    persistSection('cutsew', buildCutSewSlice(getSelectedSkuStepData()));
+    // Mirror every section (incl. the Cut/Sew/Finishing slice) into the section store.
+    mirrorSections();
   };
 
   // Immediately persist a pending debounced save (draft + cutsew mirror) — invoked when
@@ -2836,20 +2980,21 @@ const GenerateFactoryCode = ({
     const ipoId = initialFormData?.ipoId || formData?.ipoId;
     if (!ipoId) return;
     saveCurrentFormState(); // full lossless draft (all SKUs)
-    try {
-      const slice = buildCutSewSlice(getSelectedSkuStepData());
-      if (slice.workOrderSpecs.length) {
-        lastCutsewSigRef.current = `${String(selectedSku)}|${JSON.stringify(slice)}`;
-        persistSection('cutsew', slice);
-      }
-    } catch (e) { console.warn('cutsew flush failed', e); }
+    mirrorSections();       // + every per-section slice of the IPC being left
   };
 
   // Flush pending edits the moment the user leaves a step/IPC or closes the wizard,
   // instead of waiting out the 2.5s debounce (which was dropping the last Cut/Sew edits
   // on reopen — Problem 2). The cleanup fires on unmount AND on any nav change.
   useEffect(() => () => { flushPendingSaveRef.current?.(); }, []);
-  useEffect(() => () => { flushPendingSaveRef.current?.(); }, [currentStep, flowPhase, selectedSku]);
+  // Capture the flush closure for THIS render. `flushPendingSaveRef` is reassigned on
+  // every render, so reading it inside the cleanup would give the closure of the render
+  // we're moving TO — i.e. leaving IPC-1 for IPC-2 flushed IPC-2's (unchanged) data and
+  // silently dropped IPC-1's pending edits. Freezing it here flushes the IPC being left.
+  useEffect(() => {
+    const flushThisView = flushPendingSaveRef.current;
+    return () => { flushThisView?.(); };
+  }, [currentStep, flowPhase, selectedSku]);
 
   const validateStep3 = () => {
     const newErrors = {};
@@ -3102,6 +3247,12 @@ const GenerateFactoryCode = ({
   };
 
   const handleArtworkMaterialChange = (materialIndex, field, value) => {
+    // Same no-op guard as handleRawMaterialChange: re-picking the ARTWORK CATEGORY that
+    // is already selected used to run the reset block below and wipe every filled
+    // category field (and flip Artwork back to unsaved). See isUnchangedValue.
+    const artworkBefore = getSelectedSkuStepData()?.artworkMaterials?.[materialIndex];
+    if (artworkBefore && isUnchangedValue(artworkBefore[field], value)) return;
+
     setStep3Saved(false);
     setStep3SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {
@@ -3401,6 +3552,12 @@ const GenerateFactoryCode = ({
 
   // Packaging Material Change Handler
   const handlePackagingMaterialChange = (materialIndex, field, value) => {
+    // Same no-op guard: re-picking the packaging MATERIAL DESC that is already selected
+    // used to run the reset block below and wipe plys / gauge / bursting strength /
+    // remarks for that row. See isUnchangedValue.
+    const packMatBefore = getSelectedSkuStepData()?.packaging?.materials?.[materialIndex];
+    if (packMatBefore && isUnchangedValue(packMatBefore[field], value)) return;
+
     setStep4Saved(false);
     setStep4SaveStatus('idle');
     updateSelectedSkuStepData((stepData) => {

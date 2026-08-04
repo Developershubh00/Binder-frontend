@@ -512,6 +512,128 @@ export const getMemberRolePermissions = async (memberId) => {
   return data?.data || null;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// USER PERMISSIONS  (auth_service/permissions/)
+//
+// Direct per-user assignment: each member carries their own grid of
+// module → screen → IPO-type cells, each at Read / Read+Write / Read+Write+Edit,
+// plus an optional Approve, plus a buyer scope. No roles, no templates —
+// designation is a label, not authority.
+//
+// Changes are live on the member's next request; the backend bumps their
+// permission_version and the middleware re-stamps their cookie.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const unwrap = async (response, fallbackMessage) => {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    // DRF field errors come back as { field: [msg] } — surface the first one so
+    // the admin sees "'ipom.dcns.production' accepts at most level 1" rather
+    // than a generic failure.
+    const detail =
+      data?.detail ||
+      data?.message ||
+      (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) ||
+      (typeof data === 'object' &&
+        Object.values(data).flat().find((v) => typeof v === 'string'));
+    throw new Error(detail || fallbackMessage);
+  }
+  return data;
+};
+
+/** The permission taxonomy (modules → screens → IPO types), server-driven. */
+export const getPermissionCatalogue = async () => {
+  const response = await apiRequest('auth/permissions/catalogue/');
+  const data = await unwrap(response, 'Failed to load permission catalogue');
+  return data?.data || null;
+};
+
+/** The signed-in user's own effective access — the authoritative copy. */
+export const getMyPermissions = async () => {
+  const response = await apiRequest('auth/me/permissions/');
+  const data = await unwrap(response, 'Failed to load your permissions');
+  return data?.data || null;
+};
+
+/** A member's stored grid, for prefilling the edit form. */
+export const getMemberPermissions = async (memberId) => {
+  const response = await apiRequest(`auth/members/${memberId}/permissions/`);
+  const data = await unwrap(response, 'Failed to load member permissions');
+  return data?.data || null;
+};
+
+/** Replace a member's whole grid + buyer scope. */
+export const setMemberPermissions = async (memberId, { buyerScope, grants }) => {
+  const response = await apiRequest(`auth/members/${memberId}/permissions/`, {
+    method: 'PUT',
+    body: JSON.stringify({ buyer_scope: buyerScope, grants }),
+  });
+  const data = await unwrap(response, 'Failed to save permissions');
+  return data?.data || null;
+};
+
+/**
+ * Change specific cells, leave the rest alone — the "Azeem needs edit on IPC
+ * Spec now" path. A grant with level 0 revokes that cell.
+ */
+export const patchMemberPermissions = async (memberId, { buyerScope, grants }) => {
+  const body = {};
+  if (buyerScope) body.buyer_scope = buyerScope;
+  if (grants) body.grants = grants;
+  const response = await apiRequest(`auth/members/${memberId}/permissions/`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+  const data = await unwrap(response, 'Failed to update permissions');
+  return data?.data || null;
+};
+
+/** Strip every grant. The member keeps their login, Home and their own Tasks. */
+export const revokeMemberPermissions = async (memberId) => {
+  const response = await apiRequest(`auth/members/${memberId}/permissions/`, {
+    method: 'DELETE',
+  });
+  return unwrap(response, 'Failed to revoke permissions');
+};
+
+/** Who changed this member's access, and when. */
+export const getMemberPermissionAudit = async (memberId, pageSize = 50) => {
+  const response = await apiRequest(
+    `auth/members/${memberId}/permissions/audit/?page_size=${pageSize}`,
+  );
+  const data = await unwrap(response, 'Failed to load permission history');
+  return data?.data || [];
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MEMBER LIFECYCLE
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Update a member's profile. Role / is_active are master-admin only, never self. */
+export const updateMember = async (memberId, fields) => {
+  const response = await apiRequest(`auth/members/${memberId}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(fields),
+  });
+  const data = await unwrap(response, 'Failed to update member');
+  return data?.data || data;
+};
+
+/** Soft delete — deactivates the member. Master admin only; cannot delete self. */
+export const deleteMember = async (memberId) => {
+  const response = await apiRequest(`auth/members/${memberId}/`, { method: 'DELETE' });
+  return unwrap(response, 'Failed to remove member');
+};
+
+/** Issue a fresh set-password link and email it again. Invalidates the previous one. */
+export const resendMemberInvite = async (memberId) => {
+  const response = await apiRequest(`auth/members/${memberId}/resend-invite/`, {
+    method: 'POST',
+  });
+  const data = await unwrap(response, 'Failed to resend invite');
+  return data?.data || null;
+};
+
 /**
  * Get onboarding state and saved data
  */
@@ -562,6 +684,17 @@ export const sendInviteEmail = async (params) => {
 /**
  * Create user and send invite email (combined endpoint)
  */
+/**
+ * Create a member and email them a set-password link.
+ *
+ * No password is sent or generated — the member chooses their own through a
+ * single-use link, so no plaintext credential ever travels by email. Their
+ * username is derived server-side as firstname@companyname, and they can sign in
+ * with either that or their email address.
+ *
+ * Permissions ride along in the same call, so the member exists with exactly the
+ * access the master panel granted, from their very first login.
+ */
 export const createUserAndSendInvite = async (params) => {
   const response = await apiRequest('auth/create-user-invite/', {
     method: 'POST',
@@ -571,13 +704,13 @@ export const createUserAndSendInvite = async (params) => {
       firstName: params.firstName,
       lastName: params.lastName,
       designation: params.designation,
-      tempPassword: params.tempPassword,
       companyName: params.companyName,
       loginUrl: params.loginUrl,
+      buyer_scope: params.buyerScope,
+      grants: params.grants,
     }),
   });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data?.message || 'Failed to create user');
+  const data = await unwrap(response, 'Failed to create user');
   return data;
 };
 

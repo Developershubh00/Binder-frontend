@@ -74,6 +74,80 @@ export const MODULES = [
 // Key helper for the level / approve maps.
 export const permKey = (m, r, c) => `${m}.${r}.${c || 'all'}`;
 
+// ── Wire format ──────────────────────────────────────────────────────────────
+// The backend stores lowercase IPO types ('production'); the grid above uses the
+// display casing ('Production'). These two helpers are the only place that
+// difference is handled, so nothing else has to think about it.
+
+const toWireIpoType = (col) => String(col || 'all').toLowerCase();
+
+/**
+ * Grid state -> the `grants` array for POST create-user-invite / PUT permissions.
+ *
+ * Rows carry no `buyer` key, which tells the backend to fan them out across
+ * every buyer in the member's scope — one grid applied to each selected buyer,
+ * exactly as this screen presents it. Only granted cells are sent; an omitted
+ * cell is the denial.
+ */
+export function buildGrantsPayload(lv, ap) {
+  const grants = [];
+  MODULES.forEach((mod) => {
+    const cols = mod.cols || ['all'];
+    cols.forEach((col) => {
+      mod.rows.forEach((row) => {
+        const level = lv[permKey(mod.id, row.id, col)] || 0;
+        if (level <= 0) return;
+        grants.push({
+          module: mod.id,
+          screen: row.id,
+          ipo_type: toWireIpoType(col),
+          level,
+          can_approve: Boolean(row.approve && ap[permKey(mod.id, row.id, col)]),
+        });
+      });
+    });
+  });
+  return grants;
+}
+
+/** Buyer-scope section state -> the `buyer_scope` object the backend expects. */
+export function buildBuyerScopePayload(allBuyers, selectedCodes) {
+  return allBuyers
+    ? { all: true, codes: [] }
+    : { all: false, codes: [...new Set(selectedCodes.map((c) => String(c).toUpperCase()))] };
+}
+
+/**
+ * A stored grid (GET members/{id}/permissions/) -> the `lv` / `ap` maps this
+ * screen renders from.
+ *
+ * The stored grid is keyed by buyer scope, while the screen shows a single grid,
+ * so cells are unioned at their highest level across buyers. That round-trips
+ * cleanly for anything this UI wrote, since it writes the same grid to every
+ * buyer in scope.
+ */
+export function hydrateGrid(grid) {
+  const lv = {};
+  const ap = {};
+  Object.values(grid || {}).forEach((cells) => {
+    Object.entries(cells || {}).forEach(([cellKey, value]) => {
+      const [module, screen, ipoType] = cellKey.split('.');
+      const mod = MODULES.find((m) => m.id === module);
+      if (!mod) return;
+      // Map the stored lowercase IPO type back to this grid's column casing.
+      const col = ipoType === 'all'
+        ? 'all'
+        : (mod.cols || []).find((c) => c.toLowerCase() === ipoType);
+      if (!col) return;
+
+      const key = permKey(module, screen, col);
+      lv[key] = Math.max(lv[key] || 0, value?.lv || 0);
+      ap[key] = Boolean(ap[key] || value?.ap);
+    });
+  });
+  return { lv, ap };
+}
+
 // Assemble the effective-access payload from the level/approve maps.
 export function buildAccessPayload(lv, ap) {
   const modules = [];
