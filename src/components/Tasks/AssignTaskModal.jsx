@@ -1,10 +1,10 @@
 // "Assign New Task" modal — portalled to <body>. Collects the task fields, uploads any
 // attachment to Vercel Blob, and hands the API payload back via onSubmit (the parent
 // does the create/update call).
-import { useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { X, Loader2 } from 'lucide-react';
-import ThemedSelect from '../IMS/StockSheet/ThemedSelect';
+import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { X, Loader2 } from "lucide-react";
+import ThemedSelect from "../IMS/StockSheet/ThemedSelect";
 import {
   Field,
   Input,
@@ -13,7 +13,7 @@ import {
   ImageUpload,
   TagsInput,
   SubTasksEditor,
-} from './shared';
+} from "./shared";
 import {
   CTRL,
   LABEL,
@@ -23,15 +23,15 @@ import {
   DEPARTMENT_OPTIONS,
   toOptions,
   getAssignees,
-} from './tasksData';
-import { normalizeOrderType } from '../../utils/orderType';
-import { uploadToBlob } from '../../services/blobUpload';
+} from "./tasksData";
+import { normalizeOrderType } from "../../utils/orderType";
+import { uploadToBlob } from "../../services/blobUpload";
 
 const todayValue = () => {
   const now = new Date();
   const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 };
 
@@ -43,9 +43,9 @@ const AssignTaskModal = ({
   onSubmit,
 }) => {
   const isEditing = !!task;
-  const [poType, setPoType] = useState(task?.poType || '');
-  const [ipo, setIpo] = useState(task?.ipo || '');
-  const [department, setDepartment] = useState(task?.department || '');
+  const [poType, setPoType] = useState(task?.poType || "");
+  const [ipo, setIpo] = useState(task?.ipo || "");
+  const [department, setDepartment] = useState(task?.department || "");
   // Real member ids — a task can be assigned to more than one team member.
   const [assigneeIds, setAssigneeIds] = useState(
     Array.isArray(task?.assigneeIds)
@@ -54,19 +54,21 @@ const AssignTaskModal = ({
           .map((a) => a.id)
           .filter(Boolean),
   );
-  const [title, setTitle] = useState(task?.title || '');
+  const [title, setTitle] = useState(task?.title || "");
   const [subTasks, setSubTasks] = useState(
     Array.isArray(task?.subTasks) ? task.subTasks : [],
   );
-  const [remarks, setRemarks] = useState(task?.description || '');
-  const [dueDate, setDueDate] = useState(task?.dueDate || '');
+  const [remarks, setRemarks] = useState(task?.description || "");
+  const [dueDate, setDueDate] = useState(task?.dueDate || "");
   // Either a freshly picked File, or the existing blob URL when editing.
   const [attachment, setAttachment] = useState(null);
-  const [attachmentUrl, setAttachmentUrl] = useState(task?.attachmentUrl || '');
-  const [attachmentName, setAttachmentName] = useState(task?.attachmentName || '');
-  const [priority, setPriority] = useState(task?.priority || 'Medium');
+  const [attachmentUrl, setAttachmentUrl] = useState(task?.attachmentUrl || "");
+  const [attachmentName, setAttachmentName] = useState(
+    task?.attachmentName || "",
+  );
+  const [priority, setPriority] = useState(task?.priority || "Medium");
   const [tags, setTags] = useState(Array.isArray(task?.tags) ? task.tags : []);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const today = useMemo(() => todayValue(), []);
@@ -75,7 +77,9 @@ const AssignTaskModal = ({
     () =>
       members.map((m) => ({
         value: m.id,
-        label: m.designation ? `${m.name} · ${m.designation}` : m.name || m.email,
+        label: m.designation
+          ? `${m.name} · ${m.designation}`
+          : m.name || m.email,
       })),
     [members],
   );
@@ -86,7 +90,8 @@ const AssignTaskModal = ({
     return ipos
       .filter(
         (item) =>
-          normalizeOrderType(item.orderType || item.order_type) === normalizedType &&
+          normalizeOrderType(item.orderType || item.order_type) ===
+            normalizedType &&
           (item.ipoCode || item.code),
       )
       .map((item) => item.ipoCode || item.code)
@@ -95,12 +100,12 @@ const AssignTaskModal = ({
 
   const handlePoTypeChange = (value) => {
     setPoType(value);
-    setIpo('');
+    setIpo("");
   };
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      setError('Task name is required.');
+      setError("Task name is required.");
       return;
     }
 
@@ -111,9 +116,10 @@ const AssignTaskModal = ({
       let url = attachmentUrl;
       let name = attachmentName;
       if (attachment instanceof File) {
-        const uploaded = await uploadToBlob(attachment, 'tasks/attachments');
+        const uploaded = await uploadToBlob(attachment, "tasks/attachments");
         if (!uploaded) {
-          setError('Image upload failed. Remove the image or try again.');
+          console.log("I am here in the error");
+          setError("Image upload failed. Remove the image or try again.");
           setSaving(false);
           return;
         }
@@ -134,12 +140,12 @@ const AssignTaskModal = ({
         assigneeIds,
         assigneeId: assigneeIds[0] || null,
         dueDate,
-        attachmentUrl: url || '',
-        attachmentName: url ? name : '',
+        attachmentUrl: url || "",
+        attachmentName: url ? name : "",
         tags,
       });
     } catch (submitError) {
-      setError(submitError.message || 'Could not save the task.');
+      setError(submitError.message || "Could not save the task.");
     } finally {
       setSaving(false);
     }
@@ -150,8 +156,8 @@ const AssignTaskModal = ({
   const handleAttachmentChange = (file) => {
     setAttachment(file);
     if (!file) {
-      setAttachmentUrl('');
-      setAttachmentName('');
+      setAttachmentUrl("");
+      setAttachmentName("");
     }
   };
 
@@ -159,8 +165,8 @@ const AssignTaskModal = ({
     <div
       className="fixed inset-0 z-10000 flex items-center justify-center bg-black/40 p-4"
       style={{
-        fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-        '--accent': '#edeef1',
+        fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+        "--accent": "#edeef1",
       }}
       onClick={onClose}
     >
@@ -172,12 +178,12 @@ const AssignTaskModal = ({
         <div className="flex items-start justify-between border-b border-[#e2e3e8] px-6 py-5">
           <div>
             <h2 className="text-xl font-bold text-foreground">
-              {isEditing ? 'Edit Task' : 'Assign New Task'}
+              {isEditing ? "Edit Task" : "Assign New Task"}
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {isEditing
-                ? 'Update the task details.'
-                : 'Fill in the details to allocate task to team members.'}
+                ? "Update the task details."
+                : "Fill in the details to allocate task to team members."}
             </p>
           </div>
           <button
@@ -212,10 +218,10 @@ const AssignTaskModal = ({
                   isDisabled={ipoOptions.length === 0}
                   placeholder={
                     !poType
-                      ? 'Select PO type first'
+                      ? "Select PO type first"
                       : ipoOptions.length === 0
-                        ? 'No IPOs available'
-                        : 'Select IPO'
+                        ? "No IPOs available"
+                        : "Select IPO"
                   }
                 />
               </Field>
@@ -237,8 +243,8 @@ const AssignTaskModal = ({
                   isDisabled={memberOptions.length === 0}
                   placeholder={
                     memberOptions.length === 0
-                      ? 'No team members found'
-                      : 'Search team members...'
+                      ? "No team members found"
+                      : "Search team members..."
                   }
                 />
               </Field>
@@ -254,7 +260,7 @@ const AssignTaskModal = ({
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
-                    if (error) setError('');
+                    if (error) setError("");
                   }}
                   placeholder="Enter task name"
                 />
@@ -326,11 +332,7 @@ const AssignTaskModal = ({
             className={PRIMARY_BTN}
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-            {saving
-              ? 'Saving...'
-              : isEditing
-                ? 'Save Changes'
-                : 'Assign Task'}
+            {saving ? "Saving..." : isEditing ? "Save Changes" : "Assign Task"}
           </button>
         </div>
       </div>

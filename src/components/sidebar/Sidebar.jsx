@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ShieldCheck } from "lucide-react";
-import {
-  HomeIcon,
-  TasksIcon,
-  CodeCreationIcon,
-  IpoIcon,
-  PurchaseIcon,
-  InventoryIcon,
-} from "../icons/SidebarIcons";
+import { ChevronLeft } from "lucide-react";
+import { AiFillHome, AiFillShop } from "react-icons/ai";
+import { ImUserCheck } from "react-icons/im";
+import { TbStack2Filled } from "react-icons/tb";
+import { FaTasks } from "react-icons/fa";
+import { PiHandbagFill } from "react-icons/pi";
+import { IoQrCode } from "react-icons/io5";
 
 // Aliased so ESLint credits `motion` as used (JSX member-expression usage isn't
 // detected by jsx-uses-vars in this repo's config — same pattern as Reveal.jsx).
@@ -31,13 +29,13 @@ const IMS_ACTIVE_PAGES = [
 const QUALITY_ACTIVE_PAGES = ["uqr-forms", "uqr-database"];
 
 const getMenuItems = () => [
-  { id: "home", label: "Home", icon: HomeIcon },
-  { id: "tasks", label: "Tasks", icon: TasksIcon },
-  { id: "code-creation", label: "Code Creation", icon: CodeCreationIcon },
-  { id: "ipo-management", label: "IPO Management", icon: IpoIcon },
-  { id: "purchase", label: "Purchase", icon: PurchaseIcon },
-  { id: "ims", label: "Inventory Management", icon: InventoryIcon },
-  { id: "quality", label: "Quality", icon: ShieldCheck },
+  { id: "home", label: "Home", icon: AiFillHome },
+  { id: "tasks", label: "Tasks", icon: FaTasks },
+  { id: "code-creation", label: "Code Creation", icon: IoQrCode },
+  { id: "ipo-management", label: "IPO Management", icon: TbStack2Filled },
+  { id: "purchase", label: "Purchase", icon: PiHandbagFill },
+  { id: "ims", label: "Inventory Management", icon: AiFillShop },
+  { id: "quality", label: "Quality", icon: ImUserCheck },
 ];
 
 const SIDEBAR_WIDTH = 248;
