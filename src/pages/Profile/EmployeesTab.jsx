@@ -2,9 +2,11 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import {
   UserPlus, Pencil, Trash2, Mail, BadgeCheck, ShieldAlert, Clock, CalendarDays,
+  UserX, RotateCcw,
 } from 'lucide-react';
 import { getInitials } from './helpers';
 import * as authService from '../../api/authService';
+import { useAuth } from '../../context/AuthContext';
 import ConfirmDialog from '../../components/Tasks/ConfirmDialog';
 import AddUserView from './employees/AddUserView';
 
@@ -18,36 +20,80 @@ const fmtDate = (s) => {
 };
 
 // "Employees" nav section (master-admin only): the single place to see, add, edit and
-// delete users. Editing a user is where their permissions and buyer scope are set.
+// remove users. Editing a user is where their permissions and buyer scope are set.
 //
 // Permissions are assigned directly per user — there are no roles or templates, so
 // two people sharing a designation share nothing. Changes take effect on the
 // member's next request; see auth_service/permissions/ for the enforcement side.
+//
+// Removal is two distinct things, deliberately kept apart:
+//   Deactivate  — deny sign-in, keep the row. Reversible, history stays attributable,
+//                 but the member still owns their email and username.
+//   Delete      — erase the row. The only action that frees the email for re-use.
+// Collapsing the two is what made a "deleted" user reappear on refresh and then
+// block their own re-creation with "user with email … already exists".
 export default function EmployeesTab({ members, setMembers, refreshMembers, orgSummary }) {
+  const { user: currentUser } = useAuth();
   const [view, setView] = useState('list'); // 'list' | 'form'
   const [formMode, setFormMode] = useState('add'); // 'add' | 'edit'
   const [editingMember, setEditingMember] = useState(null);
-  const [confirmMember, setConfirmMember] = useState(null);
+  const [confirm, setConfirm] = useState(null); // { member, mode: 'deactivate' | 'delete' }
   // The set-password link for the member just created, shown until dismissed.
   const [invite, setInvite] = useState(null);
 
   const openAdd = () => { setFormMode('add'); setEditingMember(null); setView('form'); };
   const openEdit = (m) => { setFormMode('edit'); setEditingMember(m); setView('form'); };
 
-  const handleDelete = async () => {
-    const m = confirmMember;
-    if (!m) return;
+  const isMasterAdmin = (m) => m.highest_role === 'master_admin' || m.role === 'master_admin';
+  const activeMasters = members.filter((m) => isMasterAdmin(m) && m.is_active).length;
+  const activeCount = members.filter((m) => m.is_active).length;
+  const inactiveCount = members.length - activeCount;
+
+  // The tenant owner may act on anyone, including other master admins — the only
+  // hard stops are removing yourself and stranding the tenant with no master admin
+  // who can sign in.
+  const blockedReason = (m) => {
+    if (m.id === currentUser?.id) return 'You cannot remove your own account';
+    if (isMasterAdmin(m) && m.is_active && activeMasters <= 1) {
+      return 'Last active master admin — promote someone else first';
+    }
+    return null;
+  };
+
+  const handleConfirm = async () => {
+    if (!confirm) return;
+    const { member: m, mode } = confirm;
     const label = m.full_name || m.name || m.email;
-    setConfirmMember(null);
+    setConfirm(null);
     try {
+      if (mode === 'delete') {
+        await authService.deleteMember(m.id, { hard: true });
+        setMembers((list) => list.filter((x) => x.id !== m.id));
+        toast.success(`${label} deleted — ${m.email} is free to reuse`);
+        return;
+      }
       await authService.deleteMember(m.id);
-      // Soft delete on the backend — the member is deactivated, not erased, so
-      // their audit trail and record history stay intact.
-      setMembers((list) => list.filter((x) => x.id !== m.id));
-      toast.success(`${label} removed`);
-    } catch (e) {
-      toast.error(e?.message || `Could not remove ${label}`);
+      // Deactivation keeps the row, so re-read the list instead of dropping the
+      // card. Hiding a member the backend still returns is exactly what made the
+      // tab disagree with the database.
       if (refreshMembers) await refreshMembers();
+      else setMembers((list) => list.map((x) => (x.id === m.id ? { ...x, is_active: false } : x)));
+      toast.success(`${label} deactivated — they can no longer sign in`);
+    } catch (e) {
+      toast.error(e?.message || `Could not update ${label}`);
+      if (refreshMembers) await refreshMembers();
+    }
+  };
+
+  const handleRestore = async (m) => {
+    const label = m.full_name || m.name || m.email;
+    try {
+      await authService.reactivateMember(m.id);
+      if (refreshMembers) await refreshMembers();
+      else setMembers((list) => list.map((x) => (x.id === m.id ? { ...x, is_active: true } : x)));
+      toast.success(`${label} restored`);
+    } catch (e) {
+      toast.error(e?.message || `Could not restore ${label}`);
     }
   };
 
@@ -203,7 +249,9 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
           <div>
             <h2 className="profile-section-heading" style={{ margin: 0 }}>Employee Management</h2>
             <p className="profile-section-desc" style={{ margin: '4px 0 0' }}>
-              {members.length} member{members.length === 1 ? '' : 's'} · manage access, roles and buyer scope per user.
+              {activeCount} active
+              {inactiveCount > 0 && ` · ${inactiveCount} deactivated (still holding their email)`}
+              {' · '}manage access, roles and buyer scope per user.
             </p>
           </div>
           <button
@@ -224,7 +272,8 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
           <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
             {members.map((m) => {
               const name = m.full_name || m.name || m.email;
-              const isMaster = m.highest_role === 'master_admin' || m.role === 'master_admin';
+              const isMaster = isMasterAdmin(m);
+              const blocked = blockedReason(m);
               return (
                 <div
                   key={m.id}
@@ -263,12 +312,34 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
+
+                      {m.is_active ? (
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#e2e3e8] bg-card text-muted-foreground transition-colors hover:border-[#a8842b] hover:text-[#a8842b] disabled:cursor-not-allowed disabled:opacity-40"
+                          title={blocked || 'Deactivate — deny sign-in, keep their history'}
+                          disabled={!!blocked}
+                          onClick={() => setConfirm({ member: m, mode: 'deactivate' })}
+                        >
+                          <UserX className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#e2e3e8] bg-card text-muted-foreground transition-colors hover:border-[#3b8a5e] hover:text-[#3b8a5e]"
+                          title="Restore — let them sign in again"
+                          onClick={() => handleRestore(m)}
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#e2e3e8] bg-card text-muted-foreground transition-colors hover:border-destructive hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
-                        title={m.is_primary_master ? 'Primary master admin cannot be removed' : 'Remove user'}
-                        disabled={m.is_primary_master}
-                        onClick={() => setConfirmMember(m)}
+                        title={blocked || 'Delete permanently — erases the user and frees their email'}
+                        disabled={!!blocked}
+                        onClick={() => setConfirm({ member: m, mode: 'delete' })}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -340,17 +411,25 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
       </section>
 
       <ConfirmDialog
-        open={!!confirmMember}
-        title="Remove user?"
-        message={
-          confirmMember
-            ? `${confirmMember.full_name || confirmMember.name || confirmMember.email} will be deactivated and can no longer sign in. Their records and history are kept, and you can restore access by creating them again.`
-            : ''
-        }
-        confirmLabel="Remove"
+        open={!!confirm}
+        title={confirm?.mode === 'delete' ? 'Delete user permanently?' : 'Deactivate user?'}
+        message={(() => {
+          if (!confirm) return '';
+          const m = confirm.member;
+          const label = m.full_name || m.name || m.email;
+          if (confirm.mode === 'delete') {
+            return `${label} will be erased along with their permission grants. `
+              + `${m.email} becomes free to use for a new user. `
+              + `Records they created stay, but are no longer attributed to them. This cannot be undone.`;
+          }
+          return `${label} can no longer sign in, but stays in this list as Inactive and `
+            + `keeps ${m.email}. You can restore them at any time. To free the email for a `
+            + `new user, delete them permanently instead.`;
+        })()}
+        confirmLabel={confirm?.mode === 'delete' ? 'Delete permanently' : 'Deactivate'}
         tone="danger"
-        onConfirm={handleDelete}
-        onCancel={() => setConfirmMember(null)}
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirm(null)}
       />
     </div>
   );
