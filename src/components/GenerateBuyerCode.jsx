@@ -70,8 +70,8 @@ const GenerateBuyerCode = ({ onBack, initialData = null, onSaved }) => {
     setIsGenerating(false);
   }, [initialData]);
 
-  // Existing codes are still loaded (silently) to detect duplicate
-  // buyer + end-customer combinations before creating a new one.
+  // Existing codes are still loaded (silently) so a repeated
+  // buyer + end-customer combination can be flagged before it is created.
   useEffect(() => {
     const loadBuyerCodes = async () => {
       try {
@@ -161,16 +161,15 @@ const GenerateBuyerCode = ({ onBack, initialData = null, onSaved }) => {
     if (isGenerating) return;
     if (!validateForm()) return;
 
+    // Repeating a buyer + end-customer pair is allowed — the product differs, so
+    // the backend just hands out the next letter under that buyer's number
+    // (101A -> 101C). Flag it anyway so an accidental double-entry is noticed.
     const existingEntry = checkIfCombinationExists(existingBuyerCodes);
     if (existingEntry) {
-      setErrors({
-        buyerName: "This buyer-end customer combination already exists",
-        retailer: `Existing code: ${existingEntry.code}`,
-      });
-      toast.error(
-        `This buyer-end customer combination already exists (code ${existingEntry.code}). Use a different end customer or buyer name.`,
+      toast(
+        `${formData.buyerName.trim()} + ${formData.retailer.trim()} already exists as ${existingEntry.code}. Creating a new code for this entry.`,
+        { icon: "ℹ️" },
       );
-      return;
     }
 
     setIsGenerating(true);

@@ -611,10 +611,13 @@ export const deleteBuyerCode = async (buyerCodeId) => {
 };
 
 /**
- * Preview next buyer code
+ * Preview next buyer code.
+ * Pass the buyer name — an existing buyer keeps its number and gets the next
+ * letter (101A -> 101B), so without it this only previews a brand-new buyer.
  */
-export const previewNextBuyerCode = async () => {
-  const response = await apiRequest('ims/buyer-codes/generate/');
+export const previewNextBuyerCode = async (buyerName = '') => {
+  const query = buyerName ? `?buyer_name=${encodeURIComponent(buyerName)}` : '';
+  const response = await apiRequest(`ims/buyer-codes/generate/${query}`);
   return await response.json();
 };
 
