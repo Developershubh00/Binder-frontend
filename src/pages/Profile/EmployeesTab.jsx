@@ -28,6 +28,8 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
   const [formMode, setFormMode] = useState('add'); // 'add' | 'edit'
   const [editingMember, setEditingMember] = useState(null);
   const [confirmMember, setConfirmMember] = useState(null);
+  // The set-password link for the member just created, shown until dismissed.
+  const [invite, setInvite] = useState(null);
 
   const openAdd = () => { setFormMode('add'); setEditingMember(null); setView('form'); };
   const openEdit = (m) => { setFormMode('edit'); setEditingMember(m); setView('form'); };
@@ -68,19 +70,24 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
         });
 
         const created = res?.data;
+        // Always hand the admin the link, never only on failure. Delivery can
+        // report success while the mail itself is useless — the Apps Script
+        // fallback renders a fixed template that drops most of what it is sent —
+        // and an admin who cannot see the link has no way to unblock the member.
+        setInvite({
+          email: created?.user?.email || credentials.email,
+          username: created?.user?.username,
+          url: created?.set_password_url,
+          sent: created?.email_sent !== false,
+          channel: created?.email_channel,
+        });
+
         if (created?.email_sent === false) {
-          // The member exists and their access is set — only the email failed.
-          // Surface the link so the admin can pass it on rather than being stuck.
-          toast.error(
-            `${created.user?.email}: invite email failed. Copy their set-password link from the console.`,
-            { duration: 8000 },
-          );
-          console.warn('[Profile] Set-password link:', created.set_password_url);
+          toast.error(`${created.user?.email}: invite email failed — send them the link below`,
+            { duration: 8000 });
         } else {
           toast.success(
-            `User created — set-password email sent${
-              created?.user?.username ? ` · username: ${created.user.username}` : ''
-            }`,
+            `User created${created?.user?.username ? ` · ${created.user.username}` : ''}`,
           );
         }
 
@@ -137,6 +144,60 @@ export default function EmployeesTab({ members, setMembers, refreshMembers, orgS
   return (
     <div className="profile-content" key="employees">
       <section className="profile-section">
+        {/* Set-password link for the member just created. Shown whether or not
+            the email reported success, because mail delivery is the one step
+            here that cannot be verified from the server. */}
+        {invite?.url && (
+          <div
+            className="mb-4 rounded-lg border p-4"
+            style={{
+              borderColor: invite.sent ? '#e5e7eb' : '#f94d00',
+              background: invite.sent ? '#f9fafb' : '#fff7ed',
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div style={{ minWidth: 0 }}>
+                <p className="text-sm font-semibold" style={{ margin: 0 }}>
+                  {invite.sent
+                    ? `Invite sent to ${invite.email}`
+                    : `Email failed — send this link to ${invite.email} yourself`}
+                </p>
+                <p className="text-xs" style={{ color: '#6b7280', margin: '4px 0 0' }}>
+                  {invite.username && <>Username <strong>{invite.username}</strong> · </>}
+                  Link is single-use and expires in 48 hours.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInvite(null)}
+                className="text-xs"
+                style={{ color: '#6b7280', flexShrink: 0 }}
+              >
+                Dismiss
+              </button>
+            </div>
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                readOnly
+                value={invite.url}
+                onFocus={(e) => e.target.select()}
+                className="flex-1 rounded-md border px-3 py-2 text-xs"
+                style={{ borderColor: '#e5e7eb', background: '#fff', minWidth: 0 }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(invite.url);
+                  toast.success('Link copied');
+                }}
+                className="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Heading + add */}
         <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
           <div>
