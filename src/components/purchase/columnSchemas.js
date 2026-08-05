@@ -38,6 +38,9 @@ export const TOP_TABS = [
   { key: 'packaging', label: 'Packaging' },
 ];
 
+// Fixed chips. Artwork & Packaging are deliberately absent: their chips are the
+// wizard categories the IPO actually has data for, sent by the backend as
+// `categories` on the grid response (see DYNAMIC_CATEGORY_TABS below).
 export const CATEGORY_CHIPS = {
   raw_material: [
     { key: 'yarn', label: 'Yarn' },
@@ -53,22 +56,12 @@ export const CATEGORY_CHIPS = {
     { key: 'fiber', label: 'Fiber' },
     { key: 'foam', label: 'Foam' },
   ],
-  artwork: [
-    { key: 'law_label', label: 'Law Label' },
-    { key: 'wash_care', label: 'Wash Care' },
-    { key: 'brand_label', label: 'Brand Label' },
-    { key: 'ribbon', label: 'Ribbon' },
-  ],
-  packaging: [
-    { key: 'carton_box', label: 'Carton Box' },
-    { key: 'stiffener', label: 'Stiffener' },
-    { key: 'polybag', label: 'Polybag' },
-    { key: 'silica_gel', label: 'Silica Gel' },
-    { key: 'tape', label: 'Tape' },
-    { key: 'shipping_mark', label: 'Shipping Mark' },
-    { key: 'shrink_tape', label: 'Shrink Tape' },
-  ],
 };
+
+// Tabs whose chips come from the IPO's own data rather than a fixed list.
+// One row is fetched per tab and the chips filter it client-side, so switching
+// chips is instant instead of re-running the (expensive) Master CNS recompute.
+export const DYNAMIC_CATEGORY_TABS = ['artwork', 'packaging'];
 
 export const COLUMN_SCHEMAS = {
   // ------------------------- RAW MATERIAL ----------------------------------
@@ -150,41 +143,39 @@ export const COLUMN_SCHEMAS = {
   ],
 
   // ------------------------- ARTWORK & LABELING ----------------------------
-  // Law Label / Wash Care / Brand Label / Ribbon share the same columns.
-  ...['law_label', 'wash_care', 'brand_label', 'ribbon'].reduce((acc, cat) => {
-    acc[`artwork:${cat}`] = [
-      ...fixedFront([
-        { key: 'material_description', label: 'Artwork / Label', align: 'left', width: 280 },
-        // Buyer inputs — editable + autosave, prefilled when fetched.
-        { key: 'purchase_width', label: 'Purchase Width / Unit', align: 'right', width: 160, editable: true },
-        { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130, editable: true },
-        unitCol,
-      ]),
-      ...tail,
-    ];
-    return acc;
-  }, {}),
+  // Every artwork category shares these columns — the chip only narrows which
+  // rows are shown, never which columns exist.
+  artwork: [
+    ...fixedFront([
+      { key: 'material_description', label: 'Artwork / Label', align: 'left', width: 280 },
+      // Fetched (read-only) — the Derived CNS Sheet's Gross CNS for this label.
+      { key: 'gross_cns', label: 'Gross CNS', align: 'right', width: 130 },
+      // Buyer inputs — editable + autosave, prefilled from Gross CNS.
+      { key: 'purchase_width', label: 'Purchase Width / Unit', align: 'right', width: 160, editable: true },
+      { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130, editable: true },
+      unitCol,
+    ]),
+    ...tail,
+  ],
 
   // ------------------------- PACKAGING -------------------------------------
-  // All 7 packaging sub-tabs share the same columns.
-  ...['carton_box', 'stiffener', 'polybag', 'silica_gel', 'tape', 'shipping_mark', 'shrink_tape'].reduce(
-    (acc, cat) => {
-      acc[`packaging:${cat}`] = [
-        ...fixedFront([
-          { key: 'material_description', label: 'Packaging', align: 'left', width: 280 },
-          // Buyer input — editable + autosave, prefilled when fetched.
-          { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130, editable: true },
-          unitCol,
-        ]),
-        ...tail,
-      ];
-      return acc;
-    },
-    {}
-  ),
+  packaging: [
+    ...fixedFront([
+      { key: 'material_description', label: 'Packaging', align: 'left', width: 280 },
+      // Fetched (read-only) — Gross Total Mat Req from the Derived CNS Sheet.
+      { key: 'gross_cns', label: 'Gross CNS', align: 'right', width: 130 },
+      // Buyer input — editable + autosave, prefilled from Gross CNS.
+      { key: 'purchase_qty', label: 'Purchase Qty', align: 'right', width: 130, editable: true },
+      unitCol,
+    ]),
+    ...tail,
+  ],
 };
 
-export const getColumnSchema = (tab, category) => COLUMN_SCHEMAS[`${tab}:${category}`] || null;
+export const getColumnSchema = (tab, category) =>
+  // Artwork / Packaging chips are data-driven, so their schema is keyed by tab
+  // alone; Raw Material keeps a per-category layout.
+  COLUMN_SCHEMAS[tab] || COLUMN_SCHEMAS[`${tab}:${category}`] || null;
 
 // Material description rendering — pipe-delimited, category-specific. Render
 // as stored (Section 11.2 of spec) but wrap nicely for long strings.
