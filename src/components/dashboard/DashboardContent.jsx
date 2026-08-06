@@ -23,6 +23,8 @@ import OutwardStoreSheetDatabase from "../OutwardStoreSheetDatabase.jsx";
 import StockSheet from "../IMS/StockSheet/StockSheet.jsx";
 import MasterStockSheet from "../MasterStockSheet.jsx";
 import StoreQualityInbox from "../StoreQualityInbox.jsx";
+import PermissionBlocked from "../PermissionBlocked.jsx";
+import useCheckPermission from "../../hooks/useCheckPermission";
 
 const DashboardContent = ({
   activePage,
@@ -45,6 +47,17 @@ const DashboardContent = ({
   setEditingVendor,
   setHoveredMenu,
 }) => {
+  const checkPermission = useCheckPermission();
+  // Render `element` normally when the permission is held, otherwise show it
+  // behind the frosted "request access" overlay.
+  const gate = (permission, message, element) =>
+    checkPermission(permission) ? (
+      element
+    ) : (
+      <PermissionBlocked permission={permission} message={message}>
+        {element}
+      </PermissionBlocked>
+    );
   switch (activePage) {
     case "home":
       return <HomeContent user={user} />;
@@ -60,9 +73,7 @@ const DashboardContent = ({
         />
       );
     case "store-quality-inbox":
-      return (
-        <StoreQualityInbox onBack={() => setActivePage("uqr-forms")} />
-      );
+      return <StoreQualityInbox onBack={() => setActivePage("uqr-forms")} />;
     case "uqr-database":
       return (
         <UQRFormsPreview
@@ -250,7 +261,7 @@ const DashboardContent = ({
       );
     case "code-creation":
       if (codeCreationView === "buyer") {
-        return (
+        const buyerForm = (
           <GenerateBuyerCode
             initialData={editingBuyer}
             onBack={() => {
@@ -271,9 +282,22 @@ const DashboardContent = ({
             }}
           />
         );
+        // Gate the Generate Buyer Code screen on the create permission — when
+        // blocked, show the form blurred behind the "contact admin" overlay.
+        if (!checkPermission("code.buyer.all.create")) {
+          return (
+            <PermissionBlocked
+              permission="code.buyer.all.create"
+              message="You don't have permission to generate buyer codes. Please contact your admin to request access."
+            >
+              {buyerForm}
+            </PermissionBlocked>
+          );
+        }
+        return buyerForm;
       }
       if (codeCreationView === "buyer-existing") {
-        return (
+        const buyerSheet = (
           <BuyerMasterSheet
             onBack={() => {
               setActivePage("code-creation");
@@ -288,9 +312,23 @@ const DashboardContent = ({
             }}
           />
         );
+        // Gate viewing the Buyer Master Sheet on the read permission.
+        if (!checkPermission("code.buyer.all.read")) {
+          return (
+            <PermissionBlocked
+              permission="code.buyer.all.read"
+              message="You don't have permission to view the buyer master sheet. Please contact your admin to request access."
+            >
+              {buyerSheet}
+            </PermissionBlocked>
+          );
+        }
+        return buyerSheet;
       }
       if (codeCreationView === "vendor") {
-        return (
+        return gate(
+          "code.vendor.all.create",
+          "You don't have permission to generate vendor codes. Please contact your admin to request access.",
           <GenerateVendorCode
             initialData={editingVendor}
             onBack={() => {
@@ -309,11 +347,13 @@ const DashboardContent = ({
               setCodeCreationView("vendor-existing");
               setHoveredMenu("code-creation");
             }}
-          />
+          />,
         );
       }
       if (codeCreationView === "vendor-existing") {
-        return (
+        return gate(
+          "code.vendor.all.read",
+          "You don't have permission to view the vendor master sheet. Please contact your admin to request access.",
           <VendorMasterSheet
             onBack={() => {
               setActivePage("code-creation");
@@ -326,33 +366,39 @@ const DashboardContent = ({
               setCodeCreationView("vendor");
               setHoveredMenu("code-creation");
             }}
-          />
+          />,
         );
       }
       if (codeCreationView === "company-essentials") {
-        return (
+        return gate(
+          "code.ess.all.create",
+          "You don't have permission to generate company essentials codes. Please contact your admin to request access.",
           <CompanyEssentials
             onBack={() => {
               setActivePage("code-creation");
               setCodeCreationView(null);
               setHoveredMenu("code-creation");
             }}
-          />
+          />,
         );
       }
       if (codeCreationView === "company-essentials-master") {
-        return (
+        return gate(
+          "code.ess.all.read",
+          "You don't have permission to view the company essentials master sheet. Please contact your admin to request access.",
           <CompanyEssentialsMasterSheet
             onBack={() => {
               setActivePage("code-creation");
               setCodeCreationView(null);
               setHoveredMenu("code-creation");
             }}
-          />
+          />,
         );
       }
       if (codeCreationView === "internal-purchase-order") {
-        return (
+        return gate(
+          "code.ipo.all.create",
+          "You don't have permission to generate IPO codes. Please contact your admin to request access.",
           <InternalPurchaseOrder
             specMode="create"
             onBack={() => {
@@ -366,29 +412,33 @@ const DashboardContent = ({
               setHoveredMenu("code-creation");
             }}
             onNavigateToIPO={() => setActivePage("code-creation")}
-          />
+          />,
         );
       }
       if (codeCreationView === "internal-purchase-order-master") {
-        return (
+        return gate(
+          "code.ipo.all.read",
+          "You don't have permission to view the IPO master sheet. Please contact your admin to request access.",
           <IPOMasterSheet
             onBack={() => {
               setActivePage("code-creation");
               setCodeCreationView(null);
               setHoveredMenu("code-creation");
             }}
-          />
+          />,
         );
       }
       if (codeCreationView === "completed-ipos") {
-        return (
+        return gate(
+          "code.ipo.all.read",
+          "You don't have permission to view completed IPOs. Please contact your admin to request access.",
           <CompletedIPOs
             onBack={() => {
               setActivePage("code-creation");
               setCodeCreationView(null);
               setHoveredMenu("code-creation");
             }}
-          />
+          />,
         );
       }
       if (codeCreationView === "generate-po") {

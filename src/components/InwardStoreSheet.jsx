@@ -11,6 +11,8 @@ import {
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
 import { printInwardReceipt } from "./inwardReceiptPrint";
+import useCheckPermission from "../hooks/useCheckPermission";
+import PermissionRequestModal from "./PermissionRequestModal";
 
 // Read the logged-in user (for the "Received By" block on the printed receipt).
 const getStoredUser = () => {
@@ -496,6 +498,23 @@ const InwardStoreSheet = ({ onBack }) => {
   const [receivableType, setReceivableType] = useState("");
   const [ipoType, setIpoType] = useState("");
   const [selectedIpo, setSelectedIpo] = useState("");
+
+  // Creating an inward log is gated per IPO type: ims.in.<type>.create. Picking a
+  // type you lack pops the "request access" modal (holding that permission).
+  const checkPermission = useCheckPermission();
+  const [restrictedPerm, setRestrictedPerm] = useState(null);
+
+  const handleIpoTypeChange = (v) => {
+    // Block picking an IPO type the user can't create inward logs for: pop the
+    // request-access modal and DON'T apply the selection, so the dependent
+    // fields stay locked and they can't proceed with it.
+    if (v && !checkPermission(`ims.in.${v.toLowerCase()}.create`)) {
+      setRestrictedPerm(`ims.in.${v.toLowerCase()}.create`);
+      return;
+    }
+    setIpoType(v);
+    setSelectedIpo("");
+  };
 
   const [goodsReceivingCondition, setGoodsReceivingCondition] = useState("");
   const [goodsConditionImage, setGoodsConditionImage] = useState(null);
@@ -1120,10 +1139,7 @@ const InwardStoreSheet = ({ onBack }) => {
               </label>
               <ThemedSelect
                 value={ipoType}
-                onChange={(v) => {
-                  setIpoType(v);
-                  setSelectedIpo("");
-                }}
+                onChange={handleIpoTypeChange}
                 options={IPO_TYPE_OPTIONS}
                 placeholder="-- Select --"
               />
@@ -1702,6 +1718,13 @@ const InwardStoreSheet = ({ onBack }) => {
         uin={previewUin}
         items={previewItems}
         onClose={() => setShowCodesModal(false)}
+      />
+
+      <PermissionRequestModal
+        open={!!restrictedPerm}
+        onClose={() => setRestrictedPerm(null)}
+        permission={restrictedPerm || ""}
+        message="You don't have permission to create inward store logs for this IPO type. Please contact your admin to request access."
       />
     </div>
   );

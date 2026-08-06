@@ -5,6 +5,10 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://binder-backend-0szj.onrender.com/api/';
 
+// Cookie holding the signed-in user's flat permission list (set in getMyPermissions,
+// cleared on logout/session-expiry via clearTokens).
+const PERMISSION_COOKIE = 'user_permissions';
+
 /**
  * Returns the active storage backend.
  * localStorage persists across browser sessions ("Remember me").
@@ -51,6 +55,10 @@ const clearTokens = () => {
     store.removeItem('user');
   }
   localStorage.removeItem('remember_me');
+  // Drop the cached permissions so a signed-out browser holds nothing.
+  if (typeof document !== 'undefined') {
+    document.cookie = `${PERMISSION_COOKIE}=; path=/; Max-Age=0; SameSite=Lax`;
+  }
 };
 
 const getUser = () => {
@@ -548,11 +556,30 @@ export const getPermissionCatalogue = async () => {
   return data?.data || null;
 };
 
+/**
+ * Persist the flat permission list to the `user_permissions` cookie as a compact
+ * comma-separated string, e.g. "code.buyer.all.read,code.buyer.all.create,...".
+ * The tokens are dotted lowercase strings (no commas), so this is unambiguous and
+ * smaller than JSON — read it back with cookieValue.split(',').
+ */
+const setPermissionsCookie = (flat) => {
+  if (typeof document === 'undefined') return;
+  try {
+    const value = (Array.isArray(flat) ? flat : []).join(',');
+    document.cookie = `${PERMISSION_COOKIE}=${value}; path=/; SameSite=Lax`;
+  } catch {
+    /* cookie write failed (e.g. over the ~4KB limit) — the API stays the source */
+  }
+};
+
 /** The signed-in user's own effective access — the authoritative copy. */
 export const getMyPermissions = async () => {
   const response = await apiRequest('auth/me/permissions/');
   const data = await unwrap(response, 'Failed to load your permissions');
-  return data?.data || null;
+  const payload = data?.data || null;
+  // Store the flat permission strings in the `user_permissions` cookie (JSON).
+  setPermissionsCookie(payload?.flat);
+  return payload;
 };
 
 /** A member's stored grid, for prefilling the edit form. */

@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import { getBuyerCodes, deleteBuyerCode } from '../services/integration';
 import Pagination from '@/components/ui/Pagination';
 import { useServerPagination } from '../hooks/useServerPagination';
+import useCheckPermission from '../hooks/useCheckPermission';
+import PermissionRequestModal from './PermissionRequestModal';
 
 // Shared Tailwind class strings — flat/clean theme matching the StockSheet revamp.
 const TH =
@@ -144,6 +146,11 @@ const BuyerDetailsModal = ({ buyer, onClose }) =>
 
 const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
   const [selectedBuyer, setSelectedBuyer] = useState(null);
+  // Editing/deleting a buyer needs the update grant; without it those actions
+  // pop the "request access" modal instead of running (viewing needs only read).
+  const checkPermission = useCheckPermission();
+  const canUpdate = checkPermission('code.buyer.all.update');
+  const [showRestricted, setShowRestricted] = useState(false);
 
   const fetchPage = useCallback(({ page, pageSize, search, ordering }) => {
     const params = { page, page_size: pageSize };
@@ -347,7 +354,11 @@ const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleEditBuyer(buyer)}
+                            onClick={() =>
+                              canUpdate
+                                ? handleEditBuyer(buyer)
+                                : setShowRestricted(true)
+                            }
                             title="Edit Buyer"
                             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                           >
@@ -355,7 +366,11 @@ const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDeleteBuyer(buyer)}
+                            onClick={() =>
+                              canUpdate
+                                ? handleDeleteBuyer(buyer)
+                                : setShowRestricted(true)
+                            }
                             title="Delete Buyer"
                             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-destructive transition-colors hover:bg-destructive/10"
                           >
@@ -383,6 +398,13 @@ const BuyerMasterSheet = ({ onBack, onEditBuyer }) => {
       {selectedBuyer && (
         <BuyerDetailsModal buyer={selectedBuyer} onClose={() => setSelectedBuyer(null)} />
       )}
+
+      <PermissionRequestModal
+        open={showRestricted}
+        onClose={() => setShowRestricted(false)}
+        permission="code.buyer.all.update"
+        message="You don't have permission to edit or delete buyers. Please contact your admin to request access."
+      />
     </div>
   );
 };

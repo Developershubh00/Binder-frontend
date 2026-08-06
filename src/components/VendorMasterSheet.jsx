@@ -4,6 +4,8 @@ import { FiEye, FiEdit2, FiTrash2, FiSearch, FiX } from 'react-icons/fi';
 import { getVendorMasterSheet, deleteVendorCode } from '../services/integration';
 import Pagination from '@/components/ui/Pagination';
 import { useServerPagination } from '../hooks/useServerPagination';
+import useCheckPermission from '../hooks/useCheckPermission';
+import PermissionRequestModal from './PermissionRequestModal';
 
 // Table column -> backend ordering field.
 const SORT_FIELDS = {
@@ -188,6 +190,11 @@ const VendorDetailsModal = ({ vendor, onClose }) =>
 
 const VendorMasterSheet = ({ onBack, onEditVendor }) => {
   const [selectedVendor, setSelectedVendor] = useState(null);
+  // Editing/deleting a vendor needs the update grant; without it those actions
+  // pop the "request access" modal instead of running (viewing needs only read).
+  const checkPermission = useCheckPermission();
+  const canUpdate = checkPermission('code.vendor.all.update');
+  const [showRestricted, setShowRestricted] = useState(false);
 
   const fetchPage = useCallback(({ page, pageSize, search, ordering }) => {
     const params = { page, page_size: pageSize };
@@ -454,7 +461,11 @@ const VendorMasterSheet = ({ onBack, onEditVendor }) => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleEditVendor(vendor)}
+                            onClick={() =>
+                              canUpdate
+                                ? handleEditVendor(vendor)
+                                : setShowRestricted(true)
+                            }
                             title="Edit Vendor"
                             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                           >
@@ -462,7 +473,11 @@ const VendorMasterSheet = ({ onBack, onEditVendor }) => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDeleteVendor(vendor)}
+                            onClick={() =>
+                              canUpdate
+                                ? handleDeleteVendor(vendor)
+                                : setShowRestricted(true)
+                            }
                             title="Delete Vendor"
                             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-destructive transition-colors hover:bg-destructive/10"
                           >
@@ -490,6 +505,13 @@ const VendorMasterSheet = ({ onBack, onEditVendor }) => {
       {selectedVendor && (
         <VendorDetailsModal vendor={selectedVendor} onClose={() => setSelectedVendor(null)} />
       )}
+
+      <PermissionRequestModal
+        open={showRestricted}
+        onClose={() => setShowRestricted(false)}
+        permission="code.vendor.all.update"
+        message="You don't have permission to edit or delete vendors. Please contact your admin to request access."
+      />
     </div>
   );
 };

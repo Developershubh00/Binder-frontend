@@ -12,6 +12,8 @@ import {
 import { uploadToBlob } from "../services/blobUpload";
 import ThemedSelect from "./IMS/StockSheet/ThemedSelect";
 import { CHALLAN_COMPANY, printOutwardChallan } from "./outwardChallanPrint";
+import useCheckPermission from "../hooks/useCheckPermission";
+import PermissionRequestModal from "./PermissionRequestModal";
 
 // Read the logged-in user (for the "Given By" block on the printed challan).
 const getStoredUser = () => {
@@ -207,6 +209,15 @@ const IPO_TYPE_TO_ORDER_TYPE = {
   COMPANY: "SELF",
 };
 
+// Creating an outward log is gated per IPO type. Types not listed here pass
+// through unchecked.
+const OUTWARD_CREATE_PERM = {
+  COMPANY: "ims.out.company.create",
+  PRODUCTION: "ims.out.production.create",
+  SAMPLING: "ims.out.sampling.create",
+  COMPANY_ESSENTIALS: "ims.out.essentials.create",
+};
+
 // Packaging form the goods are dispatched in — a fixed set for the Dispatch Form column.
 const FORM_OPTIONS = [
   { value: "BALE", label: "BALE" },
@@ -279,6 +290,10 @@ const OutwardStoreSheet = ({ onBack }) => {
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Per-IPO-type gate for creating outward logs (ims.out.<type>.create).
+  const checkPermission = useCheckPermission();
+  const [restrictedPerm, setRestrictedPerm] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -555,6 +570,13 @@ const OutwardStoreSheet = ({ onBack }) => {
   };
 
   const handleIpoTypeChange = (value) => {
+    // Block picking an IPO type the user can't create outward logs for: pop the
+    // request-access modal and DON'T apply the selection.
+    const perm = OUTWARD_CREATE_PERM[value];
+    if (perm && !checkPermission(perm)) {
+      setRestrictedPerm(perm);
+      return;
+    }
     setIpoType(value);
     setSelectedIpo("");
     setSelectedCompanyEssential("");
@@ -1451,6 +1473,13 @@ const OutwardStoreSheet = ({ onBack }) => {
           </button>
         </div>
       </div>
+
+      <PermissionRequestModal
+        open={!!restrictedPerm}
+        onClose={() => setRestrictedPerm(null)}
+        permission={restrictedPerm || ""}
+        message="You don't have permission to create outward store logs for this IPO type. Please contact your admin to request access."
+      />
     </div>
   );
 };
