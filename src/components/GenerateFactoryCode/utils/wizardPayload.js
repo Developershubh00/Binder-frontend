@@ -126,8 +126,12 @@ const ARTWORK_CHOICE_FIELDS = ['sizeUnit'];
 
 const sanitizeArtworkMaterial = (am) => {
   const out = { ...am };
-  // Backend expects `category`; frontend stores `artworkCategory`.
-  if (isBlank(out.category) && !isBlank(out.artworkCategory)) {
+  // Backend accepts both; the frontend's `artworkCategory` is authoritative.
+  // `category` is a legacy mirror that the commit path used to write back into
+  // the in-memory row, so it lagged one edit behind whenever the user changed
+  // the category — the IPC then saved under the PREVIOUS category. Always
+  // re-derive it instead of preferring whatever stale value is sitting there.
+  if (!isBlank(out.artworkCategory)) {
     out.category = String(out.artworkCategory);
   }
   out.approval = normalizeApproval(am.approval);
@@ -185,11 +189,19 @@ export function cleanPackagingFilesForWizard(packaging) {
   return packaging;
 }
 
+// Step 5 stores the type in `packagingMaterialType`. This filter used to check
+// only `materialType`/`material_type`, so EVERY packaging material was dropped
+// before the POST and the packaging tables stayed permanently empty.
+const packagingMaterialType = (pm) =>
+  pm?.packagingMaterialType || pm?.packaging_material_type ||
+  pm?.materialType || pm?.material_type || '';
+
 const packagingMaterialHasIntent = (pm) => {
   if (!pm || typeof pm !== 'object') return false;
-  return [pm.materialType, pm.material_type, pm.colour, pm.printing].some(
-    (v) => !isBlank(v)
-  );
+  return [
+    packagingMaterialType(pm), pm.materialDescription, pm.product,
+    pm.components, pm.colour, pm.printing,
+  ].some((v) => !isBlank(v));
 };
 
 const sanitizePackaging = (raw, shapers) => {
@@ -201,12 +213,16 @@ const sanitizePackaging = (raw, shapers) => {
     casepack_qty: toIntOrNull(shaped.casepack_qty),
     materials: (shaped.materials || [])
       .filter(packagingMaterialHasIntent)
-      .map((pm) => ({
-        ...pm,
-        // Keep both casings so the serializer's source= mapping doesn't care
-        // about which one we sent.
-        materialType: pm.materialType || pm.material_type || '',
-      })),
+      .map((pm) => {
+        const type = String(packagingMaterialType(pm));
+        return {
+          ...pm,
+          // Keep every spelling so the serializer's source= mapping doesn't
+          // care which one we sent.
+          materialType: type,
+          packagingMaterialType: type,
+        };
+      }),
   };
 };
 

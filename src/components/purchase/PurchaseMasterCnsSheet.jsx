@@ -9,7 +9,7 @@ import {
   getVendorCodes,
 } from '../../services/integration';
 import { printVpo } from './vpo';
-import { CATEGORY_CHIPS, TOP_TABS } from './columnSchemas';
+import { CATEGORY_CHIPS, DYNAMIC_CATEGORY_TABS, TOP_TABS } from './columnSchemas';
 import PurchaseGrid from './PurchaseGrid';
 import JobWorkGrid from './JobWorkGrid';
 import { VpoPreviewModal } from './vpo';
@@ -53,12 +53,16 @@ const stockCategoryFor = (tab, category) => {
   return RAW_TO_STOCK_CATEGORY[category] || '';
 };
 
+// Artwork & Packaging fetch the whole tab in one request and filter locally,
+// so the (expensive) Master CNS recompute runs once per tab, not per chip.
+const isDynamicCategoryTab = (tab) => DYNAMIC_CATEGORY_TABS.includes(tab);
+
 const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
   const ipoId = ipo?.id;
   const [tab, setTab] = useState('raw_material');
   const [category, setCategory] = useState('yarn');
   const [mode, setMode] = useState('generate_vpo');
-  const [grid, setGrid] = useState({ rows: [], groups: [] });
+  const [grid, setGrid] = useState({ rows: [], groups: [], categories: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState({});
@@ -86,18 +90,37 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
   const gridCache = useRef({});
   const reqToken = useRef(0);
 
-  const chips = CATEGORY_CHIPS[tab] || [];
+  // Artwork / Packaging chips come from the response (only the categories this
+  // IPO actually has data for); everything else uses the fixed list.
+  const dynamicTab = isDynamicCategoryTab(tab);
+  const chips = dynamicTab ? (grid.categories || []) : (CATEGORY_CHIPS[tab] || []);
 
-  // Reset category when top tab changes.
+  // Reset category when top tab changes. Dynamic tabs start with no category —
+  // the first chip is picked once the response tells us which ones exist.
   useEffect(() => {
-    const first = (CATEGORY_CHIPS[tab] || [])[0]?.key;
-    if (first) setCategory(first);
+    setCategory(isDynamicCategoryTab(tab) ? '' : ((CATEGORY_CHIPS[tab] || [])[0]?.key || ''));
     setSelected({});
   }, [tab]);
 
+  // Auto-select the first available chip once a dynamic tab has loaded. Also
+  // self-heals a selection that doesn't belong to the current tab — switching
+  // Artwork → Packaging briefly leaves the previous tab's chips in state.
+  useEffect(() => {
+    if (!dynamicTab) return;
+    const keys = (grid.categories || []).map((c) => c.key);
+    if (!keys.length) return;
+    if (!category || !keys.includes(category)) setCategory(keys[0]);
+  }, [dynamicTab, category, grid.categories]);
+
+  // Dynamic tabs fetch once per tab (all categories) and filter locally, so the
+  // request — and therefore this callback's identity — ignores the chip. That
+  // keeps chip clicks free of a Master CNS recompute.
+  const fetchCategory = dynamicTab ? '' : category;
+
   const loadGrid = useCallback(async ({ force = false } = {}) => {
-    if (!ipoId || !tab || !category) return;
-    const key = `${ipoId}:${tab}:${category}`;
+    if (!ipoId || !tab) return;
+    if (!dynamicTab && !fetchCategory) return;
+    const key = `${ipoId}:${tab}:${fetchCategory}`;
     const cached = gridCache.current[key];
     const token = ++reqToken.current;
 
@@ -114,7 +137,7 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
 
     try {
       if (tab === 'job_work') {
-        const res = await getJobWorkGrid(ipoId, { category });
+        const res = await getJobWorkGrid(ipoId, { category: fetchCategory });
         if (token !== reqToken.current) return;
         if (res?.detail) {
           setError(res.detail);
@@ -129,13 +152,17 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
         }
         return;
       }
-      const res = await getPurchaseGrid(ipoId, { tab, category });
+      const res = await getPurchaseGrid(ipoId, { tab, category: fetchCategory });
       if (token !== reqToken.current) return; // a newer request superseded this one
       if (res?.detail) {
         setError(res.detail);
-        if (!cached) setGrid({ rows: [], groups: [] });
+        if (!cached) setGrid({ rows: [], groups: [], categories: [] });
       } else {
-        const next = { rows: res?.rows || [], groups: res?.groups || [] };
+        const next = {
+          rows: res?.rows || [],
+          groups: res?.groups || [],
+          categories: res?.categories || [],
+        };
         gridCache.current[key] = next;
         setGrid(next);
       }
@@ -145,7 +172,7 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
     } finally {
       if (token === reqToken.current) setLoading(false);
     }
-  }, [ipoId, tab, category]);
+  }, [ipoId, tab, dynamicTab, fetchCategory]);
 
   useEffect(() => {
     loadGrid();
@@ -167,11 +194,31 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
     return () => { cancelled = true; };
   }, []);
 
+  // Rows the active chip actually shows. Dynamic tabs hold every category's
+  // rows in `grid.rows` and narrow here; the other tabs are filtered server-side.
+  const visibleRows = useMemo(() => {
+    if (!dynamicTab || !category) return grid.rows;
+    return grid.rows.filter((r) => r.category_key === category);
+  }, [dynamicTab, category, grid.rows]);
+
+  // Groups drive the IPC# rowspan, so they must match the visible rows.
+  const visibleGroups = useMemo(() => {
+    if (!dynamicTab || !category) return grid.groups;
+    const visibleIds = new Set(visibleRows.map((r) => r.id));
+    return (grid.groups || [])
+      .map((g) => ({ ...g, row_ids: (g.row_ids || []).filter((id) => visibleIds.has(id)) }))
+      .filter((g) => g.row_ids.length > 0);
+  }, [dynamicTab, category, grid.groups, visibleRows]);
+
   const selectedRows = useMemo(
-    () => grid.rows.filter((r) => selected[r.id]),
-    [grid.rows, selected]
+    () => visibleRows.filter((r) => selected[r.id]),
+    [visibleRows, selected]
   );
   const selectedCount = selectedRows.length;
+
+  // A dynamic tab with no chips means the IPO has nothing in that section at
+  // all — say so once instead of showing an empty grid under a missing chip.
+  const noDynamicData = dynamicTab && !loading && chips.length === 0;
 
   const handleLineItemUpdated = (row, patch) => {
     // Editing Purchase Qty changes the row's Balance (Balance = Purchase Qty −
@@ -196,7 +243,7 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
     });
     setGrid((prev) => apply(prev));
     // Keep the cached copy in sync so the edit survives a tab/category flip.
-    const key = `${ipoId}:${tab}:${category}`;
+    const key = `${ipoId}:${tab}:${fetchCategory}`;
     if (gridCache.current[key]) gridCache.current[key] = apply(gridCache.current[key]);
   };
 
@@ -211,7 +258,7 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
       ),
     });
     setJobWork((prev) => apply(prev));
-    const key = `${ipoId}:${tab}:${category}`;
+    const key = `${ipoId}:${tab}:${fetchCategory}`;
     if (gridCache.current[key]) gridCache.current[key] = apply(gridCache.current[key]);
   };
 
@@ -414,7 +461,8 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
           ))}
         </div>
 
-        {/* Category chips */}
+        {/* Category chips. On Artwork & Packaging these are the wizard
+            categories this IPO actually has materials for. */}
         {chips.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 border-l-2 border-primary pl-4">
             <span className="mr-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -429,10 +477,20 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
                   setSelected({});
                 }}
                 className={chipCls(category === c.key)}
+                title={c.count ? `${c.count} material(s)` : undefined}
               >
                 {c.label}
+                {c.count ? (
+                  <span className="ml-1.5 opacity-70">{c.count}</span>
+                ) : null}
               </button>
             ))}
+          </div>
+        )}
+        {noDynamicData && (
+          <div className="rounded-md border border-[#e2e3e8] bg-card px-5 py-4 text-sm text-muted-foreground">
+            No {tab === 'artwork' ? 'artwork & labeling' : 'packaging'} materials
+            were entered for this IPO.
           </div>
         )}
 
@@ -507,10 +565,10 @@ const PurchaseMasterCnsSheet = ({ ipo, onBack, onOpenVpoHistory }) => {
             onGenerateVpo={openJobWorkPreview}
             onMaterialUpdated={handleJobWorkMaterialUpdated}
           />
-        ) : (
+        ) : noDynamicData ? null : (
           <PurchaseGrid
-            rows={grid.rows}
-            groups={grid.groups}
+            rows={visibleRows}
+            groups={visibleGroups}
             tab={tab}
             category={category}
             mode={mode}

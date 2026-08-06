@@ -646,10 +646,28 @@ export const updateMember = async (memberId, fields) => {
   return data?.data || data;
 };
 
-/** Soft delete — deactivates the member. Master admin only; cannot delete self. */
-export const deleteMember = async (memberId) => {
-  const response = await apiRequest(`auth/members/${memberId}/`, { method: 'DELETE' });
+/**
+ * Remove a member. Master admin only; cannot remove self or the last master admin.
+ *
+ * Default is a soft delete: the member can no longer sign in, but the row stays
+ * and keeps holding their email and username. Pass `{ hard: true }` to erase the
+ * row — that is the only thing that frees the email for re-use.
+ */
+export const deleteMember = async (memberId, { hard = false } = {}) => {
+  const response = await apiRequest(
+    `auth/members/${memberId}/${hard ? '?hard=1' : ''}`,
+    { method: 'DELETE' },
+  );
   return unwrap(response, 'Failed to remove member');
+};
+
+/** Restore a deactivated member so they can sign in again. Master admin only. */
+export const reactivateMember = async (memberId) => {
+  const response = await apiRequest(`auth/members/${memberId}/reactivate/`, {
+    method: 'POST',
+  });
+  const data = await unwrap(response, 'Failed to restore member');
+  return data?.data || null;
 };
 
 /** Issue a fresh set-password link and email it again. Invalidates the previous one. */

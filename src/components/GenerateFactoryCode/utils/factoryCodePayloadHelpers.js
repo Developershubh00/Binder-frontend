@@ -133,6 +133,10 @@ const mergeArtworkWithUrls = (memMaterials, uploadedMaterials) => {
     if (!uploaded || typeof uploaded !== 'object') return mem;
     const merged = { ...mem };
     for (const [key, uploadedValue] of Object.entries(uploaded)) {
+      // `category` is the payload-only mirror of `artworkCategory`. Writing it
+      // back here is what made it go stale: once present it survived every
+      // later category change and the next commit saved the OLD category.
+      if (key === 'category') continue;
       const current = merged[key];
       // Only overwrite when the uploaded value is a string (URL) and the
       // current value is either missing or a File. Never clobber a
