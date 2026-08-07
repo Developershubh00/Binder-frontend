@@ -83,6 +83,21 @@ const emitSessionExpired = () => {
   }
 };
 
+/**
+ * Fired the moment a login succeeds and fresh tokens are stored (password login,
+ * OTP verify, or set-password auto-login). The PermissionProvider listens for it
+ * so it can re-fetch the signed-in user's permissions immediately — without this,
+ * an in-app login left the already-mounted provider holding NO_PERMISSIONS until
+ * the next full page reload.
+ */
+const SESSION_AUTHENTICATED_EVENT = 'auth:authenticated';
+
+const emitAuthenticated = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(SESSION_AUTHENTICATED_EVENT));
+  }
+};
+
 const postRefresh = (refresh) =>
   fetch(`${API_BASE_URL}auth/token/refresh/`, {
     method: 'POST',
@@ -324,8 +339,9 @@ export const login = async (loginValue, password, rememberMe = false) => {
   if (data.status === 'success') {
     setTokens(data.data.tokens.access, data.data.tokens.refresh);
     setUser(data.data.user);
+    emitAuthenticated();
   }
-  
+
   return data;
 };
 
@@ -351,12 +367,13 @@ export const verifyOTP = async (email, otp) => {
   });
   
   const data = await response.json();
-  
+
   if (data.status === 'success') {
     setTokens(data.data.tokens.access, data.data.tokens.refresh);
     setUser(data.data.user);
+    emitAuthenticated();
   }
-  
+
   return data;
 };
 
@@ -373,6 +390,7 @@ export const setPassword = async (token, password, passwordConfirm) => {
   if (data.status === 'success' && data.data?.tokens) {
     setTokens(data.data.tokens.access, data.data.tokens.refresh);
     if (data.data?.user) setUser(data.data.user);
+    emitAuthenticated();
   }
   return data;
 };
@@ -784,5 +802,5 @@ export const resendVerification = async (email) => {
 };
 
 // Export utility functions for use in other parts of the app
-export { getAccessToken, getRefreshToken, setTokens, getUser, setUser, clearTokens, refreshToken, SESSION_EXPIRED_EVENT };
+export { getAccessToken, getRefreshToken, setTokens, getUser, setUser, clearTokens, refreshToken, SESSION_EXPIRED_EVENT, SESSION_AUTHENTICATED_EVENT };
 

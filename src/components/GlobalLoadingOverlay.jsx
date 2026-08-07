@@ -34,9 +34,9 @@ const GlobalLoadingOverlay = () => {
         position: "fixed",
         inset: 0,
         zIndex: 1500,
-        background: "rgba(15, 18, 24, 0.55)",
-        backdropFilter: "blur(2px)",
-        WebkitBackdropFilter: "blur(2px)",
+        background: "rgba(140, 143, 150, 0.25)",
+        backdropFilter: "blur(3px)",
+        WebkitBackdropFilter: "blur(3px)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -45,7 +45,7 @@ const GlobalLoadingOverlay = () => {
         pointerEvents: "all",
       }}
     >
-      <BookLoader size={animSize} />
+      <BookLoader size={animSize} color="#b0b0b0" />
       <div
         style={{
           color: "#ffffff",

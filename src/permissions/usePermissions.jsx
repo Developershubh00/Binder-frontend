@@ -18,7 +18,11 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
-import { getMyPermissions } from '../api/authService';
+import {
+  getMyPermissions,
+  SESSION_AUTHENTICATED_EVENT,
+  SESSION_EXPIRED_EVENT,
+} from '../api/authService';
 import {
   NO_PERMISSIONS, fromCookie, fromPayload, permissionVersion,
 } from './permissionClient';
@@ -77,6 +81,25 @@ export function PermissionProvider({ children }) {
     // First load: trust the API, not the cookie, so a stale cookie from a
     // previous session can never grant a phantom button on the first paint.
     refresh();
+  }, [refresh]);
+
+  // A login that happens while the app is already mounted (no page reload) fires
+  // SESSION_AUTHENTICATED_EVENT — re-fetch so the freshly signed-in user has their
+  // permissions right away instead of being stuck with NO_PERMISSIONS until a
+  // reload. On session-expiry, drop back to nothing so a logged-out UI never keeps
+  // the previous user's grants.
+  useEffect(() => {
+    const onAuthenticated = () => refresh();
+    const onExpired = () => {
+      versionRef.current = NO_PERMISSIONS.version;
+      setPerms(NO_PERMISSIONS);
+    };
+    window.addEventListener(SESSION_AUTHENTICATED_EVENT, onAuthenticated);
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => {
+      window.removeEventListener(SESSION_AUTHENTICATED_EVENT, onAuthenticated);
+      window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    };
   }, [refresh]);
 
   useEffect(() => {
