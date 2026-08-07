@@ -1,31 +1,24 @@
 import { useEffect, useState } from "react";
 import { useLoading } from "../context/LoadingContext";
-import PolyhedraAnimation from "./PolyhedraAnimation";
+import BookLoader from "./BookLoader";
 
-const GlobalLoadingOverlay = () => {
-  const { isLoading } = useLoading();
-  const [animSize, setAnimSize] = useState(() =>
-    Math.min(
-      380,
-      Math.max(
-        220,
-        Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.35),
-      ),
+// Responsive animation size — a fraction of the smaller viewport dimension,
+// clamped to a compact range.
+const computeAnimSize = () =>
+  Math.min(
+    200,
+    Math.max(
+      120,
+      Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.18),
     ),
   );
 
+const GlobalLoadingOverlay = () => {
+  const { isLoading } = useLoading();
+  const [animSize, setAnimSize] = useState(computeAnimSize);
+
   useEffect(() => {
-    const handleResize = () => {
-      setAnimSize(
-        Math.min(
-          380,
-          Math.max(
-            220,
-            Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.35),
-          ),
-        ),
-      );
-    };
+    const handleResize = () => setAnimSize(computeAnimSize());
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -52,7 +45,7 @@ const GlobalLoadingOverlay = () => {
         pointerEvents: "all",
       }}
     >
-      <PolyhedraAnimation size={animSize} />
+      <BookLoader size={animSize} />
       <div
         style={{
           color: "#ffffff",

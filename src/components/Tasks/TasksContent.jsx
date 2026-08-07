@@ -56,6 +56,33 @@ const POSITION_GAP = 1000;
 // How often to re-check for assignments awaiting my acceptance.
 const PENDING_POLL_MS = 60_000;
 
+// How often to silently refresh the board with fresh tasks from the server.
+const TASKS_POLL_MS = 10_000;
+
+// Cheap deep-equality for a task — the objects are small and JSON-serialisable.
+const tasksEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+// Merge a freshly-fetched list into the current one WITHOUT churning the board:
+//  - if nothing changed at all, return the exact same array reference so React
+//    skips the render entirely (no flicker);
+//  - otherwise reuse the previous object for every task that is unchanged, so
+//    only the cards that actually changed re-render. New/removed/edited tasks
+//    appear/disappear/update in place; the rest stay put.
+const reconcileTasks = (prev, incoming) => {
+  const prevById = new Map(prev.map((t) => [t.id, t]));
+  const unchanged =
+    prev.length === incoming.length &&
+    incoming.every((t) => {
+      const old = prevById.get(t.id);
+      return old && tasksEqual(old, t);
+    });
+  if (unchanged) return prev;
+  return incoming.map((t) => {
+    const old = prevById.get(t.id);
+    return old && tasksEqual(old, t) ? old : t;
+  });
+};
+
 // Work out the `position` for a card dropped at `destIndex` in `columnTasks`, by
 // splitting the gap between the two cards it lands between. Floats mean a drop
 // never has to renumber the rest of the column.
@@ -90,6 +117,10 @@ const TasksContent = ({ initialView }) => {
 
   // Toast ids we've already raised, so a poll doesn't stack duplicates.
   const pendingToastIds = useRef(new Set());
+  // Guards for the silent background poll: don't overlap a fetch, and don't yank
+  // the board out from under an in-progress drag.
+  const isRefreshingRef = useRef(false);
+  const isDraggingRef = useRef(false);
 
   /* ---------------------------------------------------------------- *
    * Loading
@@ -97,18 +128,24 @@ const TasksContent = ({ initialView }) => {
   // A Kanban board has to show the whole column, so walk every page rather than
   // taking the first one — the API paginates at 50 and would silently truncate
   // the board for any company with more tasks than that.
+  const fetchAllTasks = useCallback(async () => {
+    const all = [];
+    let page = 1;
+    // Guard against a pathological loop if `next` never clears.
+    for (let guard = 0; guard < 50; guard += 1) {
+      const response = await getTasks({ page, page_size: 200 });
+      const list = response?.results || response?.data || response || [];
+      all.push(...(Array.isArray(list) ? list : []));
+      if (!response?.next) break;
+      page += 1;
+    }
+    return all;
+  }, []);
+
+  // Initial (blocking) load — shows the skeleton.
   const loadTasks = useCallback(async () => {
     try {
-      const all = [];
-      let page = 1;
-      // Guard against a pathological loop if `next` never clears.
-      for (let guard = 0; guard < 50; guard += 1) {
-        const response = await getTasks({ page, page_size: 200 });
-        const list = response?.results || response?.data || response || [];
-        all.push(...(Array.isArray(list) ? list : []));
-        if (!response?.next) break;
-        page += 1;
-      }
+      const all = await fetchAllTasks();
       setTasks(all);
       setLoadError('');
     } catch (error) {
@@ -117,11 +154,36 @@ const TasksContent = ({ initialView }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchAllTasks]);
+
+  // Silent background refresh — never toggles `loading` (no skeleton), reconciles
+  // into state so only genuinely-changed cards re-render, and bows out during a
+  // drag / while the tab is hidden / if a refresh is already running.
+  const refreshTasks = useCallback(async () => {
+    if (isRefreshingRef.current || isDraggingRef.current) return;
+    if (typeof document !== 'undefined' && document.hidden) return;
+    isRefreshingRef.current = true;
+    try {
+      const all = await fetchAllTasks();
+      setTasks((prev) => reconcileTasks(prev, all));
+      setLoadError('');
+    } catch (error) {
+      // A failed poll shouldn't disturb the board — keep what's on screen.
+      console.warn('Tasks: background refresh failed:', error);
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [fetchAllTasks]);
 
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
+
+  // Poll for fresh tasks every 10s while the board is mounted.
+  useEffect(() => {
+    const timer = setInterval(refreshTasks, TASKS_POLL_MS);
+    return () => clearInterval(timer);
+  }, [refreshTasks]);
 
   useEffect(() => {
     if (initialView) setShowMineOnly(initialView === 'assigned');
@@ -385,6 +447,8 @@ const TasksContent = ({ initialView }) => {
    * Drag & drop — optimistic, with rollback on failure.
    * ---------------------------------------------------------------- */
   const handleDragEnd = async (result) => {
+    // Drag finished — let the poll resume.
+    isDraggingRef.current = false;
     const { source, destination, draggableId } = result;
     if (!destination) return;
     if (
@@ -507,7 +571,12 @@ const TasksContent = ({ initialView }) => {
             </button>
           </div>
         ) : (
-          <DragDropContext onDragEnd={handleDragEnd}>
+          <DragDropContext
+            onDragStart={() => {
+              isDraggingRef.current = true;
+            }}
+            onDragEnd={handleDragEnd}
+          >
             <div
               className="tasks-board-scroll overflow-x-auto pb-4"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
