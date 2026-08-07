@@ -111,7 +111,7 @@ const Sidebar = ({
         onClick={() => setIsSidebarCollapsed((prev) => !prev)}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         title={collapsed ? "Expand" : "Collapse"}
-        className="absolute -right-3 top-7 z-[110] flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#e2e3e8] bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary hover:text-primary"
+        className="absolute right-1 top-7 z-10001 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[#e2e3e8] bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary hover:text-primary"
       >
         <MotionSpan
           animate={{ rotate: collapsed ? 180 : 0 }}

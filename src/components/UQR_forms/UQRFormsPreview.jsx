@@ -18,6 +18,25 @@ import {
   FORM_DISPLAY_NAME_BY_KEY,
 } from "@/utils/uqrMappings";
 import { computePrefillFromDraft } from "./uqrPrefill";
+import useCheckPermission from "../../hooks/useCheckPermission";
+import PermissionRequestModal from "../PermissionRequestModal";
+
+// UQR permission per Section (matches ORDER_TYPE_SEQUENCE labels). Picking a
+// section the user isn't allowed to create / read UQRs for pops the
+// request-access modal instead of applying the selection. Forms mode uses the
+// create perms; database mode uses the read perms.
+const UQR_CREATE_PERM = {
+  Company: "ims.uqr.company.create",
+  Production: "ims.uqr.production.create",
+  Sampling: "ims.uqr.sampling.create",
+  "Company Essentials": "ims.uqr.essentials.create",
+};
+const UQR_READ_PERM = {
+  Company: "ims.uqr.company.read",
+  Production: "ims.uqr.production.read",
+  Sampling: "ims.uqr.sampling.read",
+  "Company Essentials": "ims.uqr.essentials.read",
+};
 
 // The material category a UQR form key belongs to (for the inline list filter).
 const materialCategoryOfFormKey = (formKey = "") => {
@@ -126,6 +145,9 @@ const firstOf = (obj, keys) => {
 
 const UQRFormsPreview = ({ mode = "forms", onBack, onOpenStoreRequests }) => {
   const isDatabaseMode = mode === "database";
+  const checkPermission = useCheckPermission();
+  // The UQR-create permission the user was just blocked on (drives the modal).
+  const [restrictedPerm, setRestrictedPerm] = useState(null);
   // Open store inspection-request count (for the badge on the header button).
   const [storeOpenCount, setStoreOpenCount] = useState(0);
   useEffect(() => {
@@ -648,6 +670,16 @@ const UQRFormsPreview = ({ mode = "forms", onBack, onOpenStoreRequests }) => {
               <ThemedSelect
                 value={selectedOrderType}
                 onChange={(value) => {
+                  // Gate section selection: forms mode needs the section's create
+                  // perm, database mode needs its read perm. If missing, pop the
+                  // request-access modal and DON'T apply the selection.
+                  const perm = (isDatabaseMode ? UQR_READ_PERM : UQR_CREATE_PERM)[
+                    value
+                  ];
+                  if (perm && !checkPermission(perm)) {
+                    setRestrictedPerm(perm);
+                    return;
+                  }
                   setSelectedOrderType(value);
                   setSelectedIpoId("");
                   setSelectedIpcId("");
@@ -853,6 +885,17 @@ const UQRFormsPreview = ({ mode = "forms", onBack, onOpenStoreRequests }) => {
 
       {/* Pending UQRs popup (opened from the header button) */}
       <UQRPendings open={showPendings} onClose={() => setShowPendings(false)} />
+
+      <PermissionRequestModal
+        open={!!restrictedPerm}
+        onClose={() => setRestrictedPerm(null)}
+        permission={restrictedPerm || ""}
+        message={
+          isDatabaseMode
+            ? "You don't have permission to view saved UQR forms for this section. Please contact your admin to request access."
+            : "You don't have permission to create UQR forms for this section. Please contact your admin to request access."
+        }
+      />
     </div>
   );
 };

@@ -28,6 +28,17 @@ import {
   useCourierIpos,
   useCourierRecords,
 } from "./shared";
+import useCheckPermission from "../../hooks/useCheckPermission";
+import PermissionRequestModal from "../PermissionRequestModal";
+
+// Creating a courier slip is gated per IPO type: ims.cour.<type>.create.
+// (Types not listed here pass through unchecked.)
+const COURIER_CREATE_PERM = {
+  Production: "ims.cour.production.create",
+  Sampling: "ims.cour.sampling.create",
+  Company: "ims.cour.company.create",
+  "Company Essentials": "ims.cour.essentials.create",
+};
 
 const CourierSlip = ({ onBack }) => {
   const ipos = useCourierIpos();
@@ -37,6 +48,10 @@ const CourierSlip = ({ onBack }) => {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [isSavingSlip, setIsSavingSlip] = useState(false);
   const [slipMessage, setSlipMessage] = useState({ type: "", text: "" });
+
+  // Per-IPO-type gate for creating courier slips (ims.cour.<type>.create).
+  const checkPermission = useCheckPermission();
+  const [restrictedPerm, setRestrictedPerm] = useState(null);
 
   const filteredIpos = useMemo(
     () =>
@@ -96,6 +111,13 @@ const CourierSlip = ({ onBack }) => {
   };
 
   const handleIpoTypeChange = (value) => {
+    // Block picking an IPO type the user can't create courier slips for: pop the
+    // request-access modal and DON'T apply the selection.
+    const perm = COURIER_CREATE_PERM[value];
+    if (perm && !checkPermission(perm)) {
+      setRestrictedPerm(perm);
+      return;
+    }
     setSlipMessage({ type: "", text: "" });
     setSlipForm({
       ...INITIAL_SLIP_STATE,
@@ -617,6 +639,13 @@ const CourierSlip = ({ onBack }) => {
           </div>
         </div>
       </div>
+
+      <PermissionRequestModal
+        open={!!restrictedPerm}
+        onClose={() => setRestrictedPerm(null)}
+        permission={restrictedPerm || ""}
+        message="You don't have permission to create courier slips for this IPO type. Please contact your admin to request access."
+      />
     </div>
   );
 };

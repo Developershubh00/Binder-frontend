@@ -12,6 +12,8 @@ import {
 } from "./materialSpec/buildStockItems";
 import { CATEGORY_TO_MATERIAL_TYPE } from "./materialSpec/applyMaterialChange";
 import ThemedSelect from "./ThemedSelect";
+import useCheckPermission from "../../../hooks/useCheckPermission";
+import PermissionRequestModal from "../../PermissionRequestModal";
 
 // Shared Tailwind class strings for the redesigned shell.
 // Flat/clean theme: no shadows, small radius, defined grey borders.
@@ -76,6 +78,14 @@ const ipoTypeToOrderType = {
   COMPANY_ESSENTIALS: "SELF",
 };
 
+// Creating a stock sheet is gated per IPO type: ims.stock.<type>.create.
+const STOCK_CREATE_PERM = {
+  PRODUCTION: "ims.stock.production.create",
+  SAMPLING: "ims.stock.sampling.create",
+  COMPANY: "ims.stock.company.create",
+  COMPANY_ESSENTIALS: "ims.stock.essentials.create",
+};
+
 const StockSheet = ({ onBack, onSaved }) => {
   // Form state
   const [source, setSource] = useState("FROM_IPO");
@@ -117,6 +127,23 @@ const StockSheet = ({ onBack, onSaved }) => {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Per-IPO-type gate for creating stock sheets (ims.stock.<type>.create).
+  const checkPermission = useCheckPermission();
+  const [restrictedPerm, setRestrictedPerm] = useState(null);
+
+  const handleIpoTypeChange = (v) => {
+    // Block picking an IPO type the user can't create stock sheets for: pop the
+    // request-access modal and DON'T apply the selection.
+    const perm = STOCK_CREATE_PERM[v];
+    if (perm && !checkPermission(perm)) {
+      setRestrictedPerm(perm);
+      return;
+    }
+    setIpoType(v);
+    setSelectedIpo("");
+    setSelectedIpc("");
+  };
 
   // ---- Effects: load IPOs based on IPO type ----
   useEffect(() => {
@@ -422,11 +449,7 @@ const StockSheet = ({ onBack, onSaved }) => {
                   label="IPO Type"
                   required
                   value={ipoType}
-                  onChange={(v) => {
-                    setIpoType(v);
-                    setSelectedIpo("");
-                    setSelectedIpc("");
-                  }}
+                  onChange={handleIpoTypeChange}
                   options={IPO_TYPE_OPTIONS}
                 />
 
@@ -635,6 +658,13 @@ const StockSheet = ({ onBack, onSaved }) => {
           </button>
         </div>
       </div>
+
+      <PermissionRequestModal
+        open={!!restrictedPerm}
+        onClose={() => setRestrictedPerm(null)}
+        permission={restrictedPerm || ""}
+        message="You don't have permission to create stock sheets for this IPO type. Please contact your admin to request access."
+      />
     </div>
   );
 };
